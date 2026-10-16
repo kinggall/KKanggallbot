@@ -230,7 +230,7 @@ PANTY_COLORS = [
     "살구색",
     "와인색",
     "청색",
-    "자주색",
+    "형광색",
 ]
 
 PANTY_COMMAND = re.compile(r"^!(.+)팬티색$")
