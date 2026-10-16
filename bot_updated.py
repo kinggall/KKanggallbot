@@ -125,6 +125,30 @@ def search_ships(keyword):
 def ship_stage(ship):
     stage = int(ship.get("改装段階", "0") or 0)
     name = str(ship.get("艦名", ""))
+
+    special_stages = {
+        "千歳": {
+            0: "미개장", 1: "개1", 2: "갑", 3: "항", 4: "항개", 5: "항개2"
+        },
+        "千代田": {
+            0: "미개장", 1: "개1", 2: "갑", 3: "항", 4: "항개", 5: "항개2"
+        },
+        "夕張": {
+            0: "미개장", 1: "개1", 2: "개2", 3: "개2특", 4: "개2정"
+        },
+        "宗谷": {
+            0: "미개장", 1: "특무함", 2: "등대보급선", 3: "남극관측선"
+        },
+        "Glorious": {
+            0: "미개장", 1: "항모", 2: "개1(정규항모)", 3: "개1(순양전함)"
+        },
+        "Glorious改": {
+            2: "개1(정규항모)", 3: "개1(순양전함)"
+        },
+    }
+    for special_name, labels in special_stages.items():
+        if name == special_name and stage in labels:
+            return labels[stage]
     if stage == 0:
         return "미개장"
     # 改三護처럼 일반적인 단계 번호와 다른 특수 개장 명칭만 개3호로 표시합니다.
