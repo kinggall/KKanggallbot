@@ -124,13 +124,13 @@ def search_ships(keyword):
 
 def ship_stage(ship):
     stage = int(ship.get("改装段階", "0") or 0)
-    return {
-        0: "미개장",
-        1: "개1",
-        2: "개2",
-        3: "개3",
-        4: "개3호",
-    }.get(stage, f"개장{stage}")
+    name = str(ship.get("艦名", ""))
+    if stage == 0:
+        return "미개장"
+    # 改三護처럼 일반적인 단계 번호와 다른 특수 개장 명칭만 개3호로 표시합니다.
+    if "改三護" in name:
+        return "개3호"
+    return f"개{stage}"
 
 
 def ship_text(ship, name_ko):
