@@ -43,11 +43,21 @@ except Exception as error:
 def search_ships(keyword):
     keyword = keyword.strip().lower()
     results = []
+    by_name = {str(ship.get("艦名", "")): ship for ship in SHIPS}
 
     for ship in SHIPS:
         name_jp = str(ship.get("艦名", ""))
         name_en = ""
-        base_jp = re.sub(r"改.*$", "", name_jp)
+        base_ship = ship
+        visited = set()
+        while base_ship.get("改装前") not in (None, "", "-"):
+            previous_name = base_ship.get("改装前")
+            if previous_name in visited or previous_name not in by_name:
+                break
+            visited.add(previous_name)
+            base_ship = by_name[previous_name]
+
+        base_jp = str(base_ship.get("艦名", name_jp))
         name_ko = SHIP_TRANSLATIONS.get(base_jp, "")
 
         if keyword in {
