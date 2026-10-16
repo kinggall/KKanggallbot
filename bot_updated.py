@@ -146,9 +146,16 @@ def ship_stage(ship):
             2: "개1(정규항모)", 3: "개1(순양전함)"
         },
     }
-    for special_name, labels in special_stages.items():
-        if name == special_name and stage in labels:
-            return labels[stage]
+    labels = special_stages.get(name)
+    if labels is None:
+        # 개장 후 이름이 千歳改·千歳甲처럼 바뀌는 계보도
+        # 미개장 함선의 특수 표기 규칙을 공유합니다.
+        for special_name, candidate_labels in special_stages.items():
+            if name.startswith(special_name):
+                labels = candidate_labels
+                break
+    if labels is not None and stage in labels:
+        return labels[stage]
     if stage == 0:
         return "미개장"
     # 改三護처럼 일반적인 단계 번호와 다른 특수 개장 명칭만 개3호로 표시합니다.
