@@ -3,32 +3,28 @@ import requests
 import random
 import re
 import json
+import csv
 from pathlib import Path
 
 app = Flask(__name__)
 
 IRIS_REPLY_URL = "http://127.0.0.1:3000/reply"
 
-DATA_DIR = Path(__file__).parent / "data"
-SHIPS_FILE = DATA_DIR / "Ships.json"
-SHIP_KO_FILE = DATA_DIR / "ship-ko.json"
-SHIPS_URL = "https://raw.githubusercontent.com/ElectronicObserverEN/Data/master/Data/Ships.json"
+CSV_FILE = Path(__file__).parent / "칸무스.csv"
+SHIP_KO_FILE = Path(__file__).parent / "data" / "ship-ko.json"
 SHIP_KO_URL = "https://raw.githubusercontent.com/ElectronicObserverEN/Data/master/Translations/ko-KR/ship.json"
 
 
 def load_ship_data():
-    """ElectronicObserver의 함선 목록과 한국어 번역을 한 번 내려받아 사용합니다."""
-    DATA_DIR.mkdir(exist_ok=True)
+    """업로드한 Shift-JIS 칸무스 CSV와 한국어 번역을 사용합니다."""
+    with open(CSV_FILE, encoding="cp932", newline="") as file:
+        ships = list(csv.DictReader(file))
 
-    for url, path in ((SHIPS_URL, SHIPS_FILE), (SHIP_KO_URL, SHIP_KO_FILE)):
-        if not path.exists():
-            response = requests.get(url, timeout=20)
-            response.raise_for_status()
-            path.write_bytes(response.content)
-
-    with open(SHIPS_FILE, encoding="utf-8-sig") as file:
-        ships = json.load(file)
-
+    SHIP_KO_FILE.parent.mkdir(exist_ok=True)
+    if not SHIP_KO_FILE.exists():
+        response = requests.get(SHIP_KO_URL, timeout=20)
+        response.raise_for_status()
+        SHIP_KO_FILE.write_bytes(response.content)
     with open(SHIP_KO_FILE, encoding="utf-8-sig") as file:
         translations = json.load(file).get("ship", {})
 
@@ -49,14 +45,53 @@ def search_ships(keyword):
     results = []
 
     for ship in SHIPS:
-        name_jp = str(ship.get("NameJP", ""))
-        name_en = str(ship.get("NameEN", ""))
+        name_jp = str(ship.get("艦名", ""))
+        name_en = ""
         name_ko = SHIP_TRANSLATIONS.get(name_jp, "")
 
         if keyword in {name_jp.lower(), name_en.lower(), name_ko.lower()}:
             results.append((ship, name_ko or name_jp))
 
     return results
+
+
+def ship_stage(ship):
+    stage = int(ship.get("改装段階", "0") or 0)
+    return {
+        0: "미개장",
+        1: "개1",
+        2: "개2",
+        3: "개3",
+        4: "개3호",
+    }.get(stage, f"개장{stage}")
+
+
+def ship_text(ship, name_ko):
+    stage = ship_stage(ship)
+    level = ship.get("改装Lv", "-")
+    if level in ("", "0"):
+        level = "-"
+
+    materials = []
+    for key, label in (
+        ("改装設計図", "설계도"),
+        ("戦闘詳報", "전투상보"),
+        ("カタパルト", "카타펄트"),
+        ("新型航空兵装資材", "신형항공병장자재"),
+    ):
+        value = ship.get(key, "-")
+        if value not in ("", "-"):
+            materials.append(f"{label} {value}")
+
+    result = [
+        f"[{stage}]",
+        f"화력 {ship.get('火力最大', '-')} / 뇌장 {ship.get('雷装最大', '-')} / "
+        f"대공 {ship.get('対空最大', '-')} / 장갑 {ship.get('装甲最大', '-')}\n"
+        f"개장 레벨: {level}",
+    ]
+    if materials:
+        result.append("특수재료: " + ", ".join(materials))
+    return "\n".join(result)
 
 PANTY_COLORS = [
     "빨강",
@@ -161,16 +196,26 @@ def webhook():
     print(f"[받은 메시지] 방={room}, 내용={message}")
 
     if message.startswith("!칸무스 "):
-        keyword = message[len("!칸무스 "):].strip()
+        arguments = message[len("!칸무스 "):].strip().split()
+        keyword = arguments[0] if arguments else ""
+        requested_stage = arguments[1] if len(arguments) > 1 else None
         results = search_ships(keyword)
+
+        if requested_stage and requested_stage != "전체":
+            results = [
+                (ship, name_ko) for ship, name_ko in results
+                if ship_stage(ship) == requested_stage
+            ]
 
         if not results:
             reply = f"'{keyword}' 칸무스를 찾지 못했습니다."
         else:
-            reply = "\n".join(
-                f"{name_ko} ({ship.get('NameJP', '')}, {ship.get('NameEN', '')})"
-                for ship, name_ko in results[:10]
-            )
+            if requested_stage == "전체":
+                reply = "\n\n".join(
+                    ship_text(ship, name_ko) for ship, name_ko in results
+                )
+            else:
+                reply = ship_text(results[0][0], results[0][1])
 
         reply_data = {
             "type": "text",
