@@ -14,6 +14,7 @@ CSV_FILE = Path(__file__).parent / "ships.csv"
 SHIP_KO_FILE = Path(__file__).parent / "data" / "ship-ko.json"
 SHIP_ALIASES_FILE = Path(__file__).parent / "data" / "ship_aliases.json"
 SHIP_KO_URL = "https://raw.githubusercontent.com/kinggall/Data/master/Translations/ko-KR/ship.json"
+SHIP_ALIASES_URL = "https://raw.githubusercontent.com/kinggall/KKanggallbot/main/data/ship_aliases.json"
 
 
 def load_ship_data():
@@ -46,13 +47,33 @@ except Exception as error:
     SHIP_TRANSLATIONS = {}
     print(f"[함선 데이터] 로드 실패: {error}")
 
-try:
-    with open(SHIP_ALIASES_FILE, encoding="utf-8") as file:
-        SHIP_ALIASES = json.load(file)
-    print(f"[함선 별명] {len(SHIP_ALIASES)}개 함선 등록 완료")
-except Exception as error:
-    SHIP_ALIASES = {}
-    print(f"[함선 별명] 로드 실패: {error}")
+def load_ship_aliases():
+    try:
+        response = requests.get(SHIP_ALIASES_URL, timeout=15)
+        response.raise_for_status()
+        aliases = response.json()
+        if not isinstance(aliases, dict):
+            raise ValueError("GitHub 별명 파일의 최상위 형식이 객체가 아닙니다.")
+
+        # 다음 실행 때 오프라인이어도 사용할 수 있도록 최신 파일을 캐시합니다.
+        SHIP_ALIASES_FILE.parent.mkdir(parents=True, exist_ok=True)
+        cached_aliases = SHIP_ALIASES_FILE.with_suffix(".json.tmp")
+        cached_aliases.write_bytes(response.content)
+        cached_aliases.replace(SHIP_ALIASES_FILE)
+        print(f"[함선 별명] GitHub에서 최신 {len(aliases)}개 함선 별명 동기화 완료")
+        return aliases
+    except Exception as error:
+        try:
+            with open(SHIP_ALIASES_FILE, encoding="utf-8") as file:
+                aliases = json.load(file)
+            print(f"[함선 별명] GitHub 동기화 실패, 로컬 캐시 {len(aliases)}개 사용: {error}")
+            return aliases
+        except Exception as cache_error:
+            print(f"[함선 별명] GitHub·로컬 파일 로드 실패: {error}; {cache_error}")
+            return {}
+
+
+SHIP_ALIASES = load_ship_aliases()
 
 
 def normalize_ship_name(value):
