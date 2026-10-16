@@ -12,6 +12,7 @@ IRIS_REPLY_URL = "http://127.0.0.1:3000/reply"
 
 CSV_FILE = Path(__file__).parent / "ships.csv"
 SHIP_KO_FILE = Path(__file__).parent / "data" / "ship-ko.json"
+SHIP_ALIASES_FILE = Path(__file__).parent / "ship_aliases.json"
 SHIP_KO_URL = "https://raw.githubusercontent.com/kinggall/Data/master/Translations/ko-KR/ship.json"
 
 
@@ -45,6 +46,14 @@ except Exception as error:
     SHIP_TRANSLATIONS = {}
     print(f"[함선 데이터] 로드 실패: {error}")
 
+try:
+    with open(SHIP_ALIASES_FILE, encoding="utf-8") as file:
+        SHIP_ALIASES = json.load(file)
+    print(f"[함선 별명] {len(SHIP_ALIASES)}개 함선 등록 완료")
+except Exception as error:
+    SHIP_ALIASES = {}
+    print(f"[함선 별명] 로드 실패: {error}")
+
 
 def normalize_ship_name(value):
     """검색용 이름 정규화: 로-500/로500, U-511/U511 등을 같은 검색어로 봅니다."""
@@ -77,10 +86,19 @@ SHIP_GRAPH = build_ship_graph()
 def search_ships(keyword):
     query = normalize_ship_name(keyword)
     seed_indexes = set()
+    aliases_to_names = {}
+    for canonical_name, aliases in SHIP_ALIASES.items():
+        for alias in aliases:
+            aliases_to_names.setdefault(normalize_ship_name(alias), set()).add(canonical_name)
+
     for index, ship in enumerate(SHIPS):
         name_jp = str(ship.get("艦名", ""))
         name_ko = SHIP_TRANSLATIONS.get(name_jp, "")
-        if query in {normalize_ship_name(name_jp), normalize_ship_name(name_ko)}:
+        registered_names = aliases_to_names.get(query, set())
+        if query in {
+            normalize_ship_name(name_jp),
+            normalize_ship_name(name_ko),
+        } or name_jp in registered_names:
             seed_indexes.add(index)
 
     related_indexes = set(seed_indexes)
