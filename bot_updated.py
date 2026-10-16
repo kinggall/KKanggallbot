@@ -139,6 +139,9 @@ def ship_stage(ship):
         "宗谷": {
             0: "특무함", 1: "등대보급선", 2: "남극관측선"
         },
+        "日進": {
+            0: "미개장", 1: "개1", 2: "갑"
+        },
         "Glorious": {
             0: "미개장", 1: "항모", 2: "개1(정규항모)", 3: "개1(순양전함)"
         },
@@ -158,6 +161,32 @@ def ship_stage(ship):
         return labels[stage]
     if stage == 0:
         return "미개장"
+
+    # 해외함과 함종 변경 함선 중, 改二처럼 단계 표기가 아니라
+    # 고유한 이름으로 개장 상태를 구분하는 경우입니다.
+    named_stages = {
+        "Bismarck改": "개1",
+        "Bismarck zwei": "즈바이",
+        "Bismarck drei": "드라이",
+        "Верный": "베르니",
+        "呂500": "로-500",
+        "Zara due": "두에",
+        "Гангут два": "드바",
+        "Gotland andra": "안드라",
+        "丹陽": "단양",
+        "UIT-25": "UIT-25",
+        "UIT-24": "UIT-24",
+        "伊504": "이504",
+        "伊503": "이503",
+        "General Belgrano": "제너럴 벨그라노",
+        "Richelieu Deux": "Deux",
+        "Conte di Cavour nuovo": "nuovo",
+        "Leonardo da Vinci": "레오나르도 다 빈치",
+        "Independence Flight II": "Flight II",
+        "Bearn amelioration": "개량형",
+    }
+    if name in named_stages:
+        return named_stages[name]
 
     # 개장 단계 숫자 대신 함선의 실제 개장 명칭을 우선 표시합니다.
     # 예: 鈴谷航改二 -> 개2항, 三隈改二特 -> 개2특
