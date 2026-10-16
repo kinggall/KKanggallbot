@@ -137,7 +137,7 @@ def ship_stage(ship):
             0: "미개장", 1: "개1", 2: "개2", 3: "개2특", 4: "개2정"
         },
         "宗谷": {
-            0: "미개장", 1: "특무함", 2: "등대보급선", 3: "남극관측선"
+            0: "특무함", 1: "등대보급선", 2: "남극관측선"
         },
         "Glorious": {
             0: "미개장", 1: "항모", 2: "개1(정규항모)", 3: "개1(순양전함)"
@@ -186,7 +186,7 @@ def ship_text(ship, name_ko):
             key=lambda candidate: int(candidate.get("改装段階", "0") or 0),
             default=None,
         )
-        next_stage = ship_stage(next_candidate) if next_candidate else "개장"
+        next_stage = ship_stage(next_candidate) if next_candidate else "컨버트"
         result.append(f"{next_stage} 개장 레벨: {next_level}")
     return "\n".join(result)
 
