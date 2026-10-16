@@ -74,48 +74,21 @@ def ship_stage(ship):
 
 def ship_text(ship, name_ko):
     stage = ship_stage(ship)
-    previous = next(
-        (candidate for candidate in SHIPS
-         if candidate.get("艦名") == ship.get("改装前")),
-        None,
-    )
-    transition = previous or ship
-    level = transition.get("改装Lv", "-") if previous else "-"
-    if level in ("", "0"):
-        level = "-"
-
-    materials = []
-    for key, label in (
-        ("改装設計図", "설계도"),
-        ("戦闘詳報", "전투상보"),
-        ("カタパルト", "카타펄트"),
-        ("新型航空兵装資材", "신형항공병장자재"),
-    ):
-        value = transition.get(key, "-")
-        if value not in ("", "-"):
-            materials.append(f"{label} {value}")
-
-    ammo = transition.get("改装弾薬", "-")
-    steel = transition.get("改装鋼材", "-")
-    if ammo not in ("", "-", "0") or steel not in ("", "-", "0"):
-        materials.insert(0, f"탄약 {ammo}, 강재 {steel}")
-
-    # CSV에 없는 Wikiwiki 전용 재료 보정값
-    wiki_materials = {
-        "吹雪改三": "신형병장자재 5, 개발자재 280, 고속건조재 800",
-        "吹雪改三護(六式)": "해외함 최신기술 5, 공창자원 5, 개발자재 320, 고속건조재 1946",
-    }
-    if ship.get("艦名") in wiki_materials:
-        materials.append(wiki_materials[ship["艦名"]])
+    next_ship_name = ship.get("改装後", "-")
+    next_level = ship.get("改装Lv", "-")
 
     result = [
         f"[{stage}]",
         f"화력 {ship.get('火力最大', '-')} / 뇌장 {ship.get('雷装最大', '-')} / "
-        f"대공 {ship.get('対空最大', '-')} / 장갑 {ship.get('装甲最大', '-')}\n"
-        f"개장 레벨: {level}",
+        f"대공 {ship.get('対空最大', '-')} / 장갑 {ship.get('装甲最大', '-')}"
     ]
-    if materials:
-        result.append("특수재료: " + ", ".join(materials))
+    if next_ship_name not in ("", "-") and next_level not in ("", "0", "-"):
+        next_stage = next(
+            (ship_stage(candidate) for candidate in SHIPS
+             if candidate.get("艦名") == next_ship_name),
+            "개장"
+        )
+        result.append(f"{next_stage} 개장 레벨: {next_level}")
     return "\n".join(result)
 
 PANTY_COLORS = [
@@ -226,21 +199,12 @@ def webhook():
         requested_stage = arguments[1] if len(arguments) > 1 else None
         results = search_ships(keyword)
 
-        if requested_stage and requested_stage != "전체":
-            results = [
-                (ship, name_ko) for ship, name_ko in results
-                if ship_stage(ship) == requested_stage
-            ]
-
         if not results:
             reply = f"'{keyword}' 칸무스를 찾지 못했습니다."
         else:
-            if requested_stage == "전체":
-                reply = "\n\n".join(
-                    ship_text(ship, name_ko) for ship, name_ko in results
-                )
-            else:
-                reply = ship_text(results[0][0], results[0][1])
+            reply = "\n\n".join(
+                ship_text(ship, name_ko) for ship, name_ko in results
+            )
 
         reply_data = {
             "type": "text",
