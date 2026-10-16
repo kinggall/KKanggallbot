@@ -47,9 +47,15 @@ def search_ships(keyword):
     for ship in SHIPS:
         name_jp = str(ship.get("艦名", ""))
         name_en = ""
-        name_ko = SHIP_TRANSLATIONS.get(name_jp, "")
+        base_jp = re.sub(r"改.*$", "", name_jp)
+        name_ko = SHIP_TRANSLATIONS.get(base_jp, "")
 
-        if keyword in {name_jp.lower(), name_en.lower(), name_ko.lower()}:
+        if keyword in {
+            name_jp.lower(),
+            base_jp.lower(),
+            name_en.lower(),
+            name_ko.lower(),
+        }:
             results.append((ship, name_ko or name_jp))
 
     return results
