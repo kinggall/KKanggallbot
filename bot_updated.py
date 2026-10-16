@@ -78,7 +78,7 @@ def search_ships(keyword):
 
     results = []
     for ship in SHIPS:
-        if ship.get("艦명", ship.get("艦名")) in related_names:
+        if ship.get("艦名") in related_names:
             name_jp = str(ship.get("艦名", ""))
             results.append((ship, SHIP_TRANSLATIONS.get(name_jp, name_jp)))
 
