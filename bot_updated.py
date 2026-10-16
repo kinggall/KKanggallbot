@@ -158,9 +158,37 @@ def ship_stage(ship):
         return labels[stage]
     if stage == 0:
         return "미개장"
-    # 改三護처럼 일반적인 단계 번호와 다른 특수 개장 명칭만 개3호로 표시합니다.
-    if "改三護" in name:
-        return "개3호"
+
+    # 개장 단계 숫자 대신 함선의 실제 개장 명칭을 우선 표시합니다.
+    # 예: 鈴谷航改二 -> 개2항, 三隈改二特 -> 개2특
+    remodel_tokens = (
+        ("改三護", "개3호"),
+        ("航改二", "개2항"),
+        ("改二特", "개2특"),
+        ("改二丁", "개2정"),
+        ("改二乙", "개2을"),
+        ("改二丙", "개2병"),
+        ("改二戊", "개2무"),
+        ("改二護", "개2호"),
+        ("改二補", "개2보"),
+        ("改二戦", "개2전"),
+        ("改二重", "개2중"),
+        ("改二甲", "개2갑"),
+        ("改二", "개2"),
+        ("改三", "개3"),
+        ("乙改", "을개"),
+        ("丁改", "정개"),
+        ("改母", "개모"),
+    )
+    for token, label in remodel_tokens:
+        if token in name:
+            return label
+    if "Mk.II Mod.2" in name:
+        return "Mk.II Mod.2"
+    if "改 Mod.2" in name:
+        return "개2 Mod.2"
+    if "Mk.II" in name:
+        return "Mk.II"
     return f"개{stage}"
 
 
