@@ -28,62 +28,79 @@ def load_ship_data():
     with open(SHIP_KO_FILE, encoding="utf-8-sig") as file:
         translations = json.load(file).get("ship", {})
 
+    # Electronic Observer의 선박 ID 1501 이상은 심해서함입니다.
+    # 일반 칸무스 검색에서는 심해서함을 제외합니다.
+    ships = [
+        ship for ship in ships
+        if int(ship.get("艦船ID", "0") or 0) <= 1500
+    ]
     return ships, translations
 
 
 try:
     SHIPS, SHIP_TRANSLATIONS = load_ship_data()
-    print(f"[함선 데이터] {len(SHIPS)}개 로드 완료")
+    print(f"[함선 데이터] 일반 칸무스 {len(SHIPS)}개 로드 완료 (심해서함 제외)")
 except Exception as error:
     SHIPS = []
     SHIP_TRANSLATIONS = {}
     print(f"[함선 데이터] 로드 실패: {error}")
 
 
+def normalize_ship_name(value):
+    """검색용 이름 정규화: 로-500/로500, U-511/U511 등을 같은 검색어로 봅니다."""
+    value = str(value or "").strip().casefold()
+    return re.sub(r"[\s\-_・·.]+", "", value)
+
+
+def build_ship_graph():
+    """행 번호를 노드로 사용해 같은 이름이 여러 번 나와도 누락하지 않습니다."""
+    name_to_indexes = {}
+    for index, ship in enumerate(SHIPS):
+        name = str(ship.get("艦名", "")).strip()
+        name_to_indexes.setdefault(name, set()).add(index)
+
+    graph = {index: set() for index in range(len(SHIPS))}
+    for index, ship in enumerate(SHIPS):
+        for field in ("改装前", "改装後"):
+            linked_name = str(ship.get(field, "")).strip()
+            if not linked_name or linked_name == "-":
+                continue
+            for linked_index in name_to_indexes.get(linked_name, set()):
+                graph[index].add(linked_index)
+                graph[linked_index].add(index)
+    return graph
+
+
+SHIP_GRAPH = build_ship_graph()
+
+
 def search_ships(keyword):
-    keyword = keyword.strip().lower()
-    by_name = {str(ship.get("艦名", "")): ship for ship in SHIPS}
-    graph = {name: set() for name in by_name}
-
-    for ship in SHIPS:
-        name = str(ship.get("艦名", ""))
-        before = ship.get("改装前")
-        after = ship.get("改装後")
-        if before in by_name:
-            graph[name].add(before)
-            graph[before].add(name)
-        if after in by_name:
-            graph[name].add(after)
-            graph[after].add(name)
-
-    seed_names = set()
-    for ship in SHIPS:
+    query = normalize_ship_name(keyword)
+    seed_indexes = set()
+    for index, ship in enumerate(SHIPS):
         name_jp = str(ship.get("艦名", ""))
         name_ko = SHIP_TRANSLATIONS.get(name_jp, "")
+        if query in {normalize_ship_name(name_jp), normalize_ship_name(name_ko)}:
+            seed_indexes.add(index)
 
-        if keyword in {
-            name_jp.lower(),
-            name_ko.lower(),
-        }:
-            seed_names.add(name_jp)
-
-    related_names = set(seed_names)
-    pending = list(seed_names)
+    related_indexes = set(seed_indexes)
+    pending = list(seed_indexes)
     while pending:
         current = pending.pop()
-        for related in graph.get(current, set()):
-            if related not in related_names:
-                related_names.add(related)
+        for related in SHIP_GRAPH.get(current, set()):
+            if related not in related_indexes:
+                related_indexes.add(related)
                 pending.append(related)
 
-    results = []
-    for ship in SHIPS:
-        if ship.get("艦名") in related_names:
-            name_jp = str(ship.get("艦名", ""))
-            results.append((ship, SHIP_TRANSLATIONS.get(name_jp, name_jp)))
-
-    results.sort(key=lambda item: (int(item[0].get("改装段階", "0") or 0), int(item[0].get("艦船ID", "0") or 0)))
-
+    results = [
+        (SHIPS[index], SHIP_TRANSLATIONS.get(str(SHIPS[index].get("艦名", "")),
+                                              str(SHIPS[index].get("艦名", ""))))
+        for index in related_indexes
+    ]
+    results.sort(key=lambda item: (
+        int(item[0].get("改装段階", "0") or 0),
+        int(item[0].get("艦船ID", "0") or 0),
+    ))
     return results
 
 
