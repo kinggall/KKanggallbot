@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 IRIS_REPLY_URL = "http://127.0.0.1:3000/reply"
 
-CSV_FILE = Path(__file__).parent / "칸무스.csv"
+CSV_FILE = Path(__file__).parent / "ships.csv"
 SHIP_KO_FILE = Path(__file__).parent / "data" / "ship-ko.json"
 SHIP_KO_URL = "https://raw.githubusercontent.com/ElectronicObserverEN/Data/master/Translations/ko-KR/ship.json"
 
