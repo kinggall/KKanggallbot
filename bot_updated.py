@@ -159,6 +159,7 @@ def ship_stage(ship):
 
 def ship_text(ship, name_ko):
     stage = ship_stage(ship)
+    current_stage = int(ship.get("改装段階", "0") or 0)
     next_ship_name = ship.get("改装後", "-")
     next_level = ship.get("改装Lv", "-")
 
@@ -168,11 +169,17 @@ def ship_text(ship, name_ko):
         f"대공 {ship.get('対空最大', '-')} / 장갑 {ship.get('装甲最大', '-')}"
     ]
     if next_ship_name not in ("", "-") and next_level not in ("", "0", "-"):
-        next_stage = next(
-            (ship_stage(candidate) for candidate in SHIPS
-             if candidate.get("艦名") == next_ship_name),
-            "개장"
+        next_candidates = [
+            candidate for candidate in SHIPS
+            if candidate.get("艦名") == next_ship_name
+            and int(candidate.get("改装段階", "0") or 0) > current_stage
+        ]
+        next_candidate = min(
+            next_candidates,
+            key=lambda candidate: int(candidate.get("改装段階", "0") or 0),
+            default=None,
         )
+        next_stage = ship_stage(next_candidate) if next_candidate else "개장"
         result.append(f"{next_stage} 개장 레벨: {next_level}")
     return "\n".join(result)
 
