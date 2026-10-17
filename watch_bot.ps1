@@ -52,8 +52,12 @@ New-Item -ItemType Directory -Force -Path $LogPath | Out-Null
 $staleBotProcesses = @(
     Get-CimInstance Win32_Process -Filter "Name = 'python.exe' OR Name = 'pythonw.exe'" |
         Where-Object {
-            $_.CommandLine -and
-            $_.CommandLine.IndexOf($BotScriptPath, [StringComparison]::OrdinalIgnoreCase) -ge 0
+            $_.ExecutablePath -and
+            $_.ExecutablePath.Equals($PythonPath, [StringComparison]::OrdinalIgnoreCase) -and
+            $_.CommandLine -and (
+                $_.CommandLine.IndexOf($BotScriptPath, [StringComparison]::OrdinalIgnoreCase) -ge 0 -or
+                $_.CommandLine -match '(?i)(?:^|[\s"\\/])bot\.py(?:$|[\s"])'
+            )
         }
 )
 if ($staleBotProcesses.Count -gt 0) {
