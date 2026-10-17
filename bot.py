@@ -327,7 +327,7 @@ def load_senka_data():
 
 def format_senka_ranking(rank):
     servers = load_senka_data()
-    lines = [f"Senka 랭킹컷 Top {rank}"]
+    lines = [f"Senka 전과 Top {rank}"]
     for server in servers:
         number = int(server["servernum"])
         name = SENKA_SERVER_NAMES.get(number, f"Server {number}")
@@ -384,7 +384,7 @@ COMMANDS = {
         "사용 가능한 명령어:\n"
         "!공지 !통합공략 !단발퀘 !반복퀘 !멘테 !월간원정\n"
         "!이벤트 !개구리야 !미르야\n"
-        "!랭컷 [5/20/100/500]\n"
+        "!전과 [5/20/100/500]\n"
         "!칸무스 [함선명]\n"
         "![함선명]팬티색"
     ),
@@ -459,10 +459,10 @@ def webhook():
 
     print(f"[받은 메시지] 방={room}, 내용={message}")
 
-    if message.startswith("!랭컷"):
+    if message.startswith("!전과"):
         arguments = message.split()
-        if len(arguments) != 2 or arguments[0] != "!랭컷" or arguments[1] not in SENKA_RANKS:
-            reply = "사용법: !랭컷 5 / !랭컷 20 / !랭컷 100 / !랭컷 500"
+        if len(arguments) != 2 or arguments[0] != "!전과" or arguments[1] not in SENKA_RANKS:
+            reply = "사용법: !전과 5 / !전과 20 / !전과 100 / !전과 500"
         else:
             try:
                 reply = format_senka_ranking(arguments[1])
@@ -476,7 +476,7 @@ def webhook():
             "data": reply
         }
         response = requests.post(IRIS_REPLY_URL, json=reply_data, timeout=10)
-        print(f"[랭킹컷 답변] 상태 코드={response.status_code}")
+        print(f"[전과 답변] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     if message.startswith("!칸무스 "):
