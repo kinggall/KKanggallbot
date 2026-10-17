@@ -5,15 +5,20 @@ $ErrorActionPreference = "Stop"
 $RepoPath = $PSScriptRoot
 $ParentPath = Split-Path -Parent $RepoPath
 $PythonPath = Join-Path $ParentPath ".venv\Scripts\python.exe"
+$BotScriptPath = Join-Path $RepoPath "bot.py"
 $Branch = "main"
 $CheckIntervalSeconds = 30
 $LogPath = Join-Path $ParentPath "logs"
 $BotProcess = $null
+$FailedCommit = $null
 
 function Stop-Bot {
-    if ($null -ne $script:BotProcess -and -not $script:BotProcess.HasExited) {
-        Write-Host "Stopping bot process $($script:BotProcess.Id)..."
-        Stop-Process -Id $script:BotProcess.Id -Force
+    if ($null -ne $script:BotProcess) {
+        $runningProcess = Get-Process -Id $script:BotProcess.Id -ErrorAction SilentlyContinue
+        if ($null -ne $runningProcess) {
+            Write-Host "Stopping bot process $($script:BotProcess.Id)..."
+            Stop-Process -Id $script:BotProcess.Id -Force -ErrorAction SilentlyContinue
+        }
         $script:BotProcess.WaitForExit()
     }
     $script:BotProcess = $null
@@ -30,6 +35,7 @@ function Start-Bot {
         -WorkingDirectory $RepoPath `
         -RedirectStandardOutput $stdout `
         -RedirectStandardError $stderr `
+        -WindowStyle Hidden `
         -PassThru
     return $process
 }
@@ -42,8 +48,23 @@ if (-not (Test-Path (Join-Path $RepoPath ".git"))) {
 }
 New-Item -ItemType Directory -Force -Path $LogPath | Out-Null
 
+# Clear duplicate bot.py processes left by an earlier watcher run.
+$staleBotProcesses = @(
+    Get-CimInstance Win32_Process -Filter "Name = 'python.exe' OR Name = 'pythonw.exe'" |
+        Where-Object {
+            $_.CommandLine -and
+            $_.CommandLine.IndexOf($BotScriptPath, [StringComparison]::OrdinalIgnoreCase) -ge 0
+        }
+)
+if ($staleBotProcesses.Count -gt 0) {
+    Write-Host "Stopping $($staleBotProcesses.Count) previous bot.py process(es)..."
+    foreach ($staleProcess in $staleBotProcesses) {
+        Stop-Process -Id $staleProcess.ProcessId -Force -ErrorAction SilentlyContinue
+    }
+}
+
 Write-Host "Checking GitHub main branch..."
-& git -C $RepoPath fetch origin $Branch
+& git -C $RepoPath fetch --quiet origin $Branch
 if ($LASTEXITCODE -ne 0) {
     throw "GitHub에서 최신 버전을 확인하지 못했습니다."
 }
@@ -61,7 +82,7 @@ try {
     while ($true) {
         Start-Sleep -Seconds $CheckIntervalSeconds
 
-        & git -C $RepoPath fetch origin $Branch
+        & git -C $RepoPath fetch --quiet origin $Branch
         if ($LASTEXITCODE -eq 0) {
             $localCommit = (& git -C $RepoPath rev-parse HEAD).Trim()
             $remoteCommit = (& git -C $RepoPath rev-parse "origin/$Branch").Trim()
@@ -72,6 +93,7 @@ try {
                 & git -C $RepoPath pull --ff-only origin $Branch
                 if ($LASTEXITCODE -eq 0) {
                     Write-Host "Updated to $((& git -C $RepoPath rev-parse --short HEAD).Trim())"
+                    $FailedCommit = $null
                 }
                 else {
                     Write-Host "Update failed; restarting the current local version and retrying later."
@@ -83,9 +105,16 @@ try {
             Write-Host "GitHub check failed; bot keeps running and will retry."
         }
 
-        if ($null -eq $BotProcess -or $BotProcess.HasExited) {
-            Write-Host "Bot stopped unexpectedly; restarting it."
-            $BotProcess = Start-Bot
+        if ($null -ne $BotProcess) {
+            $runningProcess = Get-Process -Id $BotProcess.Id -ErrorAction SilentlyContinue
+            if ($null -eq $runningProcess) {
+                $localCommit = (& git -C $RepoPath rev-parse HEAD).Trim()
+                if ($FailedCommit -ne $localCommit) {
+                    Write-Host "Bot exited. Check the latest log in $LogPath; waiting for a new GitHub commit before retrying."
+                    $FailedCommit = $localCommit
+                }
+                $BotProcess = $null
+            }
         }
     }
 }
