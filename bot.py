@@ -68,12 +68,9 @@ def load_ship_aliases():
         if not isinstance(aliases, dict):
             raise ValueError("GitHub 별명 파일의 최상위 형식이 객체가 아닙니다.")
 
-        # 다음 실행 때 오프라인이어도 사용할 수 있도록 최신 파일을 캐시합니다.
-        SHIP_ALIASES_FILE.parent.mkdir(parents=True, exist_ok=True)
-        cached_aliases = SHIP_ALIASES_FILE.with_suffix(".json.tmp")
-        cached_aliases.write_bytes(response.content)
-        cached_aliases.replace(SHIP_ALIASES_FILE)
-        print(f"[함선 별명] GitHub에서 최신 {len(aliases)}개 함선 별명 동기화 완료")
+        # 저장소 파일은 수정하지 않습니다. 실행 중 로컬 Git 변경이 생기면
+        # 감시 스크립트가 다음 GitHub 업데이트를 가져오지 못할 수 있습니다.
+        print(f"[함선 별명] GitHub에서 최신 {len(aliases)}개 함선 별명 읽기 완료")
         return aliases
     except Exception as error:
         try:
