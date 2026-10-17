@@ -33,6 +33,12 @@ WIKI = '''
 <tr><th rowspan="2">南西</th><td>2-3</td><td><a>阿賀野</a></td></tr>
 <tr><td>7-5</td><td><a>Houston</a></td></tr></table>
 <h2>過去のイベント</h2><table><tr><td>not current</td></tr></table>
+<h2>限定邂逅 (2026/04/01～一部継続中)</h2>
+<table><tr><th>海域</th><th>エリア</th><th>ドロップ対象</th></tr>
+<tr><th>南西</th><td>2-3-N</td><td><a>阿賀野</a></td></tr>
+<tr><th>南西</th><td>7-5-M</td><td><a>Houston</a></td></tr>
+<tr><th>鎮守府</th><td>1-6-B,D,F,J</td><td><a>Langley</a></td></tr>
+<tr><th>南西</th><td>2ｰ5ｰO</td><td><a>海風</a>, <del><a>武蔵</a></del></td></tr></table>
 '''
 
 
@@ -43,7 +49,7 @@ def entry(name="阿賀野", node="N", rarity=1, pct=1.0, **extra):
 
 class DropTests(unittest.TestCase):
     def setUp(self):
-        self.current = dict(schema_version=2, updated_at="test",
+        self.current = dict(schema_version=3, updated_at="test",
                             maps=bot.parse_current_limited_drops(WIKI),
                             locations=bot.parse_limited_drop_locations(WIKI))
         self.state = patch.object(bot, "CURRENT_LIMITED_DROPS", self.current)
@@ -54,7 +60,23 @@ class DropTests(unittest.TestCase):
         self.addCleanup(self.names.stop)
 
     def test_summary_skips_first_ship_table_and_handles_rowspan(self):
-        self.assertEqual(self.current["maps"], {"2-3": ["阿賀野"], "7-5": ["Houston"]})
+        self.assertEqual(self.current["maps"], {"2-3": ["阿賀野"], "7-5": ["Houston"],
+                                               "1-6": ["Langley"], "2-5": ["海風"]})
+        self.assertEqual(bot.drop_entry_status(entry("武蔵", "O", 2), "2-5"), "ended")
+
+    def test_older_tables_use_nearest_ship_and_preserve_strikes(self):
+        html = WIKI + '''<h2>古いイベント (2018/10/10～一部継続中)</h2>
+        <ul><li><a>磯風</a>のドロップが確認された海域
+        <div><table><tr><th>海域</th><th>ドロップエリア</th></tr>
+        <tr><td>鎮守府</td><td>1-5ボス</td></tr></table></div>
+        7-2-Mでは平時にもドロップする</li>
+        <li><del><a>Johnston</a></del>のドロップが確認された海域
+        <div><table><tr><th>海域</th><th>ドロップエリア</th></tr>
+        <tr><td>南西</td><td>2-5-O</td></tr></table></div></li></ul>'''
+        records = bot.parse_event_drop_locations(html)
+        self.assertTrue(any(r["name"] == "磯風" and r["node"] == "*" and r["limited"] for r in records))
+        self.assertTrue(any(r["name"] == "Johnston" and r["ended"] for r in records))
+        self.assertTrue(any(r["name"] == "磯風" and r["map"] == "7-2" and not r["limited"] and not r["ended"] for r in records))
 
     def test_exact_locations_and_permanent_notes(self):
         self.assertEqual(bot.drop_entry_status(entry(), "2-3"), "limited")
@@ -137,8 +159,11 @@ class DropTests(unittest.TestCase):
         values += [entry(map_name="2-3", limited=True, drop_status="limited")]
         values[-1].update(drops=1, pct=0.1)
         text = bot.format_ship_drops("아가노", [], values)
-        self.assertEqual(sum(line.startswith("· ") for line in text.splitlines()), 5)
-        self.assertIn("2-3-N", text)
+        self.assertEqual(sum(line.startswith("· ") for line in text.splitlines()), 6)
+        self.assertIn("추가 기간한정 드랍", text)
+        self.assertIn("· 2-3 0.10%", text)
+        self.assertNotIn("2-3-N", text)
+        self.assertNotIn("/1,000", text)
         self.assertEqual(text.count("(기간한정)"), 1)
 
     def test_incompatible_samples_not_summed(self):
@@ -154,8 +179,34 @@ class DropTests(unittest.TestCase):
                             SHIP_ALIASES={"夕立": ["뽀이", "유다치"]}), \
                 patch.object(bot, "SHIP_GRAPH", {0: {1}, 1: {0}}), \
                 patch.object(bot, "tsunkit_map_names", return_value=["1-1"]), \
-                patch.object(bot, "get_boss_drops", return_value=[dict(entry(node="C"), id=1)]):
+                patch.object(bot, "get_all_boss_drops", return_value=[dict(entry(node="C"), id=1)]):
             self.assertEqual(bot.find_ship_boss_drops("유다치"), bot.find_ship_boss_drops("뽀이"))
+
+    def test_no_boss_exact_message(self):
+        with patch.object(bot, "get_boss_drops", return_value=[]), patch.object(bot, "get_map_boss_groups", return_value=[]):
+            self.assertEqual(bot.build_drop_reply("!드랍 1-6"), "보스방이 존재하지 않습니다.")
+
+    def test_help_omits_admin_refresh(self):
+        self.assertNotIn("!드랍갱신", bot.COMMANDS["!도움말"])
+
+    def test_transient_api_failure_retries(self):
+        response = Mock()
+        response.json.return_value = {"result": {"ok": True}}
+        with patch.object(bot, "TSUNKIT_CACHE", {}), patch.object(bot, "save_tsunkit_cache"), \
+                patch.object(bot.time, "sleep"), patch.object(bot.requests, "get", side_effect=[requests.Timeout(), response]) as get:
+            self.assertEqual(bot.get_tsunkit_json("/retry"), {"result": {"ok": True}})
+            self.assertEqual(get.call_count, 2)
+
+    def test_failed_scan_does_not_claim_top_five(self):
+        with self.assertRaises(ValueError):
+            bot.format_ship_drops("뽀이", ["2-1"], [entry(map_name="1-1", limited=False)])
+
+    def test_short_map_heading_and_multiboss_labels(self):
+        row = entry(map_name="7-5", boss_stage=3, boss_count=3, limited=False)
+        self.assertTrue(bot.format_map_drops("7-5", [row]).startswith("7-5-3 Boss Drop (S/A · 최근 180일)"))
+        text = bot.format_ship_drops("아가노", [], [row])
+        self.assertIn("· 7-5-3 1.00%", text)
+        self.assertNotIn("7-5-N", text)
 
     def test_all_repository_aliases_resolve_to_their_ship_family(self):
         root = Path(__file__).resolve().parents[1]

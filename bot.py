@@ -113,16 +113,23 @@ def get_tsunkit_json(path, params=None):
         if cached and now - cached.get("saved_at", 0) < TSUNKIT_CACHE_SECONDS:
             return cached["payload"]
 
-    response = requests.get(
-        f"{TSUNKIT_API}{path}",
-        params=params,
-        headers={"User-Agent": "Mozilla/5.0 KKanggallbot/1.0"},
-        timeout=DROP_REQUEST_TIMEOUT,
-    )
-    response.raise_for_status()
-    payload = response.json()
-    if not isinstance(payload, dict) or payload.get("error"):
-        raise ValueError(f"TsunKit 응답 오류: {payload.get('error', '형식 오류')}")
+    for attempt in range(3):
+        try:
+            response = requests.get(
+                f"{TSUNKIT_API}{path}", params=params,
+                headers={"User-Agent": "Mozilla/5.0 KKanggallbot/1.0"},
+                timeout=DROP_REQUEST_TIMEOUT,
+            )
+            response.raise_for_status()
+            payload = response.json()
+            if not isinstance(payload, dict) or payload.get("error"):
+                raise ValueError("TsunKit 데이터 응답이 올바르지 않습니다.")
+            break
+        except (requests.RequestException, ValueError) as error:
+            if attempt == 2:
+                raise
+            print(f"[TsunKit 재시도] 경로={path}, 회차={attempt + 1}, 오류={error}")
+            time.sleep(0.5 * (attempt + 1))
 
     with TSUNKIT_CACHE_LOCK:
         TSUNKIT_CACHE[cache_key] = {"saved_at": now, "payload": payload}
@@ -218,46 +225,190 @@ class CurrentLimitedDropsParser(HTMLParser):
                     self.waiting_for_table = False
 
 
+class WikiNode:
+    def __init__(self, tag="", attrs=None, deleted=False):
+        self.tag = tag
+        self.attrs = dict(attrs or [])
+        style = self.attrs.get("style", "").replace(" ", "").lower()
+        self.deleted = deleted or tag in ("del", "s", "strike") or "line-through" in style
+        self.children = []
+        self.parent = None
+
+    def text(self, include_deleted=False):
+        if self.deleted and not include_deleted:
+            return ""
+        if self.tag == "br":
+            return "\n"
+        return "".join(child if isinstance(child, str) else child.text(include_deleted)
+                       for child in self.children)
+
+    def walk(self, tag=None):
+        if tag is None or self.tag == tag:
+            yield self
+        for child in self.children:
+            if isinstance(child, WikiNode):
+                yield from child.walk(tag)
+
+
+class WikiDocumentParser(HTMLParser):
+    VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input",
+                 "link", "meta", "param", "source", "track", "wbr"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.root = WikiNode()
+        self.stack = [self.root]
+
+    def handle_starttag(self, tag, attrs):
+        node = WikiNode(tag, attrs, self.stack[-1].deleted)
+        node.parent = self.stack[-1]
+        self.stack[-1].children.append(node)
+        if tag not in self.VOID_TAGS:
+            self.stack.append(node)
+
+    def handle_endtag(self, tag):
+        for index in range(len(self.stack) - 1, 0, -1):
+            if self.stack[index].tag == tag:
+                del self.stack[index:]
+                break
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        self.handle_endtag(tag)
+
+    def handle_data(self, data):
+        self.stack[-1].children.append(data)
+
+
+def wiki_table_grid(table):
+    """rowspan/colspan이 있는 오래된 표도 열 위치를 유지합니다."""
+    spans = {}
+    grid = []
+    for tr in table.walk("tr"):
+        row = {column: cell for column, (_, cell) in spans.items()}
+        spans = {column: (remaining - 1, cell)
+                 for column, (remaining, cell) in spans.items() if remaining > 1}
+        column = 0
+        for cell in tr.children:
+            if not isinstance(cell, WikiNode) or cell.tag not in ("td", "th"):
+                continue
+            while column in row:
+                column += 1
+            width = int(cell.attrs.get("colspan", "1"))
+            height = int(cell.attrs.get("rowspan", "1"))
+            for offset in range(width):
+                row[column + offset] = cell
+                if height > 1:
+                    spans[column + offset] = (height - 1, cell)
+            column += width
+        if row:
+            grid.append([row.get(i) for i in range(max(row) + 1)])
+    return grid
+
+
+def parse_event_drop_locations(html_text):
+    """점검별 본문이 우선: 일부 계속 중도 포함하고 취소선은 함선별로 제외합니다."""
+    document = WikiDocumentParser()
+    document.feed(html_text)
+    title = ""
+    ongoing = False
+    ended_section = False
+    locations = {}
+    for element in document.root.walk():
+        if element.tag == "h2":
+            title = " ".join(element.text(include_deleted=True).split())
+            ongoing = "継続中" in title and not element.deleted
+            ended_section = not ongoing and "終了" in title
+        if element.tag != "table" or not (ongoing or ended_section):
+            continue
+        grid = wiki_table_grid(element)
+        if not grid:
+            continue
+        headers = [re.sub(r"\s+", "", c.text(True)) if c else "" for c in grid[0]]
+        map_column = next((i for i, h in enumerate(headers) if h in ("エリア", "ポイント", "ドロップエリア")), None)
+        ship_column = next((i for i, h in enumerate(headers) if "ドロップ対象" in h), None)
+        if map_column is None:
+            continue
+        # 一部の古い表は見出し側に艦名を持ち、エリア列しか持ちません。
+        title_names = []
+        permanent_context = ""
+        if ship_column is None:
+            branch = element
+            while branch.parent is not None:
+                parent = branch.parent
+                if parent.tag == "li":
+                    prefix = parent.children[:parent.children.index(branch)]
+                    links = [a for child in prefix if isinstance(child, WikiNode)
+                             for a in child.walk("a") if a.text(True).strip()]
+                    if links:
+                        title_names = [(a.text(True).strip(), a.deleted) for a in links]
+                        tail = parent.children[parent.children.index(branch) + 1:]
+                        permanent_context = "".join(child if isinstance(child, str) else child.text()
+                                                    for child in tail)
+                        break
+                branch = parent
+            if not title_names:
+                title_names = [(a.text(True).strip(), a.deleted)
+                               for a in element_title_links(document.root, title)
+                               if a.text(True).strip() and not a.text(True).strip().startswith("*")]
+        for row in grid[1:]:
+            if map_column >= len(row) or row[map_column] is None:
+                continue
+            map_cell = row[map_column]
+            spots = list(wiki_drop_spots(map_cell.text(True)))
+            if not spots:
+                for map_name in re.findall(r"([1-7]-[1-6])\s*[（(]全域[)）]", map_cell.text(True)):
+                    spots.append((map_name, "*"))
+                for map_name in re.findall(r"([1-7]-[1-6])\s*ボス", map_cell.text(True)):
+                    spots.append((map_name, "*"))
+            if not spots:
+                continue
+            if ship_column is not None:
+                if ship_column >= len(row) or row[ship_column] is None:
+                    continue
+                ship_cell = row[ship_column]
+                links = [a for a in ship_cell.walk("a")
+                         if a.text(True).strip() and not a.text(True).strip().startswith("*")]
+                names = [(a.text(True).strip(), a.deleted) for a in links]
+                if not names:
+                    names = [(name.strip(), ship_cell.deleted)
+                             for name in re.split(r"[,、，\n]", ship_cell.text(True)) if name.strip()]
+                context = ship_cell.text(True)
+            else:
+                names = title_names
+                context = title
+            for name, struck in names:
+                explicit_end = bool(re.search(re.escape(name) + r"\s*[（(]終了[)）]", context + title))
+                ended = struck or map_cell.deleted or ended_section or explicit_end
+                for map_name, node in spots:
+                    key = (name, map_name, node, ended)
+                    locations[key] = {"name": name, "map": map_name, "node": node,
+                                      "limited": not ended, "ended": ended,
+                                      "event_title": title}
+        if title_names and re.search(r"平時にも|常設|恒常", permanent_context):
+            for map_name, node in wiki_drop_spots(permanent_context):
+                for name, struck in title_names:
+                    if not struck:
+                        locations[(name, map_name, node, "permanent")] = {
+                            "name": name, "map": map_name, "node": node,
+                            "limited": False, "ended": False, "event_title": title}
+    if not any(record["limited"] for record in locations.values()):
+        raise ValueError("점검별 본문에서 진행 중인 드랍 표를 읽지 못했습니다.")
+    return list(locations.values())
+
+
+def element_title_links(root, title):
+    for heading in root.walk("h2"):
+        if " ".join(heading.text(True).split()) == title:
+            return list(heading.walk("a"))
+    return []
+
+
 def parse_current_limited_drops(html_text):
-    parser = CurrentLimitedDropsParser()
-    parser.feed(html_text)
-    if not parser.finished or len(parser.rows) < 2:
-        raise ValueError("위키에서 현재 한정 드랍 요약표를 찾지 못했습니다.")
-
     maps = {}
-    current_region = ""
-    for row in parser.rows:
-        cells = row
-        if len(cells) < 2:
-            continue
-        header = [cell["text"] for cell in cells]
-        if "エリア" in header or "ドロップ対象" in header:
-            continue
-
-        if len(cells) >= 3:
-            if cells[0]["text"]:
-                current_region = cells[0]["text"]
-            map_text = cells[1]["text"]
-            ship_cell = cells[2]
-        else:
-            map_text = cells[0]["text"]
-            ship_cell = cells[1]
-
-        map_match = re.search(r"(?<!\d)([1-7]-[1-6])(?!\d)", map_text)
-        if not map_match:
-            continue
-        map_name = map_match.group(1)
-        ship_names = ship_cell["links"]
-        if not ship_names:
-            ship_names = re.split(r"\s*[,、，;；]\s*", ship_cell["text"])
-        ship_names = [name.strip() for name in ship_names if name.strip()]
-        if ship_names:
-            maps.setdefault(map_name, set()).update(ship_names)
-
-    if not maps:
-        raise ValueError("위키 요약표에서 해역별 함선 목록을 읽지 못했습니다.")
-    for record in parse_recent_limited_event_locations(html_text):
-        maps.setdefault(record["map"], set()).add(record["name"])
+    for record in parse_event_drop_locations(html_text):
+        if record["limited"]:
+            maps.setdefault(record["map"], set()).add(record["name"])
     return {map_name: sorted(names) for map_name, names in maps.items()}
 
 
@@ -271,43 +422,6 @@ def wiki_drop_spots(text):
             yield match.group(1), node
 
 
-def parse_recent_limited_event_locations(html_text):
-    """요약표 기준일 이후 시작한 진행 중 이벤트의 세부표로 신규 항목을 보완합니다."""
-    summary = re.search(
-        r"<h3\b[^>]*>.*?現在継続中の期間限定ドロップ艦[^<]*?(\d{4}-\d{2}-\d{2}).*?</h3>",
-        html_text, re.DOTALL,
-    )
-    if not summary:
-        return []
-    as_of = datetime.strptime(summary.group(1), "%Y-%m-%d").date()
-    headings = list(re.finditer(r"<h2\b[^>]*>(.*?)</h2>", html_text, re.DOTALL))
-    locations = []
-    for index, heading in enumerate(headings):
-        title = re.sub(r"<[^>]+>", "", heading.group(1))
-        started = re.search(r"(\d{4})/(\d{1,2})/(\d{1,2})", title)
-        if not started or "継続中" not in title or "一部" in title or "終了" in title:
-            continue
-        event_date = datetime(*(int(x) for x in started.groups())).date()
-        if event_date <= as_of:
-            continue
-        end = headings[index + 1].start() if index + 1 < len(headings) else len(html_text)
-        section = html_text[heading.end():end]
-        parser = CurrentLimitedDropsParser()
-        parser.feed(f"<h3>{parser.TARGET_HEADING}</h3>" + section)
-        for row in parser.rows:
-            if len(row) < 2:
-                continue
-            map_cell, ships = row[-2:]
-            if "終了" in ships["text"]:
-                continue
-            names = ships["links"] or re.split(r"\s*[,、，]\s*", ships["text"])
-            for map_name, node in wiki_drop_spots(map_cell["text"]):
-                for name in names:
-                    if name.strip():
-                        locations.append({"name": name.strip(), "map": map_name,
-                                          "node": node, "limited": True,
-                                          "event_started": event_date.isoformat()})
-    return locations
 
 
 def load_limited_drops_cache():
@@ -315,7 +429,7 @@ def load_limited_drops_cache():
         with open(LIMITED_DROPS_CACHE_FILE, encoding="utf-8") as file:
             payload = json.load(file)
         maps = payload.get("maps")
-        if isinstance(maps, dict) and payload.get("schema_version") == 2:
+        if isinstance(maps, dict) and payload.get("schema_version") == 3:
             return payload
     except (OSError, json.JSONDecodeError, AttributeError):
         pass
@@ -323,21 +437,18 @@ def load_limited_drops_cache():
 
 
 def parse_limited_drop_locations(html_text):
-    """함선별 툴팁에서 한정 노드와 '※ ... 상시' 참고 노드를 따로 읽습니다."""
+    """한정/종료는 점검 본문, 명시된 상시 참고 위치만 상단 툴팁에서 읽습니다."""
     parser = CurrentLimitedDropsParser()
     parser.feed(html_text)
-    locations = []
+    locations = parse_event_drop_locations(html_text)
     for name, tooltip in parser.tooltips:
-        limited_text, _, permanent_text = tooltip.partition("※")
-        for part, limited in ((limited_text, True), (permanent_text, False)):
-            for map_name, node in wiki_drop_spots(part):
-                record = {"name": name, "map": map_name,
-                          "node": node, "limited": limited}
-                if record not in locations:
-                    locations.append(record)
-    for record in parse_recent_limited_event_locations(html_text):
-        if record not in locations:
-            locations.append(record)
+        _, _, permanent_text = tooltip.partition("※")
+        if not re.search(r"常設|恒常", permanent_text):
+            continue
+        for map_name, node in wiki_drop_spots(permanent_text):
+            record = {"name": name, "map": map_name, "node": node, "limited": False}
+            if record not in locations:
+                locations.append(record)
     if not locations:
         raise ValueError("현재 한정 드랍의 노드 정보를 찾지 못했습니다.")
     return locations
@@ -367,7 +478,7 @@ def refresh_current_limited_drops():
     maps = parse_current_limited_drops(response.text)
     locations = parse_limited_drop_locations(response.text)
     payload = {
-        "schema_version": 2,
+        "schema_version": 3,
         "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "maps": maps,
         "locations": locations,
@@ -390,7 +501,10 @@ def tsunkit_date_range():
 
 def tsunkit_map_names():
     payload = get_tsunkit_json("/maps/all/meta")
-    maps = payload.get("result", {}).get("maps", {})
+    result = payload.get("result")
+    maps = result.get("maps") if isinstance(result, dict) else None
+    if not isinstance(maps, (dict, list)) or not maps:
+        raise ValueError("TsunKit 해역 목록을 읽지 못했습니다.")
     return sorted(
         map_name for map_name in maps
         if re.fullmatch(r"[1-7]-[1-6]", map_name)
@@ -399,7 +513,10 @@ def tsunkit_map_names():
 
 def get_map_boss_groups(map_name):
     payload = get_tsunkit_json(f"/maps/{map_name}")
-    route = payload.get("result", {}).get("route", {})
+    result = payload.get("result")
+    if not isinstance(result, dict) or not isinstance(result.get("route"), dict):
+        raise ValueError(f"{map_name} 지도 데이터를 읽지 못했습니다.")
+    route = result["route"]
     nodes = {edge[1] for edge in route.values()
              if isinstance(edge, list) and len(edge) >= 3 and edge[2] == 5}
     ordered = BOSS_NODES_BY_STAGE.get(map_name)
@@ -437,12 +554,19 @@ def get_boss_drops(map_name, stage=None):
         f"/maps/{map_name}/edges/{edge_path}/drops",
         {"start": start_date, "end": end_date, "ranks": "SA"},
     )
-    result = payload.get("result", {})
-    entries = result.get("entries", [])
+    result = payload.get("result")
+    entries = result.get("entries") if isinstance(result, dict) else None
     if not isinstance(entries, list):
         raise ValueError(f"TsunKit {map_name} 드랍 데이터 형식이 올바르지 않습니다.")
     return [{**entry, "node": node, "boss_stage": stage_number,
              "boss_count": len(groups), "map_name": map_name} for entry in entries]
+
+
+def get_all_boss_drops(map_name):
+    entries = []
+    for stage in range(1, len(get_map_boss_groups(map_name)) + 1):
+        entries.extend(get_boss_drops(map_name, stage))
+    return entries
 
 
 def limited_drop_names(map_name):
@@ -463,11 +587,13 @@ def drop_entry_status(entry, map_name):
     records = [record for record in CURRENT_LIMITED_DROPS.get("locations", [])
                if record["map"] == map_name
                and normalize_ship_name(record["name"]) in entry_names]
-    exact = [record for record in records if record["node"] == node]
+    exact = [record for record in records if record["node"] in (node, "*")]
     if any(record["limited"] for record in exact):
         return "limited"
-    if exact:
+    if any(not record.get("ended") and not record["limited"] for record in exact):
         return "permanent"
+    if any(record.get("ended") for record in exact):
+        return "ended"
     if not records and limited_drop_names(map_name).intersection(entry_names):
         return "unverified"
     # Exclusive 분류만으로 종료/상시를 단정할 수 없습니다.
@@ -530,29 +656,20 @@ def format_map_drops(map_name, entries):
     if entries:
         first = entries[0]
         stage = f"-{first['boss_stage']}" if first.get("boss_count", 1) > 1 else ""
-        location = f"{map_name}{stage} ({first.get('node', '?')})"
+        location = f"{map_name}{stage}"
     else:
         location = map_name
-    lines = [f"{location} 보스 드랍 (S/A · 최근 180일)"]
+    lines = [f"{location} Boss Drop (S/A · 최근 180일)"]
     if not selected:
         lines.append("레어/현재 한정 드랍 함선이 없습니다.")
     else:
         for entry in selected:
-            count = int(entry.get("drops", 0) or 0)
-            total = int(entry.get("total", 0) or 0)
             rate = format_drop_rate(entry)
             limited_mark = " (기간한정)" if entry["limited"] else (
                 " (한정 위치 미확인)" if entry["drop_status"] == "unverified" else "")
-            lines.append(
-                f"· {drop_ship_display_name(entry)} {rate} "
-                f"({count:,}/{total:,}){limited_mark}"
-            )
+            lines.append(f"· {drop_ship_display_name(entry)} {rate}{limited_mark}")
     if not CURRENT_LIMITED_DROPS.get("updated_at"):
-        lines.append("한정 목록 미등록: 점검 후 !드랍갱신을 입력하세요.")
-    else:
-        omitted = sum(drop_entry_status(entry, map_name) == "unconfirmed" for entry in entries)
-        if omitted:
-            lines.append(f"※ 현재 위치가 확인되지 않은 Exclusive 표본 {omitted}개 제외")
+        lines.append("※ 한정 드랍 정보 미등록")
     return "\n".join(lines)
 
 
@@ -569,14 +686,14 @@ def find_ship_boss_drops(keyword):
     maps = tsunkit_map_names()
     results = []
     errors = []
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        futures = {executor.submit(get_boss_drops, map_name): map_name for map_name in maps}
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {executor.submit(get_all_boss_drops, map_name): map_name for map_name in maps}
         for future in as_completed(futures):
             map_name = futures[future]
             try:
                 for entry in future.result():
                     status = drop_entry_status(entry, map_name)
-                    if int(entry.get("id", 0) or 0) in ship_ids and status != "unconfirmed":
+                    if int(entry.get("id", 0) or 0) in ship_ids and status not in ("unconfirmed", "ended"):
                         results.append({
                             **entry,
                             "map_name": map_name,
@@ -591,6 +708,8 @@ def find_ship_boss_drops(keyword):
 
 
 def format_ship_drops(keyword, errors, entries):
+    if errors:
+        raise ValueError("드랍 자료를 모두 불러오지 못했습니다. 잠시 후 다시 시도해주세요.")
     if not entries and not errors:
         return f"'{keyword}'의 보스 드랍 기록을 찾지 못했습니다."
     by_map = {}
@@ -604,6 +723,8 @@ def format_ship_drops(keyword, errors, entries):
             "map_name": map_name,
             "node": entry.get("node", "?"),
             "drop_status": entry.get("drop_status", "permanent"),
+            "boss_count": entry.get("boss_count", 1),
+            "boss_stage": entry.get("boss_stage", 1),
         })
         total = int(entry.get("total", 0) or 0)
         if group["total"] and total != group["total"]:
@@ -620,33 +741,26 @@ def format_ship_drops(keyword, errors, entries):
     ranked_maps.sort(key=lambda entry: (-entry["pct"], entry["map_name"], entry["node"]))
 
     chosen = ranked_maps[:5]
-    # 상시/한정이 함께 있으면 확률이 낮은 한쪽도 최소 한 곳은 보여줍니다.
-    for status in ("limited", "permanent"):
-        if not any(entry["drop_status"] == status for entry in chosen):
-            other = next((entry for entry in ranked_maps if entry["drop_status"] == status), None)
-            if other is not None:
-                if len(chosen) == 5:
-                    removable = next((i for i in range(4, -1, -1)
-                                      if chosen[i]["drop_status"] == "unverified"
-                                      or sum(item["drop_status"] == chosen[i]["drop_status"]
-                                             for item in chosen) > 1), 4)
-                    chosen.pop(removable)
-                chosen.append(other)
-    chosen.sort(key=lambda entry: (-entry["pct"], entry["map_name"], entry["node"]))
-    lines = [f"{keyword} 최종보스 드랍 최대 5곳 (S/A · 최근 180일)"]
-    for entry in chosen:
+    lines = [f"{keyword} Boss Drop Top 5 (S/A · 최근 180일)"]
+
+    def append_location(entry):
         rate = format_drop_rate(entry)
-        count = int(entry.get("drops", 0) or 0)
-        total = int(entry.get("total", 0) or 0)
         limited_mark = " (기간한정)" if entry["limited"] else (
             " (한정 위치 미확인)" if entry["drop_status"] == "unverified" else "")
-        lines.append(
-            f"· {entry['map_name']}-{entry['node']} {rate} ({count:,}/{total:,}){limited_mark}"
-        )
-    if errors:
-        lines.append("일부 해역 데이터 조회에 실패해 결과가 불완전할 수 있습니다.")
+        stage = f"-{entry['boss_stage']}" if entry["boss_count"] > 1 else ""
+        lines.append(f"· {entry['map_name']}{stage} {rate}{limited_mark}")
+
+    for entry in chosen:
+        append_location(entry)
+    # 상위 5개의 순위는 유지하며, 반대 종류가 있을 때만 별도 참고로 제공합니다.
+    for status, heading in (("limited", "추가 기간한정 드랍"), ("permanent", "추가 일반 드랍")):
+        if not any(entry["drop_status"] == status for entry in chosen):
+            other = next((entry for entry in ranked_maps if entry["drop_status"] == status), None)
+            if other:
+                lines.append(heading)
+                append_location(other)
     if not CURRENT_LIMITED_DROPS.get("updated_at"):
-        lines.append("한정 목록 미등록: 점검 후 !드랍갱신을 입력하세요.")
+        lines.append("※ 한정 드랍 정보 미등록")
     return "\n".join(lines)
 
 
@@ -664,7 +778,7 @@ def build_drop_reply(message):
         map_name, stage = match.groups()
         entries = get_boss_drops(map_name, int(stage) if stage else None)
         if not entries and not get_map_boss_groups(map_name):
-            return f"{map_name}에는 보스 전투가 없어 보스 드랍 조회 대상이 아닙니다."
+            return "보스방이 존재하지 않습니다."
         return format_map_drops(map_name, entries)
     errors, entries = find_ship_boss_drops(query)
     if errors is None:
@@ -1090,7 +1204,7 @@ COMMANDS = {
         "!공지 !통합공략 !단발퀘 !반복퀘 !멘테 !월간원정\n"
         "!이벤트 !개구리야 !미르야\n"
         "!전과 [5/20/100/500]\n"
-        "!드랍 [해역/함선명]  |  점검 후 !드랍갱신\n"
+        "!드랍 [해역/함선명]\n"
         "!칸무스 [함선명]\n"
         "![함선명]팬티색"
     ),
