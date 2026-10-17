@@ -6,6 +6,7 @@ import json
 import csv
 import base64
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 app = Flask(__name__)
@@ -328,8 +329,25 @@ def format_senka_ranking(rank):
     for server in servers:
         number = int(server["servernum"])
         name = SENKA_SERVER_NAMES.get(number, f"Server {number}")
-        lines.append(f"{number:02d} {name}: {server['cutoff'][str(rank)]}")
+        value = server["cutoff"][str(rank)]
+        stale_mark = "(미갱신)" if senka_is_stale(server["lastmodifided"]) else ""
+        lines.append(f"{number:02d} {name}: {value}{stale_mark}")
     return "\n".join(lines)
+
+
+def senka_is_stale(last_modified_ms, now=None):
+    """Senka 사이트와 같은 기준으로 예정 갱신 시각이 12시간 지난 서버를 표시합니다."""
+    modified = datetime.fromtimestamp(int(last_modified_ms) / 1000, tz=timezone.utc)
+    hour = modified.hour
+    if 6 <= hour < 18:
+        update_boundary = modified.replace(hour=6, minute=0, second=0, microsecond=0)
+    else:
+        update_boundary = modified.replace(hour=18, minute=0, second=0, microsecond=0)
+        if hour < 6:
+            update_boundary -= timedelta(days=1)
+
+    current_time = now or datetime.now(timezone.utc)
+    return current_time - update_boundary >= timedelta(hours=12)
 
 PANTY_COLORS = [
     "빨강",
