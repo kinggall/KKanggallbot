@@ -4,6 +4,8 @@ import random
 import re
 import json
 import csv
+import base64
+import time
 from pathlib import Path
 
 app = Flask(__name__)
@@ -15,6 +17,17 @@ SHIP_KO_FILE = Path(__file__).parent / "data" / "ship-ko.json"
 SHIP_ALIASES_FILE = Path(__file__).parent / "data" / "ship_aliases.json"
 SHIP_KO_URL = "https://raw.githubusercontent.com/kinggall/Data/master/Translations/ko-KR/ship.json"
 SHIP_ALIASES_URL = "https://raw.githubusercontent.com/kinggall/KKanggallbot/main/data/ship_aliases.json"
+SENKA_PAGE_URL = "https://senka.su/en"
+SENKA_CACHE_SECONDS = 300
+SENKA_RANKS = {"5", "20", "100", "500"}
+SENKA_SERVER_NAMES = {
+    1: "Yokosuka", 2: "Kure", 3: "Sasebo", 4: "Maizuru", 5: "Ominato",
+    6: "Truk", 7: "Lingga", 8: "Rabaul", 9: "Shortland", 10: "Buin",
+    11: "Tawi-Tawi", 12: "Palau", 13: "Brunei", 14: "Hitokappu",
+    15: "Paramushir", 16: "Sukumo", 17: "Kanoya", 18: "Iwagawa",
+    19: "Saiki", 20: "Hashirajima",
+}
+SENKA_CACHE = {"loaded_at": 0.0, "servers": None}
 
 
 def load_ship_data():
@@ -268,6 +281,59 @@ def ship_text(ship, name_ko):
         result.append(f"{next_stage} 개장 레벨: {next_level}")
     return "\n".join(result)
 
+
+def load_senka_data():
+    """Senka Viewer 첫 페이지에 포함된 공개 서버별 랭킹 데이터를 읽습니다."""
+    if SENKA_CACHE["servers"] and time.monotonic() - SENKA_CACHE["loaded_at"] < SENKA_CACHE_SECONDS:
+        return SENKA_CACHE["servers"]
+
+    response = requests.get(
+        SENKA_PAGE_URL,
+        headers={"User-Agent": "Mozilla/5.0 KKanggallbot/1.0"},
+        timeout=15,
+    )
+    response.raise_for_status()
+
+    next_data_match = re.search(
+        r'<script[^>]*id="__NEXT_DATA__"[^>]*>(.*?)</script>',
+        response.text,
+        flags=re.DOTALL,
+    )
+    if not next_data_match:
+        raise ValueError("Senka 페이지에서 데이터 영역을 찾지 못했습니다.")
+
+    next_data = json.loads(next_data_match.group(1))
+    encoded_data = next_data["props"]["pageProps"]["b64data"]
+    decoded_data = json.loads(base64.b64decode(encoded_data))
+    servers = decoded_data.get("server_list")
+    if not isinstance(servers, list) or not servers:
+        raise ValueError("Senka 서버 목록이 비어 있거나 형식이 바뀌었습니다.")
+
+    # 누락되거나 잘못된 데이터가 있으면 조용히 잘못된 순위를 표시하지 않습니다.
+    for server in servers:
+        server_number = int(server["servernum"])
+        cutoff = server["cutoff"]
+        if not 1 <= server_number <= 20 or not isinstance(cutoff, dict):
+            raise ValueError("Senka 서버 데이터 형식이 올바르지 않습니다.")
+        for rank in SENKA_RANKS:
+            if rank not in cutoff:
+                raise ValueError(f"Senka 서버 {server_number}의 Top {rank} 데이터가 없습니다.")
+
+    servers.sort(key=lambda server: int(server["servernum"]))
+    SENKA_CACHE["servers"] = servers
+    SENKA_CACHE["loaded_at"] = time.monotonic()
+    return servers
+
+
+def format_senka_ranking(rank):
+    servers = load_senka_data()
+    lines = [f"Senka 랭킹컷 Top {rank}"]
+    for server in servers:
+        number = int(server["servernum"])
+        name = SENKA_SERVER_NAMES.get(number, f"Server {number}")
+        lines.append(f"{number:02d} {name}: {server['cutoff'][str(rank)]}")
+    return "\n".join(lines)
+
 PANTY_COLORS = [
     "빨강",
     "주황",
@@ -318,6 +384,7 @@ COMMANDS = {
         "사용 가능한 명령어:\n"
         "!공지 !통합공략 !단발퀘 !반복퀘 !멘테 !월간원정\n"
         "!이벤트 !개구리야 !미르야\n"
+        "!랭컷 [5/20/100/500]\n"
         "!칸무스 [함선명]\n"
         "![함선명]팬티색"
     ),
@@ -391,6 +458,26 @@ def webhook():
     chat_id = data.get("json", {}).get("chat_id", room)
 
     print(f"[받은 메시지] 방={room}, 내용={message}")
+
+    if message.startswith("!랭컷"):
+        arguments = message.split()
+        if len(arguments) != 2 or arguments[0] != "!랭컷" or arguments[1] not in SENKA_RANKS:
+            reply = "사용법: !랭컷 5 / !랭컷 20 / !랭컷 100 / !랭컷 500"
+        else:
+            try:
+                reply = format_senka_ranking(arguments[1])
+            except Exception as error:
+                print(f"[랭킹컷 조회 실패] {error}")
+                reply = "랭킹컷 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
+
+        reply_data = {
+            "type": "text",
+            "room": str(chat_id),
+            "data": reply
+        }
+        response = requests.post(IRIS_REPLY_URL, json=reply_data, timeout=10)
+        print(f"[랭킹컷 답변] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
 
     if message.startswith("!칸무스 "):
         arguments = message[len("!칸무스 "):].strip().split()
