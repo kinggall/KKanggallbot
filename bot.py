@@ -39,7 +39,6 @@ TSUNKIT_API = "https://tsunkit.net/api/routing"
 TSUNKIT_CACHE_SECONDS = 12 * 60 * 60
 TSUNKIT_CACHE_LOCK = threading.RLock()
 TSUNKIT_CACHE = {}
-DROP_COMMAND_EXECUTOR = ThreadPoolExecutor(max_workers=1)
 BOSS_NODES_BY_STAGE = {
     "5-6": ("G", "N", "Z"),
     "7-2": ("G", "M"),
@@ -455,13 +454,6 @@ def parse_limited_drop_locations(html_text):
 
 
 CURRENT_LIMITED_DROPS = load_limited_drops_cache()
-if CURRENT_LIMITED_DROPS.get("updated_at"):
-    print(
-        "[한정 드랍 목록] 로컬 캐시 "
-        f"{len(CURRENT_LIMITED_DROPS.get('maps', {}))}개 해역 로드 완료"
-    )
-else:
-    print("[한정 드랍 목록] 아직 저장된 목록이 없습니다. 점검 후 !드랍갱신을 입력하세요.")
 
 
 def refresh_current_limited_drops():
@@ -1204,7 +1196,6 @@ COMMANDS = {
         "!공지 !통합공략 !단발퀘 !반복퀘 !멘테 !월간원정\n"
         "!이벤트 !개구리야 !미르야\n"
         "!전과 [5/20/100/500]\n"
-        "!드랍 [해역/함선명]\n"
         "!칸무스 [함선명]\n"
         "![함선명]팬티색"
     ),
@@ -1278,10 +1269,6 @@ def webhook():
     chat_id = data.get("json", {}).get("chat_id", room)
 
     print(f"[받은 메시지] 방={room}, 내용={message}")
-
-    if message == "!드랍갱신" or message == "!드랍" or message.startswith("!드랍 "):
-        DROP_COMMAND_EXECUTOR.submit(send_drop_reply, message, chat_id)
-        return jsonify({"ok": True})
 
     if message.startswith("!전과"):
         arguments = message.split()
