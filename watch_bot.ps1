@@ -31,7 +31,7 @@ function Start-Bot {
     Write-Host "Starting bot.py..."
     $process = Start-Process `
         -FilePath $PythonPath `
-        -ArgumentList "bot.py" `
+        -ArgumentList $BotScriptPath `
         -WorkingDirectory $RepoPath `
         -RedirectStandardOutput $stdout `
         -RedirectStandardError $stderr `
