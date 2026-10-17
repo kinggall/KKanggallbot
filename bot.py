@@ -39,6 +39,13 @@ TSUNKIT_API = "https://tsunkit.net/api/routing"
 TSUNKIT_CACHE_SECONDS = 12 * 60 * 60
 TSUNKIT_CACHE_LOCK = threading.RLock()
 TSUNKIT_CACHE = {}
+DROP_COMMAND_EXECUTOR = ThreadPoolExecutor(max_workers=1)
+BOSS_NODES_BY_STAGE = {
+    "5-6": ("G", "N", "Z"),
+    "7-2": ("G", "M"),
+    "7-3": ("E", "P"),
+    "7-5": ("K", "Q", "T"),
+}
 DROP_REQUEST_TIMEOUT = 20
 WIKI_LIMITED_DROPS_URL = (
     "https://wikiwiki.jp/kancolle/"
@@ -145,6 +152,8 @@ class CurrentLimitedDropsParser(HTMLParser):
         self.row_cells = []
         self.rows = []
         self.candidate_rows = []
+        self.tooltips = []
+        self.anchor_tooltip = None
 
     def handle_starttag(self, tag, attrs):
         if tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
@@ -163,6 +172,7 @@ class CurrentLimitedDropsParser(HTMLParser):
         elif self.in_target_table and self.in_cell and tag == "a":
             self.in_anchor = True
             self.anchor_text = []
+            self.anchor_tooltip = dict(attrs).get("data-tooltip-content")
 
     def handle_data(self, data):
         if self.heading_tag:
@@ -183,6 +193,9 @@ class CurrentLimitedDropsParser(HTMLParser):
             anchor = " ".join("".join(self.anchor_text).split())
             if anchor:
                 self.cell_anchors.append(anchor)
+                if self.anchor_tooltip:
+                    self.tooltips.append((anchor, self.anchor_tooltip))
+            self.anchor_tooltip = None
             self.in_anchor = False
             self.anchor_text = []
         elif self.in_target_table and self.in_cell and tag in ("td", "th"):
@@ -243,7 +256,58 @@ def parse_current_limited_drops(html_text):
 
     if not maps:
         raise ValueError("위키 요약표에서 해역별 함선 목록을 읽지 못했습니다.")
+    for record in parse_recent_limited_event_locations(html_text):
+        maps.setdefault(record["map"], set()).add(record["name"])
     return {map_name: sorted(names) for map_name, names in maps.items()}
+
+
+def wiki_drop_spots(text):
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = text.translate(str.maketrans({c: "-" for c in "ｰー−‐–—"}))
+    for match in re.finditer(
+        r"([1-7]-[1-6])-([A-Z]+\d*(?:\s*[,、]\s*[A-Z]+\d*)*)", text
+    ):
+        for node in re.split(r"\s*[,、]\s*", match.group(2)):
+            yield match.group(1), node
+
+
+def parse_recent_limited_event_locations(html_text):
+    """요약표 기준일 이후 시작한 진행 중 이벤트의 세부표로 신규 항목을 보완합니다."""
+    summary = re.search(
+        r"<h3\b[^>]*>.*?現在継続中の期間限定ドロップ艦[^<]*?(\d{4}-\d{2}-\d{2}).*?</h3>",
+        html_text, re.DOTALL,
+    )
+    if not summary:
+        return []
+    as_of = datetime.strptime(summary.group(1), "%Y-%m-%d").date()
+    headings = list(re.finditer(r"<h2\b[^>]*>(.*?)</h2>", html_text, re.DOTALL))
+    locations = []
+    for index, heading in enumerate(headings):
+        title = re.sub(r"<[^>]+>", "", heading.group(1))
+        started = re.search(r"(\d{4})/(\d{1,2})/(\d{1,2})", title)
+        if not started or "継続中" not in title or "一部" in title or "終了" in title:
+            continue
+        event_date = datetime(*(int(x) for x in started.groups())).date()
+        if event_date <= as_of:
+            continue
+        end = headings[index + 1].start() if index + 1 < len(headings) else len(html_text)
+        section = html_text[heading.end():end]
+        parser = CurrentLimitedDropsParser()
+        parser.feed(f"<h3>{parser.TARGET_HEADING}</h3>" + section)
+        for row in parser.rows:
+            if len(row) < 2:
+                continue
+            map_cell, ships = row[-2:]
+            if "終了" in ships["text"]:
+                continue
+            names = ships["links"] or re.split(r"\s*[,、，]\s*", ships["text"])
+            for map_name, node in wiki_drop_spots(map_cell["text"]):
+                for name in names:
+                    if name.strip():
+                        locations.append({"name": name.strip(), "map": map_name,
+                                          "node": node, "limited": True,
+                                          "event_started": event_date.isoformat()})
+    return locations
 
 
 def load_limited_drops_cache():
@@ -251,11 +315,32 @@ def load_limited_drops_cache():
         with open(LIMITED_DROPS_CACHE_FILE, encoding="utf-8") as file:
             payload = json.load(file)
         maps = payload.get("maps")
-        if isinstance(maps, dict):
+        if isinstance(maps, dict) and payload.get("schema_version") == 2:
             return payload
     except (OSError, json.JSONDecodeError, AttributeError):
         pass
     return {"updated_at": None, "maps": {}}
+
+
+def parse_limited_drop_locations(html_text):
+    """함선별 툴팁에서 한정 노드와 '※ ... 상시' 참고 노드를 따로 읽습니다."""
+    parser = CurrentLimitedDropsParser()
+    parser.feed(html_text)
+    locations = []
+    for name, tooltip in parser.tooltips:
+        limited_text, _, permanent_text = tooltip.partition("※")
+        for part, limited in ((limited_text, True), (permanent_text, False)):
+            for map_name, node in wiki_drop_spots(part):
+                record = {"name": name, "map": map_name,
+                          "node": node, "limited": limited}
+                if record not in locations:
+                    locations.append(record)
+    for record in parse_recent_limited_event_locations(html_text):
+        if record not in locations:
+            locations.append(record)
+    if not locations:
+        raise ValueError("현재 한정 드랍의 노드 정보를 찾지 못했습니다.")
+    return locations
 
 
 CURRENT_LIMITED_DROPS = load_limited_drops_cache()
@@ -280,9 +365,12 @@ def refresh_current_limited_drops():
     )
     response.raise_for_status()
     maps = parse_current_limited_drops(response.text)
+    locations = parse_limited_drop_locations(response.text)
     payload = {
+        "schema_version": 2,
         "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "maps": maps,
+        "locations": locations,
     }
     temporary_file = LIMITED_DROPS_CACHE_FILE.with_suffix(".tmp")
     with open(temporary_file, "w", encoding="utf-8") as file:
@@ -309,19 +397,40 @@ def tsunkit_map_names():
     )
 
 
-def get_map_boss_edges(map_name):
+def get_map_boss_groups(map_name):
     payload = get_tsunkit_json(f"/maps/{map_name}")
     route = payload.get("result", {}).get("route", {})
-    return [
-        str(edge_id) for edge_id, edge in route.items()
-        if isinstance(edge, list) and len(edge) >= 3 and edge[2] == 5
-    ]
+    nodes = {edge[1] for edge in route.values()
+             if isinstance(edge, list) and len(edge) >= 3 and edge[2] == 5}
+    ordered = BOSS_NODES_BY_STAGE.get(map_name)
+    if ordered:
+        if set(ordered) != nodes:
+            raise ValueError(f"{map_name} 보스 구성이 변경되어 재확인이 필요합니다.")
+    elif len(nodes) > 1:
+        raise ValueError(f"{map_name}의 최종보스 노드 확인이 필요합니다.")
+    else:
+        ordered = sorted(nodes)
+    return [(node, [str(key) for key, edge in route.items() if edge[1] == node])
+            for node in ordered]
 
 
-def get_boss_drops(map_name):
-    edges = get_map_boss_edges(map_name)
-    if not edges:
+def get_map_boss_edges(map_name, stage=None):
+    groups = get_map_boss_groups(map_name)
+    if not groups:
         return []
+    if stage is not None and not 1 <= stage <= len(groups):
+        raise ValueError(f"{map_name}은 {len(groups)}개 보스가 있습니다.")
+    return groups[-1 if stage is None else stage - 1][1]
+
+
+def get_boss_drops(map_name, stage=None):
+    groups = get_map_boss_groups(map_name)
+    if not groups:
+        return []
+    if stage is not None and not 1 <= stage <= len(groups):
+        raise ValueError(f"{map_name}은 {len(groups)}개 보스가 있습니다.")
+    stage_number = len(groups) if stage is None else stage
+    node, edges = groups[stage_number - 1]
     start_date, end_date = tsunkit_date_range()
     edge_path = ",".join(edges)
     payload = get_tsunkit_json(
@@ -332,7 +441,8 @@ def get_boss_drops(map_name):
     entries = result.get("entries", [])
     if not isinstance(entries, list):
         raise ValueError(f"TsunKit {map_name} 드랍 데이터 형식이 올바르지 않습니다.")
-    return entries
+    return [{**entry, "node": node, "boss_stage": stage_number,
+             "boss_count": len(groups), "map_name": map_name} for entry in entries]
 
 
 def limited_drop_names(map_name):
@@ -343,13 +453,46 @@ def limited_drop_names(map_name):
     }
 
 
-def drop_entry_is_limited(entry, map_name):
-    current_names = limited_drop_names(map_name)
+def drop_entry_status(entry, map_name):
     entry_names = {
         normalize_ship_name(entry.get("name", "")),
         normalize_ship_name(entry.get("name_en", "")),
     }
-    return bool(current_names.intersection(entry_names))
+    entry_names.update(DROP_SHIP_NAMES.get(int(entry.get("id", 0) or 0), set()))
+    node = entry.get("node")
+    records = [record for record in CURRENT_LIMITED_DROPS.get("locations", [])
+               if record["map"] == map_name
+               and normalize_ship_name(record["name"]) in entry_names]
+    exact = [record for record in records if record["node"] == node]
+    if any(record["limited"] for record in exact):
+        return "limited"
+    if exact:
+        return "permanent"
+    if not records and limited_drop_names(map_name).intersection(entry_names):
+        return "unverified"
+    # Exclusive 분류만으로 종료/상시를 단정할 수 없습니다.
+    # 현재 위치 근거가 없으면 미확인으로 두고 현재 목록에서는 제외합니다.
+    if entry.get("rarity") == 2:
+        return "unconfirmed"
+    return "permanent"
+
+
+def drop_entry_is_limited(entry, map_name):
+    return drop_entry_status(entry, map_name) == "limited"
+
+
+def drop_rate_value(entry):
+    total = int(entry.get("total", 0) or 0)
+    if total > 0:
+        return int(entry.get("drops", 0) or 0) / total * 100
+    return float(entry.get("pct", 0) or 0)
+
+
+def format_drop_rate(entry):
+    value = drop_rate_value(entry)
+    if 0 < value < 0.01:
+        return "<0.01%"
+    return f"{value:.2f}%"
 
 
 def filter_rare_and_limited_drops(entries, map_name):
@@ -357,35 +500,59 @@ def filter_rare_and_limited_drops(entries, map_name):
     for entry in entries:
         if int(entry.get("id", 0) or 0) <= 0:
             continue
-        limited = drop_entry_is_limited(entry, map_name)
-        if limited or entry.get("rarity") == 1:
-            selected.append({**entry, "limited": limited})
-    selected.sort(key=lambda entry: float(entry.get("pct", 0) or 0), reverse=True)
+        status = drop_entry_status(entry, map_name)
+        if status in ("limited", "unverified") or (
+            status == "permanent" and entry.get("rarity") in (1, 2)
+        ):
+            selected.append({**entry, "limited": status == "limited", "drop_status": status})
+    selected.sort(key=lambda entry: (-drop_rate_value(entry), int(entry.get("id", 0) or 0)))
     return selected
 
 
 def drop_ship_display_name(entry):
     name_jp = str(entry.get("name", "")).strip()
-    return SHIP_TRANSLATIONS.get(name_jp) or entry.get("name_en") or name_jp or "알 수 없는 함선"
+    translated = SHIP_TRANSLATIONS.get(name_jp)
+    if translated:
+        return translated
+    ship = SHIP_BY_GAME_ID.get(int(entry.get("id", 0) or 0), {})
+    canonical = ship.get("艦名", name_jp)
+    translated = SHIP_TRANSLATIONS.get(canonical)
+    if translated:
+        return translated
+    for alias in SHIP_ALIASES.get(canonical, []):
+        if re.search(r"[가-힣]", alias):
+            return alias
+    return entry.get("name_en") or name_jp or "알 수 없는 함선"
 
 
 def format_map_drops(map_name, entries):
     selected = filter_rare_and_limited_drops(entries, map_name)
-    lines = [f"{map_name} 보스 드랍 (최근 6개월)"]
+    if entries:
+        first = entries[0]
+        stage = f"-{first['boss_stage']}" if first.get("boss_count", 1) > 1 else ""
+        location = f"{map_name}{stage} ({first.get('node', '?')})"
+    else:
+        location = map_name
+    lines = [f"{location} 보스 드랍 (S/A · 최근 180일)"]
     if not selected:
         lines.append("레어/현재 한정 드랍 함선이 없습니다.")
     else:
         for entry in selected:
             count = int(entry.get("drops", 0) or 0)
             total = int(entry.get("total", 0) or 0)
-            pct = float(entry.get("pct", 0) or 0)
-            limited_mark = " (기간한정)" if entry["limited"] else ""
+            rate = format_drop_rate(entry)
+            limited_mark = " (기간한정)" if entry["limited"] else (
+                " (한정 위치 미확인)" if entry["drop_status"] == "unverified" else "")
             lines.append(
-                f"· {drop_ship_display_name(entry)} {pct:.2f}% "
+                f"· {drop_ship_display_name(entry)} {rate} "
                 f"({count:,}/{total:,}){limited_mark}"
             )
     if not CURRENT_LIMITED_DROPS.get("updated_at"):
         lines.append("한정 목록 미등록: 점검 후 !드랍갱신을 입력하세요.")
+    else:
+        omitted = sum(drop_entry_status(entry, map_name) == "unconfirmed" for entry in entries)
+        if omitted:
+            lines.append(f"※ 현재 위치가 확인되지 않은 Exclusive 표본 {omitted}개 제외")
     return "\n".join(lines)
 
 
@@ -408,11 +575,13 @@ def find_ship_boss_drops(keyword):
             map_name = futures[future]
             try:
                 for entry in future.result():
-                    if int(entry.get("id", 0) or 0) in ship_ids:
+                    status = drop_entry_status(entry, map_name)
+                    if int(entry.get("id", 0) or 0) in ship_ids and status != "unconfirmed":
                         results.append({
                             **entry,
                             "map_name": map_name,
-                            "limited": drop_entry_is_limited(entry, map_name),
+                            "limited": status == "limited",
+                            "drop_status": status,
                         })
             except Exception as error:
                 print(f"[드랍 검색 일부 실패] 해역={map_name}, 오류={error}")
@@ -427,37 +596,104 @@ def format_ship_drops(keyword, errors, entries):
     by_map = {}
     for entry in entries:
         map_name = entry["map_name"]
-        group = by_map.setdefault(map_name, {
+        key = (map_name, entry.get("node"), entry.get("drop_status", "permanent"))
+        group = by_map.setdefault(key, {
             "drops": 0,
             "total": 0,
             "limited": False,
+            "map_name": map_name,
+            "node": entry.get("node", "?"),
+            "drop_status": entry.get("drop_status", "permanent"),
         })
+        total = int(entry.get("total", 0) or 0)
+        if group["total"] and total != group["total"]:
+            raise ValueError("동일 노드의 표본 수가 달라 확률을 합산할 수 없습니다.")
         group["drops"] += int(entry.get("drops", 0) or 0)
-        group["total"] = max(group["total"], int(entry.get("total", 0) or 0))
+        group["total"] = total
         group["limited"] = group["limited"] or entry["limited"]
 
     ranked_maps = []
-    for map_name, group in by_map.items():
+    for group in by_map.values():
         if group["total"]:
-            group["map_name"] = map_name
             group["pct"] = group["drops"] / group["total"] * 100
             ranked_maps.append(group)
-    ranked_maps.sort(key=lambda entry: entry["pct"], reverse=True)
+    ranked_maps.sort(key=lambda entry: (-entry["pct"], entry["map_name"], entry["node"]))
 
-    lines = [f"{keyword} 보스 드랍률 상위 5개 (최근 6개월)"]
-    for entry in ranked_maps[:5]:
-        pct = float(entry.get("pct", 0) or 0)
+    chosen = ranked_maps[:5]
+    # 상시/한정이 함께 있으면 확률이 낮은 한쪽도 최소 한 곳은 보여줍니다.
+    for status in ("limited", "permanent"):
+        if not any(entry["drop_status"] == status for entry in chosen):
+            other = next((entry for entry in ranked_maps if entry["drop_status"] == status), None)
+            if other is not None:
+                if len(chosen) == 5:
+                    removable = next((i for i in range(4, -1, -1)
+                                      if chosen[i]["drop_status"] == "unverified"
+                                      or sum(item["drop_status"] == chosen[i]["drop_status"]
+                                             for item in chosen) > 1), 4)
+                    chosen.pop(removable)
+                chosen.append(other)
+    chosen.sort(key=lambda entry: (-entry["pct"], entry["map_name"], entry["node"]))
+    lines = [f"{keyword} 최종보스 드랍 최대 5곳 (S/A · 최근 180일)"]
+    for entry in chosen:
+        rate = format_drop_rate(entry)
         count = int(entry.get("drops", 0) or 0)
         total = int(entry.get("total", 0) or 0)
-        limited_mark = " (기간한정)" if entry["limited"] else ""
+        limited_mark = " (기간한정)" if entry["limited"] else (
+            " (한정 위치 미확인)" if entry["drop_status"] == "unverified" else "")
         lines.append(
-            f"· {entry['map_name']} {pct:.2f}% ({count:,}/{total:,}){limited_mark}"
+            f"· {entry['map_name']}-{entry['node']} {rate} ({count:,}/{total:,}){limited_mark}"
         )
     if errors:
         lines.append("일부 해역 데이터 조회에 실패해 결과가 불완전할 수 있습니다.")
     if not CURRENT_LIMITED_DROPS.get("updated_at"):
         lines.append("한정 목록 미등록: 점검 후 !드랍갱신을 입력하세요.")
     return "\n".join(lines)
+
+
+def build_drop_reply(message):
+    if message == "!드랍갱신":
+        map_count, ship_count = refresh_current_limited_drops()
+        updated = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M")
+        return (f"현재 한정 드랍 목록 갱신 완료 ({map_count}개 해역, "
+                f"{ship_count}개 함선)\n갱신 시각: {updated}")
+    query = message[len("!드랍"):].strip()
+    if not query:
+        return "사용법: !드랍 5-5 / !드랍 7-5-1 / !드랍 함선명 또는 별명"
+    match = re.fullmatch(r"([1-7]-[1-6])(?:-([1-3]))?", query)
+    if match:
+        map_name, stage = match.groups()
+        entries = get_boss_drops(map_name, int(stage) if stage else None)
+        if not entries and not get_map_boss_groups(map_name):
+            return f"{map_name}에는 보스 전투가 없어 보스 드랍 조회 대상이 아닙니다."
+        return format_map_drops(map_name, entries)
+    errors, entries = find_ship_boss_drops(query)
+    if errors is None:
+        return f"'{query}' 칸무스를 찾지 못했습니다."
+    return format_ship_drops(query, errors, entries)
+
+
+def send_drop_reply(message, chat_id):
+    """전체 해역 조회가 길어져도 Iris의 webhook 요청은 즉시 마칠 수 있게 합니다."""
+    try:
+        reply = build_drop_reply(message)
+    except Exception as error:
+        print(f"[드랍 처리 실패] 명령={message}, 오류={error}")
+        if message == "!드랍갱신":
+            reply = "한정 드랍 목록을 갱신하지 못했습니다. 기존 목록은 유지합니다."
+        elif isinstance(error, ValueError):
+            reply = str(error)
+        else:
+            reply = "드랍 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
+    try:
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        response.raise_for_status()
+        print(f"[드랍 답변] 상태 코드={response.status_code}")
+    except requests.RequestException as error:
+        print(f"[드랍 답변 전송 실패] {error}")
 
 
 def load_ship_data():
@@ -542,6 +778,31 @@ def build_ship_graph():
 
 
 SHIP_GRAPH = build_ship_graph()
+SHIP_BY_GAME_ID = {int(ship.get("艦船ID", 0) or 0): ship for ship in SHIPS}
+
+
+def build_drop_ship_name_index():
+    """API의 宗谷(AGS) 같은 표기도 게임 함선 ID로 CSV 계보와 연결합니다."""
+    remaining = set(range(len(SHIPS)))
+    index = {}
+    while remaining:
+        component = set()
+        pending = [next(iter(remaining))]
+        while pending:
+            current = pending.pop()
+            if current in component:
+                continue
+            component.add(current)
+            pending.extend(SHIP_GRAPH.get(current, set()) - component)
+        remaining.difference_update(component)
+        names = {normalize_ship_name(SHIPS[i].get("艦名", "")) for i in component}
+        for i in component:
+            ship_id = int(SHIPS[i].get("艦船ID", 0) or 0)
+            index.setdefault(ship_id, set()).update(names)
+    return index
+
+
+DROP_SHIP_NAMES = build_drop_ship_name_index()
 
 
 def search_ships(keyword):
@@ -904,54 +1165,8 @@ def webhook():
 
     print(f"[받은 메시지] 방={room}, 내용={message}")
 
-    if message == "!드랍갱신":
-        try:
-            map_count, ship_count = refresh_current_limited_drops()
-            updated = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M")
-            reply = (
-                f"현재 한정 드랍 목록 갱신 완료 ({map_count}개 해역, "
-                f"{ship_count}개 함선)\n갱신 시각: {updated}"
-            )
-            print(f"[한정 드랍 목록] {map_count}개 해역 갱신")
-        except Exception as error:
-            print(f"[한정 드랍 목록 갱신 실패] {error}")
-            reply = "한정 드랍 목록을 갱신하지 못했습니다. 기존 목록은 유지합니다."
-
-        response = requests.post(
-            IRIS_REPLY_URL,
-            json={"type": "text", "room": str(chat_id), "data": reply},
-            timeout=10,
-        )
-        print(f"[드랍 목록 갱신 답변] 상태 코드={response.status_code}")
-        return jsonify({"ok": True})
-
-    if message == "!드랍" or message.startswith("!드랍 "):
-        query = message[len("!드랍"):].strip()
-        if not query:
-            reply = "사용법: !드랍 5-5 또는 !드랍 함선명"
-        elif re.fullmatch(r"[1-7]-[1-6]", query):
-            try:
-                reply = format_map_drops(query, get_boss_drops(query))
-            except Exception as error:
-                print(f"[해역 드랍 조회 실패] 해역={query}, 오류={error}")
-                reply = f"{query} 보스 드랍 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
-        else:
-            try:
-                errors, entries = find_ship_boss_drops(query)
-                if errors is None:
-                    reply = f"'{query}' 칸무스를 찾지 못했습니다."
-                else:
-                    reply = format_ship_drops(query, errors, entries)
-            except Exception as error:
-                print(f"[함선 드랍 검색 실패] 함선={query}, 오류={error}")
-                reply = "함선 드랍 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
-
-        response = requests.post(
-            IRIS_REPLY_URL,
-            json={"type": "text", "room": str(chat_id), "data": reply},
-            timeout=10,
-        )
-        print(f"[드랍 조회 답변] 상태 코드={response.status_code}")
+    if message == "!드랍갱신" or message == "!드랍" or message.startswith("!드랍 "):
+        DROP_COMMAND_EXECUTOR.submit(send_drop_reply, message, chat_id)
         return jsonify({"ok": True})
 
     if message.startswith("!전과"):
