@@ -15,6 +15,14 @@ from improvement import ImprovementCatalog, cost_at, star_ranges, DAY_ORDER
 
 
 class ImprovementTests(unittest.TestCase):
+    def phase(self, text, label):
+        lines = text.splitlines()
+        index = next(i for i, line in enumerate(lines) if line.startswith(label + " -"))
+        result = [lines[index]]
+        if index + 1 < len(lines) and lines[index + 1].startswith(" · 소모아이템 :"):
+            result.append(lines[index + 1])
+        return "\n".join(result)
+
     @classmethod
     def setUpClass(cls):
         cls.catalog = ImprovementCatalog(ROOT)
@@ -43,18 +51,18 @@ class ImprovementTests(unittest.TestCase):
         costs = self.catalog.upgrades[573]["improvement"][0]["costs"]
         self.assertEqual([(a, b) for a, b, _ in star_ranges(costs)], [(0, 5), (6, 6), (7, 8), (9, 9)])
         text = self.bot.build_improvement_reply("#573")
-        self.assertIn("★7~★8 -", text)
-        self.assertIn("공창자원 1개", next(l for l in text.splitlines() if l.startswith("★9 -")))
-        self.assertNotIn("공창자원", next(l for l in text.splitlines() if l.startswith("★7~★8 -")))
+        self.assertIn("★7~8 -", text)
+        self.assertIn("공창자원 1개", self.phase(text, "★9"))
+        self.assertNotIn("공창자원", self.phase(text, "★7~8"))
 
     def test_overseas_technology_and_each_special_material_boundary(self):
         text = self.bot.build_improvement_reply("콜세어 1D")
-        self.assertIn("해외함 최신기술 1개", next(l for l in text.splitlines() if l.startswith("★7~★9 -")))
-        self.assertNotIn("해외함 최신기술", next(l for l in text.splitlines() if l.startswith("★6 -")))
+        self.assertIn("해외함 최신기술 1개", self.phase(text, "★7~9"))
+        self.assertNotIn("해외함 최신기술", self.phase(text, "★6"))
         radar = self.bot.build_improvement_reply("#574")
-        self.assertIn("공창자원 2개", next(l for l in radar.splitlines() if l.startswith("★7~★8 -")))
-        self.assertIn("신형병장자재 2개", next(l for l in radar.splitlines() if l.startswith("★9 -")))
-        self.assertNotIn("공창자원", next(l for l in radar.splitlines() if l.startswith("★9 -")))
+        self.assertIn("공창자원 2개", self.phase(radar, "★7~8"))
+        self.assertIn("신형병장자재 2개", self.phase(radar, "★9"))
+        self.assertNotIn("공창자원", self.phase(radar, "★9"))
 
     def test_sonar_conversion_keeps_result_stars_cost_and_helpers_separate(self):
         text = self.bot.build_improvement_reply("#46")
@@ -67,7 +75,7 @@ class ImprovementTests(unittest.TestCase):
         self.assertIn("이스즈 개2 (목금)", second)
         self.assertNotIn("시구레", first)
         self.assertIn("시구레", second)
-        self.assertEqual(normal.count("★0~★5"), 1)
+        self.assertEqual(normal.count("★0~5"), 1)
 
     def test_branch_specific_arsenal_materials_are_not_leaked(self):
         text = self.bot.build_improvement_reply("#63")
@@ -120,7 +128,30 @@ class ImprovementTests(unittest.TestCase):
         self.assertEqual(self.bot.build_improvement_reply(""), "사용법: !개수 [장비명]")
         self.assertIn("찾지 못했습니다", self.bot.build_improvement_reply("없는장비"))
         self.assertIn("개수 정보 없음", self.bot.build_improvement_reply("#42"))
-        self.assertIn("비서함·요일 정보 미등록", self.bot.build_improvement_reply("#2"))
+        self.assertIn("○ 2번함\n - 정보 없음", self.bot.build_improvement_reply("#2"))
+
+    def test_requested_127mm_layout_whitespace_and_single_conversion_title(self):
+        self.assertEqual(self.bot.build_improvement_reply("#2"),
+                         "12.7cm 연장포\n"
+                         "★0~5 - 자재 1 / 나사 1 (확정 시 2 / 2)\n"
+                         "★6~9 - 자재 1 / 나사 1 (확정 시 2 / 2)\n"
+                         " · 소모아이템 : 12.7cm 연장포 1개\n\n"
+                         "○ 2번함\n - 정보 없음\n\n"
+                         "※ 개수변환 - 12.7cm 연장포 B형 개2\n"
+                         "★max - 자재 2 / 나사 3 (확정 시 3 / 6)\n"
+                         " · 소모아이템 : 12.7cm 연장포 2개\n\n"
+                         "○ 2번함\n - 정보 없음")
+
+    def test_radar_helpers_group_only_identical_weekdays_in_remodel_order(self):
+        text = self.bot.build_improvement_reply("#27")
+        self.assertEqual(text.count(" - 시구레[미개장/개1] (금토일)"), 2)
+        self.assertEqual(text.count(" - 시구레[개2/개3] (토일)"), 2)
+        self.assertLess(text.index("시구레[미개장/개1]"), text.index("시구레[개2/개3]"))
+        self.assertIn(" - 아키즈키[미개장/개1/개2] (화수목)", text)
+        self.assertNotIn("시구레[미개장/개1/개2/개3]", text)
+        self.assertNotIn("비서함", text)
+        self.assertNotIn("자원:", text)
+        self.assertNotIn("개수변환1", text)
 
     def test_webhook_replies_once_to_original_room_and_help_lists_command(self):
         for command in ("!개수 #46", "!개수 콜세어 1D", "!개수"):

@@ -1154,7 +1154,9 @@ def build_ship_slots_reply(keyword):
 
 
 def build_improvement_reply(keyword):
+    data = improvement.catalog()
     ship_names = {}
+    ship_forms = {}
     for ship in SHIPS:
         ship_id = int(ship["艦船ID"])
         japanese = ship["艦名"]
@@ -1173,8 +1175,17 @@ def build_improvement_reply(keyword):
             name = f"{SHIP_TRANSLATIONS.get(japanese, name)} {ship_stage(ship)}"
         else:
             name = re.sub(r"(?<=[가-힣])(?=개(?:[123]|$))", " ", name)
+            if name.endswith(" 개"):
+                name += "1"
         ship_names[ship_id] = name
-    return improvement.catalog().reply(keyword, ship_names)
+        base = SHIP_BY_GAME_ID.get(data.families.get(ship_id, ship_id), ship)
+        japanese_base = base["艦名"]
+        base_name = development.translated_ship_name(japanese_base, SHIP_TRANSLATIONS)
+        if base_name == japanese_base:
+            base_name = next((alias for alias in SHIP_ALIASES.get(japanese_base, [])
+                              if re.search(r"[가-힣]", alias)), base_name)
+        ship_forms[ship_id] = (base_name, ship_stage(ship), int(ship["改装段階"]))
+    return data.reply(keyword, ship_names, ship_forms)
 
 
 def build_initial_equipment_reply(keyword):

@@ -30,6 +30,8 @@ Game master data and other pre-existing external datasets retain their respectiv
 
 The Python implementation in `improvement.py`, added 2026-10-18, follows the target-level cost rules and additive extra-material handling in ElectronicObserverEN/ElectronicObserver revision `8b66df3ffeb79ddef0d092693cf0d257ee96c1a7`, particularly `ElectronicObserver/Utility/Data/EquipmentUpgradeCostExtensions.cs` and `ElectronicObserver.Core/Types/Serialization/EquipmentUpgrade`. It adds Korean names, contiguous equal-cost grouping, helper weekdays, distinct conversion routes, and the `!개수` webhook command. The MIT notice for the referenced software is preserved below. The combined bot continues to be distributed under GPL-3.0, retaining this compatible upstream notice.
 
+Subsequent presentation changes: label helpers as the second ship, group same-family remodel forms only when weekday sets match, hide base resources, separate material consumption from development/screw costs, and omit numbering for a single conversion. Original numeric data and eligibility IDs remain unchanged.
+
 The MIT License (MIT)
 
 Original work copyright (c) 2014 Andante

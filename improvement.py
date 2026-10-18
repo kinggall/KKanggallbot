@@ -64,6 +64,8 @@ class ImprovementCatalog:
         self.equipment = equipment_lookup.EquipmentCatalog(root)
         rows = json.loads((root / "data/equipment_upgrades.json").read_text(encoding="utf-8-sig"))
         self.upgrades = {row["eq_id"]: row for row in rows}
+        self.families = {int(i): info["base"] for i, info in
+                         json.loads((root / "data/fit_metadata.json").read_text(encoding="utf-8"))["ships"].items()}
         if len(self.upgrades) != len(rows):
             raise ValueError("개수 장비 ID 중복")
         self.validate()
@@ -98,16 +100,17 @@ class ImprovementCatalog:
     def cost_text(self, cost):
         if cost is None:
             return "비용 정보 없음"
-        dev, dev_secure, screws, screws_secure, equips, consumables = cost
-        parts = []
-        for label, normal, secure in (("개발자재", dev, dev_secure), ("개수자재", screws, screws_secure)):
-            if normal or secure:
-                parts.append(f"{label} {normal}개" + (f"(확실화 {secure}개)" if normal != secure else ""))
-        parts.extend(f"{self.item_name(i)} {n}개" for i, n in equips)
-        parts.extend(f"{CONSUMABLES[i]} {n}개" for i, n in consumables)
-        return " / ".join(parts) or "소모 재료 없음"
+        dev, dev_secure, screws, screws_secure, _, _ = cost
+        return f"자재 {dev} / 나사 {screws} (확정 시 {dev_secure} / {screws_secure})"
 
-    def helpers_text(self, routes, ship_names, conversion=False):
+    def material_lines(self, cost):
+        if cost is None:
+            return []
+        parts = [f"{self.item_name(i)} {n}개" for i, n in cost[4]]
+        parts.extend(f"{CONSUMABLES[i]} {n}개" for i, n in cost[5])
+        return [" · 소모아이템 : " + " / ".join(parts)] if parts else []
+
+    def helpers_text(self, routes, ship_names, ship_forms):
         grouped = defaultdict(set)
         incomplete = False
         for route in routes:
@@ -116,19 +119,30 @@ class ImprovementCatalog:
             for helper in route["helpers"]:
                 for ship_id in helper["ship_ids"]:
                     grouped[ship_id].update(helper["days"])
-        prefix = " ⊙ 비서함" if conversion else "○ 비서함"
-        lines = [prefix]
-        # Keep distinct remodel IDs distinct even when their Japanese names match.
-        for ship_id in sorted(grouped, key=lambda i: (ship_names.get(i, ""), i)):
-            name = ship_names.get(ship_id, f"함선 #{ship_id}")
-            days = grouped[ship_id]
+        lines = ["○ 2번함"]
+        families = defaultdict(list)
+        for ship_id, days in grouped.items():
+            # IDs retain exact eligibility. Only presentation groups same-family
+            # forms whose entire weekday sets are identical in this route.
+            families[(self.families.get(ship_id, ship_id), frozenset(days))].append(ship_id)
+        entries = []
+        for (_, days), ids in families.items():
+            ids.sort(key=lambda i: (ship_forms.get(i, ("", "", 0))[2], i))
+            if len(ids) > 1 and all(i in ship_forms for i in ids):
+                name = ship_forms[ids[0]][0] + "[" + "/".join(ship_forms[i][1] for i in ids) + "]"
+            else:
+                name = " / ".join(ship_names.get(i, f"함선 #{i}") for i in ids)
             text = "매일" if days == set(DAYS) else "".join(DAYS[d] for d in DAY_ORDER if d in days)
-            lines.append(f" - {name} ({text or '요일 미등록'})")
+            sort_name = ship_forms[ids[0]][0] if ids[0] in ship_forms else name
+            stage_order = ship_forms[ids[0]][2] if ids[0] in ship_forms else 0
+            entries.append((sort_name, stage_order, f" - {name} ({text or '요일 미등록'})"))
+        lines.extend(line for _, _, line in sorted(entries))
         if incomplete or not grouped:
-            lines.append(" - 비서함·요일 정보 미등록")
+            lines.append(" - 정보 없음")
         return lines
 
-    def describe(self, item_id, ship_names):
+    def describe(self, item_id, ship_names, ship_forms=None):
+        ship_forms = ship_forms or {}
         name = self.item_name(item_id)
         routes = self.upgrades.get(item_id, {}).get("improvement", [])
         if not routes:
@@ -137,46 +151,45 @@ class ImprovementCatalog:
         schedules = {}
         for route in routes:
             costs = route["costs"]
-            resource_key = tuple(costs[k] for k in ("fuel", "ammo", "steel", "baux"))
-            key = (resource_key, tuple(cost_at(costs, t) for t in range(1, 11)))
+            key = tuple(cost_at(costs, t) for t in range(1, 11))
             schedules.setdefault(key, []).append(route)
         lines = [name]
         for index, group in enumerate(schedules.values(), 1):
             if len(schedules) > 1:
                 lines.extend(("", f"[개수 경로 {index}]"))
             costs = group[0]["costs"]
-            resources = " / ".join(f"{label} {costs[k]}" for k, label in
-                                   (("fuel", "연료"), ("ammo", "탄약"), ("steel", "강재"), ("baux", "보키")) if costs[k])
-            if resources:
-                lines.append(f"자원: {resources}")
             for start, end, cost in star_ranges(costs):
-                stars = f"★{start}" if start == end else f"★{start}~★{end}"
+                stars = f"★{start}" if start == end else f"★{start}~{end}"
                 lines.append(f"{stars} - {self.cost_text(cost)}")
+                lines.extend(self.material_lines(cost))
             lines.append("")
-            lines.extend(self.helpers_text(group, ship_names))
+            lines.extend(self.helpers_text(group, ship_names, ship_forms))
         conversions = [r for r in routes if r.get("convert")]
         for index, route in enumerate(conversions, 1):
             conversion = route["convert"]
             stars = conversion["lvl_after"]
             after = self.item_name(conversion["id_after"]) + (f" ★{stars}" if stars else "")
-            lines.extend(("", f"※ 개수변환{index} - {after}",
-                          f"★max - {self.cost_text(cost_at(route['costs'], 255))}"))
+            number = str(index) if len(conversions) > 1 else ""
+            cost = cost_at(route["costs"], 255)
+            lines.extend(("", f"※ 개수변환{number} - {after}", f"★max - {self.cost_text(cost)}"))
+            lines.extend(self.material_lines(cost))
             if len(schedules) > 1:
                 group_number = next(i for i, group in enumerate(schedules.values(), 1) if any(r is route for r in group))
                 lines.append(f" · 개수 경로 {group_number}에서 변환")
-            lines.extend(self.helpers_text([route], ship_names, conversion=True))
+            lines.append("")
+            lines.extend(self.helpers_text([route], ship_names, ship_forms))
         if not conversions:
             lines.extend(("", "※ 개수변환 정보 없음"))
         return "\n".join(lines)
 
-    def reply(self, query, ship_names):
+    def reply(self, query, ship_names, ship_forms=None):
         query = query.strip()
         if not query:
             return "사용법: !개수 [장비명]"
         hits = self.equipment.search(query)
         if len(hits) != 1:
             return self.equipment.reply(query).replace("!장비", "!개수")
-        return self.describe(hits[0], ship_names)
+        return self.describe(hits[0], ship_names, ship_forms)
 
 
 @lru_cache(maxsize=1)
