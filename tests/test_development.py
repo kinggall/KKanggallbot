@@ -78,11 +78,7 @@ class DevelopmentTests(unittest.TestCase):
             for recipe in recipes:
                 with self.subTest(item_id=item_id, pool=recipe.pool_name):
                     self.assertTrue(0 < recipe.probability <= 100)
-                    self.assertTrue(0 <= recipe.failure <= 100)
-                    if recipe.failure > 100 - recipe.probability:
-                        # A documented inconsistency exists in the unmodified upstream oracle.
-                        self.assertEqual((item_id, recipe.pool_name, recipe.probability, recipe.failure),
-                                         (201, "水雷系-32驱改二", 4, 98))
+                    self.assertTrue(0 <= recipe.failure <= 100 - recipe.probability)
                     self.assertTrue(all(r >= max(10, b * 10) for r, b in
                                         zip(recipe.resources, self.catalog.equipment[item_id])))
                     self.assertTrue(all(10 <= r <= 999 for r in recipe.resources))
@@ -92,10 +88,15 @@ class DevelopmentTests(unittest.TestCase):
             self.assertNotIn("其它", reply)
         self.assertEqual(developable, 102)
 
-    def test_upstream_inconsistent_probabilities_are_not_silently_presented_as_valid(self):
-        self.assertIn("원본 데이터의 확률 합계가 맞지 않아 확인이 필요합니다", self.reply("#201"))
-        self.assertIn("개발 확률 4% / 실패율 98%", self.reply("#201"))
-        self.assertNotIn("확인이 필요합니다", self.reply("즈이운"))
+    def test_only_invalid_recipe_is_removed_and_201_still_has_valid_recipes(self):
+        recipes = self.catalog.recipes(201)
+        self.assertTrue(recipes)
+        self.assertFalse(any(r.pool_name == "水雷系-32驱改二" and r.pool_id == 1 for r in recipes))
+        reply = self.reply("#201")
+        self.assertIn("[최적]", reply)
+        self.assertIn("개발 확률", reply)
+        self.assertNotIn("실패율 98%", reply)
+        self.assertNotIn("확인이 필요합니다", reply)
 
     def test_96_land_attacker_special_resources(self):
         recipes = self.catalog.recipes(168)

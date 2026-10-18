@@ -207,7 +207,10 @@ class DevelopmentCatalog:
                     other = sum(rate for equip_id, rate in rates.items()
                                 if equip_id != item_id and equip_id in self.equipment
                                 and all(r >= cost * 10 for r, cost in zip(resources, self.equipment[equip_id])))
-                    results.append(Recipe(name, kind, resources, probability, 100 - probability - other))
+                    failure = 100 - probability - other
+                    if probability + failure > 100:
+                        continue
+                    results.append(Recipe(name, kind, resources, probability, failure))
         return tuple(sorted(results, key=cmp_to_key(compare_recipes)))
 
     def reply(self, query, equipment):
@@ -234,8 +237,6 @@ class DevelopmentCatalog:
             blocks.append(f"[{title}]\n· 비서함 : {POOL_LABELS[recipe.pool_name]}\n"
                           f"· {' / '.join(map(str, recipe.resources))}\n"
                           f"· 개발 확률 {recipe.probability:g}% / 실패율 {recipe.failure:g}%")
-        if any(not 0 <= r.failure <= 100 - r.probability for _, r in selected):
-            blocks.append("※ 원본 데이터의 확률 합계가 맞지 않아 확인이 필요합니다.")
         return "\n".join(blocks)
 
 

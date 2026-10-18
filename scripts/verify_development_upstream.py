@@ -27,23 +27,32 @@ def verify(upstream):
         actual = (pool["name"], pool["kind"], pool["ids"])
         if actual != (expected["name"], expected["poolId"], expected["shipIds"]):
             raise AssertionError(f"Pool membership mismatch: {pool['name']}, {pool['kind']}")
-    count, recipes = 0, 0
+    count, recipes, excluded = 0, 0, []
     for case in vectors["derive"]:
         if len(case["targets"]) != 1:
             continue  # Multi-target requests are not part of this bot command.
         item_id = case["targets"][0]
         actual = sorted((r.pool_name, r.pool_id, r.resources, r.total, r.probability, r.failure)
                         for r in catalog.recipes(item_id))
+        valid = []
+        for r in case["results"]:
+            if r["hitRate"] + r["failRate"] > 100:
+                excluded.append((item_id, r["poolName"], r["poolId"], r["hitRate"], r["failRate"]))
+            else:
+                valid.append(r)
         expected = sorted((r["poolName"], r["poolId"], tuple(r["recipe"]), r["total"],
-                           r["hitRate"], r["failRate"]) for r in case["results"])
+                           r["hitRate"], r["failRate"]) for r in valid)
         if actual != expected:
             raise AssertionError(f"Recipe mismatch: #{item_id}")
         count += 1
         recipes += len(actual)
     if count == 0:
         raise AssertionError("No single-equipment oracle cases found")
+    if excluded != [(201, "水雷系-32驱改二", 1, 4, 98)]:
+        raise AssertionError(f"Unexpected excluded recipes: {excluded}")
     print(f"PASS: 3 snapshot hashes, {len(expected_pools)} pool memberships, "
-          f"{count} equipment cases, {recipes} recipe combinations")
+          f"{count} equipment cases, {recipes} recipe combinations; "
+          f"{len(excluded)} invalid upstream recipe excluded")
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@
 - Adapted upstream files: `src/core/developmentPool.ts`, `sameShipList.ts`, `poolMatching.ts`, `recipe.ts`, and `orchestration.ts`.
 - Modifications dated 2026-10-18: port the recipe calculation to Python in `development.py`; retain pool membership, resource thresholds, negative-pool handling, and display sorting; provide Korean secretary labels, one optimal recipe and an optional generic recipe; reuse the bot's equipment-name/alias/ID search. Integrate the command into `bot.py`.
 - The combined bot software is distributed under GPL-3.0. Corresponding source is provided in this repository: https://github.com/kinggall/KKanggallbot . Preserve this notice and LICENSE when redistributing it; distribute changes under the applicable GPL requirements. No warranty is provided, as described in LICENSE.
+- Additional modification dated 2026-10-18: omit recipes whose target probability plus failure probability exceeds 100%; the pinned data contains one such recipe for equipment #201. All other recipes are preserved.
 
 Upstream's `public/data/i18n/` translations are separately attributed to KC3Kai/kc3-translations under MIT. Those files are **not copied here**. Korean equipment names come from this bot's existing equipment metadata, overrides, and alias list. Korean development-pool labels were added for this bot.
 
