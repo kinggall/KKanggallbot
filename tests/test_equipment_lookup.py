@@ -104,6 +104,15 @@ class EquipmentTests(unittest.TestCase):
             with self.subTest(alias=alias):
                 self.assertEqual(self.catalog.search(alias), [21])
 
+    def test_zerosen_returns_all_zero_fighter_family_models(self):
+        expected = {20, 21, 60, 96, 109, 152, 153, 154, 155, 156, 157, 181,
+                    182, 219, 416, 417, 418, 447, 486, 487, 492, 557, 558}
+        self.assertEqual(set(self.catalog.search("제로센")), expected)
+        reply = self.catalog.reply("제로센")
+        self.assertIn("검색 결과 23개", reply)
+        self.assertNotIn("외", reply)
+        self.assertNotIn(25, self.catalog.search("제로센"))
+
     def test_aircraft_nicknames_keep_model_choices(self):
         self.assertEqual(self.catalog.search("플라잉팬케이크"), [375])
         self.assertEqual(self.catalog.search("팬케이크"), self.catalog.search("XF5U"))

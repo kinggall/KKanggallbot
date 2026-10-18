@@ -135,15 +135,17 @@ class EquipmentCatalog:
         query = query.strip()
         if not query:
             return "사용법: !장비 장비명"
+        key = normalize(query)
         results = self.search(query)
         if not results:
             return f"'{query}' 장비를 찾지 못했습니다."
         if len(results) == 1:
             return self.describe(results[0])
         lines = [f"'{query}' 검색 결과 {len(results)}개. 이름을 더 자세히 입력해주세요."]
-        lines.extend(f"· {self.items[item_id]['name']} (#{item_id})" for item_id in results[:10])
-        if len(results) > 10:
-            lines.append(f"외 {len(results) - 10}개")
+        result_limit = 30 if key in self.names else 10
+        lines.extend(f"· {self.items[item_id]['name']} (#{item_id})" for item_id in results[:result_limit])
+        if len(results) > result_limit:
+            lines.append(f"외 {len(results) - result_limit}개")
         lines.append("번호 검색 예: !장비 #" + str(results[0]))
         return "\n".join(lines)
 
