@@ -231,7 +231,10 @@ class DevelopmentCatalog:
         if best.pool_name not in GENERAL_POOLS:
             general = next((r for r in recipes if r.pool_name in GENERAL_POOLS), None)
             if general is not None:
-                selected.append(("범용", general))
+                if (best.resources, best.probability, best.failure) == (general.resources, general.probability, general.failure):
+                    selected = [("최적", general)]
+                else:
+                    selected.append(("범용", general))
         blocks = []
         for title, recipe in selected:
             blocks.append(f"[{title}]\n· 비서함 : {POOL_LABELS[recipe.pool_name]}\n"

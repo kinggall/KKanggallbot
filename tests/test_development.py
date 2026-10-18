@@ -107,6 +107,24 @@ class DevelopmentTests(unittest.TestCase):
             self.assertGreaterEqual(recipe.resources[3], 250)
             self.assertEqual(recipe.probability, 8)
 
+    def test_identical_optimal_and_general_recipes_show_only_general_as_optimal(self):
+        self.assertEqual(self.reply("96식육공"),
+                         "[최적]\n· 비서함 : 항모계\n· 240 / 260 / 10 / 250\n"
+                         "· 개발 확률 8% / 실패율 20%")
+        identical = []
+        for item_id in self.equipment.items:
+            recipes = self.catalog.recipes(item_id)
+            if not recipes or recipes[0].pool_name in development.GENERAL_POOLS:
+                continue
+            best = recipes[0]
+            general = next((r for r in recipes if r.pool_name in development.GENERAL_POOLS), None)
+            if general and (best.resources, best.probability, best.failure) == (general.resources, general.probability, general.failure):
+                identical.append(item_id)
+                reply = self.reply(f"#{item_id}")
+                self.assertNotIn("[범용]", reply)
+                self.assertIn(f"· 비서함 : {development.POOL_LABELS[general.pool_name]}\n", reply)
+        self.assertEqual(set(identical), {1, 18, 19, 41, 44, 52, 75, 168, 213})
+
     def test_sort_retains_upstream_near_equal_resource_tie_rule(self):
         a = development.Recipe("a", 1, (10, 10, 10, 11), 10, 60)
         b = development.Recipe("b", 1, (10, 10, 10, 10), 10, 50)
