@@ -16,6 +16,7 @@ from pathlib import Path
 import fit_bonus
 import equipment_lookup
 import development
+import initial_equipment
 
 app = Flask(__name__)
 
@@ -1151,6 +1152,17 @@ def build_ship_slots_reply(keyword):
     return "\n\n".join(ship_slot_text(ship) for ship, _name in results)
 
 
+def build_initial_equipment_reply(keyword):
+    keyword = keyword.strip()
+    if not keyword:
+        return "사용법: !초기장비 [칸무스]"
+    results = search_ships(keyword)
+    if not results:
+        return f"'{keyword}' 칸무스를 찾지 못했습니다."
+    data = initial_equipment.catalog()
+    return "\n\n".join(data.form_text(ship, ship_stage(ship)) for ship, _name in results)
+
+
 def build_fit_reply(arguments):
     keyword = arguments.strip()
     if not keyword:
@@ -1290,6 +1302,7 @@ COMMANDS = {
         "!전과 [5/20/100/500]\n"
         "!칸무스 [함선명]\n"
         "!슬롯 [함선명]\n"
+        "!초기장비 [함선명]\n"
         "!피트 [함선명]\n"
         "!장비 [장비명]\n"
         "!개발 [장비명]\n"
@@ -1413,6 +1426,20 @@ def webhook():
         )
 
         print(f"[칸무스 검색] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!초기장비" or message.startswith("!초기장비 "):
+        try:
+            reply = build_initial_equipment_reply(message[len("!초기장비"):])
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            print(f"[초기장비 조회 실패] {error}")
+            reply = "초기 장비 데이터를 불러오지 못했습니다."
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[초기장비 검색] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     if message == "!슬롯" or message.startswith("!슬롯 "):

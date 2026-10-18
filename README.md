@@ -6,6 +6,8 @@
 
 `!레시피 리슐리외 10/30/20/10`은 지정한 함선·자원의 모든 개발 결과와 실패율을 보여줍니다. 함선 별명도 지원합니다. `!레시피 푸릉이 10/30/20/10`처럼 입력하면 테루즈키의 아키즈키급 개발 그룹을 자동으로 사용합니다. 개장형에 따라 그룹이 다를 수 있으므로 원하는 개장형을 명시하세요.
 
+`!초기장비 유바리`는 전체 개장형의 초기 장비를 보여줍니다. 별명도 지원하며, 개수 장비에는 `★7`처럼 표시합니다. 초기 장비가 없는 형태도 생략하지 않습니다. 자료 출처와 검증은 [INITIAL_EQUIPMENT_DATA.md](INITIAL_EQUIPMENT_DATA.md)에 기록했습니다.
+
 ## 라이선스와 출처
 
 봇 소프트웨어는 [GPL-3.0](LICENSE)으로 배포합니다. `!개발`의 계산 코드는 [SkywalkerJi/kc-development-tools](https://github.com/SkywalkerJi/kc-development-tools)의 GPL-3.0 코드를 Python으로 이식·수정했습니다. 원본 라이선스를 보존하며, 수정한 소스코드도 이 저장소에서 제공합니다. 게임 데이터와 기존 외부 자료의 권리는 각 권리자에게 있습니다. 구체적인 출처·변경 사항은 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), 데이터 기준과 검증 방법은 [DEVELOPMENT_DATA.md](DEVELOPMENT_DATA.md)에 기록했습니다.

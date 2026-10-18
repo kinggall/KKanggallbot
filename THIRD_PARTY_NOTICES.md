@@ -19,3 +19,7 @@
 Upstream's `public/data/i18n/` translations are separately attributed to KC3Kai/kc3-translations under MIT. Those files are **not copied here**. Korean equipment names come from this bot's existing equipment metadata, overrides, and alias list. Korean development-pool labels were added for this bot.
 
 Game master data and other pre-existing external datasets retain their respective rights and source attributions. Inclusion of a GPL license for the software does not relicense third-party game content or grant rights the original provider does not hold.
+
+## Starting equipment factual supplement
+
+`data/initial_equipment_supplement.json` records ship/equipment IDs, slot positions and improvement levels extracted from `wiki/ship.json` and `wiki/equipment.json` in https://github.com/kcwiki/kancolle-data/tree/7b92cdb8e4601fdec45ddd00489c7c6da9fa346d . Original game data rights remain with their respective owners. Narrative text and upstream translations are not included. File hashes and exact CSV slot values are preserved for verification. The 2026-10-18 implementation uses this supplement only for verified improvement levels and unknown CSV slots; it retains known CSV equipment and explicitly empty slots. See INITIAL_EQUIPMENT_DATA.md for the extraction fields and validation limits.

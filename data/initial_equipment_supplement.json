@@ -1,0 +1,753 @@
+{
+  "schema_version": 1,
+  "source": "https://github.com/kcwiki/kancolle-data/tree/7b92cdb8e4601fdec45ddd00489c7c6da9fa346d",
+  "files": {
+    "wiki/ship.json": "d72dbabcf16fd3842d2fd508dd36160d2e174e8aee3182a4ad4062477418e47c",
+    "wiki/equipment.json": "0ea01fde3f6cb159a1d0e596f49c38b8a00024de6000813b8263e4d0aee71f18"
+  },
+  "note": "Only verified slot-matching improvement stars and CSV unknown-slot completions. CSV known items and explicit empty slots remain authoritative.",
+  "counts": {
+    "star_slots": 74,
+    "completed_unknown_slots": 49,
+    "unresolved_unknown_slots": []
+  },
+  "ships": {
+    "478": {
+      "3": {
+        "csv": "53cm連装魚雷",
+        "equipment_id": 174,
+        "stars": 3
+      }
+    },
+    "497": {
+      "2": {
+        "csv": "22号対水上電探改四",
+        "equipment_id": 88,
+        "stars": 4
+      },
+      "3": {
+        "csv": "九五式爆雷",
+        "equipment_id": 226,
+        "stars": 4
+      }
+    },
+    "498": {
+      "3": {
+        "csv": "25mm三連装機銃",
+        "equipment_id": 40,
+        "stars": 3
+      }
+    },
+    "542": {
+      "3": {
+        "csv": "13号対空電探改",
+        "equipment_id": 106,
+        "stars": 4
+      }
+    },
+    "559": {
+      "1": {
+        "csv": "25mm連装機銃",
+        "equipment_id": 39,
+        "stars": 4
+      }
+    },
+    "564": {
+      "3": {
+        "csv": "三式爆雷投射機",
+        "equipment_id": 45,
+        "stars": 5
+      }
+    },
+    "567": {
+      "1": {
+        "csv": "12.7cm連装砲C型改二",
+        "equipment_id": 266,
+        "stars": 5
+      },
+      "2": {
+        "csv": "25mm三連装機銃",
+        "equipment_id": 40,
+        "stars": 5
+      }
+    },
+    "568": {
+      "1": {
+        "csv": "12.7cm連装砲C型改二",
+        "equipment_id": 266,
+        "stars": 5
+      },
+      "2": {
+        "csv": "三式爆雷投射機",
+        "equipment_id": 45,
+        "stars": 5
+      }
+    },
+    "569": {
+      "3": {
+        "csv": "三式水中探信儀",
+        "equipment_id": 47,
+        "stars": 8
+      }
+    },
+    "572": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 298,
+        "stars": 0
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 298,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      },
+      "4": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "578": {
+      "2": {
+        "csv": "13号対空電探改",
+        "equipment_id": 106,
+        "stars": 4
+      },
+      "3": {
+        "csv": "25mm三連装機銃 集中配備",
+        "equipment_id": 131,
+        "stars": 4
+      }
+    },
+    "587": {
+      "1": {
+        "csv": "61cm四連装(酸素)魚雷",
+        "equipment_id": 15,
+        "stars": 5
+      },
+      "2": {
+        "csv": "九四式爆雷投射機",
+        "equipment_id": 44,
+        "stars": 5
+      },
+      "3": {
+        "csv": "九三式水中聴音機",
+        "equipment_id": 46,
+        "stars": 5
+      }
+    },
+    "591": {
+      "3": {
+        "csv": "53cm連装魚雷",
+        "equipment_id": 174,
+        "stars": 6
+      }
+    },
+    "592": {
+      "3": {
+        "csv": "21号対空電探改",
+        "equipment_id": 89,
+        "stars": 5
+      }
+    },
+    "630": {
+      "1": {
+        "csv": "Bofors 15.2cm連装砲 Model 1930",
+        "equipment_id": 303,
+        "stars": 4
+      },
+      "2": {
+        "csv": "Bofors 40mm四連装機関砲",
+        "equipment_id": 173,
+        "stars": 4
+      }
+    },
+    "648": {
+      "1": {
+        "csv": "12.7cm連装砲C型改二",
+        "equipment_id": 266,
+        "stars": 7
+      },
+      "3": {
+        "csv": "二式爆雷",
+        "equipment_id": 227,
+        "stars": 7
+      }
+    },
+    "649": {
+      "3": {
+        "csv": "熟練見張員",
+        "equipment_id": 129,
+        "stars": 8
+      }
+    },
+    "656": {
+      "1": {
+        "csv": "10cm連装高角砲+高射装置",
+        "equipment_id": 122,
+        "stars": 4
+      },
+      "2": {
+        "csv": "12.7cm単装高角砲改二",
+        "equipment_id": 379,
+        "stars": 4
+      }
+    },
+    "666": {
+      "1": {
+        "csv": "12.7cm連装砲A型改二",
+        "equipment_id": 294,
+        "stars": 3
+      },
+      "3": {
+        "csv": "九五式爆雷",
+        "equipment_id": 226,
+        "stars": 7
+      }
+    },
+    "670": {
+      "1": {
+        "csv": "12.7cm連装砲C型改二",
+        "equipment_id": 266,
+        "stars": 4
+      },
+      "2": {
+        "csv": "三式爆雷投射機",
+        "equipment_id": 45,
+        "stars": 4
+      }
+    },
+    "694": {
+      "3": {
+        "csv": "53cm連装魚雷",
+        "equipment_id": 174,
+        "stars": 6
+      }
+    },
+    "704": {
+      "1": {
+        "csv": "F4F-4",
+        "equipment_id": 198,
+        "stars": 4
+      },
+      "2": {
+        "csv": "SBD",
+        "equipment_id": 195,
+        "stars": 4
+      }
+    },
+    "707": {
+      "1": {
+        "csv": "FM-2",
+        "equipment_id": 277,
+        "stars": 2
+      },
+      "4": {
+        "csv": "SK レーダー",
+        "equipment_id": 278,
+        "stars": 2
+      }
+    },
+    "720": {
+      "3": {
+        "csv": "25mm連装機銃",
+        "equipment_id": 39,
+        "stars": 4
+      }
+    },
+    "729": {
+      "1": {
+        "csv": "12.7cm連装砲A型",
+        "equipment_id": 297,
+        "stars": 2
+      }
+    },
+    "736": {
+      "2": {
+        "csv": "61cm四連装(酸素)魚雷",
+        "equipment_id": 15,
+        "stars": 3
+      }
+    },
+    "742": {
+      "2": {
+        "csv": "61cm四連装(酸素)魚雷",
+        "equipment_id": 15,
+        "stars": 3
+      }
+    },
+    "748": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 105,
+        "stars": 1
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 8,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": 193,
+        "stars": 0
+      },
+      "4": {
+        "csv": "???",
+        "equipment_id": 80,
+        "stars": 0
+      },
+      "5": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "749": {
+      "1": {
+        "csv": "試製41cm三連装砲",
+        "equipment_id": 105,
+        "stars": 1
+      }
+    },
+    "891": {
+      "1": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "902": {
+      "1": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "906": {
+      "1": {
+        "csv": "QF 4.7inch砲 Mk.XII改",
+        "equipment_id": 280,
+        "stars": 2
+      }
+    },
+    "915": {
+      "3": {
+        "csv": "25mm三連装機銃",
+        "equipment_id": 40,
+        "stars": 4
+      }
+    },
+    "929": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 507,
+        "stars": 0
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 508,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      },
+      "4": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "936": {
+      "1": {
+        "csv": "14inch/45 連装砲",
+        "equipment_id": 507,
+        "stars": 3
+      },
+      "2": {
+        "csv": "14inch/45 三連装砲",
+        "equipment_id": 508,
+        "stars": 3
+      }
+    },
+    "951": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 266,
+        "stars": 7
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 87,
+        "stars": 7
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": 87,
+        "stars": 7
+      }
+    },
+    "956": {
+      "3": {
+        "csv": "25mm連装機銃",
+        "equipment_id": 39,
+        "stars": 6
+      }
+    },
+    "959": {
+      "1": {
+        "csv": "12.7cm連装砲A型改二",
+        "equipment_id": 294,
+        "stars": 7
+      }
+    },
+    "961": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 266,
+        "stars": 7
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 505,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": 506,
+        "stars": 0
+      },
+      "4": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "963": {
+      "1": {
+        "csv": "10cm連装高角砲+高射装置",
+        "equipment_id": 122,
+        "stars": 4
+      },
+      "2": {
+        "csv": "61cm四連装(酸素)魚雷",
+        "equipment_id": 15,
+        "stars": 2
+      },
+      "4": {
+        "csv": "25mm三連装機銃",
+        "equipment_id": 40,
+        "stars": 4
+      }
+    },
+    "968": {
+      "1": {
+        "csv": "10cm連装高角砲+高射装置",
+        "equipment_id": 122,
+        "stars": 3
+      },
+      "2": {
+        "csv": "61cm四連装(酸素)魚雷",
+        "equipment_id": 15,
+        "stars": 3
+      },
+      "4": {
+        "csv": "25mm三連装機銃",
+        "equipment_id": 40,
+        "stars": 3
+      }
+    },
+    "978": {
+      "1": {
+        "csv": "20.3cm連装砲",
+        "equipment_id": 6,
+        "stars": 4
+      },
+      "2": {
+        "csv": "20.3cm連装砲",
+        "equipment_id": 6,
+        "stars": 4
+      }
+    },
+    "979": {
+      "2": {
+        "csv": "25mm三連装機銃",
+        "equipment_id": 40,
+        "stars": 7
+      },
+      "3": {
+        "csv": "25mm単装機銃",
+        "equipment_id": 49,
+        "stars": 7
+      }
+    },
+    "981": {
+      "2": {
+        "csv": "13号対空電探改",
+        "equipment_id": 106,
+        "stars": 6
+      },
+      "3": {
+        "csv": "25mm三連装機銃",
+        "equipment_id": 40,
+        "stars": 6
+      }
+    },
+    "982": {
+      "2": {
+        "csv": "三式水中探信儀",
+        "equipment_id": 47,
+        "stars": 6
+      },
+      "3": {
+        "csv": "三式爆雷投射機",
+        "equipment_id": 45,
+        "stars": 6
+      }
+    },
+    "983": {
+      "2": {
+        "csv": "25mm三連装機銃",
+        "equipment_id": 40,
+        "stars": 8
+      },
+      "3": {
+        "csv": "三式水中探信儀",
+        "equipment_id": 47,
+        "stars": 4
+      }
+    },
+    "986": {
+      "1": {
+        "csv": "10cm連装高角砲改",
+        "equipment_id": 553,
+        "stars": 4
+      }
+    },
+    "987": {
+      "1": {
+        "csv": "10cm連装高角砲改",
+        "equipment_id": 553,
+        "stars": 4
+      },
+      "2": {
+        "csv": "12.7cm連装砲A型改二",
+        "equipment_id": 294,
+        "stars": 4
+      }
+    },
+    "997": {
+      "1": {
+        "csv": "12.7cm単装高角砲(後期型)",
+        "equipment_id": 229,
+        "stars": 3
+      }
+    },
+    "1006": {
+      "1": {
+        "csv": "18cm/57 三連装主砲",
+        "equipment_id": 555,
+        "stars": 2
+      }
+    },
+    "1010": {
+      "2": {
+        "csv": "5inch 単装高角砲群",
+        "equipment_id": 358,
+        "stars": 2
+      }
+    },
+    "1028": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 205,
+        "stars": 0
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 256,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      },
+      "4": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "1033": {
+      "2": {
+        "csv": "三式水中探信儀",
+        "equipment_id": 47,
+        "stars": 8
+      },
+      "3": {
+        "csv": "二式爆雷",
+        "equipment_id": 227,
+        "stars": 4
+      }
+    },
+    "1034": {
+      "2": {
+        "csv": "13号対空電探改",
+        "equipment_id": 106,
+        "stars": 4
+      },
+      "3": {
+        "csv": "25mm連装機銃",
+        "equipment_id": 39,
+        "stars": 8
+      }
+    },
+    "1036": {
+      "1": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      },
+      "4": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "1040": {
+      "1": {
+        "csv": "5inch単装砲 Mk.30改",
+        "equipment_id": 313,
+        "stars": 4
+      },
+      "2": {
+        "csv": "試製15cm9連装対潜噴進砲",
+        "equipment_id": 288,
+        "stars": 4
+      }
+    },
+    "1058": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 579,
+        "stars": 0
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 580,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "1060": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 587,
+        "stars": 0
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 586,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": 585,
+        "stars": 0
+      },
+      "4": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "1061": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 588,
+        "stars": 0
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 587,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      },
+      "4": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "1067": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 584,
+        "stars": 0
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 584,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": null,
+        "stars": 0
+      }
+    },
+    "1070": {
+      "1": {
+        "csv": "???",
+        "equipment_id": 48,
+        "stars": 0
+      },
+      "2": {
+        "csv": "???",
+        "equipment_id": 39,
+        "stars": 0
+      },
+      "3": {
+        "csv": "???",
+        "equipment_id": 146,
+        "stars": 0
+      }
+    }
+  }
+}
