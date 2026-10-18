@@ -10,6 +10,12 @@ STATS = (("火力", "화력"), ("雷装", "뇌장"), ("対空", "대공"),
          ("装甲", "장갑"), ("対潜", "대잠"), ("回避", "회피"),
          ("索敵", "색적"), ("命中", "명중"), ("爆装", "폭장"), ("運", "운"))
 RANGES = {0: "없음", 1: "단", 2: "중", 3: "장", 4: "초장", 5: "초장+"}
+# Full land-base squadron size, not a ship's aircraft slot size.
+AIR_BASE_CAPACITY = {
+    **dict.fromkeys((9, 10, 41, 49, 94), 4),
+    53: 9,
+    **dict.fromkeys((6, 7, 8, 11, 25, 26, 45, 47, 48, 56, 57, 58, 59, 91), 18),
+}
 
 
 def display_name(name):
@@ -112,9 +118,13 @@ class EquipmentCatalog:
         details = []
         if distance:
             details.append(f"사거리 {RANGES.get(distance, str(distance))}")
-        for field, label in (("配置コスト", "배치코스트"), ("戦闘行動半径", "행동반경")):
-            if values[field]:
-                details.append(f"{label} {values[field]}")
+        cost = values["配置コスト"]
+        if cost:
+            capacity = AIR_BASE_CAPACITY.get(values["装備種3"])
+            bauxite = str(cost * capacity) if capacity is not None else "계산 불가"
+            details.append(f"배치코스트 {cost}(보키 {bauxite})")
+        if values["戦闘行動半径"]:
+            details.append(f"행동반경 {values['戦闘行動半径']}")
         effects = {42: "(1회 부활 - 대파 상태)", 43: "(1회 부활 - 완전 회복)"}
         lines = [item["name"], "· " + (stats or "능력치 없음" + effects.get(item_id, ""))]
         if details:

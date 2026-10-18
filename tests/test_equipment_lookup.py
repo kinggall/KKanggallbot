@@ -26,8 +26,37 @@ class EquipmentTests(unittest.TestCase):
 
     def test_aircraft_has_deployment_cost_and_radius_from_csv(self):
         self.assertEqual(self.catalog.reply("영식함전21형"),
-                         "영식함전 21형\n· 대공 +5\n· 배치코스트 4 / 행동반경 7")
+                         "영식함전 21형\n· 대공 +5\n· 배치코스트 4(보키 72) / 행동반경 7")
         self.assertEqual(self.catalog.reply("영식 함상전투기 21형"), self.catalog.reply("零式艦戦21型"))
+
+    def test_deployment_bauxite_uses_category_not_aircraft_name(self):
+        # Four recon categories, both heavy bombers, and commonly confused aircraft.
+        for item_id, cost, bauxite in ((25, 5, 20), (54, 9, 36), (138, 25, 100),
+                                       (311, 7, 28), (395, 20, 180), (396, 21, 189),
+                                       (169, 12, 216), (26, 6, 108), (69, 2, 36),
+                                       (70, 3, 54), (561, 14, 252)):
+            with self.subTest(item_id=item_id):
+                self.assertIn(f"배치코스트 {cost}(보키 {bauxite})", self.catalog.describe(item_id))
+        hiryu = self.catalog.items[403]["values"]
+        self.assertIn(f"보키 {hiryu['配置コスト'] * 18}", self.catalog.describe(403))
+        self.assertIn("배치코스트 12(보키 216) / 행동반경 9", self.catalog.describe(169))
+
+    def test_all_263_deployment_cost_items_have_a_verified_category(self):
+        counts = {4: 0, 9: 0, 18: 0}
+        for item_id, item in self.catalog.items.items():
+            values = item["values"]
+            if not values["配置コスト"]:
+                continue
+            category = values["装備種3"]
+            capacity = 4 if category in (9, 10, 41, 49) else 9 if category == 53 else 18
+            counts[capacity] += 1
+            with self.subTest(item_id=item_id):
+                self.assertIn(f"보키 {values['配置コスト'] * capacity}", self.catalog.describe(item_id))
+        self.assertEqual(counts, {4: 37, 9: 2, 18: 224})
+
+    def test_unknown_deployment_category_does_not_guess_bauxite(self):
+        with patch.dict(self.catalog.items[169]["values"], {"装備種3": 999}):
+            self.assertIn("배치코스트 12(보키 계산 불가)", self.catalog.describe(169))
 
     def test_negative_values_and_long_ranges_are_preserved(self):
         self.assertIn("장갑 +7 / 회피 -2", self.catalog.describe(72))
