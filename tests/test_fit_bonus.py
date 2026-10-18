@@ -12,7 +12,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from fit_bonus import FitCatalog, RADARS
+from fit_bonus import FitCatalog, RADARS, shorten_companion_conditions
 
 
 class FitTests(unittest.TestCase):
@@ -153,8 +153,55 @@ class FitTests(unittest.TestCase):
         block = ("삼식탄", ["· 화력+1 대공+1 (1회만)"])
         with patch.object(self.c, "blocks_for_ship", return_value=[block, block]):
             text = self.c.message("콩고", [(149, "개2"), (591, "개2병")])
-        self.assertIn("[개2 / 개2병]", text)
+        self.assertIn("[전체]", text)
         self.assertEqual(text.count("삼식탄:"), 2)
+
+    def test_only_all_form_common_entries_are_grouped_and_forms_descend(self):
+        common = ("전체 장비", ["· 화력+1 (1회만)"])
+        partial = ("부분 공통 장비", ["· 화력+2 (1회만)"])
+        own = ("최종 장비", ["· 화력+3 (1회만)"])
+        source = {1: [common, partial], 2: [common, partial], 3: [common, own]}
+        with patch.object(self.c, "blocks_for_ship", side_effect=lambda sid: source[sid]):
+            text = self.c.message("콩고", [(1, "미개장"), (2, "개1"), (3, "개2")])
+        self.assertTrue(text.startswith("[전체]\n"))
+        self.assertEqual(text.count("전체 장비:"), 1)
+        self.assertEqual(text.count("부분 공통 장비:"), 2)
+        self.assertLess(text.index("[개2]"), text.index("[개1]"))
+        self.assertLess(text.index("[개1]"), text.index("[미개장]"))
+        self.assertNotIn("[미개장 / 개1]", text)
+
+    def test_kongo_layout_footer_and_corrected_equipment_translation(self):
+        forms = [(78, "미개장"), (209, "개1"), (149, "개2"), (591, "개2병")]
+        text = self.c.message("콩고", forms)
+        headers = [line for line in text.splitlines() if line.startswith("[")]
+        self.assertEqual(headers, ["[전체]", "[개2병]", "[개2]", "[개1]", "[미개장]"])
+        self.assertNotIn("콩고 피트", text)
+        self.assertEqual(self.c.equipment["483"]["name_jp"], "三式弾改二")
+        self.assertEqual(self.c.item_name(483), "3식탄 개2")
+        self.assertIn("3식탄 개2", text)
+        self.assertNotIn("3식 개2", text)
+        self.assertIn("※ 개수보정은", text)
+        self.assertIn("수상전탐 : 색적 5이상 / 대공전탐 : 대공 2이상 / 고명중전탐 : 명중 8이상", text)
+        self.assertNotIn("≥", text)
+        self.assertNotIn("※ ★보정", text)
+        for stage in ("개2", "개1", "미개장"):
+            section = text.split(f"[{stage}]\n", 1)[1].split("\n\n[", 1)[0]
+            self.assertIn("1식 철갑탄 개: 화력+1 (1회만)", section)
+
+    def test_companion_upgrade_labels_remain_anchored_to_the_companion(self):
+        lines = next(lines for title, lines in self.c.blocks_for_ship(591) if title == self.c.item_name(530))
+        self.assertIn(" - 53cm 연장어뢰 중 총 1개 이상 장착 : 뇌장+6 (1회만)", lines)
+        self.assertIn("   - ★6 이상 총 1개 이상 장착 : 뇌장+1 (1회만)", lines)
+        self.assertIn("   - ★8 이상 총 1개 이상 장착 : 명중+1 (1회만)", lines)
+        self.assertIn("   - ★10 이상 총 1개 이상 장착 : 화력+1 (1회만)", lines)
+        # A different companion or a break must restore its full name.
+        original = [" - 어뢰A 중 총 1개 이상 장착 : 뇌장+1", " - 어뢰A 중 ★6 이상 총 1개 이상 장착 : 뇌장+1",
+                    " - 어뢰B 중 ★8 이상 총 1개 이상 장착 : 뇌장+2", "★9: 추가 명중+1",
+                    " - 어뢰B 중 ★10 이상 총 1개 이상 장착 : 화력+1"]
+        compact = shorten_companion_conditions(original)
+        self.assertIn("   - ★6 이상 총 1개 이상 장착 : 뇌장+1", compact)
+        self.assertEqual(compact[2], original[2])
+        self.assertEqual(compact[4], original[4])
 
     def test_companion_does_not_bypass_own_equipment_upgrade_requirement(self):
         checked = 0

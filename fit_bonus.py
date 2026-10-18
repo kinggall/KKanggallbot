@@ -52,6 +52,25 @@ def compact_line(condition, values):
     return "· 1개당 : " + stats
 
 
+def shorten_companion_conditions(lines):
+    """Only omit a companion name directly underneath its explicit anchor line."""
+    result, previous = [], None
+    pattern = re.compile(r"^ - (?P<own>★\d+ 이상 · )?(?P<name>.+?) 중 (?P<star>★\d+ 이상 )?(?P<rest>총 \d+개 이상 장착 : .+)$")
+    for line in lines:
+        match = pattern.match(line)
+        if not match:
+            previous = None
+            result.append(line)
+            continue
+        key = (match["name"], match["own"] or "")
+        if match["star"] and previous == key:
+            result.append("   - " + (match["own"] or "") + match["star"] + match["rest"])
+        else:
+            result.append(line)
+        previous = key
+    return result
+
+
 class FitCatalog:
     def __init__(self, root):
         self.groups = json.loads((root / "fit_bonuses.json").read_text(encoding="utf-8-sig"))
@@ -59,6 +78,12 @@ class FitCatalog:
         if meta["schema_version"] != 1:
             raise ValueError("지원하지 않는 피트 데이터 형식입니다.")
         self.ships, self.equipment, self.types = meta["ships"], meta["equipment"], meta["types"]
+        overrides = root / "equipment_name_overrides.json"
+        self.name_overrides = json.loads(overrides.read_text(encoding="utf-8")) if overrides.exists() else {}
+        if not isinstance(self.name_overrides, dict) or any(
+                key not in self.equipment or not isinstance(value, str) or not value.strip()
+                for key, value in self.name_overrides.items()):
+            raise ValueError("장비 표시명 보정 파일의 형식이 올바르지 않습니다.")
         for group in self.groups:
             if set(group) - {"ids", "types", "bonuses"}:
                 raise ValueError("알 수 없는 피트 장비 조건입니다.")
@@ -119,7 +144,7 @@ class FitCatalog:
 
     def item_name(self, item_id, ship_id=None):
         item = self.equipment[str(item_id)]
-        name = item["name"]
+        name = self.name_overrides.get(str(item_id), item["name"])
         if ship_id is not None:
             ship = self.ships[str(ship_id)]
             category = str(item["type"])
@@ -203,14 +228,15 @@ class FitCatalog:
                     add_stats(lines.setdefault(condition, {}), rule[field])
             rendered = [compact_line(condition, values) for condition, values in lines.items() if stats_text(values)]
             if rendered:
-                blocks.append((title, rendered))
+                blocks.append((title, shorten_companion_conditions(rendered)))
         return blocks
 
     def message(self, keyword, forms):
-        """One message; identical equipment rules shared across forms appear only once."""
-        unique = OrderedDict()
+        """All-form common entries first; partial matches repeat in descending forms."""
+        by_form = []
         for ship_id, stage in forms:
             occurrences = {}
+            entries = OrderedDict()
             blocks = self.blocks_for_ship(ship_id)
             if not blocks:
                 blocks = [("등록된 장착 가능 피트 보너스 없음", [])]
@@ -218,12 +244,22 @@ class FitCatalog:
                 key = (title, tuple(lines))
                 occurrence = occurrences.get(key, 0)
                 occurrences[key] = occurrence + 1
-                unique.setdefault((title, tuple(lines), occurrence), []).append(stage)
-        sections = OrderedDict()
-        for (title, lines, _occurrence), stages in unique.items():
-            sections.setdefault(tuple(stages), []).append((title, lines))
-        output = [f"{keyword} 피트"]
-        for stages, blocks in sorted(sections.items(), key=lambda item: -len(item[0])):
+                entries[(title, tuple(lines), occurrence)] = (title, lines)
+            by_form.append((stage, entries))
+        if not by_form:
+            return "등록된 피트 정보가 없습니다."
+        common = set(by_form[0][1]) if len(by_form) > 1 else set()
+        for _stage, entries in by_form[1:]:
+            common.intersection_update(entries)
+        sections = []
+        if common:
+            sections.append(("전체", [value for key, value in by_form[0][1].items() if key in common]))
+        for stage, entries in reversed(by_form):
+            remaining = [value for key, value in entries.items() if key not in common]
+            if remaining:
+                sections.append((stage, remaining))
+        output = []
+        for stage, blocks in sections:
             entries = []
             for title, lines in blocks:
                 title = title.replace("改二", "개2").replace("改三", "개3").replace("改", "개")
@@ -232,8 +268,8 @@ class FitCatalog:
                     entries.append(title + ": " + lines[0][2:])
                 else:
                     entries.append(title + ("\n" + "\n".join(lines) if lines else ""))
-            output.append("[" + " / ".join(stages) + "]\n" + "\n\n".join(entries))
-        output.append("※ ★보정은 해당 ★ 이상 장비마다 추가하며, (1회만)은 한 번만 적용합니다.\n종류 공통·개별·조건별 보너스는 합산합니다.")
+            output.append("[" + stage + "]\n" + "\n\n".join(entries))
+        output.append("※ 개수보정은 해당 ★ 이상 장비마다 추가하며, (1회만)은 한 번만 적용합니다.\n종류 공통·개별·조건별 보너스는 합산합니다.\n수상전탐 : 색적 5이상 / 대공전탐 : 대공 2이상 / 고명중전탐 : 명중 8이상")
         return "\n\n".join(output)
 
 @lru_cache(maxsize=1)
