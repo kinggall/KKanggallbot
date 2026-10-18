@@ -73,9 +73,17 @@ class EquipmentCatalog:
         values = item["values"]
         stats = " / ".join(f"{label} {values[field]:+d}" for field, label in STATS if values[field])
         distance = values["射程"]
-        details = (f"사거리 {RANGES.get(distance, str(distance))} / "
-                   f"배치코스트 {values['配置コスト']} / 행동반경 {values['戦闘行動半径']}")
-        return "\n".join((item["name"], stats or "기본 능력치: 모두 0", details))
+        details = []
+        if distance:
+            details.append(f"사거리 {RANGES.get(distance, str(distance))}")
+        for field, label in (("配置コスト", "배치코스트"), ("戦闘行動半径", "행동반경")):
+            if values[field]:
+                details.append(f"{label} {values[field]}")
+        effects = {42: "(1회 부활 - 대파 상태)", 43: "(1회 부활 - 완전 회복)"}
+        lines = [item["name"], stats or "능력치 없음" + effects.get(item_id, "")]
+        if details:
+            lines.append(" / ".join(details))
+        return "\n".join(lines)
 
     def reply(self, query):
         query = query.strip()

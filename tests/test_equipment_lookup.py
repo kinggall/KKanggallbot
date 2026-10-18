@@ -20,23 +20,24 @@ class EquipmentTests(unittest.TestCase):
 
     def test_12cm_single_gun_includes_all_requested_fields(self):
         self.assertEqual(self.catalog.reply("12cm단장포"),
-                         "12cm 단장포\n화력 +1 / 대공 +1\n사거리 단 / 배치코스트 0 / 행동반경 0")
+                         "12cm 단장포\n화력 +1 / 대공 +1\n사거리 단")
         self.assertEqual(self.catalog.reply("12cm단장포"), self.catalog.reply("12cm 단장포"))
         self.assertNotIn("뇌장", self.catalog.reply("12cm단장포"))
 
     def test_aircraft_has_deployment_cost_and_radius_from_csv(self):
         self.assertEqual(self.catalog.reply("영식함전21형"),
-                         "영식함전 21형\n대공 +5\n사거리 없음 / 배치코스트 4 / 행동반경 7")
+                         "영식함전 21형\n대공 +5\n배치코스트 4 / 행동반경 7")
         self.assertEqual(self.catalog.reply("영식 함상전투기 21형"), self.catalog.reply("零式艦戦21型"))
 
     def test_negative_values_and_long_ranges_are_preserved(self):
         self.assertIn("장갑 +7 / 회피 -2", self.catalog.describe(72))
-        self.assertIn("사거리 초장 /", self.catalog.describe(9))
-        self.assertIn("사거리 초장+ /", self.catalog.describe(561))
+        self.assertIn("사거리 초장", self.catalog.describe(9))
+        self.assertIn("사거리 초장+", self.catalog.describe(561))
 
     def test_zero_stat_equipment_is_not_described_as_having_no_effect(self):
-        self.assertIn("기본 능력치: 모두 0", self.catalog.describe(42))
-        self.assertIn("사거리 없음 / 배치코스트 0 / 행동반경 0", self.catalog.describe(42))
+        self.assertEqual(self.catalog.describe(42), "응급수리요원\n능력치 없음(1회 부활 - 대파 상태)")
+        self.assertEqual(self.catalog.describe(43), "응급수리여신\n능력치 없음(1회 부활 - 완전 회복)")
+        self.assertEqual(self.catalog.describe(68), "대발동정\n능력치 없음")
 
     def test_korean_japanese_unicode_and_accent_name_variants(self):
         self.assertEqual(self.catalog.reply("46cm3연장포"), self.catalog.reply("46cm 삼연장포"))
@@ -83,8 +84,13 @@ class EquipmentTests(unittest.TestCase):
                         self.assertIn(f"{label} {value:+d}", description)
                     else:
                         self.assertNotIn(f"{label} +0", description)
-                self.assertIn(f"배치코스트 {int(row['配置コスト'])}", description)
-                self.assertIn(f"행동반경 {int(row['戦闘行動半径'])}", description)
+                for field, label in (("配置コスト", "배치코스트"), ("戦闘行動半径", "행동반경")):
+                    if int(row[field]):
+                        self.assertIn(f"{label} {int(row[field])}", description)
+                    else:
+                        self.assertNotIn(label, description)
+                if not int(row['射程']):
+                    self.assertNotIn("사거리", description)
 
     def test_webhook_sends_one_response_to_original_chat_and_help_lists_command(self):
         with patch("requests.get", side_effect=requests.RequestException("offline import")):
