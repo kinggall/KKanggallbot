@@ -13,6 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
+import fit_bonus
 
 app = Flask(__name__)
 
@@ -1148,6 +1149,30 @@ def build_ship_slots_reply(keyword):
     return "\n\n".join(ship_slot_text(ship) for ship, _name in results)
 
 
+def build_fit_reply(arguments):
+    keyword, page = arguments.strip(), 1
+    parts = keyword.rsplit(maxsplit=1)
+    if len(parts) == 2 and parts[1].isdigit():
+        keyword, page = parts[0], int(parts[1])
+    if not keyword:
+        return "사용법: !피트 함선명 [페이지]"
+    results = search_ships(keyword)
+    if not results:
+        return f"'{keyword}' 칸무스를 찾지 못했습니다."
+    data = fit_bonus.catalog()
+    forms = []
+    for ship, _name in results:
+        ship_id = int(ship["艦船ID"])
+        if str(ship_id) not in data.ships:
+            raise ValueError(f"함선 ID {ship_id}의 피트 판정 정보가 없습니다.")
+        base = SHIP_BY_GAME_ID[data.ships[str(ship_id)]["base"]]
+        base_jp = base["艦名"]
+        base_name = SHIP_TRANSLATIONS.get(base_jp) or next(
+            (alias for alias in SHIP_ALIASES.get(base_jp, []) if re.search(r"[가-힣]", alias)), base_jp)
+        forms.append((ship_id, f"{base_name} {ship_stage(ship)}"))
+    return fit_bonus.format_page(keyword, forms, page)
+
+
 def load_senka_data():
     """Senka Viewer 첫 페이지에 포함된 공개 서버별 랭킹 데이터를 읽습니다."""
     if SENKA_CACHE["servers"] and time.monotonic() - SENKA_CACHE["loaded_at"] < SENKA_CACHE_SECONDS:
@@ -1270,6 +1295,7 @@ COMMANDS = {
         "!전과 [5/20/100/500]\n"
         "!칸무스 [함선명]\n"
         "!슬롯 [함선명]\n"
+        "!피트 [함선명]\n"
         "![함선명]팬티색"
     ),
 
@@ -1406,6 +1432,20 @@ def webhook():
             timeout=10
         )
         print(f"[함선 슬롯 검색] 함선={keyword or '(미입력)'}, 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!피트" or message.startswith("!피트 "):
+        try:
+            reply = build_fit_reply(message[len("!피트"):])
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            print(f"[피트 조회 실패] {error}")
+            reply = "피트 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[피트 검색] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     panty_match = PANTY_COMMAND.fullmatch(message)
