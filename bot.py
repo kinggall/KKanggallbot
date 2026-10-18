@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 import fit_bonus
+import equipment_lookup
 
 app = Flask(__name__)
 
@@ -1289,6 +1290,7 @@ COMMANDS = {
         "!칸무스 [함선명]\n"
         "!슬롯 [함선명]\n"
         "!피트 [함선명]\n"
+        "!장비 [장비명]\n"
         "![함선명]팬티색"
     ),
 
@@ -1439,6 +1441,20 @@ def webhook():
             timeout=10,
         )
         print(f"[피트 검색] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!장비" or message.startswith("!장비 "):
+        try:
+            reply = equipment_lookup.build_reply(message[len("!장비"):])
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            print(f"[장비 조회 실패] {error}")
+            reply = "장비 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[장비 검색] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     panty_match = PANTY_COMMAND.fullmatch(message)
