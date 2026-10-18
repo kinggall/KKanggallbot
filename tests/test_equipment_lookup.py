@@ -67,6 +67,14 @@ class EquipmentTests(unittest.TestCase):
         self.assertEqual(text, self.catalog.reply("三式弾改二"))
         self.assertNotIn("3식 개2", text)
 
+    def test_zero_fighter_aliases_find_the_same_equipment(self):
+        for alias in ("영식함전21형", "영전 21형", "0식 21형"):
+            with self.subTest(alias=alias):
+                self.assertEqual(self.catalog.search(alias), [20])
+        for alias in ("영전 52형", "0식 52형"):
+            with self.subTest(alias=alias):
+                self.assertEqual(self.catalog.search(alias), [21])
+
     def test_all_584_normal_items_use_csv_values_and_remain_searchable(self):
         with (ROOT / "equipments.csv").open(encoding="cp932", newline="") as file:
             rows = [r for r in csv.DictReader(file) if 0 < int(r["装備ID"]) < 1500]
