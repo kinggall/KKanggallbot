@@ -133,12 +133,12 @@ class ImprovementTests(unittest.TestCase):
     def test_requested_127mm_layout_whitespace_and_single_conversion_title(self):
         self.assertEqual(self.bot.build_improvement_reply("#2"),
                          "12.7cm 연장포\n"
-                         "★0~5 - 자재 1 / 나사 1 (확정 시 2 / 2)\n"
-                         "★6~9 - 자재 1 / 나사 1 (확정 시 2 / 2)\n"
+                         "★0~5 - 자재 1/나사 1 (확정 시 2/2)\n"
+                         "★6~9 - 자재 1/나사 1 (확정 시 2/2)\n"
                          " · 소모아이템 : 12.7cm 연장포 1개\n\n"
                          "○ 2번함\n - 정보 없음\n\n"
                          "※ 개수변환 - 12.7cm 연장포 B형 개2\n"
-                         "★max - 자재 2 / 나사 3 (확정 시 3 / 6)\n"
+                         "★max - 자재 2/나사 3 (확정 시 3/6)\n"
                          " · 소모아이템 : 12.7cm 연장포 2개\n\n"
                          "○ 2번함\n - 정보 없음")
 

@@ -101,7 +101,7 @@ class ImprovementCatalog:
         if cost is None:
             return "비용 정보 없음"
         dev, dev_secure, screws, screws_secure, _, _ = cost
-        return f"자재 {dev} / 나사 {screws} (확정 시 {dev_secure} / {screws_secure})"
+        return f"자재 {dev}/나사 {screws} (확정 시 {dev_secure}/{screws_secure})"
 
     def material_lines(self, cost):
         if cost is None:
