@@ -23,3 +23,32 @@ Game master data and other pre-existing external datasets retain their respectiv
 ## Starting equipment factual supplement
 
 `data/initial_equipment_supplement.json` records ship/equipment IDs, slot positions and improvement levels extracted from `wiki/ship.json` and `wiki/equipment.json` in https://github.com/kcwiki/kancolle-data/tree/7b92cdb8e4601fdec45ddd00489c7c6da9fa346d . Original game data rights remain with their respective owners. Narrative text and upstream translations are not included. File hashes and exact CSV slot values are preserved for verification. The 2026-10-18 implementation uses this supplement only for verified improvement levels and unknown CSV slots; it retains known CSV equipment and explicitly empty slots. See INITIAL_EQUIPMENT_DATA.md for the extraction fields and validation limits.
+
+## ElectronicObserver equipment improvement data and cost semantics
+
+`data/equipment_upgrades.json` preserves the original `Data/EquipmentUpgrades.json` from https://github.com/ElectronicObserverEN/Data/tree/b975e55ec1a548522c057b6796b39609de5e39d7 . Equipment, ship and material identifiers and game-data rights retain their respective source attributions and rights. This is a static game-information dataset, not a service API.
+
+The Python implementation in `improvement.py`, added 2026-10-18, follows the target-level cost rules and additive extra-material handling in ElectronicObserverEN/ElectronicObserver revision `8b66df3ffeb79ddef0d092693cf0d257ee96c1a7`, particularly `ElectronicObserver/Utility/Data/EquipmentUpgradeCostExtensions.cs` and `ElectronicObserver.Core/Types/Serialization/EquipmentUpgrade`. It adds Korean names, contiguous equal-cost grouping, helper weekdays, distinct conversion routes, and the `!개수` webhook command. The MIT notice for the referenced software is preserved below. The combined bot continues to be distributed under GPL-3.0, retaining this compatible upstream notice.
+
+The MIT License (MIT)
+
+Original work copyright (c) 2014 Andante
+Translation work copyright (c) 2015 Ryuu Kitsune
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

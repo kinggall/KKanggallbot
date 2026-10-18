@@ -17,6 +17,7 @@ import fit_bonus
 import equipment_lookup
 import development
 import initial_equipment
+import improvement
 
 app = Flask(__name__)
 
@@ -1152,6 +1153,30 @@ def build_ship_slots_reply(keyword):
     return "\n\n".join(ship_slot_text(ship) for ship, _name in results)
 
 
+def build_improvement_reply(keyword):
+    ship_names = {}
+    for ship in SHIPS:
+        ship_id = int(ship["艦船ID"])
+        japanese = ship["艦名"]
+        name = development.translated_ship_name(japanese, SHIP_TRANSLATIONS)
+        if name == japanese:
+            # Include Korean base names registered only in the alias file.
+            for canonical in sorted(SHIP_ALIASES, key=len, reverse=True):
+                if not japanese.startswith(canonical):
+                    continue
+                korean = next((alias for alias in SHIP_ALIASES[canonical] if re.search(r"[가-힣]", alias)), None)
+                if korean:
+                    name = korean + development.remodel_suffix(japanese[len(canonical):])
+                    break
+        # The same Japanese name can refer to distinct convertible forms.
+        if japanese in ("宗谷", "Glorious", "Glorious改"):
+            name = f"{SHIP_TRANSLATIONS.get(japanese, name)} {ship_stage(ship)}"
+        else:
+            name = re.sub(r"(?<=[가-힣])(?=개(?:[123]|$))", " ", name)
+        ship_names[ship_id] = name
+    return improvement.catalog().reply(keyword, ship_names)
+
+
 def build_initial_equipment_reply(keyword):
     keyword = keyword.strip()
     if not keyword:
@@ -1307,6 +1332,7 @@ COMMANDS = {
         "!장비 [장비명]\n"
         "!개발 [장비명]\n"
         "!레시피 [함선명] [연/탄/강/보]\n"
+        "!개수 [장비명]\n"
         "![함선명]팬티색"
     ),
 
@@ -1471,6 +1497,20 @@ def webhook():
             timeout=10,
         )
         print(f"[피트 검색] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!개수" or message.startswith("!개수 "):
+        try:
+            reply = build_improvement_reply(message[len("!개수"):])
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            print(f"[개수 조회 실패] {error}")
+            reply = "개수 데이터를 불러오지 못했습니다."
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[개수 검색] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     if message == "!레시피" or message.startswith("!레시피 "):
