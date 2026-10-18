@@ -80,9 +80,9 @@ class EquipmentCatalog:
             if values[field]:
                 details.append(f"{label} {values[field]}")
         effects = {42: "(1회 부활 - 대파 상태)", 43: "(1회 부활 - 완전 회복)"}
-        lines = [item["name"], stats or "능력치 없음" + effects.get(item_id, "")]
+        lines = [item["name"], "· " + (stats or "능력치 없음" + effects.get(item_id, ""))]
         if details:
-            lines.append(" / ".join(details))
+            lines.append("· " + " / ".join(details))
         return "\n".join(lines)
 
     def reply(self, query):

@@ -20,13 +20,13 @@ class EquipmentTests(unittest.TestCase):
 
     def test_12cm_single_gun_includes_all_requested_fields(self):
         self.assertEqual(self.catalog.reply("12cm단장포"),
-                         "12cm 단장포\n화력 +1 / 대공 +1\n사거리 단")
+                         "12cm 단장포\n· 화력 +1 / 대공 +1\n· 사거리 단")
         self.assertEqual(self.catalog.reply("12cm단장포"), self.catalog.reply("12cm 단장포"))
         self.assertNotIn("뇌장", self.catalog.reply("12cm단장포"))
 
     def test_aircraft_has_deployment_cost_and_radius_from_csv(self):
         self.assertEqual(self.catalog.reply("영식함전21형"),
-                         "영식함전 21형\n대공 +5\n배치코스트 4 / 행동반경 7")
+                         "영식함전 21형\n· 대공 +5\n· 배치코스트 4 / 행동반경 7")
         self.assertEqual(self.catalog.reply("영식 함상전투기 21형"), self.catalog.reply("零式艦戦21型"))
 
     def test_negative_values_and_long_ranges_are_preserved(self):
@@ -35,9 +35,9 @@ class EquipmentTests(unittest.TestCase):
         self.assertIn("사거리 초장+", self.catalog.describe(561))
 
     def test_zero_stat_equipment_is_not_described_as_having_no_effect(self):
-        self.assertEqual(self.catalog.describe(42), "응급수리요원\n능력치 없음(1회 부활 - 대파 상태)")
-        self.assertEqual(self.catalog.describe(43), "응급수리여신\n능력치 없음(1회 부활 - 완전 회복)")
-        self.assertEqual(self.catalog.describe(68), "대발동정\n능력치 없음")
+        self.assertEqual(self.catalog.describe(42), "응급수리요원\n· 능력치 없음(1회 부활 - 대파 상태)")
+        self.assertEqual(self.catalog.describe(43), "응급수리여신\n· 능력치 없음(1회 부활 - 완전 회복)")
+        self.assertEqual(self.catalog.describe(68), "대발동정\n· 능력치 없음")
 
     def test_korean_japanese_unicode_and_accent_name_variants(self):
         self.assertEqual(self.catalog.reply("46cm3연장포"), self.catalog.reply("46cm 삼연장포"))
