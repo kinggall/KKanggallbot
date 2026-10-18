@@ -11,7 +11,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from development import DevelopmentCatalog, pool_rate_details, resource_pool_type
+from development import DevelopmentCatalog, RECIPE_USAGE, pool_rate_details, resource_pool_type
 from equipment_lookup import EquipmentCatalog
 
 
@@ -63,8 +63,32 @@ class RecipeTests(unittest.TestCase):
 
     def test_same_name_soya_defaults_to_base_but_ids_select_distinct_types(self):
         self.assertEqual(self.catalog.resolve_secretary("소야", self.translations, self.aliases), [699])
-        self.assertTrue(self.reply("소야 10/30/20/10").startswith("항모계-육군 함선/소야(특무함)"))
-        self.assertTrue(self.reply("#645 10/30/20/10").startswith("수뢰계-소야(등대보급선/남극관측선)"))
+        self.assertTrue(self.reply("소야 10/30/20/10").startswith("항모계-소야(특무함)"))
+        self.assertTrue(self.reply("#645 10/30/20/10").startswith("수뢰계-소야(등대보급선)"))
+
+    def test_soya_forms_can_be_selected_by_name_with_different_distributions(self):
+        outputs = {}
+        for ship_id, name, family, failure in ((699, "특무함", "항모계", 34),
+                                               (645, "등대보급선", "수뢰계", 30),
+                                               (650, "남극관측선", "수뢰계", 30)):
+            text = self.reply(f"소야 {name} 20/20/20/20")
+            self.assertEqual(text, self.reply(f"#{ship_id} 20/20/20/20"))
+            self.assertTrue(text.startswith(f"{family}-소야({name}) [20/20/20/20]"))
+            self.assertTrue(text.endswith(f"· 실패율 - {failure}%"))
+            self.assertEqual(text, self.reply(f"소야({name}) 20/20/20/20"))
+            outputs[ship_id] = text.splitlines()[1:]
+        self.assertEqual(outputs[645], outputs[650])
+        self.assertNotEqual(outputs[699], outputs[645])
+        self.assertEqual(self.reply("소야 20/20/20/20"), self.reply("소야 특무함 20/20/20/20"))
+
+    def test_hyuga_special_pool_explicitly_includes_kai_and_kai_two(self):
+        self.translations.update({"日向": "휴가", "伊勢": "이세"})
+        for query, ship_id in (("휴가 개", 88), ("휴가개1", 88), ("휴가개2", 554)):
+            self.assertEqual(self.catalog.resolve_secretary(query, self.translations, self.aliases), [ship_id])
+            self.assertTrue(self.reply(query + " 20/20/20/20").startswith("항모계-휴가 개/개2 ["))
+        self.assertEqual(self.reply("휴가 개 20/20/20/20"), self.reply("휴가개2 20/20/20/20"))
+        self.assertTrue(self.reply("이세개2 20/20/20/20").startswith("항모계-이세 개/개2 ["))
+        self.assertTrue(self.reply("휴가 20/20/20/20").startswith("전함계 ["))
 
     def test_all_866_forms_have_a_pool_and_valid_complete_distributions(self):
         ships, pools, _ = self.catalog.ship_pools()
@@ -118,9 +142,9 @@ class RecipeTests(unittest.TestCase):
     def test_malformed_resources_are_rejected_without_silently_changing_them(self):
         for query in ("", "리슐리외", "리슐리외 10/30/20", "리슐리외 10/30/20/10 extra",
                       "리슐리외 -10/30/20/10", "리슐리외 10.5/30/20/10"):
-            self.assertTrue(self.reply(query).startswith("사용법:"))
+            self.assertEqual(self.reply(query), RECIPE_USAGE)
         for query in ("리슐리외 9/30/20/10", "리슐리외 301/30/20/10"):
-            self.assertIn("10~300", self.reply(query))
+            self.assertEqual(self.reply(query), RECIPE_USAGE)
         self.assertIn("찾지 못했습니다", self.reply("없는함선 10/30/20/10"))
 
     def test_webhook_preserves_chat_id_and_help_lists_new_command(self):

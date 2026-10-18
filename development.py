@@ -49,8 +49,8 @@ POOL_LABELS = {
     "水雷系-山汐丸": "수뢰계-야마시오마루",
     "水雷系-32驱改二": "수뢰계-제32구축대 개2",
     "水雷系-其它": "수뢰계",
-    "空母系-日向改": "항모계-휴가 개",
-    "空母系-伊势改": "항모계-이세 개",
+    "空母系-日向改": "항모계-휴가 개/개2",
+    "空母系-伊势改": "항모계-이세 개/개2",
     "空母系-方舟": "항모계-아크 로열",
     "空母系-萨拉、大黄蜂": "항모계-사라토가/호넷",
     "空母系-列克星敦": "항모계-렉싱턴",
@@ -71,6 +71,8 @@ POOL_LABELS = {
 GENERAL_POOLS = frozenset((
     "炮战系-其它", "水雷系-其它", "空母系-其它", "潜水系-其它",
 ))
+RECIPE_USAGE = "사용법: !레시피 [함선명] [연/탄/강/보]\nex) !레시피 후부키 10/30/20/10"
+SOYA_FORMS = {699: "특무함", 645: "등대보급선", 650: "남극관측선"}
 
 
 @dataclass(frozen=True)
@@ -279,6 +281,10 @@ class DevelopmentCatalog:
             return [ship_id] if ship_id in ships else []
         if not key:
             return []
+        soya_names = {"宗谷", translations.get("宗谷", "소야"), *aliases.get("宗谷", [])}
+        for ship_id, form in SOYA_FORMS.items():
+            if ship_id in ships and key in {equipment_lookup.normalize(name + form) for name in soya_names}:
+                return [ship_id]
         hits = []
         for ship_id, ship in ships.items():
             name = translated_ship_name(ship["艦名"], translations)
@@ -316,11 +322,11 @@ class DevelopmentCatalog:
     def recipe_reply(self, arguments, equipment, translations, aliases):
         match = re.fullmatch(r"(.+?)\s+(\d{1,3})\s*/\s*(\d{1,3})\s*/\s*(\d{1,3})\s*/\s*(\d{1,3})", arguments.strip())
         if not match:
-            return "사용법: !레시피 함선명 연료/탄약/강재/보크사이트\n예: !레시피 리슐리외 10/30/20/10"
+            return RECIPE_USAGE
         query, *numbers = match.groups()
         resources = tuple(map(int, numbers))
         if not all(10 <= r <= 300 for r in resources):
-            return "자원은 각각 10~300 사이의 정수로 입력해주세요."
+            return RECIPE_USAGE
         hits = self.resolve_secretary(query.strip(), translations, aliases)
         if not hits:
             return f"'{query.strip()}' 칸무스를 찾지 못했습니다."
@@ -339,6 +345,9 @@ class DevelopmentCatalog:
         if any(rate < 0 for rate in rates.values()) or sum(rates.values()) > 100:
             return "해당 조건의 개발 확률 데이터에 오류가 있어 결과를 표시할 수 없습니다."
         label = POOL_LABELS[pool["name"]]
+        if hits[0] in SOYA_FORMS:
+            family = "항모계" if hits[0] == 699 else "수뢰계"
+            label = f"{family}-소야({SOYA_FORMS[hits[0]]})"
         label = label[:-1] + "급" if label.endswith("형") else label.replace("형(", "급(")
         lines = [f"{label} [{'/'.join(map(str, resources))}]"]
         for item_id in sorted(rates, key=lambda i: (*self.equipment_types[i][2:4], i)):
