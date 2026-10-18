@@ -5,9 +5,11 @@ Modified 2026-10-18: Python port, Korean presentation and equipment alias lookup
 Upstream revision and preserved licensing: THIRD_PARTY_NOTICES.md.
 """
 from dataclasses import dataclass
+import csv
 from functools import cmp_to_key, lru_cache
 import json
 from pathlib import Path
+import re
 
 import equipment_lookup
 
@@ -138,12 +140,54 @@ def derive_resources(pool_type, broken, item_id):
     return [tuple(base)]
 
 
+def resource_pool_type(resources):
+    fuel, ammo, steel, bauxite = resources
+    if bauxite > max(fuel, ammo, steel):
+        return 1
+    if ammo > max(fuel, steel):
+        return 2
+    return 3
+
+
+def pool_rate_details(pools, base, resources):
+    """Forward calculation from upstream computePoolRates, including minimums."""
+    kind = resource_pool_type(resources)
+    compatible = [p for p in pools if abs(p["kind"]) == kind and base["members"] <= p["members"]
+                  and all(r >= m for r, m in zip(resources, p.get("minimum", ())))]
+    compatible.sort(key=lambda p: (-len(p["ids"]), -len(p["rates"])))
+    details = {}
+    for index, pool in enumerate(compatible):
+        for item_id, rate in pool["rates"].items():
+            details.setdefault(item_id, [0] if index else []).append(rate)
+    return details
+
+
+def translated_ship_name(name, translations):
+    if name in translations:
+        return translations[name]
+    prefix = max((jp for jp in translations if name.startswith(jp)), key=len, default="")
+    if not prefix:
+        return name
+    return translations[prefix] + remodel_suffix(name[len(prefix):])
+
+
+def remodel_suffix(suffix):
+    suffix = equipment_lookup.display_name(suffix)
+    for jp, ko in (("甲", "갑"), ("乙", "을"), ("丙", "병"), ("丁", "정"), ("戊", "무"),
+                   ("特", "특"), ("護", "호"), ("重", "중"), ("補", "보"), ("航", "항"), ("六", "6")):
+        suffix = suffix.replace(jp, ko)
+    return suffix
+
+
 class DevelopmentCatalog:
     def __init__(self, root):
         folder = root / "data/development"
+        self.root = root
         read = lambda name: json.loads((folder / name).read_text(encoding="utf-8"))
         master, ctypes = read("start2.json"), read("ctype.json")
         self.equipment = {e["api_id"]: e["api_broken"] for e in master["api_mst_slotitem"]}
+        self.equipment_types = {e["api_id"]: e["api_type"] for e in master["api_mst_slotitem"]}
+        self.raw_pools, self.ctypes = read("DevelopmentPool.json"), ctypes
         ships = {s["api_id"]: s for s in master["api_mst_ship"]}
         chains = remodel_chains(master["api_mst_ship"])
 
@@ -159,7 +203,7 @@ class DevelopmentCatalog:
             return result
 
         self.pools, self.selectable = [], []
-        for raw in read("DevelopmentPool.json"):
+        for raw in self.raw_pools:
             ids = list(raw.get("舰ID", []))
             stypes = {SHIP_TYPES[t] for t in raw.get("舰种", [])}
             classes = set()
@@ -176,13 +220,135 @@ class DevelopmentCatalog:
                 if excluded in ids:
                     ids.remove(excluded)
             pool = dict(name=raw["开发池名称"], kind=raw["开发池ID"], ids=ids,
-                        members=frozenset(ids), rates={int(k): v for k, v in raw["出货率"].items()})
+                        members=frozenset(ids), rates={int(k): v for k, v in raw["出货率"].items()},
+                        minimum=raw.get("最低资源", ()))
             self.pools.append(pool)
             if raw["开发池ID"] >= 0 and not raw.get("最低资源") and pool["name"] not in self.selectable:
                 self.selectable.append(pool["name"])
         missing_labels = set(self.selectable) - POOL_LABELS.keys()
         if missing_labels:
             raise ValueError(f"개발 비서함 번역 누락: {missing_labels}")
+
+    @lru_cache(maxsize=1)
+    def ship_pools(self):
+        """Expand forward pools against all current CSV forms, not the old master.
+
+        Reverse recipes retain the pinned upstream pools. Explicit IDs stay exact;
+        ship types/classes come from the existing game-ID-keyed fit metadata.
+        Named conditions follow CSV remodel descendants, not ancestors.
+        """
+        metadata = json.loads((self.root / "data/fit_metadata.json").read_text(encoding="utf-8"))["ships"]
+        with (self.root / "ships.csv").open(encoding="cp932", newline="") as file:
+            ships = {int(s["艦船ID"]): s for s in csv.DictReader(file) if 0 < int(s["艦船ID"]) < 1500}
+        by_name = {}
+        for ship_id, ship in ships.items():
+            by_name.setdefault(ship["艦名"], []).append(ship_id)
+        pools = []
+        for raw in self.raw_pools:
+            ids = list(raw.get("舰ID", []))
+            types = {SHIP_TYPES[t] for t in raw.get("舰种", [])}
+            classes = {int(t) if str(t).isdigit() else next(int(k) for k, v in self.ctypes.items() if v == t)
+                       for t in raw.get("舰型", [])}
+            ids.extend(i for i in sorted(ships) if metadata[str(i)]["type"] in types)
+            ids.extend(i for i in sorted(ships) if metadata[str(i)]["ship_class"] in classes)
+            for name in raw.get("舰名", []):
+                seeds = by_name.get(name, [])
+                visited, pending = set(), list(seeds)
+                while pending:
+                    current = pending.pop(0)
+                    if current in visited:
+                        continue
+                    visited.add(current)
+                    ids.append(current)
+                    base = metadata[str(current)]["base"]
+                    pending.extend(i for i in by_name.get(ships[current]["改装後"], [])
+                                   if metadata[str(i)]["base"] == base)
+            for excluded in raw.get("不包含舰ID", []):
+                if excluded in ids:
+                    ids.remove(excluded)
+            pools.append(dict(name=raw["开发池名称"], kind=raw["开发池ID"], ids=ids,
+                              members=frozenset(ids), minimum=raw.get("最低资源", ()),
+                              rates={int(k): v for k, v in raw["出货率"].items()}))
+        return ships, pools, metadata
+
+    def resolve_secretary(self, query, translations, aliases):
+        ships, _, metadata = self.ship_pools()
+        key = equipment_lookup.normalize(query)
+        if query.startswith("#") and query[1:].isdigit():
+            ship_id = int(query[1:])
+            return [ship_id] if ship_id in ships else []
+        if not key:
+            return []
+        hits = []
+        for ship_id, ship in ships.items():
+            name = translated_ship_name(ship["艦名"], translations)
+            names = {ship["艦名"], name}
+            if name.endswith("개"):
+                names.add(name + "1")
+            if key in {equipment_lookup.normalize(n) for n in names}:
+                hits.append(ship_id)
+        if not hits:
+            canonical = {name for name, names in aliases.items()
+                         if any(equipment_lookup.normalize(n) == key for n in [name, *names])}
+            hits = [i for i, s in ships.items() if s["艦名"] in canonical]
+        if not hits:
+            # Allow a base nickname followed by an explicit remodel suffix too.
+            for ship_id, ship in ships.items():
+                for canonical, names in aliases.items():
+                    if not ship["艦名"].startswith(canonical):
+                        continue
+                    suffix = remodel_suffix(ship["艦名"][len(canonical):])
+                    suffixes = (suffix, "개1") if suffix == "개" else (suffix,)
+                    if any(key == equipment_lookup.normalize(alias + s) for alias in names for s in suffixes):
+                        hits.append(ship_id)
+                        break
+        # Same-name variants (Soya/Glorious) default to the first form. Never
+        # expand an ordinary exact name or alias to all remodel forms.
+        if hits and len({metadata[str(i)]["base"] for i in hits}) == 1:
+            return [min(hits, key=lambda i: (int(ships[i]["改装段階"]), i))]
+        return sorted(hits)
+
+    def secretary_pool(self, ship_id):
+        _, pools, _ = self.ship_pools()
+        candidates = [p for p in pools if p["kind"] > 0 and ship_id in p["members"]]
+        return min(candidates, key=lambda p: len(p["ids"])) if candidates else None
+
+    def recipe_reply(self, arguments, equipment, translations, aliases):
+        match = re.fullmatch(r"(.+?)\s+(\d{1,3})\s*/\s*(\d{1,3})\s*/\s*(\d{1,3})\s*/\s*(\d{1,3})", arguments.strip())
+        if not match:
+            return "사용법: !레시피 함선명 연료/탄약/강재/보크사이트\n예: !레시피 리슐리외 10/30/20/10"
+        query, *numbers = match.groups()
+        resources = tuple(map(int, numbers))
+        if not all(10 <= r <= 300 for r in resources):
+            return "자원은 각각 10~300 사이의 정수로 입력해주세요."
+        hits = self.resolve_secretary(query.strip(), translations, aliases)
+        if not hits:
+            return f"'{query.strip()}' 칸무스를 찾지 못했습니다."
+        ships, pools, _ = self.ship_pools()
+        if len(hits) > 1:
+            lines = [f"'{query}' 함선이 여러 척입니다. 번호로 선택해주세요."]
+            lines.extend(f"· {translated_ship_name(ships[i]['艦名'], translations)} (#{i})" for i in hits[:10])
+            lines.append(f"예: !레시피 #{hits[0]} {'/'.join(map(str, resources))}")
+            return "\n".join(lines)
+        pool = self.secretary_pool(hits[0])
+        if pool is None:
+            return "해당 함선의 개발 그룹을 찾지 못했습니다."
+        details = pool_rate_details(pools, pool, resources)
+        rates = {i: sum(values) for i, values in details.items() if i in self.equipment
+                 and all(r >= cost * 10 for r, cost in zip(resources, self.equipment[i]))}
+        if any(rate < 0 for rate in rates.values()) or sum(rates.values()) > 100:
+            return "해당 조건의 개발 확률 데이터에 오류가 있어 결과를 표시할 수 없습니다."
+        label = POOL_LABELS[pool["name"]]
+        label = label[:-1] + "급" if label.endswith("형") else label.replace("형(", "급(")
+        lines = [f"{label} [{'/'.join(map(str, resources))}]"]
+        for item_id in sorted(rates, key=lambda i: (*self.equipment_types[i][2:4], i)):
+            if rates[item_id] <= 0:
+                continue
+            if item_id not in equipment.items:
+                return "개발 결과의 장비 정보를 찾지 못했습니다."
+            lines.append(f"· {equipment.items[item_id]['name']} - {rates[item_id]:g}%")
+        lines.append(f"· 실패율 - {100 - sum(rates.values()):g}%")
+        return "\n".join(lines)
 
     @lru_cache(maxsize=1024)
     def recipes(self, item_id):
@@ -250,3 +416,7 @@ def catalog():
 
 def build_reply(query):
     return catalog().reply(query, equipment_lookup.catalog())
+
+
+def build_recipe_reply(arguments, translations, aliases):
+    return catalog().recipe_reply(arguments, equipment_lookup.catalog(), translations, aliases)

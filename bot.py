@@ -1293,6 +1293,7 @@ COMMANDS = {
         "!피트 [함선명]\n"
         "!장비 [장비명]\n"
         "!개발 [장비명]\n"
+        "!레시피 [함선명] [연/탄/강/보]\n"
         "![함선명]팬티색"
     ),
 
@@ -1443,6 +1444,20 @@ def webhook():
             timeout=10,
         )
         print(f"[피트 검색] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!레시피" or message.startswith("!레시피 "):
+        try:
+            reply = development.build_recipe_reply(message[len("!레시피"):], SHIP_TRANSLATIONS, SHIP_ALIASES)
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            print(f"[레시피 조회 실패] {error}")
+            reply = "레시피 데이터를 불러오지 못했습니다."
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[레시피 검색] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     if message == "!개발" or message.startswith("!개발 "):

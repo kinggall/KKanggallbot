@@ -144,9 +144,6 @@ class DevelopmentTests(unittest.TestCase):
                 self.assertEqual(send.call_args.kwargs["json"], {
                     "type": "text", "room": "development-test", "data": self.reply(command[len("!개발"):])})
         self.assertIn("!개발 [장비명]", bot.COMMANDS["!도움말"])
-        with patch.object(bot.requests, "post") as send:
-            client.post("/webhook", json={"msg": "!레시피 항모 10 30 30 20", "json": {"chat_id": "test"}})
-            send.assert_not_called()
 
 
 if __name__ == "__main__":

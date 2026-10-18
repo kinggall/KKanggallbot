@@ -10,7 +10,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from development import DevelopmentCatalog
+from development import DevelopmentCatalog, pool_rate_details
 
 
 def verify(upstream):
@@ -50,9 +50,17 @@ def verify(upstream):
         raise AssertionError("No single-equipment oracle cases found")
     if excluded != [(201, "水雷系-32驱改二", 1, 4, 98)]:
         raise AssertionError(f"Unexpected excluded recipes: {excluded}")
+    forward = 0
+    for case in vectors["change"]:
+        base = next(p for p in catalog.pools if p["name"] == case["pool"])
+        actual = pool_rate_details(catalog.pools, base, case["resources"])
+        expected = {int(k): v for k, v in case["rates"].items()}
+        if actual != expected:
+            raise AssertionError(f"Forward rates mismatch: {case['pool']}, {case['resources']}")
+        forward += 1
     print(f"PASS: 3 snapshot hashes, {len(expected_pools)} pool memberships, "
           f"{count} equipment cases, {recipes} recipe combinations; "
-          f"{len(excluded)} invalid upstream recipe excluded")
+          f"{len(excluded)} invalid upstream recipe excluded; {forward} forward rate cases")
 
 
 if __name__ == "__main__":
