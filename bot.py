@@ -21,6 +21,7 @@ IRIS_REPLY_URL = "http://127.0.0.1:3000/reply"
 CSV_FILE = Path(__file__).parent / "ships.csv"
 SHIP_KO_FILE = Path(__file__).parent / "data" / "ship-ko.json"
 SHIP_ALIASES_FILE = Path(__file__).parent / "data" / "ship_aliases.json"
+SHIP_AIRCRAFT_RULES_FILE = Path(__file__).parent / "data" / "ship_aircraft_rules.json"
 SHIP_KO_URL = "https://raw.githubusercontent.com/kinggall/Data/master/Translations/ko-KR/ship.json"
 SHIP_ALIASES_URL = "https://raw.githubusercontent.com/kinggall/KKanggallbot/main/data/ship_aliases.json"
 SENKA_PAGE_URL = "https://senka.su/en"
@@ -1076,24 +1077,75 @@ def ship_text(ship, name_ko):
     return "\n".join(result)
 
 
+def load_ship_aircraft_rules():
+    """탑재량과 별개인 게임 마스터의 함선별 항공기 장착 규칙을 읽습니다."""
+    try:
+        with open(SHIP_AIRCRAFT_RULES_FILE, encoding="utf-8") as file:
+            data = json.load(file)
+        rules = data["ships"]
+        categories = {int(category) for category in data["aircraft_categories"]}
+        if data.get("schema_version") != 1 or not isinstance(rules, dict):
+            raise ValueError("항공기 장착 규칙 파일의 형식이 올바르지 않습니다.")
+        for ship_id, allowed in rules.items():
+            if not ship_id.isdigit() or not isinstance(allowed, list):
+                raise ValueError("함선별 장착 규칙의 형식이 올바르지 않습니다.")
+            if any(type(category) is not int or category not in categories for category in allowed):
+                raise ValueError("알 수 없는 항공기 장비 종류입니다.")
+        return rules
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        print(f"[항공기 장착 규칙] 읽기 실패: {error}")
+        return {}
+
+
+SHIP_AIRCRAFT_RULES = load_ship_aircraft_rules()
+NO_AIRCRAFT_MESSAGE = "수상기/함재기를 장착할 수 없습니다"
+
+
+def ship_aircraft_status(ship):
+    """True: 장착 가능, False: 불가, None: 미확인. 탑재량으로 추정하지 않습니다."""
+    allowed = SHIP_AIRCRAFT_RULES.get(str(ship.get("艦船ID", "")))
+    return bool(allowed) if allowed is not None else None
+
+
 def ship_slot_text(ship):
-    """개장형별 실제 탑재 슬롯 수와 슬롯별 항공기 탑재량을 표시합니다."""
+    """실제 슬롯의 0을 보존하고, 장착 가능 여부는 별도 규칙으로 판단합니다."""
+    result = [f"[{ship_stage(ship)}]"]
+    status = ship_aircraft_status(ship)
+    if status is False:
+        return "\n".join(result + [NO_AIRCRAFT_MESSAGE])
+
     try:
         slot_count = int(ship.get("スロット数", "0") or 0)
     except (TypeError, ValueError):
         slot_count = 0
     slot_count = max(0, min(slot_count, 5))
 
-    result = [f"[{ship_stage(ship)}]"]
     if slot_count == 0:
         result.append("탑재 슬롯 없음")
     else:
         capacities = []
         for index in range(1, slot_count + 1):
-            value = str(ship.get(f"搭載機数{index}", "-") or "-").strip()
-            capacities.append(f"슬롯{index} {value}")
+            raw_value = ship.get(f"搭載機数{index}")
+            value = str(raw_value).strip() if raw_value is not None else "-"
+            capacities.append(value or "-")
         result.append(" / ".join(capacities))
+        if all(value == "0" for value in capacities):
+            if status is True:
+                result.append("항공기 장착 가능 · 탑재량 0")
+            else:
+                result.append("항공기 장착 가능 여부 미확인")
     return "\n".join(result)
+
+
+def build_ship_slots_reply(keyword):
+    if not keyword:
+        return "사용법: !슬롯 함선명"
+    results = search_ships(keyword)
+    if not results:
+        return f"'{keyword}' 칸무스를 찾지 못했습니다."
+    if all(ship_aircraft_status(ship) is False for ship, _name in results):
+        return NO_AIRCRAFT_MESSAGE
+    return "\n\n".join(ship_slot_text(ship) for ship, _name in results)
 
 
 def load_senka_data():
@@ -1341,16 +1393,7 @@ def webhook():
 
     if message == "!슬롯" or message.startswith("!슬롯 "):
         keyword = message[len("!슬롯"):].strip()
-        if not keyword:
-            reply = "사용법: !슬롯 함선명"
-        else:
-            results = search_ships(keyword)
-            if not results:
-                reply = f"'{keyword}' 칸무스를 찾지 못했습니다."
-            else:
-                reply = "\n\n".join(
-                    ship_slot_text(ship) for ship, _name_ko in results
-                )
+        reply = build_ship_slots_reply(keyword)
 
         reply_data = {
             "type": "text",

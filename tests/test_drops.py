@@ -260,11 +260,18 @@ class DropTests(unittest.TestCase):
         with patch.object(bot, "LIMITED_DROPS_CACHE_FILE", path):
             self.assertIsNone(bot.load_limited_drops_cache()["updated_at"])
 
-    def test_webhook_acknowledges_before_slow_search(self):
-        with patch.object(bot.DROP_COMMAND_EXECUTOR, "submit") as submit:
-            response = bot.app.test_client().post("/webhook", json={"msg": "!드랍 뽀이", "json": {"chat_id": "123"}})
-            self.assertEqual(response.status_code, 200)
-            submit.assert_called_once_with(bot.send_drop_reply, "!드랍 뽀이", "123")
+    def test_disabled_drop_commands_do_not_fetch_or_reply(self):
+        with patch.object(bot.requests, "get") as fetch, \
+                patch.object(bot.requests, "post") as send, \
+                patch.object(bot, "send_drop_reply") as drop_reply:
+            for command in ("!드랍 뽀이", "!드랍 7-5", "!드랍갱신"):
+                response = bot.app.test_client().post("/webhook", json={
+                    "msg": command, "json": {"chat_id": "123"}
+                })
+                self.assertEqual(response.status_code, 200)
+            fetch.assert_not_called()
+            send.assert_not_called()
+            drop_reply.assert_not_called()
 
     def test_iris_reply_keeps_chat_id_and_limited_marker(self):
         with patch.object(bot, "build_drop_reply", return_value="· 아가노 1.99% (기간한정)"), \
