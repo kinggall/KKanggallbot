@@ -94,6 +94,14 @@ CSV는 `!장비` 명령의 기본 능력치·사거리·배치코스트·행동�
 
 `data/equipment_aliases.json`은 일반 장비 584종을 일본어 장비명 키로 등록하고 한국어 표시명을 기본 별명으로 둡니다. 예: `"零式艦戦21型": ["영식함전 21형", "영전 21형", "0식 21형"]`. 별명을 추가할 때는 해당 목록 안에 문자열을 이어 쓰면 됩니다. 같은 별명이 여러 장비에 등록되면 검색 결과 후보로 안내합니다.
 
+함재기와 그 파생형 45종에 별명 168개를 추가했습니다. 와일드캣·헬캣·코르세어/콜세어·어벤저·돈틀리스·데바스테이터·헬다이버·플라잉 팬케이크와 영국 기종의 한글 표기를 포함합니다. 공통 기체명은 여러 형식에 연결하고, `헬캣 5N` 같은 형식별 별명도 등록합니다. 기체명은 아래 공개 자료에서 확인했고, 한글 음역·띄어쓰기 변형을 검색용으로 추가했습니다.
+
+- [ElectronicObserverEN 영어 장비 번역](https://github.com/ElectronicObserverEN/Data/blob/master/Translations/en-US/equipment.json)
+- [KCWiki 장비의 영문 기체명](https://github.com/kcwiki/kancolle-data/blob/master/wiki/equipment.json)
+- [KCWiki 게임 도감 설명](https://github.com/kcwiki/kancolle-data/blob/master/db/equipment.json): XF5U 설명에도 `Flying Pancake`가 명시됩니다.
+
+주포의 `cm`·`포` 생략은 별명 등록 대신 검색 규칙으로 처리합니다. 소·중·대구경 주포(장비종 1/2/3)의 이름을 대상으로 `12단장`, `46삼연장`, `35.6연장개2` 등을 인식합니다. 구경 소수점과 개장 접미사는 보존하며, 정확히 맞는 이름이 없고 여러 장비가 해당하면 후보를 안내합니다.
+
 실제 결과:
 
 ```text

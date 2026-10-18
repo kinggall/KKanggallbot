@@ -3,6 +3,7 @@ import csv
 from functools import lru_cache
 import json
 from pathlib import Path
+import re
 import unicodedata
 
 STATS = (("火力", "화력"), ("雷装", "뇌장"), ("対空", "대공"),
@@ -25,6 +26,17 @@ def normalize(name):
                    and (char.isalnum() or char in ".+"))
 
 
+def gun_short_name(name):
+    value = unicodedata.normalize("NFKC", name).casefold()
+    value = re.sub(r"(?<=\d)\s*cm", "", value)
+    return normalize(value.replace("포", "").replace("砲", ""))
+
+
+def is_gun_short_query(query):
+    value = re.sub(r"\s+", "", unicodedata.normalize("NFKC", query).casefold())
+    return bool(re.search(r"\d+(?:\.\d+)?(?:cm)?(?:단장|(?:\d+|[삼사오육칠팔구])?연장)", value))
+
+
 class EquipmentCatalog:
     def __init__(self, root):
         meta = json.loads((root / "data/fit_metadata.json").read_text(encoding="utf-8"))["equipment"]
@@ -34,11 +46,11 @@ class EquipmentCatalog:
         aliases_by_name = json.loads(aliases_path.read_text(encoding="utf-8")) if aliases_path.exists() else {}
         if not isinstance(aliases_by_name, dict):
             raise ValueError("장비 별명 파일의 최상위 형식은 객체여야 합니다.")
-        self.items, self.names = {}, {}
+        self.items, self.names, self.gun_names = {}, {}, {}
         known_jp_names = set()
         with (root / "equipments.csv").open(encoding="cp932", newline="") as file:
             reader = csv.DictReader(file)
-            required = {"装備ID", "装備名", "射程", "配置コスト", "戦闘行動半径", *(field for field, _ in STATS)}
+            required = {"装備ID", "装備名", "装備種3", "射程", "配置コスト", "戦闘行動半径", *(field for field, _ in STATS)}
             if not required.issubset(reader.fieldnames or []):
                 raise ValueError("장비 CSV에 필요한 컬럼이 없습니다.")
             for row in reader:
@@ -62,6 +74,8 @@ class EquipmentCatalog:
                     key = normalize(alias)
                     if key:
                         self.names.setdefault(key, set()).add(item_id)
+                    if values["装備種3"] in (1, 2, 3) and re.search(r"\d\s*cm", alias, re.I):
+                        self.gun_names.setdefault(gun_short_name(alias), set()).add(item_id)
         unknown_names = set(aliases_by_name) - known_jp_names
         if unknown_names:
             raise ValueError("장비 별명 파일에 CSV에 없는 일본어 장비명이 있습니다: " + ", ".join(sorted(unknown_names)))
@@ -76,10 +90,18 @@ class EquipmentCatalog:
             return []
         if key in self.names:
             return sorted(self.names[key])
+        gun_key = gun_short_name(query) if is_gun_short_query(query) else ""
+        if gun_key in self.gun_names:
+            return sorted(self.gun_names[gun_key])
         candidates = set()
         for name, ids in self.names.items():
             if key in name:
                 candidates.update(ids)
+        if gun_key:
+            gun_pattern = re.compile(r"(?<![\d.])" + re.escape(gun_key))
+            for name, ids in self.gun_names.items():
+                if gun_pattern.search(name):
+                    candidates.update(ids)
         return sorted(candidates)
 
     def describe(self, item_id):

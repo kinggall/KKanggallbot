@@ -75,6 +75,26 @@ class EquipmentTests(unittest.TestCase):
             with self.subTest(alias=alias):
                 self.assertEqual(self.catalog.search(alias), [21])
 
+    def test_aircraft_nicknames_keep_model_choices(self):
+        self.assertEqual(self.catalog.search("플라잉팬케이크"), [375])
+        self.assertEqual(self.catalog.search("팬케이크"), self.catalog.search("XF5U"))
+        self.assertEqual(self.catalog.search("헬캣"), [205, 206, 254, 255])
+        self.assertEqual(self.catalog.search("헬캣 5N"), [255])
+        self.assertEqual(self.catalog.search("와일드캣 3"), [197])
+        self.assertIn("검색 결과", self.catalog.reply("와일드캣"))
+        self.assertEqual(self.catalog.search("콜세어 1D"), [233])
+
+    def test_main_gun_short_names_preserve_caliber_and_remodel(self):
+        for query, item_id in (("12단장", 1), ("12단장포", 1), ("12 단장 개2", 293),
+                               ("46삼연장", 9), ("46 3연장 개", 276), ("35.6연장개2", 329),
+                               ("Bofors12단장양용", 584), ("12단장양용", 584)):
+            with self.subTest(query=query):
+                self.assertEqual(self.catalog.search(query), [item_id])
+        self.assertEqual(self.catalog.search("203연장"), [])
+        self.assertEqual(self.catalog.search("12연장"), [])
+        self.assertEqual(self.catalog.search("35.6연장개3"), [502, 530])
+        self.assertIn("검색 결과", self.catalog.reply("35.6연장개3"))
+
     def test_all_584_normal_items_use_csv_values_and_remain_searchable(self):
         with (ROOT / "equipments.csv").open(encoding="cp932", newline="") as file:
             rows = [r for r in csv.DictReader(file) if 0 < int(r["装備ID"]) < 1500]
