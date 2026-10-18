@@ -83,6 +83,23 @@ class EquipmentTests(unittest.TestCase):
         self.assertEqual(self.catalog.search("와일드캣 3"), [197])
         self.assertIn("검색 결과", self.catalog.reply("와일드캣"))
         self.assertEqual(self.catalog.search("콜세어 1D"), [233])
+        self.assertEqual(self.catalog.search("커세어"), self.catalog.search("콜세어"))
+        self.assertEqual(self.catalog.search("corsair"), self.catalog.search("콜세어"))
+        self.assertEqual(self.catalog.search("커세어 1D"), [233])
+
+    def test_model_letter_corrections_are_shared_with_fit_display(self):
+        from fit_bonus import FitCatalog
+        fit = FitCatalog(ROOT / "data")
+        corrections = {338: "렛푸 개2무", 339: "렛푸 개2무 (1항전/숙련)",
+                       348: "함재형 4식 20cm 대지분진포"}
+        for item_id, name in corrections.items():
+            with self.subTest(item_id=item_id):
+                self.assertEqual(self.catalog.describe(item_id).splitlines()[0], name)
+                self.assertEqual(fit.item_name(item_id), name)
+                self.assertEqual(self.catalog.search(name), [item_id])
+        for item_id in (303, 360, 361):
+            with self.subTest(item_id=item_id):
+                self.assertIn("Model 193", self.catalog.items[item_id]["name"])
 
     def test_main_gun_short_names_preserve_caliber_and_remodel(self):
         for query, item_id in (("12단장", 1), ("12단장포", 1), ("12 단장 개2", 293),
