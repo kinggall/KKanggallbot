@@ -1076,6 +1076,26 @@ def ship_text(ship, name_ko):
     return "\n".join(result)
 
 
+def ship_slot_text(ship):
+    """개장형별 실제 탑재 슬롯 수와 슬롯별 항공기 탑재량을 표시합니다."""
+    try:
+        slot_count = int(ship.get("スロット数", "0") or 0)
+    except (TypeError, ValueError):
+        slot_count = 0
+    slot_count = max(0, min(slot_count, 5))
+
+    result = [f"[{ship_stage(ship)}]"]
+    if slot_count == 0:
+        result.append("탑재 슬롯 없음")
+    else:
+        capacities = []
+        for index in range(1, slot_count + 1):
+            value = str(ship.get(f"搭載機数{index}", "-") or "-").strip()
+            capacities.append(f"슬롯{index} {value}")
+        result.append(" / ".join(capacities))
+    return "\n".join(result)
+
+
 def load_senka_data():
     """Senka Viewer 첫 페이지에 포함된 공개 서버별 랭킹 데이터를 읽습니다."""
     if SENKA_CACHE["servers"] and time.monotonic() - SENKA_CACHE["loaded_at"] < SENKA_CACHE_SECONDS:
@@ -1197,6 +1217,7 @@ COMMANDS = {
         "!이벤트 !개구리야 !미르야\n"
         "!전과 [5/20/100/500]\n"
         "!칸무스 [함선명]\n"
+        "!슬롯 [함선명]\n"
         "![함선명]팬티색"
     ),
 
@@ -1316,6 +1337,32 @@ def webhook():
         )
 
         print(f"[칸무스 검색] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!슬롯" or message.startswith("!슬롯 "):
+        keyword = message[len("!슬롯"):].strip()
+        if not keyword:
+            reply = "사용법: !슬롯 함선명"
+        else:
+            results = search_ships(keyword)
+            if not results:
+                reply = f"'{keyword}' 칸무스를 찾지 못했습니다."
+            else:
+                reply = "\n\n".join(
+                    ship_slot_text(ship) for ship, _name_ko in results
+                )
+
+        reply_data = {
+            "type": "text",
+            "room": str(chat_id),
+            "data": reply
+        }
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json=reply_data,
+            timeout=10
+        )
+        print(f"[함선 슬롯 검색] 함선={keyword or '(미입력)'}, 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     panty_match = PANTY_COMMAND.fullmatch(message)
