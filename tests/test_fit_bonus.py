@@ -12,7 +12,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from fit_bonus import FitCatalog, RADARS, format_page, stats_text
+from fit_bonus import FitCatalog, RADARS
 
 
 class FitTests(unittest.TestCase):
@@ -76,9 +76,9 @@ class FitTests(unittest.TestCase):
                          {"houg": 12, "kaih": 7, "tyku": 10, "houm": 4, "raig": 4})
         text = "\n".join(line for title, lines in self.c.blocks_for_ship(543)
                          if title == self.c.item_name(366) for line in lines)
-        self.assertIn("2개 이상 장착 시 추가(1회): 화력 +2 / 대공 +2", text)
-        self.assertIn("수상전탐 함께 장착", text)
-        self.assertIn("대공전탐 함께 장착", text)
+        self.assertIn("2개 이상 장착 : 추가 화력+2 대공+2 (1회만)", text)
+        self.assertIn("수상전탐 병용", text)
+        self.assertIn("대공전탐 병용", text)
 
     def test_count_requires_only_qualifying_upgraded_items(self):
         group = next(g for g in self.c.groups if g.get("ids") == [285])
@@ -147,7 +147,14 @@ class FitTests(unittest.TestCase):
         # Okinami Kai Ni has a category-wide radar bonus: the target itself counts.
         text = "\n".join(line for title, lines in self.c.blocks_for_ship(569)
                          if "전탐" in title and "종류 공통" in title for line in lines)
-        self.assertIn("대상 장비 자체도 인정", text)
+        self.assertIn("자체 인정", text)
+
+    def test_shared_rules_compact_across_forms_without_losing_same_form_occurrences(self):
+        block = ("삼식탄", ["· 화력+1 대공+1 (1회만)"])
+        with patch.object(self.c, "blocks_for_ship", return_value=[block, block]):
+            text = self.c.message("콩고", [(149, "개2"), (591, "개2병")])
+        self.assertIn("[개2 / 개2병]", text)
+        self.assertEqual(text.count("삼식탄:"), 2)
 
     def test_companion_does_not_bypass_own_equipment_upgrade_requirement(self):
         checked = 0
@@ -164,23 +171,20 @@ class FitTests(unittest.TestCase):
                     checked += 1
         self.assertEqual(checked, 10)
 
-    def test_all_csv_forms_render_without_missing_metadata_or_overflow(self):
+    def test_all_csv_forms_render_without_missing_metadata_or_lost_conditions(self):
         with (ROOT / "ships.csv").open(encoding="cp932") as f:
             rows = [r for r in csv.DictReader(f) if int(r["艦船ID"]) <= 1500]
         self.assertEqual({r["艦船ID"] for r in rows}, set(self.c.ships))
         for row in rows:
             with self.subTest(ship=row["艦名"]):
-                pages = self.c.pages([(row["艦船ID"], row["艦名"])])
-                self.assertTrue(pages)
-                self.assertTrue(all(len(page) < 2400 for page in pages))
+                combined = self.c.message(row["艦名"], [(row["艦船ID"], "미개장")])
+                self.assertTrue(combined)
                 blocks = self.c.blocks_for_ship(row["艦船ID"])
-                combined = "\n".join(pages)
                 for title, lines in blocks:
-                    self.assertIn(title, combined)
                     for line in lines:
-                        self.assertIn(line, combined)
+                        self.assertIn(line.removeprefix("· "), combined)
 
-    def test_real_webhook_alias_paging_and_usage(self):
+    def test_real_webhook_sends_entire_result_in_one_post(self):
         with patch("requests.get", side_effect=requests.RequestException("offline import")):
             bot = importlib.import_module("bot")
         with (ROOT / "ships.csv").open(encoding="cp932") as f:
@@ -193,15 +197,18 @@ class FitTests(unittest.TestCase):
                 alias = bot.build_fit_reply("불고기")
                 self.assertEqual(direct.split("\n", 1)[1].replace("콩고", "QUERY"),
                                  alias.split("\n", 1)[1].replace("불고기", "QUERY").replace("콩고", "QUERY"))
-                self.assertIn("다음: !피트 콩고 2", direct)
-                self.assertNotEqual(direct, bot.build_fit_reply("콩고 2"))
-                self.assertIn("페이지는", bot.build_fit_reply("콩고 999"))
+                self.assertNotIn("다음: !피트", direct)
+                self.assertIn("[개2]", direct)
+                self.assertIn("[개2병]", direct)
+                self.assertIn("(1회만)", direct)
+                self.assertNotIn("장착 시 추가(1회)", direct)
                 self.assertIn("사용법", bot.build_fit_reply(""))
                 self.assertIn("찾지 못했습니다", bot.build_fit_reply("없는함선임"))
                 with patch.object(bot.requests, "post", return_value=Mock(status_code=200)) as send:
                     response = bot.app.test_client().post("/webhook", json={
                         "msg": "!피트 콩고", "json": {"chat_id": "fit-test"}})
                 self.assertEqual(response.status_code, 200)
+                send.assert_called_once()
                 self.assertEqual(send.call_args.kwargs["json"]["room"], "fit-test")
                 self.assertEqual(send.call_args.kwargs["json"]["data"], direct)
         self.assertIn("!피트", bot.COMMANDS["!도움말"])

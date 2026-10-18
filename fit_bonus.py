@@ -2,6 +2,7 @@
 from collections import OrderedDict
 from functools import lru_cache
 import json
+import re
 from pathlib import Path
 
 STAT_NAMES = {"houg": "화력", "raig": "뇌장", "tyku": "대공", "souk": "장갑",
@@ -24,6 +25,31 @@ def add_stats(target, values, multiplier=1):
 
 def stats_text(values):
     return " / ".join(f"{name} {values[key]:+d}" for key, name in STAT_NAMES.items() if values.get(key))
+
+
+def compact_line(condition, values):
+    stats = stats_text(values).replace(" / ", " ").replace(" +", "+").replace(" -", "-")
+    level = re.match(r"★(\d+) 이상 장비 기준 · ", condition)
+    prefix = f"★{level[1]}: " if level else ""
+    if level:
+        condition = condition[level.end():]
+    scope, _, requirement = condition.partition(" · 조건: ")
+    once = "1회" in scope
+    count = re.match(r"(\d+)개 이상", scope)
+    if requirement:
+        requirement = requirement.replace(" 함께 장착", " 병용").replace("대상 장비 자체도 인정", "자체 인정")
+        requirement = requirement.replace("改二", "개2").replace("改三", "개3").replace("改", "개")
+        if count:
+            requirement = f"대상 장비 {count[1]}개 이상 + " + requirement
+        label = " - " + (f"★{level[1]} 이상 · " if level else "") + requirement + " : "
+        return label + stats + (" (1회만)" if once else "")
+    if count:
+        return prefix + f"· {count[1]}개 이상 장착 : 추가 " + stats + " (1회만)"
+    if level:
+        return prefix + "추가 " + stats + (" (1회만)" if once else "")
+    if once:
+        return "· " + stats + " (1회만)"
+    return "· 1개당 : " + stats
 
 
 class FitCatalog:
@@ -175,56 +201,45 @@ class FitCatalog:
                         continue
                     condition = self.condition_text(rule, field, targets, ship_id)
                     add_stats(lines.setdefault(condition, {}), rule[field])
-            rendered = [f"· {condition}: {stats_text(values)}" for condition, values in lines.items() if stats_text(values)]
+            rendered = [compact_line(condition, values) for condition, values in lines.items() if stats_text(values)]
             if rendered:
                 blocks.append((title, rendered))
         return blocks
 
-    def pages(self, forms, limit=2000):
-        """Keep conditions intact and repeat ship/equipment headings across page breaks."""
-        pages, body, previous = [], "", None
-        sections = []
-        for ship_id, ship_title in forms:
+    def message(self, keyword, forms):
+        """One message; identical equipment rules shared across forms appear only once."""
+        unique = OrderedDict()
+        for ship_id, stage in forms:
+            occurrences = {}
             blocks = self.blocks_for_ship(ship_id)
-            if sections and sections[-1][1] == blocks:
-                sections[-1][0] += " / " + ship_title
-            else:
-                sections.append([ship_title, blocks])
-        for ship_title, blocks in sections:
             if not blocks:
                 blocks = [("등록된 장착 가능 피트 보너스 없음", [])]
             for title, lines in blocks:
-                # A long equipment entry can span pages, but no condition line is discarded.
-                pending = lines or [""]
-                for line in pending:
-                    key = (ship_title, title)
-                    heading = (f"\n\n[{ship_title}]\n" if previous is None or previous[0] != ship_title else "\n\n") + title + "\n"
-                    addition = (heading if key != previous else "\n") + line
-                    if body and len(body) + len(addition) > limit:
-                        pages.append(body.strip())
-                        body, previous = "", None
-                        addition = f"[{ship_title}]\n{title}\n{line}"
-                    body += addition
-                    previous = key
-        if body:
-            pages.append(body.strip())
-        return pages
-
+                key = (title, tuple(lines))
+                occurrence = occurrences.get(key, 0)
+                occurrences[key] = occurrence + 1
+                unique.setdefault((title, tuple(lines), occurrence), []).append(stage)
+        sections = OrderedDict()
+        for (title, lines, _occurrence), stages in unique.items():
+            sections.setdefault(tuple(stages), []).append((title, lines))
+        output = [f"{keyword} 피트"]
+        for stages, blocks in sorted(sections.items(), key=lambda item: -len(item[0])):
+            entries = []
+            for title, lines in blocks:
+                title = title.replace("改二", "개2").replace("改三", "개3").replace("改", "개")
+                title = re.sub(r"\s+\(", "(", title).strip()
+                if len(lines) == 1 and lines[0].startswith("· ") and "1개당" not in lines[0]:
+                    entries.append(title + ": " + lines[0][2:])
+                else:
+                    entries.append(title + ("\n" + "\n".join(lines) if lines else ""))
+            output.append("[" + " / ".join(stages) + "]\n" + "\n\n".join(entries))
+        output.append("※ ★보정은 해당 ★ 이상 장비마다 추가하며, (1회만)은 한 번만 적용합니다.\n종류 공통·개별·조건별 보너스는 합산합니다.")
+        return "\n\n".join(output)
 
 @lru_cache(maxsize=1)
 def catalog():
     return FitCatalog(Path(__file__).parent / "data")
 
 
-def format_page(keyword, forms, page=1):
-    pages = catalog().pages(forms)
-    if not 1 <= page <= len(pages):
-        return f"피트 페이지는 1~{len(pages)}입니다. 예: !피트 {keyword} 1"
-    text = f"{keyword} 피트 보너스 ({page}/{len(pages)})\n\n" + pages[page - 1]
-    text += "\n\n※ 장비 기본성능 외 보너스. 종류 공통·개별·★조건 보너스는 합산합니다."
-    text += "\n※ 1개당은 개수만큼, 추가(1회)는 조건 충족 시 한 번 적용합니다."
-    if any(label in pages[page - 1] for label, _, _ in RADARS.values()):
-        text += "\n전탐 조건: 수상=색적≥5 / 대공=대공≥2 / 고명중=명중≥8"
-    if page < len(pages):
-        text += f"\n다음: !피트 {keyword} {page + 1}"
-    return text
+def format_message(keyword, forms):
+    return catalog().message(keyword, forms)

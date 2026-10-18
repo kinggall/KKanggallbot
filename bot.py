@@ -1150,12 +1150,9 @@ def build_ship_slots_reply(keyword):
 
 
 def build_fit_reply(arguments):
-    keyword, page = arguments.strip(), 1
-    parts = keyword.rsplit(maxsplit=1)
-    if len(parts) == 2 and parts[1].isdigit():
-        keyword, page = parts[0], int(parts[1])
+    keyword = arguments.strip()
     if not keyword:
-        return "사용법: !피트 함선명 [페이지]"
+        return "사용법: !피트 함선명"
     results = search_ships(keyword)
     if not results:
         return f"'{keyword}' 칸무스를 찾지 못했습니다."
@@ -1165,12 +1162,8 @@ def build_fit_reply(arguments):
         ship_id = int(ship["艦船ID"])
         if str(ship_id) not in data.ships:
             raise ValueError(f"함선 ID {ship_id}의 피트 판정 정보가 없습니다.")
-        base = SHIP_BY_GAME_ID[data.ships[str(ship_id)]["base"]]
-        base_jp = base["艦名"]
-        base_name = SHIP_TRANSLATIONS.get(base_jp) or next(
-            (alias for alias in SHIP_ALIASES.get(base_jp, []) if re.search(r"[가-힣]", alias)), base_jp)
-        forms.append((ship_id, f"{base_name} {ship_stage(ship)}"))
-    return fit_bonus.format_page(keyword, forms, page)
+        forms.append((ship_id, ship_stage(ship)))
+    return fit_bonus.format_message(keyword, forms)
 
 
 def load_senka_data():
