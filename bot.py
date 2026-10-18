@@ -15,6 +15,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 import fit_bonus
 import equipment_lookup
+import development
 
 app = Flask(__name__)
 
@@ -1291,6 +1292,7 @@ COMMANDS = {
         "!슬롯 [함선명]\n"
         "!피트 [함선명]\n"
         "!장비 [장비명]\n"
+        "!개발 [장비명]\n"
         "![함선명]팬티색"
     ),
 
@@ -1441,6 +1443,20 @@ def webhook():
             timeout=10,
         )
         print(f"[피트 검색] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!개발" or message.startswith("!개발 "):
+        try:
+            reply = development.build_reply(message[len("!개발"):])
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            print(f"[개발 조회 실패] {error}")
+            reply = "개발 데이터를 불러오지 못했습니다."
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[개발 검색] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     if message == "!장비" or message.startswith("!장비 "):
