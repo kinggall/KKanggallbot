@@ -30,6 +30,10 @@ class EquipmentCatalog:
         meta = json.loads((root / "data/fit_metadata.json").read_text(encoding="utf-8"))["equipment"]
         overrides_path = root / "data/equipment_name_overrides.json"
         overrides = json.loads(overrides_path.read_text(encoding="utf-8")) if overrides_path.exists() else {}
+        aliases_path = root / "data/equipment_aliases.json"
+        aliases_by_id = json.loads(aliases_path.read_text(encoding="utf-8")) if aliases_path.exists() else {}
+        if not isinstance(aliases_by_id, dict):
+            raise ValueError("장비 별명 파일의 최상위 형식은 객체여야 합니다.")
         self.items, self.names = {}, {}
         with (root / "equipments.csv").open(encoding="cp932", newline="") as file:
             reader = csv.DictReader(file)
@@ -47,10 +51,17 @@ class EquipmentCatalog:
                 values = {field: int(row[field]) for field in required - {"装備名"}}
                 self.items[item_id] = dict(name=name, values=values)
                 aliases = {row["装備名"], name, translation.get("name", ""), translation.get("name_jp", "")}
+                custom_aliases = aliases_by_id.get(str(item_id), [])
+                if not isinstance(custom_aliases, list) or not all(isinstance(alias, str) for alias in custom_aliases):
+                    raise ValueError(f"장비 ID {item_id} 별명은 문자열 목록이어야 합니다.")
+                aliases.update(custom_aliases)
                 for alias in aliases:
                     key = normalize(alias)
                     if key:
                         self.names.setdefault(key, set()).add(item_id)
+        unknown_ids = set(aliases_by_id) - {str(item_id) for item_id in self.items}
+        if unknown_ids:
+            raise ValueError("장비 별명 파일에 존재하지 않는 ID가 있습니다: " + ", ".join(sorted(unknown_ids)))
 
     def search(self, query):
         query = query.strip()
