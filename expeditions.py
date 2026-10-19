@@ -106,7 +106,7 @@ class ExpeditionCatalog:
             lines.append('· ' + ' / '.join(f"{item['name']} {item['min']}~{item['max']}" for item in data['items']))
         if not resources and not data['items']:
             lines.append('· 보상 없음(지원함대)')
-        lines.extend(('', '[선행원정]'))
+        lines.extend(('', '[선행조건]'))
         groups = {}
         for rule in data['unlocks']['all_of']:
             label = {'expedition': '', 'map': '해역 ', 'quest': '임무 '}[rule['kind']] + rule['code']

@@ -29,7 +29,7 @@ class ExpeditionTests(unittest.TestCase):
 · 탄약 600/강재 600/보키 1000
 · 나사 0~1 / 가구함(대) 0~2
 
-[선행원정]
+[선행조건]
 40''')
 
     def test_all_63_views_are_offline_complete_and_case_insensitive(self):
@@ -40,7 +40,7 @@ class ExpeditionTests(unittest.TestCase):
                     output = self.catalog.reply(code)
                     self.assertEqual(output, self.catalog.reply(' ' + code.lower() + ' '))
                     self.assertTrue(output.startswith(code + ': '))
-                    for section in ('[조건]', '[보상]', '[선행원정]'):
+                    for section in ('[조건]', '[보상]', '[선행조건]'):
                         self.assertEqual(output.count(section), 1)
                     self.assertIn('○ 소요시간 - ', output)
                     self.assertNotRegex(output, r'[ぁ-んァ-ヶ一-龯]')
@@ -49,7 +49,7 @@ class ExpeditionTests(unittest.TestCase):
                     self.assertLess(len(output), 1500)
                     self.assertEqual('(월간' in output, data['monthly'])
                     for rule in data['unlocks']['all_of']:
-                        self.assertIn(rule['code'], output.split('[선행원정]\n')[1])
+                        self.assertIn(rule['code'], output.split('[선행조건]\n')[1])
                     for stat, value in data['stats'].items():
                         self.assertIn(dict(expeditions.STAT_NAMES)[stat] + ' ' + str(value), output)
 
