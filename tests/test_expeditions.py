@@ -17,16 +17,16 @@ class ExpeditionTests(unittest.TestCase):
         cls.catalog = expeditions.ExpeditionCatalog(ROOT)
 
     def test_e1_matches_agreed_response_exactly(self):
-        self.assertEqual(self.catalog.reply('E1'), '''E1 : 라바울방면함대진출(월간/교전2형)
+        self.assertEqual(self.catalog.reply('E1'), '''E1: 라바울방면함대진출(월간/교전2형)
 ○ 소요시간 - 7시간 30분
 
 [조건]
 · 편성 중순1(기함) 경순1 구축3 (총 6척)
 · 기함 Lv55 / 함대 Lv 합 290
-· 화력450/대공350/대잠330/색적250
+· 화력 450/대공 350/대잠 330/색적 250
 
 [보상]
-· 탄 600 / 강 600 / 보 1000
+· 탄약 600/강재 600/보키 1000
 · 나사 0~1 / 가구함(대) 0~2
 
 [선행원정]
@@ -39,7 +39,7 @@ class ExpeditionTests(unittest.TestCase):
                 with self.subTest(code=code):
                     output = self.catalog.reply(code)
                     self.assertEqual(output, self.catalog.reply(' ' + code.lower() + ' '))
-                    self.assertTrue(output.startswith(code + ' : '))
+                    self.assertTrue(output.startswith(code + ': '))
                     for section in ('[조건]', '[보상]', '[선행원정]'):
                         self.assertEqual(output.count(section), 1)
                     self.assertIn('○ 소요시간 - ', output)
@@ -51,7 +51,7 @@ class ExpeditionTests(unittest.TestCase):
                     for rule in data['unlocks']['all_of']:
                         self.assertIn(rule['code'], output.split('[선행원정]\n')[1])
                     for stat, value in data['stats'].items():
-                        self.assertIn(dict(expeditions.STAT_NAMES)[stat] + str(value), output)
+                        self.assertIn(dict(expeditions.STAT_NAMES)[stat] + ' ' + str(value), output)
 
     def test_all_of_and_ditto_prerequisites_are_preserved(self):
         self.assertTrue(self.catalog.reply('4').endswith('2 + 3'))
@@ -81,12 +81,12 @@ class ExpeditionTests(unittest.TestCase):
         self.assertIn('(수모2 또는 수모1 항모1)', self.catalog.reply('44'))
 
     def test_wiki_values_resolve_documented_eo_differences(self):
-        self.assertIn('색적70', self.catalog.reply('D2'))
+        self.assertIn('색적 70', self.catalog.reply('D2'))
         self.assertIn('이라코 0~1', self.catalog.reply('D2'))
-        self.assertIn('탄 280', self.catalog.reply('14'))
-        self.assertIn('보 40', self.catalog.reply('10'))
-        self.assertNotIn('대공59', self.catalog.reply('A3'))
-        self.assertIn('연 300 / 탄 300 / 보 100', self.catalog.reply('40'))
+        self.assertIn('탄약 280', self.catalog.reply('14'))
+        self.assertIn('보키 40', self.catalog.reply('10'))
+        self.assertNotIn('대공 59', self.catalog.reply('A3'))
+        self.assertIn('연료 300/탄약 300/보키 100', self.catalog.reply('40'))
         report = json.loads((ROOT / 'data/expedition_verification.json').read_text(encoding='utf-8'))
         self.assertEqual(set(report['checked']), set(self.catalog.items))
         self.assertEqual(len(report['differences']), 18)

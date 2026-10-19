@@ -14,7 +14,7 @@ EXPECTED_CODES = {str(i) for i in range(1, 47)} | {
     for i in range(1, count + 1)
 }
 STAT_NAMES = (('firepower', '화력'), ('aa', '대공'), ('asw', '대잠'), ('los', '색적'))
-RESOURCE_NAMES = (('fuel', '연'), ('ammo', '탄'), ('steel', '강'), ('bauxite', '보'))
+RESOURCE_NAMES = (('fuel', '연료'), ('ammo', '탄약'), ('steel', '강재'), ('bauxite', '보키'))
 
 
 class ExpeditionCatalog:
@@ -79,7 +79,7 @@ class ExpeditionCatalog:
         suffix = '(' + '/'.join(tags) + ')' if tags else ''
         hours, minutes = divmod(data['minutes'], 60)
         duration = ' '.join(part for part in (f'{hours}시간' if hours else '', f'{minutes}분' if minutes else '') if part)
-        lines = [f"{code} : {data['name']}{suffix}", f'○ 소요시간 - {duration}', '', '[조건]']
+        lines = [f"{code}: {data['name']}{suffix}", f'○ 소요시간 - {duration}', '', '[조건]']
         for index, option in enumerate(data['fleet_options']):
             label = '편성' if index == 0 else '또는'
             count_label = '총' if data['fleet_count'] == 6 else '최소'
@@ -95,13 +95,13 @@ class ExpeditionCatalog:
         if levels:
             lines.append('· ' + ' / '.join(levels))
         if data['stats']:
-            lines.append('· ' + '/'.join(f'{label}{data["stats"][key]}' for key, label in STAT_NAMES if key in data['stats']))
+            lines.append('· ' + '/'.join(f'{label} {data["stats"][key]}' for key, label in STAT_NAMES if key in data['stats']))
         if data['drums']:
             lines.append(f"· 드럼통 총 {data['drums']['count']}개 / {data['drums']['ships']}척 이상 장착")
         lines.extend(('', '[보상]'))
         resources = [f'{label} {data["resources"][key]}' for key, label in RESOURCE_NAMES if data['resources'][key]]
         if resources:
-            lines.append('· ' + ' / '.join(resources))
+            lines.append('· ' + '/'.join(resources))
         if data['items']:
             lines.append('· ' + ' / '.join(f"{item['name']} {item['min']}~{item['max']}" for item in data['items']))
         if not resources and not data['items']:
