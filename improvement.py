@@ -212,8 +212,8 @@ class ImprovementCatalog:
             lines.append(f"· {self.item_name(item_id)}")
             for days, ids in sorted(by_days.items(), key=lambda entry: min(forms[i][2] for i in entry[1])):
                 stages = '/'.join(forms[i][1] for i in sorted(ids, key=lambda i: (forms[i][2], i)))
-                weekdays = '/'.join(DAYS[d] for d in DAY_ORDER if d in days)
-                lines.append(f"  - {weekdays or '요일 미등록'} [{stages}]")
+                weekdays = ''.join(DAYS[d] for d in DAY_ORDER if d in days)
+                lines.append(f"  - {stages} ({weekdays or '요일 미등록'})")
         if len(lines) == 1:
             lines.append('· 등록된 2번함 개수 정보가 없습니다.')
         return '\n'.join(lines)

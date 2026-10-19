@@ -83,8 +83,9 @@ class ImprovementTests(unittest.TestCase):
 
     def test_ship_lookup_groups_equipment_by_exact_form_and_weekdays(self):
         text = self.bot.build_improvement_reply('이세')
-        self.assertIn('· 21호 대공전탐\n  - 월/금/토/일 [미개장/개2]\n  - 월 [개1]', text)
-        self.assertIn('· 12cm 30연장분진포\n  - 금/토/일 [개1]', text)
+        self.assertIn('· 21호 대공전탐\n  - 미개장/개2 (월금토일)\n  - 개1 (월)', text)
+        self.assertIn('· 12cm 30연장분진포\n  - 개1 (금토일)', text)
+        self.assertIn('· 12cm 30연장분진포 개2\n  - 개1 (월화)\n  - 개2 (월화일)', text)
         self.assertEqual(self.bot.build_improvement_reply('이세구리'), text)
         for query in ('이세개', '이세 개', '이세개1', '이세 개1'):
             selected = self.bot.build_improvement_reply(query)
