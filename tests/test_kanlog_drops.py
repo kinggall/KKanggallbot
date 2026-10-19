@@ -62,6 +62,25 @@ class KanlogTests(unittest.TestCase):
         for name in ('이26', '이-26', '伊26', 'U-511', '로500', '뽀이', '2411', '55팬티'):
             self.assertIsNone(drops.parse_map_query(name), name)
 
+    def test_ship_query_returns_top_locations(self):
+        data = copy.deepcopy(self.data)
+        data['cells']['19']['boss'] = True
+        text = drops.format_reply(
+            '!드랍 아사시오', data, lambda i, n: n,
+            lambda keyword: {1},
+        )
+        self.assertTrue(text.startswith('아사시오 Drop Table\n'))
+        self.assertRegex(text, r'· 5-5 [A-Z] - S ')
+        self.assertNotIn('S/A', text)
+        self.assertLessEqual(len(text.splitlines()), 26)
+
+    def test_unknown_ship_query_is_distinct_from_map_usage(self):
+        text = drops.format_reply(
+            '!드랍 존재하지않는함선', self.data, str,
+            lambda keyword: set(),
+        )
+        self.assertEqual(text, "'존재하지않는함선' 칸무스를 찾지 못했습니다.")
+
     def test_parser_denominators_and_structural_failure(self):
         html = '''<button data-cell-no="19" data-cell-label="S">S(Boss)</button>
         集計: 2026/10/15 ～ 更新: 2026/10/19 23:00:27

@@ -18,7 +18,7 @@ BOSS_STAGES = {'5-6': ('G', 'N', 'Z'), '7-2': ('G', 'M'),
                '7-3': ('E', 'P'), '7-5': ('K', 'Q', 'T')}
 JST = timezone(timedelta(hours=9))
 LOG = logging.getLogger(__name__)
-USAGE = "사용법: !드랍 [해역]\n예: !드랍 55 / !드랍 55p / !드랍 55 S / !드랍 7-5-1"
+USAGE = "사용법: !드랍 [해역 또는 함선명]\n예: !드랍 55 / !드랍 55p / !드랍 아사시오"
 
 
 def map_url(map_name):
@@ -136,11 +136,59 @@ def parse_map_query(query):
             match[5].lower() if match[5] else None)
 
 
-def format_reply(message, snapshot, name_for):
+def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
+    """Return the best cached map/cell records for a ship or alias."""
+    ship_ids = {int(value) for value in ship_ids_for(keyword)}
+    if not ship_ids:
+        return f"'{keyword}' 칸무스를 찾지 못했습니다."
+    maps = snapshot.get('maps', {}) if 'maps' in snapshot else {snapshot.get('map'): snapshot}
+    found = []
+    for map_name, data in maps.items():
+        if not data:
+            continue
+        for row in data.get('rows', []):
+            if row.get('ship_id') not in ship_ids:
+                continue
+            values = row.get('ranks', {})
+            if not any(item.get('count', 0) > 0 for item in values.values()):
+                continue
+            cell = data.get('cells', {}).get(row.get('cell'), {})
+            found.append({
+                'map': map_name,
+                'label': cell.get('label', row.get('cell', '?')),
+                'boss': bool(cell.get('boss')),
+                'limited': bool(row.get('limited')),
+                'ranks': values,
+            })
+    found.sort(key=lambda item: (
+        -max((value.get('rate', 0) for value in item['ranks'].values()), default=0),
+        item['map'], item['label']))
+    lines = [f"{keyword} Drop Table"]
+    for item in found[:25]:
+        location = f"{item['map']} Boss" if item['boss'] else f"{item['map']} {item['label']}"
+        parts = []
+        for rank in ('s', 'a'):
+            value = item['ranks'].get(rank)
+            if value and value.get('count', 0) > 0:
+                rate = '<0.01%' if value['rate'] < 0.01 else f"{value['rate']:.2f}%"
+                parts.append(f"{rank.upper()} {rate}")
+        suffix = ' (한정)' if item['limited'] else ''
+        lines.append(f"· {location} - {' / '.join(parts)}{suffix}")
+    if len(lines) == 1:
+        lines.append('· 확인된 드랍 기록이 없습니다.')
+    return '\n'.join(lines)
+
+
+def format_reply(message, snapshot, name_for, ship_ids_for=None):
     match = re.fullmatch(r'!드랍\s+(.+)', message)
     if not match:
         return USAGE
-    parsed = parse_map_query(match[1])
+    query = match[1].strip()
+    parsed = parse_map_query(query)
+    if parsed is None:
+        if ship_ids_for is None:
+            return USAGE
+        return _format_ship_drop_reply(query, snapshot, name_for, ship_ids_for)
     if parsed is None or parsed[0] not in MAPS:
         return USAGE
     map_name, label, rank = parsed

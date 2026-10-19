@@ -1334,13 +1334,22 @@ def kanlog_ship_name(ship_id, original):
     return next((alias for alias in SHIP_ALIASES.get(japanese, [])
                  if re.search(r'[가-힣]', alias)), translated or original)
 
+
+def kanlog_ship_ids(keyword):
+    """Resolve a ship name or alias to every remodel in its ship family."""
+    return {
+        int(ship.get("艦船ID", 0) or 0)
+        for ship, _ in search_ships(keyword)
+        if int(ship.get("艦船ID", 0) or 0) > 0
+    }
+
 COMMANDS = {
     "!도움말": (
         "사용 가능한 명령어:\n"
         "!공지 !통합공략 !단발퀘 !반복퀘 !멘테 !월간원정\n"
         "!이벤트 !개구리야 !미르야\n"
         "!전과 [5/20/100/500]\n"
-        "!드랍 [해역]\n"
+        "!드랍 [해역 또는 함선명]\n"
         "!칸무스 [함선명]\n"
         "!슬롯 [함선명]\n"
         "!초기장비 [함선명]\n"
@@ -1424,7 +1433,9 @@ def webhook():
     print(f"[받은 메시지] 방={room}, 내용={message}")
 
     if message == '!드랍' or message.startswith('!드랍 '):
-        reply = kanlog_drops.format_reply(message, KANLOG_DROPS.snapshot, kanlog_ship_name)
+        reply = kanlog_drops.format_reply(
+            message, KANLOG_DROPS.snapshot, kanlog_ship_name, kanlog_ship_ids
+        )
         response = requests.post(
             IRIS_REPLY_URL,
             json={'type': 'text', 'room': str(chat_id), 'data': reply},

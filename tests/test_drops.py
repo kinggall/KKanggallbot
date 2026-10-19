@@ -271,7 +271,7 @@ class DropTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
             fetch.assert_not_called()
             self.assertEqual(send.call_count, 2)  # Unsupported queries return usage; refresh stays disabled.
-            self.assertEqual(send.call_args_list[0].kwargs['json']['data'], bot.kanlog_drops.USAGE)
+            self.assertIn('Drop Table', send.call_args_list[0].kwargs['json']['data'])
             self.assertTrue(send.call_args_list[1].kwargs['json']['data'].startswith('7-5 Boss Drop (S/A)'))
             drop_reply.assert_not_called()
 
