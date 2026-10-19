@@ -1,0 +1,903 @@
+{
+  "source": "https://wikiwiki.jp/kancolle/%E9%81%A0%E5%BE%81",
+  "wiki_html_sha256": "ae5de5f6bc90336dce4a721ea5262891139703a6559b7c73fb065606f604bd57",
+  "har_captured_at": "2026-10-19T16:29:39.783Z",
+  "eo_sources": [
+    {
+      "file": "ElectronicObserver.Avalonia/ExpeditionCalculator/ExpeditionCalculatorData.cs",
+      "sha256": "500bd1a01023325c334d0faad6ac537bf0fef9cc7d7457bda724ad551c5ebb1b",
+      "commit": "8b66df3ffeb79ddef0d092693cf0d257ee96c1a7"
+    },
+    {
+      "file": "ElectronicObserver/Data/MissionClearCondition.cs",
+      "sha256": "bac763236983d9b38726bd20cd509af3c9f268e27cdcd37a11591a5840aa5fb8",
+      "commit": "8b66df3ffeb79ddef0d092693cf0d257ee96c1a7"
+    }
+  ],
+  "translation_source": {
+    "file": "Translations/ko-KR/expedition.json",
+    "sha256": "1f4a6afb36be26732da24b6cfe5bc9fee21d0007096d594febc70d6b2409767c",
+    "commit": "824b5ce4383f5be8ca40f12fb8c5413ada29a9ef"
+  },
+  "checked": {
+    "1": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "2": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "3": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "4": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "flagship_level",
+      "stats"
+    ],
+    "5": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "6": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "7": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "8": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "9": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "10": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "11": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "12": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "13": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "14": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "15": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "16": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "17": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "18": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "19": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "20": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "stats"
+    ],
+    "21": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "required_drums",
+      "flagship_level",
+      "fleet_level",
+      "stats"
+    ],
+    "22": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "23": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "24": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_type",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "25": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "stats"
+    ],
+    "26": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "stats"
+    ],
+    "27": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "stats"
+    ],
+    "28": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "stats"
+    ],
+    "29": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "stats"
+    ],
+    "30": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "stats"
+    ],
+    "31": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "stats"
+    ],
+    "32": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_type",
+      "flagship_level",
+      "stats"
+    ],
+    "33": [
+      "fleet_type_counts",
+      "stats"
+    ],
+    "34": [
+      "fleet_type_counts",
+      "stats"
+    ],
+    "35": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "36": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_count",
+      "stats"
+    ],
+    "37": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "required_drums",
+      "flagship_level",
+      "fleet_level",
+      "stats"
+    ],
+    "38": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "required_drums",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "39": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "stats"
+    ],
+    "40": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_type",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "41": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "stats"
+    ],
+    "42": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "43": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "flagship_type",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "44": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "required_drums",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "45": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_type",
+      "flagship_level",
+      "fleet_level",
+      "stats"
+    ],
+    "46": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "A1": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "A2": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "stats"
+    ],
+    "A3": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "A4": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "A5": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "A6": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "B1": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "B2": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "B3": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "stats"
+    ],
+    "B4": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "stats"
+    ],
+    "B5": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "B6": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_type",
+      "flagship_level",
+      "fleet_level",
+      "stats"
+    ],
+    "D1": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_type",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "D2": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_type",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "D3": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_type",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "E1": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "flagship_type",
+      "flagship_level",
+      "fleet_level",
+      "fleet_count",
+      "stats"
+    ],
+    "E2": [
+      "minutes",
+      "monthly",
+      "resources",
+      "item_maximums",
+      "fleet_type_counts",
+      "required_drums",
+      "flagship_level",
+      "fleet_level",
+      "stats"
+    ]
+  },
+  "differences": [
+    {
+      "code": "A3",
+      "field": "stats",
+      "wiki": {
+        "asw": 280,
+        "los": 60
+      },
+      "eo": {
+        "aa": 59,
+        "asw": 280,
+        "los": 60
+      }
+    },
+    {
+      "code": "10",
+      "field": "resources",
+      "wiki": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 40
+      },
+      "eo": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 30
+      }
+    },
+    {
+      "code": "14",
+      "field": "resources",
+      "wiki": {
+        "fuel": 0,
+        "ammo": 280,
+        "steel": 200,
+        "bauxite": 30
+      },
+      "eo": {
+        "fuel": 0,
+        "ammo": 240,
+        "steel": 200,
+        "bauxite": 30
+      }
+    },
+    {
+      "code": "B1",
+      "field": "resources",
+      "wiki": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 20,
+        "bauxite": 30
+      },
+      "eo": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 10,
+        "bauxite": 30
+      }
+    },
+    {
+      "code": "17",
+      "field": "resources",
+      "wiki": {
+        "fuel": 70,
+        "ammo": 90,
+        "steel": 50,
+        "bauxite": 0
+      },
+      "eo": {
+        "fuel": 70,
+        "ammo": 70,
+        "steel": 50,
+        "bauxite": 0
+      }
+    },
+    {
+      "code": "18",
+      "field": "resources",
+      "wiki": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 300,
+        "bauxite": 150
+      },
+      "eo": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 300,
+        "bauxite": 100
+      }
+    },
+    {
+      "code": "20",
+      "field": "item_maximums",
+      "wiki": {
+        "DevelopmentMaterial": 1,
+        "FurnitureBoxMedium": 1
+      },
+      "eo": {
+        "DevelopmentMaterial": 1,
+        "FurnitureBoxSmall": 1
+      }
+    },
+    {
+      "code": "23",
+      "field": "resources",
+      "wiki": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 130
+      },
+      "eo": {
+        "fuel": 0,
+        "ammo": 20,
+        "steel": 0,
+        "bauxite": 100
+      }
+    },
+    {
+      "code": "23",
+      "field": "item_maximums",
+      "wiki": {
+        "FurnitureBoxMedium": 1
+      },
+      "eo": {}
+    },
+    {
+      "code": "25",
+      "field": "item_maximums",
+      "wiki": {
+        "FurnitureBoxMedium": 1
+      },
+      "eo": {}
+    },
+    {
+      "code": "26",
+      "field": "item_maximums",
+      "wiki": {
+        "InstantRepair": 3,
+        "FurnitureBoxLarge": 1
+      },
+      "eo": {
+        "InstantRepair": 3
+      }
+    },
+    {
+      "code": "27",
+      "field": "item_maximums",
+      "wiki": {
+        "DevelopmentMaterial": 2,
+        "FurnitureBoxSmall": 2
+      },
+      "eo": {
+        "DevelopmentMaterial": 1,
+        "FurnitureBoxSmall": 2
+      }
+    },
+    {
+      "code": "28",
+      "field": "item_maximums",
+      "wiki": {
+        "DevelopmentMaterial": 3,
+        "FurnitureBoxMedium": 2
+      },
+      "eo": {
+        "DevelopmentMaterial": 2,
+        "FurnitureBoxMedium": 2
+      }
+    },
+    {
+      "code": "29",
+      "field": "item_maximums",
+      "wiki": {
+        "DevelopmentMaterial": 1,
+        "FurnitureBoxSmall": 1
+      },
+      "eo": {
+        "DevelopmentMaterial": 1,
+        "FurnitureBoxMedium": 1
+      }
+    },
+    {
+      "code": "D2",
+      "field": "stats",
+      "wiki": {
+        "firepower": 60,
+        "aa": 80,
+        "asw": 50,
+        "los": 70
+      },
+      "eo": {
+        "firepower": 60,
+        "aa": 80,
+        "asw": 50
+      }
+    },
+    {
+      "code": "37",
+      "field": "item_maximums",
+      "wiki": {
+        "FurnitureBoxSmall": 1
+      },
+      "eo": {
+        "FurnitureBoxSmall": 2
+      }
+    },
+    {
+      "code": "39",
+      "field": "resources",
+      "wiki": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 300,
+        "bauxite": 0
+      },
+      "eo": {
+        "fuel": 0,
+        "ammo": 30,
+        "steel": 300,
+        "bauxite": 0
+      }
+    },
+    {
+      "code": "40",
+      "field": "resources",
+      "wiki": {
+        "fuel": 300,
+        "ammo": 300,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "eo": {
+        "fuel": 300,
+        "ammo": 300,
+        "steel": 100,
+        "bauxite": 0
+      }
+    }
+  ],
+  "count": 63,
+  "resolution": "Explicit wikiwiki detailed conditions/rewards are used for source differences."
+}

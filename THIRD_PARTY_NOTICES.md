@@ -1,5 +1,12 @@
 # Third-party notices
 
+## Expedition facts and ElectronicObserver reference
+
+- wikiwiki Kancolle contributors: https://wikiwiki.jp/kancolle/%E9%81%A0%E5%BE%81 . Expedition requirements, rewards and prerequisite facts were extracted from a user-provided HAR; the site's HTML and browser request credentials are not redistributed.
+- ElectronicObserverEN/ElectronicObserver revision `8b66df3ffeb79ddef0d092693cf0d257ee96c1a7`: `MissionClearCondition.cs` and `ExpeditionCalculatorData.cs` were consulted to verify ship eligibility, IDs, levels, stats, duration, rewards and monthly/drum classifications. The existing ElectronicObserver MIT notice below is retained.
+- ElectronicObserverEN/Data revision `824b5ce4383f5be8ca40f12fb8c5413ada29a9ef`: `Translations/ko-KR/expedition.json` supplies Korean names. Credits belong to the translation contributors.
+- Derived files: `data/expeditions.json`, `data/expedition_verification.json`; implementation and rebuild instructions: `EXPEDITION_DATA.md`. External factual data retains its respective source rights; this does not apply the bot's GPL license to the wiki page.
+
 ## 艦ろぐ / kanlog.info
 
 - Source: https://kanlog.info/ (37 normal-map pages).

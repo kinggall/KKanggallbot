@@ -20,6 +20,7 @@ import initial_equipment
 import improvement
 import remodel_materials
 import kanlog_drops
+import expeditions
 
 app = Flask(__name__)
 
@@ -1422,6 +1423,7 @@ COMMANDS = {
         "!개발 [장비명]\n"
         "!레시피 [함선명] [연/탄/강/보]\n"
         "!개수 [장비명/함선명]\n"
+        "!원정 [번호]\n"
         "![함선명]팬티\n"
         "![닉네임]아내"
     ),
@@ -1625,6 +1627,20 @@ def webhook():
             timeout=10,
         )
         print(f"[개수 검색] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!원정" or message.startswith("!원정 "):
+        try:
+            reply = expeditions.catalog().reply(message[len("!원정"):])
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            print(f"[원정 조회 실패] {error}")
+            reply = "원정 데이터를 불러오지 못했습니다."
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[원정 검색] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     if message == "!레시피" or message.startswith("!레시피 "):

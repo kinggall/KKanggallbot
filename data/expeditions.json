@@ -1,0 +1,3033 @@
+{
+  "schema": 1,
+  "source": "https://wikiwiki.jp/kancolle/%E9%81%A0%E5%BE%81",
+  "wiki_html_sha256": "ae5de5f6bc90336dce4a721ea5262891139703a6559b7c73fb065606f604bd57",
+  "captured_at": "2026-10-19T16:29:39.783Z",
+  "expeditions": {
+    "1": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 15,
+      "flagship_level": 1,
+      "fleet_level": null,
+      "fleet_count": 2,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 30,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "quest",
+            "code": "A4",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "任務(A4) クリア"
+      },
+      "game_id": 1,
+      "name": "연습항해",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "함종 자유"
+      ],
+      "drums": null
+    },
+    "2": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 30,
+      "flagship_level": 2,
+      "fleet_level": null,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 100,
+        "steel": 30,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "1",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "01: 練習航海 クリア"
+      },
+      "game_id": 2,
+      "name": "장거리연습항해",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "함종 자유"
+      ],
+      "drums": null
+    },
+    "3": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 20,
+      "flagship_level": 3,
+      "fleet_level": null,
+      "fleet_count": 3,
+      "stats": {},
+      "resources": {
+        "fuel": 30,
+        "ammo": 30,
+        "steel": 40,
+        "bauxite": 0
+      },
+      "items": [],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "1",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "同上"
+      },
+      "game_id": 3,
+      "name": "경비임무",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "함종 자유"
+      ],
+      "drums": null
+    },
+    "4": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 50,
+      "flagship_level": 3,
+      "fleet_level": null,
+      "fleet_count": 3,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 70,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "2",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "3",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "02: 長距離練習航海 および 03: 警備任務 クリア"
+      },
+      "game_id": 4,
+      "name": "대잠경계임무",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 (구축+해방)2",
+        "호위항모1 (구축2 또는 해방2)",
+        "구축1 해방3",
+        "연순1 해방2"
+      ],
+      "drums": null
+    },
+    "5": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 90,
+      "flagship_level": 3,
+      "fleet_level": null,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 200,
+        "ammo": 200,
+        "steel": 20,
+        "bauxite": 20
+      },
+      "items": [],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "2",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "3",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "同上"
+      },
+      "game_id": 5,
+      "name": "해상호위임무",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 (구축+해방)2",
+        "호위항모1 (구축2 또는 해방2)",
+        "구축1 해방3",
+        "연순1 해방2"
+      ],
+      "drums": null
+    },
+    "6": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 40,
+      "flagship_level": 4,
+      "fleet_level": null,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 80
+      },
+      "items": [
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "4",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "04: 対潜警戒任務 クリア"
+      },
+      "game_id": 6,
+      "name": "방공사격연습",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "함종 자유"
+      ],
+      "drums": null
+    },
+    "7": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 60,
+      "flagship_level": 5,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 50,
+        "bauxite": 30
+      },
+      "items": [
+        {
+          "type": "InstantConstruction",
+          "name": "건조재",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "6",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "06: 防空射撃演習 クリア"
+      },
+      "game_id": 7,
+      "name": "관함식연습",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "함종 자유"
+      ],
+      "drums": null
+    },
+    "8": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 180,
+      "flagship_level": 6,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 50,
+        "ammo": 100,
+        "steel": 50,
+        "bauxite": 50
+      },
+      "items": [
+        {
+          "type": "InstantConstruction",
+          "name": "건조재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "7",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "07: 観艦式予行 クリア"
+      },
+      "game_id": 8,
+      "name": "관함식",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "함종 자유"
+      ],
+      "drums": null
+    },
+    "9": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 240,
+      "flagship_level": 3,
+      "fleet_level": null,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 350,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "1",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "01: 練習航海 クリア"
+      },
+      "game_id": 9,
+      "name": "유조선호위임무",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 (구축+해방)2",
+        "호위항모1 (구축2 또는 해방2)",
+        "구축1 해방3",
+        "연순1 해방2"
+      ],
+      "drums": null
+    },
+    "10": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 90,
+      "flagship_level": 3,
+      "fleet_level": null,
+      "fleet_count": 3,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 40
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "InstantConstruction",
+          "name": "건조재",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "9",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "09: タンカー護衛任務 クリア"
+      },
+      "game_id": 10,
+      "name": "강행정찰임무",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순2"
+      ],
+      "drums": null
+    },
+    "11": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 300,
+      "flagship_level": 6,
+      "fleet_level": null,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 250
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "10",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "10: 強行偵察任務 クリア"
+      },
+      "game_id": 11,
+      "name": "보크사이트수송임무",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "(구축+해방)2"
+      ],
+      "drums": null
+    },
+    "12": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 480,
+      "flagship_level": 4,
+      "fleet_level": null,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 50,
+        "ammo": 250,
+        "steel": 200,
+        "bauxite": 50
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "10",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "同上"
+      },
+      "game_id": 12,
+      "name": "자원수송임무",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "(구축+해방)2"
+      ],
+      "drums": null
+    },
+    "13": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 240,
+      "flagship_level": 5,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 240,
+        "ammo": 300,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "10",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "同上"
+      },
+      "game_id": 13,
+      "name": "쥐수송작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 구축4"
+      ],
+      "drums": null
+    },
+    "14": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 360,
+      "flagship_level": 6,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 280,
+        "steel": 200,
+        "bauxite": 30
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "11",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "12",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "13",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "11: ボーキサイト輸送任務 および 12: 資源輸送任務 および 13: 鼠輸送作戦 クリア"
+      },
+      "game_id": 14,
+      "name": "포위육전대철수작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 구축3"
+      ],
+      "drums": null
+    },
+    "15": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 720,
+      "flagship_level": 8,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 300,
+        "bauxite": 400
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "14",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "14: 包囲陸戦隊撤収作戦 クリア"
+      },
+      "game_id": 15,
+      "name": "미끼기동부대지원작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "항모계(수모 포함)2 구축2"
+      ],
+      "drums": null
+    },
+    "16": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 900,
+      "flagship_level": 10,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 500,
+        "ammo": 500,
+        "steel": 200,
+        "bauxite": 200
+      },
+      "items": [
+        {
+          "type": "InstantConstruction",
+          "name": "건조재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "15",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "15: 囮機動部隊支援作戦 クリア"
+      },
+      "game_id": 16,
+      "name": "함대결전지원작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 구축2"
+      ],
+      "drums": null
+    },
+    "17": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 45,
+      "flagship_level": 20,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 70,
+        "ammo": 90,
+        "steel": 50,
+        "bauxite": 0
+      },
+      "items": [],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "1",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "01: 練習航海 クリア"
+      },
+      "game_id": 17,
+      "name": "적지정찰작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 구축3"
+      ],
+      "drums": null
+    },
+    "18": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 300,
+      "flagship_level": 15,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 300,
+        "bauxite": 150
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "16",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "17",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "16: 艦隊決戦援護作戦 および 17: 敵地偵察作戦 クリア"
+      },
+      "game_id": 18,
+      "name": "항공기수송작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "항모계(수모 포함)3 구축2"
+      ],
+      "drums": null
+    },
+    "19": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 360,
+      "flagship_level": 20,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 400,
+        "ammo": 50,
+        "steel": 50,
+        "bauxite": 30
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "18",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "18: 航空機輸送作戦 クリア"
+      },
+      "game_id": 19,
+      "name": "북호작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "항전2 구축2"
+      ],
+      "drums": null
+    },
+    "20": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 120,
+      "flagship_level": 1,
+      "fleet_level": null,
+      "fleet_count": 2,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 150,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "19",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "19: 北号作戦 クリア"
+      },
+      "game_id": 20,
+      "name": "잠수함초계임무",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "잠수함1 경순1"
+      ],
+      "drums": null
+    },
+    "21": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 140,
+      "flagship_level": 15,
+      "fleet_level": 30,
+      "fleet_count": 5,
+      "stats": {},
+      "resources": {
+        "fuel": 320,
+        "ammo": 270,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "17",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "17: 敵地偵察作戦 クリア"
+      },
+      "game_id": 21,
+      "name": "북방쥐수송작전",
+      "support": false,
+      "drum_type": true,
+      "fleet_options": [
+        "경순1 구축4"
+      ],
+      "drums": {
+        "count": 3,
+        "ships": 3
+      }
+    },
+    "22": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 180,
+      "flagship_level": 30,
+      "fleet_level": 45,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 10,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "18",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "18: 航空機輸送作戦 クリア"
+      },
+      "game_id": 22,
+      "name": "함대연습",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "중순1 경순1 구축2"
+      ],
+      "drums": null
+    },
+    "23": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 240,
+      "flagship_level": 50,
+      "fleet_level": 200,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 130
+      },
+      "items": [
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "map",
+            "code": "1-5",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "22",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "出撃海域(1-5) および 22: 艦隊演習 クリア"
+      },
+      "game_id": 23,
+      "name": "항공전함운용연습",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "항전2 구축2"
+      ],
+      "drums": null
+    },
+    "24": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 500,
+      "flagship_level": 50,
+      "fleet_level": 200,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 500,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 150
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "18",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "18: 航空機輸送作戦 クリア"
+      },
+      "game_id": 24,
+      "name": "북방항로해상호위",
+      "support": false,
+      "drum_type": true,
+      "fleet_options": [
+        "경순1(기함) (구축+해방)4"
+      ],
+      "drums": null
+    },
+    "25": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 2400,
+      "flagship_level": 25,
+      "fleet_level": null,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 900,
+        "ammo": 0,
+        "steel": 500,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "18",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "18: 航空機輸送作戦 クリア"
+      },
+      "game_id": 25,
+      "name": "통상파괴작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "중순2 구축2"
+      ],
+      "drums": null
+    },
+    "26": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 4800,
+      "flagship_level": 30,
+      "fleet_level": null,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 900
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 3
+        },
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "25",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "25: 通商破壊作戦 クリア"
+      },
+      "game_id": 26,
+      "name": "적모항공습작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "항모계(수모 포함)1 경순1 구축2"
+      ],
+      "drums": null
+    },
+    "27": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 1200,
+      "flagship_level": 1,
+      "fleet_level": null,
+      "fleet_count": 2,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 800,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "20",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "20: 潜水艦哨戒任務 クリア"
+      },
+      "game_id": 27,
+      "name": "잠수함통상파괴작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "잠수함2"
+      ],
+      "drums": null
+    },
+    "28": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 1500,
+      "flagship_level": 30,
+      "fleet_level": null,
+      "fleet_count": 3,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 900,
+        "bauxite": 350
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 3
+        },
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "27",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "27: 潜水艦通商破壊作戦 クリア"
+      },
+      "game_id": 28,
+      "name": "서방해역봉쇄작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "잠수함3"
+      ],
+      "drums": null
+    },
+    "29": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 1440,
+      "flagship_level": 50,
+      "fleet_level": null,
+      "fleet_count": 3,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "28",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "28: 西方海域封鎖作戦 クリア"
+      },
+      "game_id": 29,
+      "name": "잠수함파견연습",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "잠수함3"
+      ],
+      "drums": null
+    },
+    "30": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 2880,
+      "flagship_level": 55,
+      "fleet_level": null,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 3
+        },
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "map",
+            "code": "1-5",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "29",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "出撃海域(1-5) および 29: 潜水艦派遣演習 クリア"
+      },
+      "game_id": 30,
+      "name": "잠수함파견작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "잠수함4"
+      ],
+      "drums": null
+    },
+    "31": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 120,
+      "flagship_level": 60,
+      "fleet_level": 200,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 30,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "map",
+            "code": "1-5",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "29",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "同上"
+      },
+      "game_id": 31,
+      "name": "해외함과의접촉",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "잠수함4"
+      ],
+      "drums": null
+    },
+    "32": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 1440,
+      "flagship_level": 5,
+      "fleet_level": null,
+      "fleet_count": 3,
+      "stats": {},
+      "resources": {
+        "fuel": 50,
+        "ammo": 50,
+        "steel": 50,
+        "bauxite": 50
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 3
+        },
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "8",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "08: 観艦式 クリア"
+      },
+      "game_id": 32,
+      "name": "원양연습항해",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "연순1(기함) 구축2"
+      ],
+      "drums": null
+    },
+    "33": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 15,
+      "flagship_level": null,
+      "fleet_level": null,
+      "fleet_count": 2,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "18",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "18: 航空機輸送作戦 クリア"
+      },
+      "game_id": 33,
+      "name": "전방지원임무",
+      "support": true,
+      "drum_type": false,
+      "fleet_options": [
+        "구축2"
+      ],
+      "drums": null
+    },
+    "34": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 30,
+      "flagship_level": null,
+      "fleet_level": null,
+      "fleet_count": 2,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "26",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "26: 敵母港空襲作戦 クリア"
+      },
+      "game_id": 34,
+      "name": "함대결전지원임무",
+      "support": true,
+      "drum_type": false,
+      "fleet_options": [
+        "구축2"
+      ],
+      "drums": null
+    },
+    "35": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 420,
+      "flagship_level": 40,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 240,
+        "bauxite": 280
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "26",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "同上"
+      },
+      "game_id": 35,
+      "name": "MO작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "항모계(수모 포함)2 중순1 구축1"
+      ],
+      "drums": null
+    },
+    "36": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 540,
+      "flagship_level": 30,
+      "fleet_level": null,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 480,
+        "ammo": 0,
+        "steel": 200,
+        "bauxite": 200
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "35",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "35: MO作戦 クリア"
+      },
+      "game_id": 36,
+      "name": "수상기지건설",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "수모2 경순1 구축1"
+      ],
+      "drums": null
+    },
+    "37": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 165,
+      "flagship_level": 50,
+      "fleet_level": 200,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 380,
+        "steel": 270,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "map",
+            "code": "1-5",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "36",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "出撃海域(1-5) および 36: 水上機基地建設 クリア"
+      },
+      "game_id": 37,
+      "name": "도쿄급행",
+      "support": false,
+      "drum_type": true,
+      "fleet_options": [
+        "경순1 구축5"
+      ],
+      "drums": {
+        "count": 4,
+        "ships": 3
+      }
+    },
+    "38": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 175,
+      "flagship_level": 65,
+      "fleet_level": 240,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 420,
+        "ammo": 0,
+        "steel": 200,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "37",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "37: 東京急行 クリア"
+      },
+      "game_id": 38,
+      "name": "도쿄급행(2)",
+      "support": false,
+      "drum_type": true,
+      "fleet_options": [
+        "구축5"
+      ],
+      "drums": {
+        "count": 8,
+        "ships": 4
+      }
+    },
+    "39": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 1800,
+      "flagship_level": 3,
+      "fleet_level": 180,
+      "fleet_count": 5,
+      "stats": {},
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 300,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "map",
+            "code": "1-5",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "36",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "出撃海域(1-5) および 36: 水上機基地建設 クリア"
+      },
+      "game_id": 39,
+      "name": "원양잠수함작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "잠수모함1 잠수함4"
+      ],
+      "drums": null
+    },
+    "40": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 410,
+      "flagship_level": 25,
+      "fleet_level": 150,
+      "fleet_count": 6,
+      "stats": {},
+      "resources": {
+        "fuel": 300,
+        "ammo": 300,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 3
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "38",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "38: 東京急行（弐） クリア"
+      },
+      "game_id": 40,
+      "name": "수상기전선수송",
+      "support": false,
+      "drum_type": true,
+      "fleet_options": [
+        "경순1(기함) 수모2 구축2"
+      ],
+      "drums": null
+    },
+    "41": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 60,
+      "flagship_level": 30,
+      "fleet_level": 100,
+      "fleet_count": 3,
+      "stats": {
+        "firepower": 60,
+        "aa": 80,
+        "asw": 210
+      },
+      "resources": {
+        "fuel": 100,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 20
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "map",
+            "code": "2-4",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "B1",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "出撃海域(2-4) および B1: 南西方面航空偵察作戦 クリア"
+      },
+      "game_id": 41,
+      "name": "브루네이정박지해상초계",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "(구축+해방)3"
+      ],
+      "drums": null
+    },
+    "42": {
+      "monthly": true,
+      "combat_type": 0,
+      "minutes": 480,
+      "flagship_level": 45,
+      "fleet_level": 200,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 800,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 200
+      },
+      "items": [
+        {
+          "type": "InstantConstruction",
+          "name": "건조재",
+          "min": 0,
+          "max": 3
+        },
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "41",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "41: ブルネイ泊地沖哨戒 クリア"
+      },
+      "game_id": 42,
+      "name": "미선단호위(1호선단)",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 (구축+해방)2",
+        "호위항모1 (구축2 또는 해방2)",
+        "구축1 해방3",
+        "연순1 해방2"
+      ],
+      "drums": null
+    },
+    "43": {
+      "monthly": true,
+      "combat_type": 1,
+      "minutes": 720,
+      "flagship_level": 55,
+      "fleet_level": 300,
+      "fleet_count": 6,
+      "stats": {
+        "firepower": 500,
+        "aa": 280,
+        "asw": 280,
+        "los": 170
+      },
+      "resources": {
+        "fuel": 2000,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 400
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 4
+        },
+        {
+          "type": "ImproveMaterial",
+          "name": "나사",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "42",
+            "timing": "monthly"
+          }
+        ],
+        "source_text": "42: ミ船団護衛(一号船団) クリア(毎月)"
+      },
+      "game_id": 43,
+      "name": "미선단호위(2호선단)",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "호위항모1(기함) (구축2 또는 해방2)",
+        "경항모1(기함) 경순1 (구축+해방)4",
+        "경항모1(기함) 경순1 해방2",
+        "경항모1(기함) 구축1 해방3",
+        "경항모1(기함) 연순1 해방2",
+        "경항모1(기함) 호위항모1 (구축2 또는 해방2)"
+      ],
+      "drums": null
+    },
+    "44": {
+      "monthly": true,
+      "combat_type": 0,
+      "minutes": 600,
+      "flagship_level": 35,
+      "fleet_level": 210,
+      "fleet_count": 6,
+      "stats": {
+        "aa": 200,
+        "asw": 200,
+        "los": 150
+      },
+      "resources": {
+        "fuel": 0,
+        "ammo": 200,
+        "steel": 0,
+        "bauxite": 800
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 4
+        },
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "40",
+            "timing": "once"
+          },
+          {
+            "kind": "expedition",
+            "code": "41",
+            "timing": "once"
+          },
+          {
+            "kind": "expedition",
+            "code": "A4",
+            "timing": "monthly"
+          }
+        ],
+        "source_text": "40: 水上機前線輸送 および 41: ブルネイ泊地沖哨戒 クリア(初回のみ) A4: 南西方面連絡線哨戒 クリア(毎月)"
+      },
+      "game_id": 44,
+      "name": "항공장비수송임무",
+      "support": false,
+      "drum_type": true,
+      "fleet_options": [
+        "(수모2 또는 수모1 항모1) 경순1 (구축+해방)2"
+      ],
+      "drums": {
+        "count": 6,
+        "ships": 3
+      },
+      "condition_note": "항모는 수모와 별개인 항모계 1척"
+    },
+    "45": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 200,
+      "flagship_level": 50,
+      "fleet_level": 240,
+      "fleet_count": 5,
+      "stats": {
+        "aa": 240,
+        "asw": 300,
+        "los": 180
+      },
+      "resources": {
+        "fuel": 40,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 220
+      },
+      "items": [
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "32",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "41",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "32: 遠洋練習航海 および 41: ブルネイ泊地沖哨戒 クリア"
+      },
+      "game_id": 45,
+      "name": "보크사이트선단호위",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경항모1(기함) (구축+해방)4"
+      ],
+      "drums": null
+    },
+    "46": {
+      "monthly": true,
+      "combat_type": 2,
+      "minutes": 210,
+      "flagship_level": 60,
+      "fleet_level": 300,
+      "fleet_count": 5,
+      "stats": {
+        "firepower": 350,
+        "aa": 250,
+        "asw": 220,
+        "los": 190
+      },
+      "resources": {
+        "fuel": 300,
+        "ammo": 0,
+        "steel": 150,
+        "bauxite": 380
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 3
+        },
+        {
+          "type": "ImproveMaterial",
+          "name": "나사",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "D1",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "D1: 西方海域偵察作戦 クリア"
+      },
+      "game_id": 46,
+      "name": "남서해역전투초계",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "중순2 경순1 구축2"
+      ],
+      "drums": null
+    },
+    "A1": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 25,
+      "flagship_level": 5,
+      "fleet_level": 10,
+      "fleet_count": 4,
+      "stats": {},
+      "resources": {
+        "fuel": 45,
+        "ammo": 45,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "5",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "05: 海上護衛任務 クリア"
+      },
+      "game_id": 100,
+      "name": "병참강화임무",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "(구축+해방)3"
+      ],
+      "drums": null
+    },
+    "A2": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 55,
+      "flagship_level": 20,
+      "fleet_level": null,
+      "fleet_count": 4,
+      "stats": {
+        "firepower": 50,
+        "aa": 70,
+        "asw": 180
+      },
+      "resources": {
+        "fuel": 70,
+        "ammo": 40,
+        "steel": 0,
+        "bauxite": 10
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "8",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "A1",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "08: 観艦式 および A1: 兵站強化任務 クリア"
+      },
+      "game_id": 101,
+      "name": "해협경비행동",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "(구축+해방)4"
+      ],
+      "drums": null
+    },
+    "A3": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 135,
+      "flagship_level": 35,
+      "fleet_level": 185,
+      "fleet_count": 5,
+      "stats": {
+        "asw": 280,
+        "los": 60
+      },
+      "resources": {
+        "fuel": 120,
+        "ammo": 0,
+        "steel": 60,
+        "bauxite": 60
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "A2",
+            "timing": "normal"
+          },
+          {
+            "kind": "expedition",
+            "code": "24",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "A2: 海峡警備行動 および 24: 北方航路海上護衛 クリア"
+      },
+      "game_id": 102,
+      "name": "장시간대잠경계",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 (구축+해방)3",
+        "경순1 해방2",
+        "호위항모1 (구축2 또는 해방2)",
+        "구축1 해방3",
+        "연순1 해방2"
+      ],
+      "drums": null
+    },
+    "A4": {
+      "monthly": true,
+      "combat_type": 0,
+      "minutes": 110,
+      "flagship_level": 40,
+      "fleet_level": 200,
+      "fleet_count": 5,
+      "stats": {
+        "firepower": 300,
+        "aa": 200,
+        "asw": 200,
+        "los": 120
+      },
+      "resources": {
+        "fuel": 80,
+        "ammo": 120,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "InstantConstruction",
+          "name": "건조재",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "A3",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "A3: 長時間対潜警戒 クリア"
+      },
+      "game_id": 103,
+      "name": "남서방면연락선초계",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 (구축+해방)2",
+        "호위항모1 (구축2 또는 해방2)",
+        "구축1 해방3",
+        "연순1 해방2"
+      ],
+      "drums": null
+    },
+    "A5": {
+      "monthly": true,
+      "combat_type": 1,
+      "minutes": 180,
+      "flagship_level": 45,
+      "fleet_level": 230,
+      "fleet_count": 5,
+      "stats": {
+        "firepower": 280,
+        "aa": 220,
+        "asw": 240,
+        "los": 150
+      },
+      "resources": {
+        "fuel": 0,
+        "ammo": 300,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 3
+        },
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 4
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "A4",
+            "timing": "monthly"
+          },
+          {
+            "kind": "expedition",
+            "code": "B3",
+            "timing": "monthly"
+          }
+        ],
+        "source_text": "A4: 南西方面連絡線哨戒 および B3: 南西諸島離島哨戒作戦 クリア(毎月)"
+      },
+      "game_id": 104,
+      "name": "오가사와라연안초계선",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 구축3",
+        "경순1 해방2",
+        "호위항모1 (구축2 또는 해방2)",
+        "구축1 해방3",
+        "연순1 해방2"
+      ],
+      "drums": null
+    },
+    "A6": {
+      "monthly": true,
+      "combat_type": 2,
+      "minutes": 210,
+      "flagship_level": 55,
+      "fleet_level": 290,
+      "fleet_count": 6,
+      "stats": {
+        "firepower": 330,
+        "aa": 300,
+        "asw": 270,
+        "los": 180
+      },
+      "resources": {
+        "fuel": 100,
+        "ammo": 500,
+        "steel": 100,
+        "bauxite": 200
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 5
+        },
+        {
+          "type": "ImproveMaterial",
+          "name": "나사",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "A5",
+            "timing": "monthly"
+          },
+          {
+            "kind": "expedition",
+            "code": "B4",
+            "timing": "monthly"
+          }
+        ],
+        "source_text": "A5: 小笠原沖哨戒線 および B4: 南西諸島離島防衛作戦 クリア(毎月)"
+      },
+      "game_id": 105,
+      "name": "오가사와라연안전투초계",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1 구축3",
+        "경순1 해방2",
+        "호위항모1 (구축2 또는 해방2)",
+        "구축1 해방3",
+        "연순1 해방2"
+      ],
+      "drums": null
+    },
+    "B1": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 35,
+      "flagship_level": 40,
+      "fleet_level": 150,
+      "fleet_count": 6,
+      "stats": {
+        "aa": 200,
+        "asw": 200,
+        "los": 140
+      },
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 20,
+        "bauxite": 30
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "10",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "10: 強行偵察任務 クリア"
+      },
+      "game_id": 110,
+      "name": "남서방면항공정찰작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "수모1 경순1 (구축+해방)2"
+      ],
+      "drums": null
+    },
+    "B2": {
+      "monthly": true,
+      "combat_type": 0,
+      "minutes": 520,
+      "flagship_level": 45,
+      "fleet_level": 220,
+      "fleet_count": 6,
+      "stats": {
+        "firepower": 360,
+        "aa": 160,
+        "asw": 160,
+        "los": 140
+      },
+      "resources": {
+        "fuel": 300,
+        "ammo": 200,
+        "steel": 100,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "A3",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "A3: 長時間対潜警戒 クリア"
+      },
+      "game_id": 111,
+      "name": "적정박지강습반격작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "중순1 경순1 구축3"
+      ],
+      "drums": null
+    },
+    "B3": {
+      "monthly": true,
+      "combat_type": 0,
+      "minutes": 170,
+      "flagship_level": 50,
+      "fleet_level": 250,
+      "fleet_count": 6,
+      "stats": {
+        "firepower": 400,
+        "aa": 220,
+        "asw": 220,
+        "los": 190
+      },
+      "resources": {
+        "fuel": 0,
+        "ammo": 100,
+        "steel": 100,
+        "bauxite": 180
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "B2",
+            "timing": "monthly"
+          }
+        ],
+        "source_text": "B2: 敵泊地強襲反撃作戦 クリア(毎月)"
+      },
+      "game_id": 112,
+      "name": "남서제도낙도초계작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "수모1 경순1 (구축+해방)4"
+      ],
+      "drums": null
+    },
+    "B4": {
+      "monthly": true,
+      "combat_type": 1,
+      "minutes": 450,
+      "flagship_level": 55,
+      "fleet_level": 300,
+      "fleet_count": 6,
+      "stats": {
+        "firepower": 500,
+        "aa": 280,
+        "asw": 280,
+        "los": 170
+      },
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 1200,
+        "bauxite": 650
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 4
+        },
+        {
+          "type": "ImproveMaterial",
+          "name": "나사",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "B3",
+            "timing": "monthly"
+          }
+        ],
+        "source_text": "B3: 南西諸島離島哨戒作戦 クリア(毎月)"
+      },
+      "game_id": 113,
+      "name": "남서제도낙도방위작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "중순2 경순1 구축2 잠수함1"
+      ],
+      "drums": null
+    },
+    "B5": {
+      "monthly": true,
+      "combat_type": 2,
+      "minutes": 390,
+      "flagship_level": 60,
+      "fleet_level": 330,
+      "fleet_count": 6,
+      "stats": {
+        "firepower": 510,
+        "aa": 400,
+        "asw": 285,
+        "los": 385
+      },
+      "resources": {
+        "fuel": 500,
+        "ammo": 500,
+        "steel": 1000,
+        "bauxite": 750
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 4
+        },
+        {
+          "type": "ImproveMaterial",
+          "name": "나사",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "B4",
+            "timing": "monthly"
+          }
+        ],
+        "source_text": "B4: 南西諸島離島防衛作戦 クリア(毎月)"
+      },
+      "game_id": 114,
+      "name": "남서제도수색격멸전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "수모1 경순1 구축2"
+      ],
+      "drums": null
+    },
+    "B6": {
+      "monthly": true,
+      "combat_type": 2,
+      "minutes": 350,
+      "flagship_level": 75,
+      "fleet_level": 400,
+      "fleet_count": 6,
+      "stats": {
+        "firepower": 410,
+        "aa": 390,
+        "asw": 410,
+        "los": 340
+      },
+      "resources": {
+        "fuel": 600,
+        "ammo": 1000,
+        "steel": 600,
+        "bauxite": 600
+      },
+      "items": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 5
+        },
+        {
+          "type": "ImproveMaterial",
+          "name": "나사",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "A4",
+            "timing": "monthly"
+          },
+          {
+            "kind": "expedition",
+            "code": "B4",
+            "timing": "monthly"
+          }
+        ],
+        "source_text": "A4: 南西方面連絡線哨戒 および B4: 南西諸島離島防衛作戦 クリア(毎月)"
+      },
+      "game_id": 115,
+      "name": "정예수뢰전대야습",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "경순1(기함) 구축5"
+      ],
+      "drums": null
+    },
+    "D1": {
+      "monthly": false,
+      "combat_type": 0,
+      "minutes": 120,
+      "flagship_level": 50,
+      "fleet_level": 200,
+      "fleet_count": 5,
+      "stats": {
+        "aa": 240,
+        "asw": 240,
+        "los": 300
+      },
+      "resources": {
+        "fuel": 0,
+        "ammo": 20,
+        "steel": 20,
+        "bauxite": 100
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "32",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "32: 遠洋練習航海 クリア"
+      },
+      "game_id": 131,
+      "name": "서방해역정찰작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "수모1(기함) 구축3"
+      ],
+      "drums": null
+    },
+    "D2": {
+      "monthly": true,
+      "combat_type": 1,
+      "minutes": 600,
+      "flagship_level": 55,
+      "fleet_level": 270,
+      "fleet_count": 5,
+      "stats": {
+        "firepower": 60,
+        "aa": 80,
+        "asw": 50,
+        "los": 70
+      },
+      "resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 400,
+        "bauxite": 800
+      },
+      "items": [
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "MoraleFoodIrako",
+          "name": "이라코",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "D1",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "D1: 西方海域偵察作戦 クリア"
+      },
+      "game_id": 132,
+      "name": "서방잠수함작전",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "잠수모함1(기함) 잠수함3"
+      ],
+      "drums": null
+    },
+    "D3": {
+      "monthly": true,
+      "combat_type": 2,
+      "minutes": 720,
+      "flagship_level": 65,
+      "fleet_level": 350,
+      "fleet_count": 5,
+      "stats": {
+        "firepower": 115,
+        "aa": 90,
+        "asw": 70,
+        "los": 95
+      },
+      "resources": {
+        "fuel": 0,
+        "ammo": 800,
+        "steel": 500,
+        "bauxite": 400
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 3
+        },
+        {
+          "type": "ImproveMaterial",
+          "name": "나사",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "D2",
+            "timing": "monthly"
+          }
+        ],
+        "source_text": "D2: 西方潜水艦作戦 クリア(毎月)"
+      },
+      "game_id": 133,
+      "name": "구주방면우군과의접촉",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "잠수모함1(기함) 잠수함3"
+      ],
+      "drums": null
+    },
+    "E1": {
+      "monthly": true,
+      "combat_type": 2,
+      "minutes": 450,
+      "flagship_level": 55,
+      "fleet_level": 290,
+      "fleet_count": 6,
+      "stats": {
+        "firepower": 450,
+        "aa": 350,
+        "asw": 330,
+        "los": 250
+      },
+      "resources": {
+        "fuel": 0,
+        "ammo": 600,
+        "steel": 600,
+        "bauxite": 1000
+      },
+      "items": [
+        {
+          "type": "ImproveMaterial",
+          "name": "나사",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "40",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "40: 水上機前線輸送 クリア"
+      },
+      "game_id": 141,
+      "name": "라바울방면함대진출",
+      "support": false,
+      "drum_type": false,
+      "fleet_options": [
+        "중순1(기함) 경순1 구축3"
+      ],
+      "drums": null
+    },
+    "E2": {
+      "monthly": true,
+      "combat_type": 2,
+      "minutes": 185,
+      "flagship_level": 70,
+      "fleet_level": 320,
+      "fleet_count": 5,
+      "stats": {
+        "firepower": 280,
+        "aa": 240,
+        "asw": 200,
+        "los": 160
+      },
+      "resources": {
+        "fuel": 0,
+        "ammo": 480,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "items": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "ImproveMaterial",
+          "name": "나사",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "unlocks": {
+        "all_of": [
+          {
+            "kind": "expedition",
+            "code": "38",
+            "timing": "normal"
+          }
+        ],
+        "source_text": "38: 東京急行（弐） クリア"
+      },
+      "game_id": 142,
+      "name": "강행쥐수송작전",
+      "support": false,
+      "drum_type": true,
+      "fleet_options": [
+        "구축5"
+      ],
+      "drums": {
+        "count": 4,
+        "ships": 3
+      }
+    }
+  }
+}
