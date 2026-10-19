@@ -1,5 +1,12 @@
 # Third-party notices
 
+## 艦ろぐ / kanlog.info
+
+- Source: https://kanlog.info/map/55/
+- The operator permitted the chatbot use described by the user, with access spread out to avoid bursts and source attribution requested where possible.
+- Extracted factual statistics: `data/kanlog_55_seed.json`; subsequent snapshots are stored on the user's PC. The site's HTML, scripts, artwork and images are not redistributed here.
+- Attribution and thanks in Korean and Japanese are in README.md; collection and verification details are in KANLOG_DROPS.md. This does not relicense third-party site data under the bot software license.
+
 ## kcwiki ship conversion material reference
 
 - Source: https://github.com/kcwiki/kancolle-data/blob/7b92cdb8e4601fdec45ddd00489c7c6da9fa346d/wiki/ship.json

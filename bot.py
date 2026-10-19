@@ -19,6 +19,7 @@ import development
 import initial_equipment
 import improvement
 import remodel_materials
+import kanlog_drops
 
 app = Flask(__name__)
 
@@ -75,6 +76,7 @@ def get_local_cache_dir():
 
 
 LOCAL_CACHE_DIR = get_local_cache_dir()
+KANLOG_DROPS = kanlog_drops.DropStore(LOCAL_CACHE_DIR)
 TSUNKIT_CACHE_FILE = LOCAL_CACHE_DIR / "tsunkit_cache.json"
 LIMITED_DROPS_CACHE_FILE = LOCAL_CACHE_DIR / "current_limited_drops.json"
 
@@ -1322,12 +1324,23 @@ def random_wife_name():
     ]
     return random.choice(candidates) if candidates else "칸무스 목록을 불러오지 못했습니다."
 
+
+def kanlog_ship_name(ship_id, original):
+    ship = SHIP_BY_GAME_ID.get(ship_id)
+    japanese = ship['艦名'] if ship else original
+    translated = SHIP_TRANSLATIONS.get(japanese, '')
+    if re.search(r'[가-힣]', translated):
+        return translated
+    return next((alias for alias in SHIP_ALIASES.get(japanese, [])
+                 if re.search(r'[가-힣]', alias)), translated or original)
+
 COMMANDS = {
     "!도움말": (
         "사용 가능한 명령어:\n"
         "!공지 !통합공략 !단발퀘 !반복퀘 !멘테 !월간원정\n"
         "!이벤트 !개구리야 !미르야\n"
         "!전과 [5/20/100/500]\n"
+        "!드랍 5-5[-마스] [S/A]\n"
         "!칸무스 [함선명]\n"
         "!슬롯 [함선명]\n"
         "!초기장비 [함선명]\n"
@@ -1409,6 +1422,16 @@ def webhook():
     chat_id = data.get("json", {}).get("chat_id", room)
 
     print(f"[받은 메시지] 방={room}, 내용={message}")
+
+    if message == '!드랍' or message.startswith('!드랍 '):
+        reply = kanlog_drops.format_reply(message, KANLOG_DROPS.snapshot, kanlog_ship_name)
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={'type': 'text', 'room': str(chat_id), 'data': reply},
+            timeout=10,
+        )
+        print(f"[칸로그 드랍 답변] 상태 코드={response.status_code}")
+        return jsonify({'ok': True})
 
     if message.startswith("!전과"):
         arguments = message.split()
@@ -1618,4 +1641,5 @@ def home():
 
 
 if __name__ == "__main__":
+    KANLOG_DROPS.start()
     app.run(host="0.0.0.0", port=5000)
