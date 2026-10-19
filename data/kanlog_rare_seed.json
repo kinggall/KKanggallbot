@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "source": "https://kanlog.info/rare/",
+  "source_updated": "2026/10/19 23:00:00",
+  "html_sha256": "6df956690e2c2ea7a9db4ffc258bee5ea32d23346353b6f1d5bee816faa49a5d",
+  "groups": {
+    "전함": [
+      "Littorio",
+      "Roma",
+      "South Dakota",
+      "Richelieu",
+      "Jean Bart"
+    ],
+    "항모": [
+      "春日丸",
+      "八幡丸",
+      "Langley",
+      "Gambier Bay"
+    ],
+    "중순": [
+      "三隈",
+      "Northampton",
+      "Houston",
+      "Minneapolis"
+    ],
+    "경순": [
+      "朝日",
+      "能代",
+      "鹿島",
+      "Atlanta"
+    ],
+    "구축": [
+      "白雲",
+      "山風",
+      "親潮",
+      "天津風",
+      "磯風",
+      "巻波",
+      "沖波",
+      "早霜",
+      "秋霜",
+      "清霜",
+      "秋月",
+      "初月",
+      "竹",
+      "桃",
+      "杉",
+      "樫",
+      "榧",
+      "Grecale",
+      "Scirocco",
+      "Fletcher",
+      "Johnston",
+      "Samuel B.Roberts",
+      "Mogador"
+    ],
+    "해방": [
+      "対馬",
+      "能美",
+      "昭南",
+      "鵜来",
+      "稲木",
+      "第四号海防艦",
+      "第二十二号海防艦",
+      "第三〇号海防艦",
+      "Thonburi"
+    ],
+    "잠수": [
+      "伊47",
+      "伊201",
+      "伊203",
+      "C.Cappellini",
+      "Luigi Torelli"
+    ],
+    "보조": [
+      "神威",
+      "瑞穂",
+      "迅鯨",
+      "長鯨",
+      "平安丸",
+      "速吸",
+      "明石",
+      "大泊",
+      "南海",
+      "山汐丸",
+      "熊野丸",
+      "しまね丸",
+      "第百一号輸送艦",
+      "Commandant Teste"
+    ]
+  }
+}

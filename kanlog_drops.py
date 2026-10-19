@@ -20,12 +20,15 @@ JST = timezone(timedelta(hours=9))
 LOG = logging.getLogger(__name__)
 USAGE = "사용법: !드랍 [해역] / !드랍 [함선명]\n예: !드랍 55p / !드랍 후부키"
 LIMITED_GROUPS = ('전함', '항모', '중순', '경순', '구축', '해방', '잠수', '보조')
-LIMITED_TYPES = {
-    1: '해방', 2: '구축', 3: '경순', 4: '경순', 5: '중순', 6: '중순',
-    7: '항모', 8: '전함', 9: '전함', 10: '전함', 11: '항모',
-    12: '전함', 13: '잠수', 14: '잠수', 16: '보조', 17: '보조',
-    18: '항모', 19: '보조', 20: '보조', 21: '보조', 22: '보조',
+RARE_URL = 'https://kanlog.info/rare/'
+RARE_GROUPS = {
+    'senkan': '전함', 'kubo': '항모', 'jyujyun': '중순', 'keijyun': '경순',
+    'kutikukan': '구축', 'kaiboukan': '해방', 'sensuikan': '잠수', 'hojo': '보조',
 }
+RARE_TASK = 'rare-index'
+# The user verified these two 2-4-P records ended, although their old
+# observations remain in Kanlog's 2026/06/26–present statistics.
+ENDED_LOCATIONS = {('2-4', 'P', 952), ('2-4', 'P', 941)}
 
 
 def map_url(map_name):
@@ -143,29 +146,92 @@ def parse_map_query(query):
             match[5].lower() if match[5] else None)
 
 
-def format_limited_reply(snapshot, ship_info_for):
-    """List distinct ship families with observed current limited drops."""
-    maps = snapshot.get('maps', {}) if 'maps' in snapshot else {snapshot.get('map'): snapshot}
-    grouped = {group: {} for group in LIMITED_GROUPS}
-    for data in maps.values():
-        if not data:
-            continue
-        for row in data.get('rows', []):
-            if not row.get('limited') or not any(
-                    value.get('count', 0) > 0 for value in row.get('ranks', {}).values()):
-                continue
-            family_id, name, ship_type = ship_info_for(row['ship_id'], row['name'])
-            group = LIMITED_TYPES.get(ship_type)
-            if group is None:
-                raise ValueError(f'한정 드랍 함종 미등록: {row["ship_id"]} ({ship_type})')
-            grouped[group][family_id] = name
-    lines = ['현재 한정 드랍']
-    for group, names in grouped.items():
+class RareIndexParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.depth = 0
+        self.panel = None
+        self.panel_depth = 0
+        self.card = None
+        self.card_depth = 0
+        self.name_depth = 0
+        self.badge_depth = 0
+        self.groups = {group: [] for group in LIMITED_GROUPS}
+        self.card_counts = {group: 0 for group in LIMITED_GROUPS}
+        self.seen = set()
+
+    def handle_starttag(self, tag, attrs):
+        self.depth += 1
+        data = dict(attrs)
+        classes = data.get('class', '').split()
+        if tag == 'div' and 'rare-drop-index__type-panel' in classes:
+            self.panel = RARE_GROUPS.get(data.get('data-rare-ship-type'))
+            if self.panel is not None:
+                self.seen.add(self.panel)
+                self.panel_depth = self.depth
+        if self.panel is not None and tag == 'a' and 'rare-drop-index__link' in classes:
+            self.card = {'name_parts': [], 'limited': False}
+            self.card_depth = self.depth
+        if self.card is not None and tag == 'span' and 'rare-drop-index__name' in classes:
+            self.name_depth = self.depth
+        if self.card is not None and tag == 'span' and 'rare-drop-index__limited-badge' in classes:
+            self.card['limited'] = True
+            self.badge_depth = self.depth
+
+    def handle_data(self, data):
+        if self.card is not None and self.name_depth and not self.badge_depth:
+            self.card['name_parts'].append(data)
+
+    def handle_endtag(self, tag):
+        if tag == 'a' and self.card is not None and self.depth == self.card_depth:
+            name = ''.join(self.card['name_parts']).strip()
+            if not name:
+                raise ValueError('Kanlog rare index ship name missing')
+            self.card_counts[self.panel] += 1
+            if self.card['limited']:
+                self.groups[self.panel].append(name)
+            self.card = None
+        if tag == 'span' and self.depth == self.badge_depth:
+            self.badge_depth = 0
+        if tag == 'span' and self.depth == self.name_depth:
+            self.name_depth = 0
+        if tag == 'div' and self.panel is not None and self.depth == self.panel_depth:
+            self.panel = None
+        self.depth -= 1
+
+
+def parse_rare_page(html):
+    parser = RareIndexParser()
+    parser.feed(html)
+    updated = re.search(r'<time datetime="([0-9TZ:.-]+)"', html)
+    if parser.seen != set(LIMITED_GROUPS) or any(not count for count in parser.card_counts.values()) or not updated:
+        raise ValueError('Kanlog rare index structure changed')
+    source_updated = datetime.fromisoformat(updated[1].replace('Z', '+00:00')).astimezone(JST)
+    groups = parser.groups
+    if any(len(values) != len(set(values)) for values in groups.values()):
+        raise ValueError('Kanlog rare index duplicated ship cards')
+    return {'schema': 1, 'source': RARE_URL,
+            'source_updated': source_updated.strftime('%Y/%m/%d %H:%M:%S'),
+            'html_sha256': hashlib.sha256(html.encode('utf-8')).hexdigest(),
+            'groups': groups}
+
+
+def format_limited_reply(snapshot, name_for):
+    """List only the cards with a 期間限定 badge on Kanlog's rare page."""
+    rare = snapshot.get('rare')
+    if rare is None:
+        return '기간한정 목록을 준비 중입니다.'
+    lines = []
+    for group in LIMITED_GROUPS:
+        names = rare['groups'][group]
         if names:
-            lines.append(f'[{group}] ' + '/'.join(sorted(names.values())))
-    if len(lines) == 1:
-        lines.append('현재 확인된 한정 드랍이 없습니다.')
-    return '\n'.join(lines)
+            translated = [name_for(0, name) for name in names]
+            lines.append(f'[{group}]\n' + ' / '.join(translated))
+    return '\n\n'.join(lines) if lines else '현재 확인된 기간한정 드랍이 없습니다.'
+
+
+def is_ended_location(map_name, cells, row):
+    return (map_name, cells.get(row['cell'], {}).get('label'), row['ship_id']) in ENDED_LOCATIONS
 
 
 def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
@@ -180,6 +246,8 @@ def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
             continue
         for row in data.get('rows', []):
             if row.get('ship_id') not in ship_ids:
+                continue
+            if is_ended_location(map_name, data.get('cells', {}), row):
                 continue
             values = row.get('ranks', {})
             if not any(item.get('count', 0) > 0 for item in values.values()):
@@ -251,7 +319,8 @@ def format_reply(message, snapshot, name_for, ship_ids_for=None):
         title += ' (S/A)'
     lines = [title]
     rows = [row for row in snapshot['rows'] if row['cell'] == chosen
-            and (row['rarity'] in ('rare', 'unique') or row['limited'])]
+            and (row['rarity'] in ('rare', 'unique') or row['limited'])
+            and not is_ended_location(map_name, cells, row)]
     selected = (rank,) if rank else ('s', 'a')
     rows.sort(key=lambda row: tuple(-row['ranks'].get(r, {}).get('rate', 0) for r in selected)
               + (row['ship_id'],))
@@ -288,6 +357,8 @@ class DropStore:
         self.started = False
         seed = Path(__file__).parent / 'data' / 'kanlog_maps_seed.json'
         self.snapshot = json.loads(seed.read_text(encoding='utf-8'))
+        rare_seed = Path(__file__).parent / 'data' / 'kanlog_rare_seed.json'
+        self.snapshot['rare'] = json.loads(rare_seed.read_text(encoding='utf-8'))
         self.remaining = []
         self.due = next_refresh(time.time())
         try:
@@ -298,9 +369,12 @@ class DropStore:
             for name, old in saved['snapshot']['maps'].items():
                 if old['source_updated'] > self.snapshot['maps'][name]['source_updated']:
                     self.snapshot['maps'][name] = old
+            saved_rare = saved['snapshot'].get('rare')
+            if saved_rare and saved_rare['source_updated'] > self.snapshot['rare']['source_updated']:
+                self.snapshot['rare'] = saved_rare
             self.due = saved['next_attempt']
             self.remaining = saved.get('remaining', [])
-            if not isinstance(self.remaining, list) or any(name not in MAPS for name in self.remaining):
+            if not isinstance(self.remaining, list) or any(name not in (*MAPS, RARE_TASK) for name in self.remaining):
                 raise ValueError('Unexpected Kanlog pending maps')
         except (OSError, ValueError, KeyError, TypeError):
             self.remaining = []
@@ -329,7 +403,7 @@ class DropStore:
             if now < self.due:
                 return
             if not self.remaining:
-                self.remaining = list(MAPS)
+                self.remaining = list(MAPS) + [RARE_TASK]
             pending = list(self.remaining)
             map_name = self.remaining[0]
             # Persist the retry boundary before fetching so restarts after a
@@ -337,15 +411,20 @@ class DropStore:
             self.due = now + 3600
             self.save(self.snapshot, self.due)
             try:
-                response = requests.get(map_url(map_name), timeout=(10, 30), headers={
+                response = requests.get(RARE_URL if map_name == RARE_TASK else map_url(map_name), timeout=(10, 30), headers={
                     'User-Agent': 'KKanggallbot/1.0 (+https://github.com/kinggall/KKanggallbot)',
                     'Accept': 'text/html',
                 })
                 response.raise_for_status()
-                fresh = parse_page(response.text, map_name)
-                if fresh['source_updated'] < self.snapshot['maps'][map_name]['source_updated']:
+                fresh = parse_rare_page(response.text) if map_name == RARE_TASK else parse_page(response.text, map_name)
+                previous = self.snapshot['rare'] if map_name == RARE_TASK else self.snapshot['maps'][map_name]
+                if fresh['source_updated'] < previous['source_updated']:
                     raise ValueError('Older source data, preserving newer cached snapshot')
-                updated = {'schema': 2, 'maps': dict(self.snapshot['maps'], **{map_name: fresh})}
+                updated = {'schema': 2, 'maps': dict(self.snapshot['maps']), 'rare': self.snapshot['rare']}
+                if map_name == RARE_TASK:
+                    updated['rare'] = fresh
+                else:
+                    updated['maps'][map_name] = fresh
                 self.remaining = self.remaining[1:]
                 # One request per step, including across restarts. No burst
                 # of parallel calls and no full restart of a partial sweep.

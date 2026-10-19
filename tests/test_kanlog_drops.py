@@ -165,7 +165,7 @@ class KanlogTests(unittest.TestCase):
                 get.return_value.text = 'mock'
                 store.refresh_if_due(1000)
                 self.assertEqual(store.due, 1010)
-                self.assertEqual(len(store.remaining), 36)
+                self.assertEqual(len(store.remaining), 37)
                 get.assert_called_once()
                 restarted = drops.DropStore(directory)
                 self.assertEqual(restarted.remaining, store.remaining)
@@ -189,42 +189,59 @@ class KanlogTests(unittest.TestCase):
             self.assertIn('· 히에이 - S 12.84%', body['data'])
             self.assertNotIn(' / A ', body['data'])
 
-    def test_limited_drop_groups_use_cached_current_flags_and_ship_types(self):
+    def test_rare_index_refresh_uses_one_request_and_persists(self):
+        rare = json.loads((ROOT / 'data/kanlog_rare_seed.json').read_text(encoding='utf-8'))
+        with tempfile.TemporaryDirectory() as directory:
+            store = drops.DropStore(directory)
+            store.remaining = [drops.RARE_TASK]
+            store.due = 0
+            with (patch.object(requests, 'get') as get,
+                  patch.object(drops, 'parse_rare_page', return_value=rare)):
+                get.return_value.text = 'mock'
+                store.refresh_if_due()
+            get.assert_called_once()
+            self.assertEqual(get.call_args.args[0], drops.RARE_URL)
+            self.assertEqual(store.remaining, [])
+            restarted = drops.DropStore(directory)
+            self.assertEqual(restarted.snapshot['rare'], rare)
+
+    def test_rare_index_seed_has_only_badged_ships(self):
+        rare = json.loads((ROOT / 'data/kanlog_rare_seed.json').read_text(encoding='utf-8'))
+        self.assertEqual(len(rare['groups']), 8)
+        self.assertEqual(sum(map(len, rare['groups'].values())), 68)
+        self.assertEqual(rare['groups']['경순'], ['朝日', '能代', '鹿島', 'Atlanta'])
+        self.assertNotIn('Phoenix', rare['groups']['경순'])
+
+    def test_limited_drop_groups_use_rare_page_badges_only(self):
         import bot
-        bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
+        bundle = {'rare': json.loads((ROOT / 'data/kanlog_rare_seed.json').read_text(encoding='utf-8'))}
         with patch.object(requests, 'get', side_effect=AssertionError('No GET for commands')):
-            reply = drops.format_limited_reply(bundle, bot.kanlog_limited_ship_info)
-        self.assertEqual([line.split(']')[0] + ']' for line in reply.splitlines()[1:]],
+            reply = drops.format_limited_reply(bundle, bot.kanlog_ship_name)
+        self.assertEqual([line for line in reply.splitlines() if line.startswith('[')],
                          [f'[{group}]' for group in drops.LIMITED_GROUPS])
-        self.assertIn('[전함] ', reply)
-        self.assertIn('애틀랜타', reply)
-        self.assertIn('하야나미', reply)
-        self.assertIn('쿠마노마루', reply)
-        self.assertNotIn(' / ', reply)
+        self.assertIn('[경순]\n아사히 / 노시로 / 카시마 / 애틀랜타', reply)
+        self.assertIn('\n\n[경순]\n', reply)
+        self.assertNotIn('피닉스', reply)
         self.assertLess(len(reply), 4000)
 
-    def test_limited_drop_deduplicates_remodels_and_ignores_unobserved_rows(self):
-        data = copy.deepcopy(self.data)
-        data['rows'] = [
-            dict(ship_id=1, name='First', limited=True, ranks={'s': {'count': 2}}),
-            dict(ship_id=2, name='Second', limited=True, ranks={'a': {'count': 1}}),
-            dict(ship_id=3, name='Missing', limited=True, ranks={'s': {'count': 0}}),
-            dict(ship_id=4, name='Permanent', limited=False, ranks={'s': {'count': 10}}),
-        ]
-        names = {1: (1, '첫째', 2), 2: (1, '첫째', 2),
-                 3: (3, '미확인', 2), 4: (4, '상시', 2)}
-        reply = drops.format_limited_reply(data, lambda i, n: names[i])
-        self.assertEqual(reply, '현재 한정 드랍\n[구축] 첫째')
+    def test_ended_24_drops_excluded_from_both_lookup_directions(self):
+        bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
+        reply = drops.format_reply('!드랍 2-4', bundle, lambda i, n: n)
+        self.assertNotIn('Phoenix', reply)
+        self.assertNotIn('Heywood', reply)
+        for ship_id in (952, 941):
+            reverse = drops.format_reply('!드랍 test', bundle, lambda i, n: n, lambda _: {ship_id})
+            self.assertNotIn('2-4 Boss', reverse)
 
     def test_limited_drop_webhook_preserves_room_and_help(self):
         import bot
-        self.assertIn('!한정드랍', bot.COMMANDS['!도움말'])
+        self.assertIn('!기간한정', bot.COMMANDS['!도움말'])
         with (patch.object(requests, 'get', side_effect=AssertionError('No GET for commands')),
               patch.object(requests, 'post') as post):
             post.return_value.status_code = 200
             response = bot.app.test_client().post('/webhook', json={
-                'msg': '!한정드랍', 'json': {'chat_id': '123'},
+                'msg': '!기간한정', 'json': {'chat_id': '123'},
             })
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.call_args.kwargs['json']['room'], '123')
-        self.assertIn('[구축] ', post.call_args.kwargs['json']['data'])
+        self.assertIn('[구축]\n', post.call_args.kwargs['json']['data'])
