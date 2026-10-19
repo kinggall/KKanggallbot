@@ -1,0 +1,186 @@
+{
+  "crosscheck_report": "data/expedition_crosscheck.json",
+  "changes": [
+    {
+      "code": "10",
+      "path": [
+        "resources",
+        "bauxite"
+      ],
+      "before": 40,
+      "after": 30,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "namu_detail",
+        "user_kamigame_screenshot"
+      ]
+    },
+    {
+      "code": "17",
+      "path": [
+        "resources",
+        "ammo"
+      ],
+      "before": 90,
+      "after": 70,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "namu_detail"
+      ]
+    },
+    {
+      "code": "18",
+      "path": [
+        "resources",
+        "bauxite"
+      ],
+      "before": 150,
+      "after": 100,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "namu_detail"
+      ]
+    },
+    {
+      "code": "23",
+      "path": [
+        "resources",
+        "ammo"
+      ],
+      "before": 50,
+      "after": 20,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "namu_detail"
+      ]
+    },
+    {
+      "code": "23",
+      "path": [
+        "resources",
+        "bauxite"
+      ],
+      "before": 130,
+      "after": 100,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "namu_detail"
+      ]
+    },
+    {
+      "code": "29",
+      "path": [
+        "items"
+      ],
+      "before": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "after": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "reason": "Use archived game master item kind/maximum instead of wiki/EO item labels.",
+      "evidence": [
+        "game_master"
+      ]
+    },
+    {
+      "code": "39",
+      "path": [
+        "items"
+      ],
+      "before": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "after": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "reason": "Use archived game master item kind/maximum instead of wiki/EO item labels.",
+      "evidence": [
+        "game_master"
+      ]
+    },
+    {
+      "code": "39",
+      "path": [
+        "resources",
+        "ammo"
+      ],
+      "before": 0,
+      "after": 30,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "game_master_resource_presence"
+      ]
+    },
+    {
+      "code": "B1",
+      "path": [
+        "resources",
+        "steel"
+      ],
+      "before": 20,
+      "after": 10,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO"
+      ]
+    }
+  ]
+}

@@ -151,7 +151,7 @@ class ImprovementTests(unittest.TestCase):
     def test_equipment_alias_id_candidates_usage_and_missing_data(self):
         self.assertEqual(self.bot.build_improvement_reply("영전 21형"), self.bot.build_improvement_reply("#20"))
         self.assertIn("번호 검색 예: !개수 #", self.bot.build_improvement_reply("와일드캣"))
-        self.assertEqual(self.bot.build_improvement_reply(""), "사용법: !개수 [장비명]")
+        self.assertEqual(self.bot.build_improvement_reply(""), "사용법: !개수 [장비명/2번함]")
         self.assertIn("찾지 못했습니다", self.bot.build_improvement_reply("없는장비"))
         self.assertIn("개수 정보 없음", self.bot.build_improvement_reply("#42"))
         self.assertIn("○ 2번함\n - 정보 없음", self.bot.build_improvement_reply("#2"))
@@ -189,7 +189,7 @@ class ImprovementTests(unittest.TestCase):
                 self.assertEqual(send.call_args.kwargs["json"], {
                     "type": "text", "room": "improvement-test",
                     "data": self.bot.build_improvement_reply(command[len("!개수"):])})
-        self.assertIn("!개수 [장비명/함선명]", self.bot.COMMANDS["!도움말"])
+        self.assertIn("!개수 [장비명/2번함]", self.bot.COMMANDS["!도움말"])
 
 
 if __name__ == "__main__":

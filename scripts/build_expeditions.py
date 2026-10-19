@@ -241,7 +241,7 @@ def build(har_file, eo_root, data_root):
             for field in ('minutes', 'monthly', 'resources'):
                 checked.append(field)
                 if data[field] != eo[code][field]:
-                    report['differences'].append({'code': code, 'field': field, 'wiki': data[field], 'eo': eo[code][field]})
+                    report['differences'].append({'code': code, 'field': field, 'wiki': copy.deepcopy(data[field]), 'eo': eo[code][field]})
             wiki_items = {item['type']: item['max'] for item in data['items']}
             checked.append('item_maximums')
             if wiki_items != eo[code]['items']:
@@ -286,9 +286,27 @@ def build(har_file, eo_root, data_root):
         report['checked'][code] = checked
         expeditions[code] = data
     report['count'] = len(expeditions)
-    report['resolution'] = 'Explicit wikiwiki detailed conditions/rewards are used for source differences.'
+    report['resolution'] = 'Initial wiki/EO comparison; review cross-source corrections before publication.'
     catalog = {'schema': 1, 'source': WIKI, 'wiki_html_sha256': report['wiki_html_sha256'],
                'captured_at': report['har_captured_at'], 'expeditions': expeditions}
+    corrections_file = Path(__file__).resolve().parents[1] / 'data/expedition_corrections.json'
+    if corrections_file.exists():
+        corrections = json.loads(corrections_file.read_text(encoding='utf-8'))
+        for change in corrections['changes']:
+            target = catalog['expeditions'][change['code']]
+            for part in change['path'][:-1]:
+                target = target[part]
+            if target[change['path'][-1]] not in (change['before'], change['after']):
+                raise ValueError(f'Source changed; review correction: {change["code"]}/{change["path"]}')
+            target[change['path'][-1]] = copy.deepcopy(change['after'])
+        catalog['crosscheck'] = corrections['crosscheck_report']
+        report['crosscheck'] = corrections['crosscheck_report']
+        report['resolution'] = ('Original EO/wiki differences are retained below. Final values apply '
+                                'reviewed game-master and cross-source corrections; see crosscheck report.')
+        for difference in report['differences']:
+            selected = catalog['expeditions'][difference['code']]
+            difference['selected'] = ({item['type']: item['max'] for item in selected['items']}
+                                      if difference['field'] == 'item_maximums' else selected[difference['field']])
     return {'catalog': catalog, 'verification': report}
 
 

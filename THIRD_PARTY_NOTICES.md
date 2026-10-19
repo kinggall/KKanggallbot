@@ -6,6 +6,7 @@
 - ElectronicObserverEN/ElectronicObserver revision `8b66df3ffeb79ddef0d092693cf0d257ee96c1a7`: `MissionClearCondition.cs` and `ExpeditionCalculatorData.cs` were consulted to verify ship eligibility, IDs, levels, stats, duration, rewards and monthly/drum classifications. The existing ElectronicObserver MIT notice below is retained.
 - ElectronicObserverEN/Data revision `824b5ce4383f5be8ca40f12fb8c5413ada29a9ef`: `Translations/ko-KR/expedition.json` supplies Korean names. Credits belong to the translation contributors.
 - Derived files: `data/expeditions.json`, `data/expedition_verification.json`; implementation and rebuild instructions: `EXPEDITION_DATA.md`. External factual data retains its respective source rights; this does not apply the bot's GPL license to the wiki page.
+- Additional expedition cross-check: user-provided Namu Wiki HAR, KC3Kai/KC3Kai `src/library/helpers/KanColleHelpers.js` at `db1e102da2315299d543cfc90003929dc377c111`, and kcwiki/kancolle-data `api/api_start2.json` at `7b92cdb8e4601fdec45ddd00489c7c6da9fa346d`. Only factual values and provenance hashes are extracted; the JavaScript is not executed or redistributed. Source decisions and remaining uncertainty are in `EXPEDITION_CROSSCHECK.md` and `data/expedition_crosscheck.json`.
 
 ## 艦ろぐ / kanlog.info
 

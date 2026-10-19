@@ -401,7 +401,7 @@
         "fuel": 0,
         "ammo": 50,
         "steel": 0,
-        "bauxite": 40
+        "bauxite": 30
       },
       "items": [
         {
@@ -738,7 +738,7 @@
       "stats": {},
       "resources": {
         "fuel": 70,
-        "ammo": 90,
+        "ammo": 70,
         "steel": 50,
         "bauxite": 0
       },
@@ -774,7 +774,7 @@
         "fuel": 0,
         "ammo": 0,
         "steel": 300,
-        "bauxite": 150
+        "bauxite": 100
       },
       "items": [
         {
@@ -990,9 +990,9 @@
       "stats": {},
       "resources": {
         "fuel": 0,
-        "ammo": 50,
+        "ammo": 20,
         "steel": 0,
-        "bauxite": 130
+        "bauxite": 100
       },
       "items": [
         {
@@ -1277,8 +1277,8 @@
           "max": 1
         },
         {
-          "type": "FurnitureBoxSmall",
-          "name": "가구함(소)",
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
           "min": 0,
           "max": 1
         }
@@ -1712,7 +1712,7 @@
       "stats": {},
       "resources": {
         "fuel": 0,
-        "ammo": 0,
+        "ammo": 30,
         "steel": 300,
         "bauxite": 0
       },
@@ -1724,8 +1724,8 @@
           "max": 2
         },
         {
-          "type": "FurnitureBoxMedium",
-          "name": "가구함(중)",
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
           "min": 0,
           "max": 1
         }
@@ -2472,7 +2472,7 @@
       "resources": {
         "fuel": 0,
         "ammo": 0,
-        "steel": 20,
+        "steel": 10,
         "bauxite": 30
       },
       "items": [
@@ -3029,5 +3029,6 @@
         "ships": 3
       }
     }
-  }
+  },
+  "crosscheck": "data/expedition_crosscheck.json"
 }

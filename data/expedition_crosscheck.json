@@ -1,0 +1,4647 @@
+{
+  "sources": {
+    "namu": {
+      "url": "https://namu.wiki/w/%ED%95%A8%EB%8C%80%20%EC%BB%AC%EB%A0%89%EC%85%98/%EC%9B%90%EC%A0%95",
+      "captured_at": "2026-10-19T17:03:39.281Z",
+      "html_sha256": "04bb36e62200f9ddfeaf705a1db8e8543d5a5f3d06361f6be3dfd018a6bc81e5"
+    },
+    "KC3": {
+      "file": "src/library/helpers/KanColleHelpers.js",
+      "commit": "db1e102da2315299d543cfc90003929dc377c111",
+      "sha256": "40edc97735896f38a1ee488b792b2c5f8cfbdd0b2550d7939d259425b8391437"
+    },
+    "game_master": {
+      "file": "api/api_start2.json",
+      "commit": "7b92cdb8e4601fdec45ddd00489c7c6da9fa346d",
+      "sha256": "0cc222bbc82bb68b982f34e28bb5837fb243c9a90de6ef436e9901bc55a57999"
+    }
+  },
+  "method": "No fixed preference for a wiki. Archive master determines item types/maxima and metadata; exact resource amounts use corroborating calculators, screenshots and wiki tables. api_win_mat_level is only a presence/level indicator, never an exact amount.",
+  "count": 63,
+  "records": {
+    "1": {
+      "namu_detail": {
+        "minutes": 15,
+        "resources_listed": {
+          "ammo": 30
+        },
+        "flagship_level": 1,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 30,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 1,
+        "fleet_count": 2,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 30,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 1,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {},
+        "resource_levels": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "minutes": 15,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "2": {
+      "namu_detail": {
+        "minutes": 30,
+        "resources_listed": {
+          "ammo": 100,
+          "steel": 30
+        },
+        "flagship_level": 2,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 100,
+          "steel": 30,
+          "bauxite": 0
+        },
+        "flagship_level": 2,
+        "fleet_count": 4,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 100,
+        "steel": 30,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 2,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 1
+        },
+        "resource_levels": [
+          0,
+          1,
+          1,
+          0
+        ],
+        "minutes": 30,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "3": {
+      "namu_detail": {
+        "minutes": 20,
+        "resources_listed": {
+          "fuel": 30,
+          "ammo": 30,
+          "steel": 40
+        },
+        "flagship_level": 3,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 30,
+          "ammo": 30,
+          "steel": 40,
+          "bauxite": 0
+        },
+        "flagship_level": 3,
+        "fleet_count": 3,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 30,
+        "ammo": 30,
+        "steel": 40,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 3,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {},
+        "resource_levels": [
+          1,
+          1,
+          1,
+          0
+        ],
+        "minutes": 20,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "4": {
+      "namu_detail": {
+        "minutes": 50,
+        "resources_listed": {
+          "ammo": 60
+        },
+        "flagship_level": 3,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 70,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 3,
+        "fleet_count": 3,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 70,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 3,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 1,
+          "FurnitureBoxSmall": 1
+        },
+        "resource_levels": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "minutes": 50,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "5": {
+      "namu_detail": {
+        "minutes": 90,
+        "resources_listed": {
+          "fuel": 200,
+          "ammo": 200,
+          "steel": 20,
+          "bauxite": 20
+        },
+        "flagship_level": 3,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 200,
+          "ammo": 200,
+          "steel": 20,
+          "bauxite": 20
+        },
+        "flagship_level": 3,
+        "fleet_count": 4,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 200,
+        "ammo": 200,
+        "steel": 20,
+        "bauxite": 20
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 3,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {},
+        "resource_levels": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "minutes": 90,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "6": {
+      "namu_detail": {
+        "minutes": 40,
+        "resources_listed": {
+          "bauxite": 80
+        },
+        "flagship_level": 4,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 80
+        },
+        "flagship_level": 4,
+        "fleet_count": 4,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 80
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 4,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "minutes": 40,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "7": {
+      "namu_detail": {
+        "minutes": 60,
+        "resources_listed": {
+          "steel": 50,
+          "bauxite": 30
+        },
+        "flagship_level": 5,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 50,
+          "bauxite": 30
+        },
+        "flagship_level": 5,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 50,
+        "bauxite": 30
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 5,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantConstruction": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "minutes": 60,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "8": {
+      "namu_detail": {
+        "minutes": 180,
+        "resources_listed": {
+          "fuel": 50,
+          "ammo": 100,
+          "steel": 50,
+          "bauxite": 50
+        },
+        "flagship_level": 8,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 50,
+          "ammo": 100,
+          "steel": 50,
+          "bauxite": 50
+        },
+        "flagship_level": 6,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 50,
+        "ammo": 100,
+        "steel": 50,
+        "bauxite": 50
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 6,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantConstruction": 2,
+          "DevelopmentMaterial": 1
+        },
+        "resource_levels": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "minutes": 180,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "9": {
+      "namu_detail": {
+        "minutes": 240,
+        "resources_listed": {
+          "fuel": 350
+        },
+        "flagship_level": 3,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 350,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 3,
+        "fleet_count": 4,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 350,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 3,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 1,
+          "InstantRepair": 2
+        },
+        "resource_levels": [
+          2,
+          0,
+          0,
+          0
+        ],
+        "minutes": 240,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "10": {
+      "namu_detail": {
+        "minutes": 90,
+        "resources_listed": {
+          "ammo": 50,
+          "bauxite": 30
+        },
+        "flagship_level": 6,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 50,
+          "steel": 0,
+          "bauxite": 30
+        },
+        "flagship_level": 3,
+        "fleet_count": 3,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 30
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 3,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 1,
+          "InstantConstruction": 1
+        },
+        "resource_levels": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "minutes": 90,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "11": {
+      "namu_detail": {
+        "minutes": 300,
+        "resources_listed": {
+          "bauxite": 250
+        },
+        "flagship_level": 6,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 250
+        },
+        "flagship_level": 6,
+        "fleet_count": 4,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 250
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 6,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 1,
+          "InstantRepair": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          0,
+          2
+        ],
+        "minutes": 300,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "12": {
+      "namu_detail": {
+        "minutes": 480,
+        "resources_listed": {
+          "fuel": 50,
+          "ammo": 250,
+          "steel": 200,
+          "bauxite": 50
+        },
+        "flagship_level": 4,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 50,
+          "ammo": 250,
+          "steel": 200,
+          "bauxite": 50
+        },
+        "flagship_level": 4,
+        "fleet_count": 4,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 50,
+        "ammo": 250,
+        "steel": 200,
+        "bauxite": 50
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 4,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxMedium": 1,
+          "DevelopmentMaterial": 1
+        },
+        "resource_levels": [
+          1,
+          2,
+          1,
+          1
+        ],
+        "minutes": 480,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "13": {
+      "namu_detail": {
+        "minutes": 240,
+        "resources_listed": {
+          "fuel": 240,
+          "ammo": 300
+        },
+        "flagship_level": 5,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 240,
+          "ammo": 300,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 5,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 240,
+        "ammo": 300,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 5,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 2,
+          "FurnitureBoxSmall": 1
+        },
+        "resource_levels": [
+          1,
+          2,
+          0,
+          0
+        ],
+        "minutes": 240,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "14": {
+      "namu_detail": {
+        "minutes": 360,
+        "resources_listed": {
+          "ammo": 240,
+          "steel": 200
+        },
+        "flagship_level": 6,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 280,
+          "steel": 200,
+          "bauxite": 30
+        },
+        "flagship_level": 6,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 240,
+        "steel": 200,
+        "bauxite": 30
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 6,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 1,
+          "DevelopmentMaterial": 1
+        },
+        "resource_levels": [
+          0,
+          2,
+          1,
+          1
+        ],
+        "minutes": 360,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "15": {
+      "namu_detail": {
+        "minutes": 720,
+        "resources_listed": {
+          "steel": 300,
+          "bauxite": 400
+        },
+        "flagship_level": 9,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 300,
+          "bauxite": 400
+        },
+        "flagship_level": 8,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 300,
+        "bauxite": 400
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 8,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxLarge": 1,
+          "DevelopmentMaterial": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          2,
+          2
+        ],
+        "minutes": 720,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "16": {
+      "namu_detail": {
+        "minutes": 900,
+        "resources_listed": {
+          "fuel": 500,
+          "ammo": 500,
+          "steel": 200,
+          "bauxite": 200
+        },
+        "flagship_level": 11,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 500,
+          "ammo": 500,
+          "steel": 200,
+          "bauxite": 200
+        },
+        "flagship_level": 10,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 500,
+        "ammo": 500,
+        "steel": 200,
+        "bauxite": 200
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 10,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantConstruction": 2,
+          "DevelopmentMaterial": 2
+        },
+        "resource_levels": [
+          3,
+          3,
+          1,
+          1
+        ],
+        "minutes": 900,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "17": {
+      "namu_detail": {
+        "minutes": 45,
+        "resources_listed": {
+          "fuel": 70,
+          "ammo": 70,
+          "steel": 50
+        },
+        "flagship_level": 20,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 70,
+          "ammo": 70,
+          "steel": 50,
+          "bauxite": 0
+        },
+        "flagship_level": 20,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 70,
+        "ammo": 70,
+        "steel": 50,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 20,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {},
+        "resource_levels": [
+          1,
+          1,
+          1,
+          0
+        ],
+        "minutes": 45,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "18": {
+      "namu_detail": {
+        "minutes": 300,
+        "resources_listed": {
+          "steel": 300,
+          "bauxite": 100
+        },
+        "flagship_level": 15,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 300,
+          "bauxite": 100
+        },
+        "flagship_level": 15,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 300,
+        "bauxite": 100
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 15,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          2,
+          1
+        ],
+        "minutes": 300,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "19": {
+      "namu_detail": {
+        "minutes": 360,
+        "resources_listed": {
+          "fuel": 400,
+          "steel": 50,
+          "bauxite": 30
+        },
+        "flagship_level": 20,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 400,
+          "ammo": 50,
+          "steel": 50,
+          "bauxite": 30
+        },
+        "flagship_level": 20,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 400,
+        "ammo": 50,
+        "steel": 50,
+        "bauxite": 30
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 20,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 1,
+          "DevelopmentMaterial": 1
+        },
+        "resource_levels": [
+          2,
+          1,
+          1,
+          1
+        ],
+        "minutes": 360,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "20": {
+      "namu_detail": {
+        "minutes": 120,
+        "resources_listed": {
+          "steel": 150
+        },
+        "flagship_level": 1,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 150,
+          "bauxite": 0
+        },
+        "flagship_level": 1,
+        "fleet_count": 2,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 150,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 1,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 1,
+          "FurnitureBoxMedium": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "minutes": 120,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "21": {
+      "namu_detail": {
+        "minutes": 140,
+        "resources_listed": {
+          "fuel": 320,
+          "ammo": 270
+        },
+        "flagship_level": 15,
+        "fleet_level": 30,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 320,
+          "ammo": 270,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 15,
+        "fleet_count": 5,
+        "fleet_level": 30,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 320,
+        "ammo": 270,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 15,
+        "fleet_level": 30
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 1
+        },
+        "resource_levels": [
+          2,
+          2,
+          0,
+          0
+        ],
+        "minutes": 140,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "22": {
+      "namu_detail": {
+        "minutes": 180,
+        "resources_listed": {
+          "ammo": 10
+        },
+        "flagship_level": 30,
+        "fleet_level": 45,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 10,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 30,
+        "fleet_count": 6,
+        "fleet_level": 45,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 10,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 30,
+        "fleet_level": 45
+      },
+      "game_master": {
+        "item_maximums": {},
+        "resource_levels": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "minutes": 180,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "23": {
+      "namu_detail": {
+        "minutes": 240,
+        "resources_listed": {
+          "ammo": 20,
+          "bauxite": 100
+        },
+        "flagship_level": 50,
+        "fleet_level": 200,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 20,
+          "steel": 0,
+          "bauxite": 100
+        },
+        "flagship_level": 50,
+        "fleet_count": 6,
+        "fleet_level": 200,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 20,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 50,
+        "fleet_level": 200
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxMedium": 1
+        },
+        "resource_levels": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "minutes": 240,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "24": {
+      "namu_detail": {
+        "minutes": 500,
+        "resources_listed": {
+          "fuel": 500,
+          "bauxite": 150
+        },
+        "flagship_level": 50,
+        "fleet_level": 200,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 500,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 150
+        },
+        "flagship_level": 50,
+        "fleet_count": 6,
+        "fleet_level": 200,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 500,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 150
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 50,
+        "fleet_level": 200
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 2,
+          "InstantRepair": 1
+        },
+        "resource_levels": [
+          3,
+          0,
+          0,
+          1
+        ],
+        "minutes": 500,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "25": {
+      "namu_detail": {
+        "minutes": 2400,
+        "resources_listed": {
+          "fuel": 900,
+          "steel": 500
+        },
+        "flagship_level": 25,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 900,
+          "ammo": 0,
+          "steel": 500,
+          "bauxite": 0
+        },
+        "flagship_level": 25,
+        "fleet_count": 4,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 900,
+        "ammo": 0,
+        "steel": 500,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 25,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxMedium": 1
+        },
+        "resource_levels": [
+          4,
+          0,
+          3,
+          0
+        ],
+        "minutes": 2400,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "26": {
+      "namu_detail": {
+        "minutes": 4800,
+        "resources_listed": {
+          "bauxite": 900
+        },
+        "flagship_level": 30,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 900
+        },
+        "flagship_level": 30,
+        "fleet_count": 4,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 900
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 30,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 3,
+          "FurnitureBoxLarge": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          0,
+          4
+        ],
+        "minutes": 4800,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "27": {
+      "namu_detail": {
+        "minutes": 1200,
+        "resources_listed": {
+          "steel": 800
+        },
+        "flagship_level": 10,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 800,
+          "bauxite": 0
+        },
+        "flagship_level": 1,
+        "fleet_count": 2,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 800,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 1,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 2,
+          "FurnitureBoxSmall": 2
+        },
+        "resource_levels": [
+          0,
+          0,
+          4,
+          0
+        ],
+        "minutes": 1200,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "28": {
+      "namu_detail": {
+        "minutes": 1500,
+        "resources_listed": {
+          "steel": 900,
+          "bauxite": 350
+        },
+        "flagship_level": 30,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 900,
+          "bauxite": 350
+        },
+        "flagship_level": 30,
+        "fleet_count": 3,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 900,
+        "bauxite": 350
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 30,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 3,
+          "FurnitureBoxMedium": 2
+        },
+        "resource_levels": [
+          0,
+          0,
+          4,
+          2
+        ],
+        "minutes": 1500,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "29": {
+      "namu_detail": {
+        "minutes": 1440,
+        "resources_listed": {
+          "bauxite": 100
+        },
+        "flagship_level": 50,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 50,
+          "steel": 0,
+          "bauxite": 100
+        },
+        "flagship_level": 50,
+        "fleet_count": 3,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 50,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 1,
+          "FurnitureBoxMedium": 1
+        },
+        "resource_levels": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "minutes": 1440,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "30": {
+      "namu_detail": {
+        "minutes": 2880,
+        "resources_listed": {
+          "bauxite": 100
+        },
+        "flagship_level": 55,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 50,
+          "steel": 0,
+          "bauxite": 100
+        },
+        "flagship_level": 55,
+        "fleet_count": 4,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 55,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 3,
+          "FurnitureBoxLarge": 1
+        },
+        "resource_levels": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "minutes": 2880,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "31": {
+      "namu_detail": {
+        "minutes": 120,
+        "resources_listed": {
+          "ammo": 30
+        },
+        "flagship_level": 60,
+        "fleet_level": 200,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 30,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 60,
+        "fleet_count": 4,
+        "fleet_level": 200,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 30,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 60,
+        "fleet_level": 200
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 1
+        },
+        "resource_levels": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "minutes": 120,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "32": {
+      "namu_detail": {
+        "minutes": 1440,
+        "resources_listed": {
+          "fuel": 50,
+          "ammo": 50,
+          "steel": 50,
+          "bauxite": 50
+        },
+        "flagship_level": 5,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 50,
+          "ammo": 50,
+          "steel": 50,
+          "bauxite": 50
+        },
+        "flagship_level": 5,
+        "fleet_count": 3,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 50,
+        "ammo": 50,
+        "steel": 50,
+        "bauxite": 50
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 5,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxLarge": 1,
+          "DevelopmentMaterial": 3
+        },
+        "resource_levels": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "minutes": 1440,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "33": {
+      "namu_detail": {
+        "minutes": 15,
+        "resources_listed": {},
+        "flagship_level": null,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 1,
+        "fleet_count": 2,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": null,
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": null,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {},
+        "resource_levels": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "minutes": 15,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "34": {
+      "namu_detail": {
+        "minutes": 30,
+        "resources_listed": {},
+        "flagship_level": null,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 1,
+        "fleet_count": 2,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": null,
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": null,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {},
+        "resource_levels": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "minutes": 30,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "35": {
+      "namu_detail": {
+        "minutes": 420,
+        "resources_listed": {
+          "steel": 240,
+          "bauxite": 280
+        },
+        "flagship_level": 40,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 240,
+          "bauxite": 280
+        },
+        "flagship_level": 40,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 240,
+        "bauxite": 280
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 40,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 2,
+          "DevelopmentMaterial": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          1,
+          2
+        ],
+        "minutes": 420,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "36": {
+      "namu_detail": {
+        "minutes": 540,
+        "resources_listed": {
+          "fuel": 480,
+          "steel": 200,
+          "bauxite": 200
+        },
+        "flagship_level": 30,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 480,
+          "ammo": 0,
+          "steel": 200,
+          "bauxite": 200
+        },
+        "flagship_level": 30,
+        "fleet_count": 6,
+        "fleet_level": null,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 480,
+        "ammo": 0,
+        "steel": 200,
+        "bauxite": 200
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 30,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxMedium": 2,
+          "InstantRepair": 1
+        },
+        "resource_levels": [
+          2,
+          0,
+          1,
+          1
+        ],
+        "minutes": 540,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "37": {
+      "namu_detail": {
+        "minutes": 165,
+        "resources_listed": {
+          "ammo": 380,
+          "steel": 270
+        },
+        "flagship_level": 50,
+        "fleet_level": 200,
+        "stats_listed": {},
+        "drums_listed": {
+          "ships": 3,
+          "count": 4
+        }
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 380,
+          "steel": 270,
+          "bauxite": 0
+        },
+        "flagship_level": 50,
+        "fleet_count": 6,
+        "fleet_level": 200,
+        "stats": {},
+        "drums": {
+          "ships": 3,
+          "count": 4
+        }
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 380,
+        "steel": 270,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 50,
+        "fleet_level": 200
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 1
+        },
+        "resource_levels": [
+          0,
+          2,
+          2,
+          0
+        ],
+        "minutes": 165,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "38": {
+      "namu_detail": {
+        "minutes": 175,
+        "resources_listed": {
+          "fuel": 420,
+          "steel": 200
+        },
+        "flagship_level": 65,
+        "fleet_level": 240,
+        "stats_listed": {},
+        "drums_listed": {
+          "ships": 4,
+          "count": 8
+        }
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 420,
+          "ammo": 0,
+          "steel": 200,
+          "bauxite": 0
+        },
+        "flagship_level": 65,
+        "fleet_count": 6,
+        "fleet_level": 240,
+        "stats": {},
+        "drums": {
+          "ships": 4,
+          "count": 8
+        }
+      },
+      "EO_resources": {
+        "fuel": 420,
+        "ammo": 0,
+        "steel": 200,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 65,
+        "fleet_level": 240
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 1
+        },
+        "resource_levels": [
+          2,
+          0,
+          1,
+          0
+        ],
+        "minutes": 175,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "39": {
+      "namu_detail": {
+        "minutes": 1800,
+        "resources_listed": {
+          "steel": 300
+        },
+        "flagship_level": 3,
+        "fleet_level": 180,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 30,
+          "steel": 300,
+          "bauxite": 0
+        },
+        "flagship_level": 3,
+        "fleet_count": 5,
+        "fleet_level": 180,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 30,
+        "steel": 300,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 3,
+        "fleet_level": 180
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 2,
+          "FurnitureBoxLarge": 1
+        },
+        "resource_levels": [
+          0,
+          1,
+          2,
+          0
+        ],
+        "minutes": 1800,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "40": {
+      "namu_detail": {
+        "minutes": 410,
+        "resources_listed": {
+          "fuel": 300,
+          "ammo": 300,
+          "bauxite": 100
+        },
+        "flagship_level": 25,
+        "fleet_level": 150,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 300,
+          "ammo": 300,
+          "steel": 0,
+          "bauxite": 100
+        },
+        "flagship_level": 25,
+        "fleet_count": 6,
+        "fleet_level": 150,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 300,
+        "ammo": 300,
+        "steel": 100,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 25,
+        "fleet_level": 150
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 3,
+          "InstantRepair": 1
+        },
+        "resource_levels": [
+          2,
+          2,
+          0,
+          1
+        ],
+        "minutes": 410,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "41": {
+      "namu_detail": {
+        "minutes": 60,
+        "resources_listed": {
+          "fuel": 100,
+          "bauxite": 20
+        },
+        "flagship_level": 30,
+        "fleet_level": 115,
+        "stats_listed": {
+          "firepower": 60,
+          "aa": 80,
+          "asw": 210
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 100,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 20
+        },
+        "flagship_level": 30,
+        "fleet_count": 3,
+        "fleet_level": 100,
+        "stats": {
+          "firepower": 60,
+          "aa": 80,
+          "asw": 210
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 100,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 20
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 60,
+          "aa": 80,
+          "asw": 210
+        },
+        "flagship_level": 30,
+        "fleet_level": 100
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 1,
+          "InstantRepair": 1
+        },
+        "resource_levels": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "minutes": 60,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "42": {
+      "namu_detail": {
+        "minutes": 480,
+        "resources_listed": {
+          "fuel": 800,
+          "bauxite": 200
+        },
+        "flagship_level": 45,
+        "fleet_level": 200,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 45,
+        "fleet_level": 200,
+        "fleet_count": 4,
+        "stats": {},
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 800,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 200
+        },
+        "flagship_level": 45,
+        "fleet_count": 4,
+        "fleet_level": 200,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 800,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 200
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 45,
+        "fleet_level": 200
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxLarge": 1,
+          "InstantConstruction": 3
+        },
+        "resource_levels": [
+          4,
+          0,
+          0,
+          1
+        ],
+        "minutes": 480,
+        "monthly": true,
+        "combat_type": 0
+      }
+    },
+    "43": {
+      "namu_detail": {
+        "minutes": 720,
+        "resources_listed": {
+          "fuel": 2000,
+          "bauxite": 400
+        },
+        "flagship_level": 55,
+        "fleet_level": 300,
+        "stats_listed": {
+          "firepower": 500,
+          "asw": 280
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 55,
+        "fleet_level": 300,
+        "fleet_count": 6,
+        "stats": {
+          "firepower": 500,
+          "aa": 280,
+          "asw": 280,
+          "los": 170
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 2000,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 400
+        },
+        "flagship_level": 55,
+        "fleet_count": 6,
+        "fleet_level": 300,
+        "stats": {
+          "firepower": 500,
+          "aa": 280,
+          "asw": 280,
+          "los": 170
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 2000,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 400
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 500,
+          "aa": 280,
+          "asw": 280,
+          "los": 170
+        },
+        "flagship_level": 55,
+        "fleet_level": 300
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 4,
+          "ImproveMaterial": 1
+        },
+        "resource_levels": [
+          4,
+          0,
+          0,
+          2
+        ],
+        "minutes": 720,
+        "monthly": true,
+        "combat_type": 1
+      }
+    },
+    "44": {
+      "namu_detail": {
+        "minutes": 600,
+        "resources_listed": {
+          "ammo": 200,
+          "bauxite": 800
+        },
+        "flagship_level": 35,
+        "fleet_level": null,
+        "stats_listed": {
+          "asw": 200
+        },
+        "drums_listed": {
+          "ships": 3,
+          "count": 6
+        }
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 35,
+        "fleet_level": 210,
+        "fleet_count": 6,
+        "stats": {
+          "aa": 200,
+          "asw": 200,
+          "los": 150
+        },
+        "drums": {
+          "ships": 3,
+          "count": 6
+        }
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 200,
+          "steel": 0,
+          "bauxite": 800
+        },
+        "flagship_level": 35,
+        "fleet_count": 6,
+        "fleet_level": 210,
+        "stats": {
+          "aa": 200,
+          "asw": 200,
+          "los": 150
+        },
+        "drums": {
+          "ships": 3,
+          "count": 6
+        }
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 200,
+        "steel": 0,
+        "bauxite": 800
+      },
+      "EO_conditions": {
+        "stats": {
+          "aa": 200,
+          "asw": 200,
+          "los": 150
+        },
+        "flagship_level": 35,
+        "fleet_level": 210
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 4,
+          "FurnitureBoxLarge": 2
+        },
+        "resource_levels": [
+          0,
+          1,
+          0,
+          4
+        ],
+        "minutes": 600,
+        "monthly": true,
+        "combat_type": 0
+      }
+    },
+    "45": {
+      "namu_detail": {
+        "minutes": 200,
+        "resources_listed": {
+          "fuel": 40,
+          "bauxite": 220
+        },
+        "flagship_level": 50,
+        "fleet_level": 240,
+        "stats_listed": {
+          "aa": 240,
+          "asw": 300,
+          "los": 180
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 40,
+          "ammo": 0,
+          "steel": 0,
+          "bauxite": 220
+        },
+        "flagship_level": 50,
+        "fleet_count": 5,
+        "fleet_level": 240,
+        "stats": {
+          "aa": 240,
+          "asw": 300,
+          "los": 180
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 40,
+        "ammo": 0,
+        "steel": 0,
+        "bauxite": 220
+      },
+      "EO_conditions": {
+        "stats": {
+          "aa": 240,
+          "asw": 300,
+          "los": 180
+        },
+        "flagship_level": 50,
+        "fleet_level": 240
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxMedium": 1
+        },
+        "resource_levels": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "minutes": 200,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "46": {
+      "namu_detail": {
+        "minutes": 210,
+        "resources_listed": {
+          "fuel": 300,
+          "steel": 150,
+          "bauxite": 380
+        },
+        "flagship_level": 65,
+        "fleet_level": 300,
+        "stats_listed": {
+          "firepower": 350,
+          "aa": 330,
+          "asw": 220,
+          "los": 220
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 60,
+        "fleet_level": 300,
+        "fleet_count": 5,
+        "stats": {
+          "firepower": 350,
+          "aa": 250,
+          "asw": 220,
+          "los": 190
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 300,
+          "ammo": 0,
+          "steel": 150,
+          "bauxite": 380
+        },
+        "flagship_level": 65,
+        "fleet_count": 5,
+        "fleet_level": 300,
+        "stats": {
+          "firepower": 350,
+          "aa": 250,
+          "asw": 220,
+          "los": 190
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 300,
+        "ammo": 0,
+        "steel": 150,
+        "bauxite": 380
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 350,
+          "aa": 250,
+          "asw": 220,
+          "los": 190
+        },
+        "flagship_level": 60,
+        "fleet_level": 300
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 3,
+          "ImproveMaterial": 1
+        },
+        "resource_levels": [
+          2,
+          0,
+          1,
+          2
+        ],
+        "minutes": 210,
+        "monthly": true,
+        "combat_type": 2
+      }
+    },
+    "A1": {
+      "namu_detail": {
+        "minutes": 25,
+        "resources_listed": {
+          "fuel": 45,
+          "ammo": 45
+        },
+        "flagship_level": 15,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 45,
+          "ammo": 45,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 5,
+        "fleet_count": 4,
+        "fleet_level": 10,
+        "stats": {},
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 45,
+        "ammo": 45,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {},
+        "flagship_level": 5,
+        "fleet_level": 10
+      },
+      "game_master": {
+        "item_maximums": {},
+        "resource_levels": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "minutes": 25,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "A2": {
+      "namu_detail": {
+        "minutes": 55,
+        "resources_listed": {
+          "fuel": 70,
+          "ammo": 70,
+          "bauxite": 10
+        },
+        "flagship_level": 20,
+        "fleet_level": 144,
+        "stats_listed": {
+          "aa": 70,
+          "asw": 180,
+          "los": 73
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 70,
+          "ammo": 40,
+          "steel": 0,
+          "bauxite": 10
+        },
+        "flagship_level": 20,
+        "fleet_count": 4,
+        "fleet_level": null,
+        "stats": {
+          "firepower": 50,
+          "aa": 70,
+          "asw": 180
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 70,
+        "ammo": 40,
+        "steel": 0,
+        "bauxite": 10
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 50,
+          "aa": 70,
+          "asw": 180
+        },
+        "flagship_level": 20,
+        "fleet_level": null
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 1,
+          "InstantRepair": 1
+        },
+        "resource_levels": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "minutes": 55,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "A3": {
+      "namu_detail": {
+        "minutes": 135,
+        "resources_listed": {
+          "fuel": 120,
+          "steel": 60
+        },
+        "flagship_level": 35,
+        "fleet_level": 185,
+        "stats_listed": {
+          "aa": 162,
+          "asw": 280,
+          "los": 60
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 120,
+          "ammo": 0,
+          "steel": 60,
+          "bauxite": 60
+        },
+        "flagship_level": 35,
+        "fleet_count": 5,
+        "fleet_level": 185,
+        "stats": {
+          "asw": 280,
+          "los": 60
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 120,
+        "ammo": 0,
+        "steel": 60,
+        "bauxite": 60
+      },
+      "EO_conditions": {
+        "stats": {
+          "aa": 59,
+          "asw": 280,
+          "los": 60
+        },
+        "flagship_level": 35,
+        "fleet_level": 185
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 1,
+          "DevelopmentMaterial": 2
+        },
+        "resource_levels": [
+          1,
+          0,
+          1,
+          1
+        ],
+        "minutes": 135,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "A4": {
+      "namu_detail": {
+        "minutes": 110,
+        "resources_listed": {
+          "fuel": 80,
+          "ammo": 120,
+          "bauxite": 100
+        },
+        "flagship_level": 40,
+        "fleet_level": 200,
+        "stats_listed": {
+          "firepower": 300,
+          "aa": 200,
+          "asw": 200,
+          "los": 120
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 40,
+        "fleet_level": 200,
+        "fleet_count": 5,
+        "stats": {
+          "firepower": 300,
+          "aa": 200,
+          "asw": 200,
+          "los": 120
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 80,
+          "ammo": 120,
+          "steel": 0,
+          "bauxite": 100
+        },
+        "flagship_level": 40,
+        "fleet_count": 5,
+        "fleet_level": 200,
+        "stats": {
+          "firepower": 300,
+          "aa": 200,
+          "asw": 200,
+          "los": 120
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 80,
+        "ammo": 120,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 300,
+          "aa": 200,
+          "asw": 200,
+          "los": 120
+        },
+        "flagship_level": 40,
+        "fleet_level": 200
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 2,
+          "InstantConstruction": 2
+        },
+        "resource_levels": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "minutes": 110,
+        "monthly": true,
+        "combat_type": 0
+      }
+    },
+    "A5": {
+      "namu_detail": {
+        "minutes": 180,
+        "resources_listed": {
+          "ammo": 300,
+          "bauxite": 100
+        },
+        "flagship_level": 45,
+        "fleet_level": 260,
+        "stats_listed": {
+          "firepower": 280,
+          "aa": 274,
+          "asw": 240,
+          "los": 150
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 45,
+        "fleet_level": 230,
+        "fleet_count": 5,
+        "stats": {
+          "firepower": 280,
+          "aa": 220,
+          "asw": 240,
+          "los": 150
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 300,
+          "steel": 0,
+          "bauxite": 100
+        },
+        "flagship_level": 45,
+        "fleet_count": 5,
+        "fleet_level": 230,
+        "stats": {
+          "firepower": 280,
+          "aa": 220,
+          "asw": 240,
+          "los": 150
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 300,
+        "steel": 0,
+        "bauxite": 100
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 280,
+          "aa": 220,
+          "asw": 240,
+          "los": 150
+        },
+        "flagship_level": 45,
+        "fleet_level": 230
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 4,
+          "InstantRepair": 3
+        },
+        "resource_levels": [
+          0,
+          2,
+          0,
+          1
+        ],
+        "minutes": 180,
+        "monthly": true,
+        "combat_type": 1
+      }
+    },
+    "A6": {
+      "namu_detail": {
+        "minutes": 210,
+        "resources_listed": {
+          "fuel": 100,
+          "ammo": 500,
+          "steel": 100,
+          "bauxite": 200
+        },
+        "flagship_level": 55,
+        "fleet_level": 357,
+        "stats_listed": {
+          "firepower": 330,
+          "aa": 315,
+          "asw": 270,
+          "los": 182
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 55,
+        "fleet_level": 290,
+        "fleet_count": 6,
+        "stats": {
+          "firepower": 330,
+          "aa": 300,
+          "asw": 270,
+          "los": 180
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 100,
+          "ammo": 500,
+          "steel": 100,
+          "bauxite": 200
+        },
+        "flagship_level": 55,
+        "fleet_count": 6,
+        "fleet_level": 290,
+        "stats": {
+          "firepower": 330,
+          "aa": 300,
+          "asw": 270,
+          "los": 180
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 100,
+        "ammo": 500,
+        "steel": 100,
+        "bauxite": 200
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 330,
+          "aa": 300,
+          "asw": 270,
+          "los": 180
+        },
+        "flagship_level": 55,
+        "fleet_level": 290
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 5,
+          "ImproveMaterial": 1
+        },
+        "resource_levels": [
+          1,
+          3,
+          1,
+          1
+        ],
+        "minutes": 210,
+        "monthly": true,
+        "combat_type": 2
+      }
+    },
+    "B1": {
+      "namu_detail": {
+        "minutes": 35,
+        "resources_listed": {
+          "steel": 13,
+          "bauxite": 30
+        },
+        "flagship_level": 40,
+        "fleet_level": null,
+        "stats_listed": {},
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 10,
+          "bauxite": 30
+        },
+        "flagship_level": 40,
+        "fleet_count": 6,
+        "fleet_level": 150,
+        "stats": {
+          "aa": 200,
+          "asw": 200,
+          "los": 140
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 10,
+        "bauxite": 30
+      },
+      "EO_conditions": {
+        "stats": {
+          "aa": 200,
+          "asw": 200,
+          "los": 140
+        },
+        "flagship_level": 40,
+        "fleet_level": 150
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxSmall": 1,
+          "InstantRepair": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "minutes": 35,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "B2": {
+      "namu_detail": {
+        "minutes": 520,
+        "resources_listed": {
+          "fuel": 300,
+          "ammo": 200,
+          "steel": 100
+        },
+        "flagship_level": 45,
+        "fleet_level": 290,
+        "stats_listed": {
+          "firepower": 360
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 45,
+        "fleet_level": 220,
+        "fleet_count": 6,
+        "stats": {
+          "firepower": 360,
+          "aa": 160,
+          "asw": 160,
+          "los": 140
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 300,
+          "ammo": 200,
+          "steel": 100,
+          "bauxite": 0
+        },
+        "flagship_level": 45,
+        "fleet_count": 6,
+        "fleet_level": 220,
+        "stats": {
+          "firepower": 360,
+          "aa": 160,
+          "asw": 160,
+          "los": 140
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 300,
+        "ammo": 200,
+        "steel": 100,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 360,
+          "aa": 160,
+          "asw": 160,
+          "los": 140
+        },
+        "flagship_level": 45,
+        "fleet_level": 220
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 2,
+          "InstantRepair": 2
+        },
+        "resource_levels": [
+          2,
+          1,
+          1,
+          0
+        ],
+        "minutes": 520,
+        "monthly": true,
+        "combat_type": 0
+      }
+    },
+    "B3": {
+      "namu_detail": {
+        "minutes": 170,
+        "resources_listed": {
+          "ammo": 100,
+          "steel": 100,
+          "bauxite": 180
+        },
+        "flagship_level": 50,
+        "fleet_level": 260,
+        "stats_listed": {
+          "firepower": 400,
+          "asw": 220,
+          "los": 190
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 50,
+        "fleet_level": 250,
+        "fleet_count": 6,
+        "stats": {
+          "firepower": 400,
+          "aa": 220,
+          "asw": 220,
+          "los": 190
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 100,
+          "steel": 100,
+          "bauxite": 180
+        },
+        "flagship_level": 50,
+        "fleet_count": 6,
+        "fleet_level": 250,
+        "stats": {
+          "firepower": 400,
+          "aa": 220,
+          "asw": 220,
+          "los": 190
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 100,
+        "steel": 100,
+        "bauxite": 180
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 400,
+          "aa": 220,
+          "asw": 220,
+          "los": 190
+        },
+        "flagship_level": 50,
+        "fleet_level": 250
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxLarge": 1,
+          "InstantRepair": 2
+        },
+        "resource_levels": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "minutes": 170,
+        "monthly": true,
+        "combat_type": 0
+      }
+    },
+    "B4": {
+      "namu_detail": {
+        "minutes": 450,
+        "resources_listed": {
+          "steel": 1200,
+          "bauxite": 650
+        },
+        "flagship_level": 55,
+        "fleet_level": 410,
+        "stats_listed": {
+          "firepower": 500,
+          "asw": 280
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 55,
+        "fleet_level": 300,
+        "fleet_count": 6,
+        "stats": {
+          "firepower": 500,
+          "aa": 280,
+          "asw": 280,
+          "los": 170
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 1200,
+          "bauxite": 650
+        },
+        "flagship_level": 55,
+        "fleet_count": 6,
+        "fleet_level": 300,
+        "stats": {
+          "firepower": 500,
+          "aa": 280,
+          "asw": 280,
+          "los": 170
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 1200,
+        "bauxite": 650
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 500,
+          "aa": 280,
+          "asw": 280,
+          "los": 170
+        },
+        "flagship_level": 55,
+        "fleet_level": 300
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 4,
+          "ImproveMaterial": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          4,
+          3
+        ],
+        "minutes": 450,
+        "monthly": true,
+        "combat_type": 1
+      }
+    },
+    "B5": {
+      "namu_detail": {
+        "minutes": 390,
+        "resources_listed": {
+          "fuel": 500,
+          "ammo": 500,
+          "steel": 1000,
+          "bauxite": 750
+        },
+        "flagship_level": 60,
+        "fleet_level": null,
+        "stats_listed": {
+          "firepower": 510,
+          "aa": 400,
+          "asw": 285,
+          "los": 385
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 60,
+        "fleet_level": 330,
+        "fleet_count": 6,
+        "stats": {
+          "firepower": 510,
+          "aa": 400,
+          "asw": 285,
+          "los": 385
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 500,
+          "ammo": 500,
+          "steel": 1000,
+          "bauxite": 750
+        },
+        "flagship_level": 60,
+        "fleet_count": 6,
+        "fleet_level": 330,
+        "stats": {
+          "firepower": 510,
+          "aa": 400,
+          "asw": 285,
+          "los": 385
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 500,
+        "ammo": 500,
+        "steel": 1000,
+        "bauxite": 750
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 510,
+          "aa": 400,
+          "asw": 285,
+          "los": 385
+        },
+        "flagship_level": 60,
+        "fleet_level": 330
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 4,
+          "ImproveMaterial": 1
+        },
+        "resource_levels": [
+          3,
+          3,
+          4,
+          4
+        ],
+        "minutes": 390,
+        "monthly": true,
+        "combat_type": 2
+      }
+    },
+    "B6": {
+      "namu_detail": {
+        "minutes": 350,
+        "resources_listed": {
+          "fuel": 600,
+          "ammo": 1000,
+          "steel": 600,
+          "bauxite": 600
+        },
+        "flagship_level": 75,
+        "fleet_level": null,
+        "stats_listed": {
+          "firepower": 410,
+          "aa": 390,
+          "asw": 410,
+          "los": 340
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 75,
+        "fleet_level": 400,
+        "fleet_count": 6,
+        "stats": {
+          "firepower": 410,
+          "aa": 390,
+          "asw": 410,
+          "los": 340
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 600,
+          "ammo": 1000,
+          "steel": 600,
+          "bauxite": 600
+        },
+        "flagship_level": 75,
+        "fleet_count": 6,
+        "fleet_level": 400,
+        "stats": {
+          "firepower": 410,
+          "aa": 390,
+          "asw": 410,
+          "los": 340
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 600,
+        "ammo": 1000,
+        "steel": 600,
+        "bauxite": 600
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 410,
+          "aa": 390,
+          "asw": 410,
+          "los": 340
+        },
+        "flagship_level": 75,
+        "fleet_level": 400
+      },
+      "game_master": {
+        "item_maximums": {
+          "DevelopmentMaterial": 5,
+          "ImproveMaterial": 1
+        },
+        "resource_levels": [
+          3,
+          4,
+          3,
+          3
+        ],
+        "minutes": 350,
+        "monthly": true,
+        "combat_type": 2
+      }
+    },
+    "D1": {
+      "namu_detail": {
+        "minutes": 120,
+        "resources_listed": {
+          "ammo": 20,
+          "steel": 20,
+          "bauxite": 100
+        },
+        "flagship_level": 50,
+        "fleet_level": null,
+        "stats_listed": {
+          "aa": 240,
+          "asw": 240,
+          "los": 300
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": null,
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 20,
+          "steel": 20,
+          "bauxite": 100
+        },
+        "flagship_level": 50,
+        "fleet_count": 5,
+        "fleet_level": 200,
+        "stats": {
+          "aa": 240,
+          "asw": 240,
+          "los": 300
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 20,
+        "steel": 20,
+        "bauxite": 100
+      },
+      "EO_conditions": {
+        "stats": {
+          "aa": 240,
+          "asw": 240,
+          "los": 300
+        },
+        "flagship_level": 50,
+        "fleet_level": 200
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 1
+        },
+        "resource_levels": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "minutes": 120,
+        "monthly": false,
+        "combat_type": 0
+      }
+    },
+    "D2": {
+      "namu_detail": {
+        "minutes": 600,
+        "resources_listed": {
+          "steel": 400,
+          "bauxite": 800
+        },
+        "flagship_level": 55,
+        "fleet_level": 275,
+        "stats_listed": {
+          "aa": 89,
+          "asw": 50
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 55,
+        "fleet_level": 270,
+        "fleet_count": 5,
+        "stats": {
+          "firepower": 60,
+          "aa": 80,
+          "asw": 50,
+          "los": 70
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 0,
+          "steel": 400,
+          "bauxite": 800
+        },
+        "flagship_level": 55,
+        "fleet_count": 5,
+        "fleet_level": 270,
+        "stats": {
+          "firepower": 60,
+          "aa": 80,
+          "asw": 50
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 400,
+        "bauxite": 800
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 60,
+          "aa": 80,
+          "asw": 50
+        },
+        "flagship_level": 55,
+        "fleet_level": 270
+      },
+      "game_master": {
+        "item_maximums": {
+          "MoraleFoodIrako": 1,
+          "FurnitureBoxLarge": 1
+        },
+        "resource_levels": [
+          0,
+          0,
+          2,
+          4
+        ],
+        "minutes": 600,
+        "monthly": true,
+        "combat_type": 1
+      }
+    },
+    "D3": {
+      "namu_detail": {
+        "minutes": 720,
+        "resources_listed": {
+          "ammo": 800,
+          "steel": 400,
+          "bauxite": 400
+        },
+        "flagship_level": 65,
+        "fleet_level": 350,
+        "stats_listed": {
+          "firepower": 115,
+          "aa": 90,
+          "asw": 70,
+          "los": 95
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 65,
+        "fleet_level": 350,
+        "fleet_count": 5,
+        "stats": {
+          "firepower": 115,
+          "aa": 90,
+          "asw": 70,
+          "los": 95
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 800,
+          "steel": 500,
+          "bauxite": 400
+        },
+        "flagship_level": 65,
+        "fleet_count": 5,
+        "fleet_level": 350,
+        "stats": {
+          "firepower": 115,
+          "aa": 90,
+          "asw": 70,
+          "los": 95
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 800,
+        "steel": 500,
+        "bauxite": 400
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 115,
+          "aa": 90,
+          "asw": 70,
+          "los": 95
+        },
+        "flagship_level": 65,
+        "fleet_level": 350
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 3,
+          "ImproveMaterial": 1
+        },
+        "resource_levels": [
+          0,
+          4,
+          3,
+          2
+        ],
+        "minutes": 720,
+        "monthly": true,
+        "combat_type": 2
+      }
+    },
+    "E1": {
+      "namu_detail": {
+        "minutes": 450,
+        "resources_listed": {
+          "ammo": 600,
+          "steel": 600,
+          "bauxite": 1000
+        },
+        "flagship_level": 55,
+        "fleet_level": 349,
+        "stats_listed": {
+          "firepower": 450,
+          "aa": 350,
+          "asw": 330,
+          "los": 250
+        },
+        "drums_listed": null
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 55,
+        "fleet_level": 290,
+        "fleet_count": 6,
+        "stats": {
+          "firepower": 450,
+          "aa": 350,
+          "asw": 330,
+          "los": 250
+        },
+        "drums": null
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 600,
+          "steel": 600,
+          "bauxite": 1000
+        },
+        "flagship_level": 55,
+        "fleet_count": 6,
+        "fleet_level": 290,
+        "stats": {
+          "firepower": 450,
+          "aa": 350,
+          "asw": 330,
+          "los": 250
+        },
+        "drums": null
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 600,
+        "steel": 600,
+        "bauxite": 1000
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 450,
+          "aa": 350,
+          "asw": 330,
+          "los": 250
+        },
+        "flagship_level": 55,
+        "fleet_level": 290
+      },
+      "game_master": {
+        "item_maximums": {
+          "FurnitureBoxLarge": 2,
+          "ImproveMaterial": 1
+        },
+        "resource_levels": [
+          0,
+          3,
+          3,
+          4
+        ],
+        "minutes": 450,
+        "monthly": true,
+        "combat_type": 2
+      }
+    },
+    "E2": {
+      "namu_detail": {
+        "minutes": 185,
+        "resources_listed": {
+          "ammo": 480
+        },
+        "flagship_level": 70,
+        "fleet_level": 355,
+        "stats_listed": {
+          "firepower": 280,
+          "aa": 294,
+          "asw": 278,
+          "los": 164
+        },
+        "drums_listed": {
+          "ships": 3,
+          "count": 6
+        }
+      },
+      "namu_monthly_summary": {
+        "flagship_level": 70,
+        "fleet_level": 320,
+        "fleet_count": 5,
+        "stats": {
+          "firepower": 280,
+          "aa": 240,
+          "asw": 200,
+          "los": 160
+        },
+        "drums": {
+          "ships": 3,
+          "count": 4
+        }
+      },
+      "KC3": {
+        "resources": {
+          "fuel": 0,
+          "ammo": 480,
+          "steel": 0,
+          "bauxite": 0
+        },
+        "flagship_level": 70,
+        "fleet_count": 5,
+        "fleet_level": 320,
+        "stats": {
+          "firepower": 280,
+          "aa": 240,
+          "asw": 200,
+          "los": 160
+        },
+        "drums": {
+          "ships": 3,
+          "count": 4
+        }
+      },
+      "EO_resources": {
+        "fuel": 0,
+        "ammo": 480,
+        "steel": 0,
+        "bauxite": 0
+      },
+      "EO_conditions": {
+        "stats": {
+          "firepower": 280,
+          "aa": 240,
+          "asw": 200,
+          "los": 160
+        },
+        "flagship_level": 70,
+        "fleet_level": 320
+      },
+      "game_master": {
+        "item_maximums": {
+          "InstantRepair": 2,
+          "ImproveMaterial": 1
+        },
+        "resource_levels": [
+          0,
+          2,
+          0,
+          0
+        ],
+        "minutes": 185,
+        "monthly": true,
+        "combat_type": 2
+      }
+    }
+  },
+  "namu_internal_conflicts": [
+    {
+      "code": "A5",
+      "field": "fleet_level",
+      "detail": 260,
+      "summary": 230
+    },
+    {
+      "code": "A5",
+      "field": "aa",
+      "detail": 274,
+      "summary": 220
+    },
+    {
+      "code": "A6",
+      "field": "fleet_level",
+      "detail": 357,
+      "summary": 290
+    },
+    {
+      "code": "A6",
+      "field": "aa",
+      "detail": 315,
+      "summary": 300
+    },
+    {
+      "code": "A6",
+      "field": "los",
+      "detail": 182,
+      "summary": 180
+    },
+    {
+      "code": "B2",
+      "field": "fleet_level",
+      "detail": 290,
+      "summary": 220
+    },
+    {
+      "code": "B3",
+      "field": "fleet_level",
+      "detail": 260,
+      "summary": 250
+    },
+    {
+      "code": "B4",
+      "field": "fleet_level",
+      "detail": 410,
+      "summary": 300
+    },
+    {
+      "code": "46",
+      "field": "flagship_level",
+      "detail": 65,
+      "summary": 60
+    },
+    {
+      "code": "46",
+      "field": "aa",
+      "detail": 330,
+      "summary": 250
+    },
+    {
+      "code": "46",
+      "field": "los",
+      "detail": 220,
+      "summary": 190
+    },
+    {
+      "code": "D2",
+      "field": "fleet_level",
+      "detail": 275,
+      "summary": 270
+    },
+    {
+      "code": "D2",
+      "field": "aa",
+      "detail": 89,
+      "summary": 80
+    },
+    {
+      "code": "E1",
+      "field": "fleet_level",
+      "detail": 349,
+      "summary": 290
+    },
+    {
+      "code": "E2",
+      "field": "fleet_level",
+      "detail": 355,
+      "summary": 320
+    },
+    {
+      "code": "E2",
+      "field": "aa",
+      "detail": 294,
+      "summary": 240
+    },
+    {
+      "code": "E2",
+      "field": "asw",
+      "detail": 278,
+      "summary": 200
+    },
+    {
+      "code": "E2",
+      "field": "los",
+      "detail": 164,
+      "summary": 160
+    },
+    {
+      "code": "E2",
+      "field": "drums",
+      "detail": {
+        "ships": 3,
+        "count": 6
+      },
+      "summary": {
+        "ships": 3,
+        "count": 4
+      }
+    }
+  ],
+  "condition_source_disagreements": [
+    {
+      "code": "8",
+      "field": "flagship_level",
+      "selected": 6,
+      "values": {
+        "wiki": 6,
+        "EO": 6,
+        "KC3": 6,
+        "namu_detail": 8
+      }
+    },
+    {
+      "code": "10",
+      "field": "flagship_level",
+      "selected": 3,
+      "values": {
+        "wiki": 3,
+        "EO": 3,
+        "KC3": 3,
+        "namu_detail": 6
+      }
+    },
+    {
+      "code": "15",
+      "field": "flagship_level",
+      "selected": 8,
+      "values": {
+        "wiki": 8,
+        "EO": 8,
+        "KC3": 8,
+        "namu_detail": 9
+      }
+    },
+    {
+      "code": "16",
+      "field": "flagship_level",
+      "selected": 10,
+      "values": {
+        "wiki": 10,
+        "EO": 10,
+        "KC3": 10,
+        "namu_detail": 11
+      }
+    },
+    {
+      "code": "27",
+      "field": "flagship_level",
+      "selected": 1,
+      "values": {
+        "wiki": 1,
+        "EO": 1,
+        "KC3": 1,
+        "namu_detail": 10
+      }
+    },
+    {
+      "code": "41",
+      "field": "fleet_level",
+      "selected": 100,
+      "values": {
+        "wiki": 100,
+        "EO": 100,
+        "KC3": 100,
+        "namu_detail": 115
+      }
+    },
+    {
+      "code": "43",
+      "field": "stats.aa",
+      "selected": 280,
+      "values": {
+        "wiki": 280,
+        "EO": 280,
+        "KC3": 280,
+        "namu_detail": null,
+        "namu_monthly_summary": 280
+      }
+    },
+    {
+      "code": "43",
+      "field": "stats.los",
+      "selected": 170,
+      "values": {
+        "wiki": 170,
+        "EO": 170,
+        "KC3": 170,
+        "namu_detail": null,
+        "namu_monthly_summary": 170
+      }
+    },
+    {
+      "code": "44",
+      "field": "stats.aa",
+      "selected": 200,
+      "values": {
+        "wiki": 200,
+        "EO": 200,
+        "KC3": 200,
+        "namu_detail": null,
+        "namu_monthly_summary": 200
+      }
+    },
+    {
+      "code": "44",
+      "field": "stats.los",
+      "selected": 150,
+      "values": {
+        "wiki": 150,
+        "EO": 150,
+        "KC3": 150,
+        "namu_detail": null,
+        "namu_monthly_summary": 150
+      }
+    },
+    {
+      "code": "46",
+      "field": "flagship_level",
+      "selected": 60,
+      "values": {
+        "wiki": 60,
+        "EO": 60,
+        "KC3": 65,
+        "namu_detail": 65,
+        "namu_monthly_summary": 60
+      }
+    },
+    {
+      "code": "46",
+      "field": "stats.aa",
+      "selected": 250,
+      "values": {
+        "wiki": 250,
+        "EO": 250,
+        "KC3": 250,
+        "namu_detail": 330,
+        "namu_monthly_summary": 250
+      }
+    },
+    {
+      "code": "46",
+      "field": "stats.los",
+      "selected": 190,
+      "values": {
+        "wiki": 190,
+        "EO": 190,
+        "KC3": 190,
+        "namu_detail": 220,
+        "namu_monthly_summary": 190
+      }
+    },
+    {
+      "code": "A1",
+      "field": "flagship_level",
+      "selected": 5,
+      "values": {
+        "wiki": 5,
+        "EO": 5,
+        "KC3": 5,
+        "namu_detail": 15
+      }
+    },
+    {
+      "code": "A2",
+      "field": "stats.firepower",
+      "selected": 50,
+      "values": {
+        "wiki": 50,
+        "EO": 50,
+        "KC3": 50,
+        "namu_detail": null
+      }
+    },
+    {
+      "code": "A2",
+      "field": "stats.los",
+      "selected": null,
+      "values": {
+        "wiki": null,
+        "EO": null,
+        "KC3": null,
+        "namu_detail": 73
+      }
+    },
+    {
+      "code": "A3",
+      "field": "stats.aa",
+      "selected": null,
+      "values": {
+        "wiki": null,
+        "EO": 59,
+        "KC3": null,
+        "namu_detail": 162
+      }
+    },
+    {
+      "code": "A5",
+      "field": "fleet_level",
+      "selected": 230,
+      "values": {
+        "wiki": 230,
+        "EO": 230,
+        "KC3": 230,
+        "namu_detail": 260,
+        "namu_monthly_summary": 230
+      }
+    },
+    {
+      "code": "A5",
+      "field": "stats.aa",
+      "selected": 220,
+      "values": {
+        "wiki": 220,
+        "EO": 220,
+        "KC3": 220,
+        "namu_detail": 274,
+        "namu_monthly_summary": 220
+      }
+    },
+    {
+      "code": "A6",
+      "field": "fleet_level",
+      "selected": 290,
+      "values": {
+        "wiki": 290,
+        "EO": 290,
+        "KC3": 290,
+        "namu_detail": 357,
+        "namu_monthly_summary": 290
+      }
+    },
+    {
+      "code": "A6",
+      "field": "stats.aa",
+      "selected": 300,
+      "values": {
+        "wiki": 300,
+        "EO": 300,
+        "KC3": 300,
+        "namu_detail": 315,
+        "namu_monthly_summary": 300
+      }
+    },
+    {
+      "code": "A6",
+      "field": "stats.los",
+      "selected": 180,
+      "values": {
+        "wiki": 180,
+        "EO": 180,
+        "KC3": 180,
+        "namu_detail": 182,
+        "namu_monthly_summary": 180
+      }
+    },
+    {
+      "code": "B1",
+      "field": "stats.aa",
+      "selected": 200,
+      "values": {
+        "wiki": 200,
+        "EO": 200,
+        "KC3": 200,
+        "namu_detail": null
+      }
+    },
+    {
+      "code": "B1",
+      "field": "stats.asw",
+      "selected": 200,
+      "values": {
+        "wiki": 200,
+        "EO": 200,
+        "KC3": 200,
+        "namu_detail": null
+      }
+    },
+    {
+      "code": "B1",
+      "field": "stats.los",
+      "selected": 140,
+      "values": {
+        "wiki": 140,
+        "EO": 140,
+        "KC3": 140,
+        "namu_detail": null
+      }
+    },
+    {
+      "code": "B2",
+      "field": "fleet_level",
+      "selected": 220,
+      "values": {
+        "wiki": 220,
+        "EO": 220,
+        "KC3": 220,
+        "namu_detail": 290,
+        "namu_monthly_summary": 220
+      }
+    },
+    {
+      "code": "B2",
+      "field": "stats.aa",
+      "selected": 160,
+      "values": {
+        "wiki": 160,
+        "EO": 160,
+        "KC3": 160,
+        "namu_detail": null,
+        "namu_monthly_summary": 160
+      }
+    },
+    {
+      "code": "B2",
+      "field": "stats.asw",
+      "selected": 160,
+      "values": {
+        "wiki": 160,
+        "EO": 160,
+        "KC3": 160,
+        "namu_detail": null,
+        "namu_monthly_summary": 160
+      }
+    },
+    {
+      "code": "B2",
+      "field": "stats.los",
+      "selected": 140,
+      "values": {
+        "wiki": 140,
+        "EO": 140,
+        "KC3": 140,
+        "namu_detail": null,
+        "namu_monthly_summary": 140
+      }
+    },
+    {
+      "code": "B3",
+      "field": "fleet_level",
+      "selected": 250,
+      "values": {
+        "wiki": 250,
+        "EO": 250,
+        "KC3": 250,
+        "namu_detail": 260,
+        "namu_monthly_summary": 250
+      }
+    },
+    {
+      "code": "B3",
+      "field": "stats.aa",
+      "selected": 220,
+      "values": {
+        "wiki": 220,
+        "EO": 220,
+        "KC3": 220,
+        "namu_detail": null,
+        "namu_monthly_summary": 220
+      }
+    },
+    {
+      "code": "B4",
+      "field": "fleet_level",
+      "selected": 300,
+      "values": {
+        "wiki": 300,
+        "EO": 300,
+        "KC3": 300,
+        "namu_detail": 410,
+        "namu_monthly_summary": 300
+      }
+    },
+    {
+      "code": "B4",
+      "field": "stats.aa",
+      "selected": 280,
+      "values": {
+        "wiki": 280,
+        "EO": 280,
+        "KC3": 280,
+        "namu_detail": null,
+        "namu_monthly_summary": 280
+      }
+    },
+    {
+      "code": "B4",
+      "field": "stats.los",
+      "selected": 170,
+      "values": {
+        "wiki": 170,
+        "EO": 170,
+        "KC3": 170,
+        "namu_detail": null,
+        "namu_monthly_summary": 170
+      }
+    },
+    {
+      "code": "D2",
+      "field": "fleet_level",
+      "selected": 270,
+      "values": {
+        "wiki": 270,
+        "EO": 270,
+        "KC3": 270,
+        "namu_detail": 275,
+        "namu_monthly_summary": 270
+      }
+    },
+    {
+      "code": "D2",
+      "field": "stats.firepower",
+      "selected": 60,
+      "values": {
+        "wiki": 60,
+        "EO": 60,
+        "KC3": 60,
+        "namu_detail": null,
+        "namu_monthly_summary": 60
+      }
+    },
+    {
+      "code": "D2",
+      "field": "stats.aa",
+      "selected": 80,
+      "values": {
+        "wiki": 80,
+        "EO": 80,
+        "KC3": 80,
+        "namu_detail": 89,
+        "namu_monthly_summary": 80
+      }
+    },
+    {
+      "code": "D2",
+      "field": "stats.los",
+      "selected": 70,
+      "values": {
+        "wiki": 70,
+        "EO": null,
+        "KC3": null,
+        "namu_detail": null,
+        "namu_monthly_summary": 70
+      }
+    },
+    {
+      "code": "E1",
+      "field": "fleet_level",
+      "selected": 290,
+      "values": {
+        "wiki": 290,
+        "EO": 290,
+        "KC3": 290,
+        "namu_detail": 349,
+        "namu_monthly_summary": 290
+      }
+    },
+    {
+      "code": "E2",
+      "field": "fleet_level",
+      "selected": 320,
+      "values": {
+        "wiki": 320,
+        "EO": 320,
+        "KC3": 320,
+        "namu_detail": 355,
+        "namu_monthly_summary": 320
+      }
+    },
+    {
+      "code": "E2",
+      "field": "stats.aa",
+      "selected": 240,
+      "values": {
+        "wiki": 240,
+        "EO": 240,
+        "KC3": 240,
+        "namu_detail": 294,
+        "namu_monthly_summary": 240
+      }
+    },
+    {
+      "code": "E2",
+      "field": "stats.asw",
+      "selected": 200,
+      "values": {
+        "wiki": 200,
+        "EO": 200,
+        "KC3": 200,
+        "namu_detail": 278,
+        "namu_monthly_summary": 200
+      }
+    },
+    {
+      "code": "E2",
+      "field": "stats.los",
+      "selected": 160,
+      "values": {
+        "wiki": 160,
+        "EO": 160,
+        "KC3": 160,
+        "namu_detail": 164,
+        "namu_monthly_summary": 160
+      }
+    }
+  ],
+  "game_screenshot_14": {
+    "context": "User states expedition 14, great success, four regular Daihatsu",
+    "observed_ammo": 504,
+    "great_success": 1.5,
+    "equipment_bonus": 1.2,
+    "base_ammo": 280
+  },
+  "kamigame_10": {
+    "url": "https://kamigame.jp/艦これ/page/150509543137272993.html",
+    "evidence": "User-provided screenshot; direct request was blocked by environment proxy",
+    "resources": {
+      "fuel": 0,
+      "ammo": 50,
+      "steel": 0,
+      "bauxite": 30
+    }
+  },
+  "unresolved": [
+    {
+      "code": "A3",
+      "field": "aa",
+      "wiki": "not listed",
+      "KC3": "not listed",
+      "EO": 59,
+      "namu_detail": 162,
+      "decision": "Keep published ASW280/LOS60; no claim that an AA minimum is disproven."
+    },
+    {
+      "code": "D2",
+      "field": "los",
+      "wiki": 70,
+      "namu_monthly_summary": 70,
+      "EO": "not listed",
+      "KC3": "not listed",
+      "decision": "Keep LOS70 as a conservative published requirement; actual minimum not proven."
+    }
+  ],
+  "changes": [
+    {
+      "code": "10",
+      "path": [
+        "resources",
+        "bauxite"
+      ],
+      "before": 40,
+      "after": 30,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "namu_detail",
+        "user_kamigame_screenshot"
+      ]
+    },
+    {
+      "code": "17",
+      "path": [
+        "resources",
+        "ammo"
+      ],
+      "before": 90,
+      "after": 70,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "namu_detail"
+      ]
+    },
+    {
+      "code": "18",
+      "path": [
+        "resources",
+        "bauxite"
+      ],
+      "before": 150,
+      "after": 100,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "namu_detail"
+      ]
+    },
+    {
+      "code": "23",
+      "path": [
+        "resources",
+        "ammo"
+      ],
+      "before": 50,
+      "after": 20,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "namu_detail"
+      ]
+    },
+    {
+      "code": "23",
+      "path": [
+        "resources",
+        "bauxite"
+      ],
+      "before": 130,
+      "after": 100,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "namu_detail"
+      ]
+    },
+    {
+      "code": "29",
+      "path": [
+        "items"
+      ],
+      "before": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxSmall",
+          "name": "가구함(소)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "after": [
+        {
+          "type": "DevelopmentMaterial",
+          "name": "자재",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "reason": "Use archived game master item kind/maximum instead of wiki/EO item labels.",
+      "evidence": [
+        "game_master"
+      ]
+    },
+    {
+      "code": "39",
+      "path": [
+        "items"
+      ],
+      "before": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "FurnitureBoxMedium",
+          "name": "가구함(중)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "after": [
+        {
+          "type": "InstantRepair",
+          "name": "수복재",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "type": "FurnitureBoxLarge",
+          "name": "가구함(대)",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "reason": "Use archived game master item kind/maximum instead of wiki/EO item labels.",
+      "evidence": [
+        "game_master"
+      ]
+    },
+    {
+      "code": "39",
+      "path": [
+        "resources",
+        "ammo"
+      ],
+      "before": 0,
+      "after": 30,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO",
+        "game_master_resource_presence"
+      ]
+    },
+    {
+      "code": "B1",
+      "path": [
+        "resources",
+        "steel"
+      ],
+      "before": 20,
+      "after": 10,
+      "reason": "Use matching EO/KC3 calculator values; retain source conflicts in report.",
+      "evidence": [
+        "KC3",
+        "EO"
+      ]
+    }
+  ]
+}

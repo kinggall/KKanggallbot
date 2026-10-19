@@ -667,6 +667,10 @@
         "aa": 59,
         "asw": 280,
         "los": 60
+      },
+      "selected": {
+        "asw": 280,
+        "los": 60
       }
     },
     {
@@ -679,6 +683,12 @@
         "bauxite": 40
       },
       "eo": {
+        "fuel": 0,
+        "ammo": 50,
+        "steel": 0,
+        "bauxite": 30
+      },
+      "selected": {
         "fuel": 0,
         "ammo": 50,
         "steel": 0,
@@ -699,6 +709,12 @@
         "ammo": 240,
         "steel": 200,
         "bauxite": 30
+      },
+      "selected": {
+        "fuel": 0,
+        "ammo": 280,
+        "steel": 200,
+        "bauxite": 30
       }
     },
     {
@@ -711,6 +727,12 @@
         "bauxite": 30
       },
       "eo": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 10,
+        "bauxite": 30
+      },
+      "selected": {
         "fuel": 0,
         "ammo": 0,
         "steel": 10,
@@ -731,6 +753,12 @@
         "ammo": 70,
         "steel": 50,
         "bauxite": 0
+      },
+      "selected": {
+        "fuel": 70,
+        "ammo": 70,
+        "steel": 50,
+        "bauxite": 0
       }
     },
     {
@@ -747,6 +775,12 @@
         "ammo": 0,
         "steel": 300,
         "bauxite": 100
+      },
+      "selected": {
+        "fuel": 0,
+        "ammo": 0,
+        "steel": 300,
+        "bauxite": 100
       }
     },
     {
@@ -759,6 +793,10 @@
       "eo": {
         "DevelopmentMaterial": 1,
         "FurnitureBoxSmall": 1
+      },
+      "selected": {
+        "DevelopmentMaterial": 1,
+        "FurnitureBoxMedium": 1
       }
     },
     {
@@ -775,6 +813,12 @@
         "ammo": 20,
         "steel": 0,
         "bauxite": 100
+      },
+      "selected": {
+        "fuel": 0,
+        "ammo": 20,
+        "steel": 0,
+        "bauxite": 100
       }
     },
     {
@@ -783,7 +827,10 @@
       "wiki": {
         "FurnitureBoxMedium": 1
       },
-      "eo": {}
+      "eo": {},
+      "selected": {
+        "FurnitureBoxMedium": 1
+      }
     },
     {
       "code": "25",
@@ -791,7 +838,10 @@
       "wiki": {
         "FurnitureBoxMedium": 1
       },
-      "eo": {}
+      "eo": {},
+      "selected": {
+        "FurnitureBoxMedium": 1
+      }
     },
     {
       "code": "26",
@@ -802,6 +852,10 @@
       },
       "eo": {
         "InstantRepair": 3
+      },
+      "selected": {
+        "InstantRepair": 3,
+        "FurnitureBoxLarge": 1
       }
     },
     {
@@ -813,6 +867,10 @@
       },
       "eo": {
         "DevelopmentMaterial": 1,
+        "FurnitureBoxSmall": 2
+      },
+      "selected": {
+        "DevelopmentMaterial": 2,
         "FurnitureBoxSmall": 2
       }
     },
@@ -826,6 +884,10 @@
       "eo": {
         "DevelopmentMaterial": 2,
         "FurnitureBoxMedium": 2
+      },
+      "selected": {
+        "DevelopmentMaterial": 3,
+        "FurnitureBoxMedium": 2
       }
     },
     {
@@ -836,6 +898,10 @@
         "FurnitureBoxSmall": 1
       },
       "eo": {
+        "DevelopmentMaterial": 1,
+        "FurnitureBoxMedium": 1
+      },
+      "selected": {
         "DevelopmentMaterial": 1,
         "FurnitureBoxMedium": 1
       }
@@ -853,6 +919,12 @@
         "firepower": 60,
         "aa": 80,
         "asw": 50
+      },
+      "selected": {
+        "firepower": 60,
+        "aa": 80,
+        "asw": 50,
+        "los": 70
       }
     },
     {
@@ -863,6 +935,9 @@
       },
       "eo": {
         "FurnitureBoxSmall": 2
+      },
+      "selected": {
+        "FurnitureBoxSmall": 1
       }
     },
     {
@@ -875,6 +950,12 @@
         "bauxite": 0
       },
       "eo": {
+        "fuel": 0,
+        "ammo": 30,
+        "steel": 300,
+        "bauxite": 0
+      },
+      "selected": {
         "fuel": 0,
         "ammo": 30,
         "steel": 300,
@@ -895,9 +976,16 @@
         "ammo": 300,
         "steel": 100,
         "bauxite": 0
+      },
+      "selected": {
+        "fuel": 300,
+        "ammo": 300,
+        "steel": 0,
+        "bauxite": 100
       }
     }
   ],
   "count": 63,
-  "resolution": "Explicit wikiwiki detailed conditions/rewards are used for source differences."
+  "resolution": "Original EO/wiki differences are retained below. Final values apply reviewed game-master and cross-source corrections; see crosscheck report.",
+  "crosscheck": "data/expedition_crosscheck.json"
 }

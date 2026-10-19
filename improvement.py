@@ -185,7 +185,7 @@ class ImprovementCatalog:
     def reply(self, query, ship_names, ship_forms=None):
         query = query.strip()
         if not query:
-            return "사용법: !개수 [장비명]"
+            return "사용법: !개수 [장비명/2번함]"
         hits = self.equipment.search(query)
         if len(hits) != 1:
             return self.equipment.reply(query).replace("!장비", "!개수")
