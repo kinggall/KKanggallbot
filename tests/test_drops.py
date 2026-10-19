@@ -260,7 +260,7 @@ class DropTests(unittest.TestCase):
         with patch.object(bot, "LIMITED_DROPS_CACHE_FILE", path):
             self.assertIsNone(bot.load_limited_drops_cache()["updated_at"])
 
-    def test_unsupported_drop_queries_do_not_call_legacy_source(self):
+    def test_drop_queries_do_not_call_legacy_source(self):
         with patch.object(bot.requests, "get") as fetch, \
                 patch.object(bot.requests, "post") as send, \
                 patch.object(bot, "send_drop_reply") as drop_reply:
@@ -271,7 +271,8 @@ class DropTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
             fetch.assert_not_called()
             self.assertEqual(send.call_count, 2)  # Unsupported queries return usage; refresh stays disabled.
-            self.assertTrue(all(call.kwargs['json']['data'] == bot.kanlog_drops.USAGE for call in send.call_args_list))
+            self.assertEqual(send.call_args_list[0].kwargs['json']['data'], bot.kanlog_drops.USAGE)
+            self.assertTrue(send.call_args_list[1].kwargs['json']['data'].startswith('7-5 Boss Drop (S/A)'))
             drop_reply.assert_not_called()
 
     def test_iris_reply_keeps_chat_id_and_limited_marker(self):

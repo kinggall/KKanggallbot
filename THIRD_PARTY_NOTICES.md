@@ -2,9 +2,9 @@
 
 ## 艦ろぐ / kanlog.info
 
-- Source: https://kanlog.info/map/55/
+- Source: https://kanlog.info/ (37 normal-map pages).
 - The operator permitted the chatbot use described by the user, with access spread out to avoid bursts and source attribution requested where possible.
-- Extracted factual statistics: `data/kanlog_55_seed.json`; subsequent snapshots are stored on the user's PC. The site's HTML, scripts, artwork and images are not redistributed here.
+- Extracted factual statistics: `data/kanlog_maps_seed.json`, with the earlier 5-5 regression snapshot retained as `data/kanlog_55_seed.json`; subsequent snapshots are stored on the user's PC. The site's HTML, scripts, artwork and images are not redistributed here.
 - Attribution and thanks in Korean and Japanese are in README.md; collection and verification details are in KANLOG_DROPS.md. This does not relicense third-party site data under the bot software license.
 
 ## kcwiki ship conversion material reference

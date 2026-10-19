@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class KanlogTests(unittest.TestCase):
     def setUp(self):
-        self.data = json.loads((ROOT / 'data/kanlog_55_seed.json').read_text(encoding='utf-8'))
+        self.data = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))['maps']['5-5']
 
     def test_real_boss_and_rank_selection_without_network(self):
         for query, expected in [
@@ -40,7 +40,7 @@ class KanlogTests(unittest.TestCase):
         self.assertTrue(text.startswith('5-5-P Drop (S승)\n'))
         self.assertNotIn('Boss', text)
         self.assertNotIn(' / A ', text)
-        for query in ('!드랍', '!드랍 7-5', '!드랍 5-5 B', '!드랍 5-5-P S extra'):
+        for query in ('!드랍', '!드랍 8-5', '!드랍 5-5 B', '!드랍 5-5-P S extra'):
             self.assertEqual(drops.format_reply(query, self.data, str), drops.USAGE)
         self.assertIn('자료가 없습니다', drops.format_reply('!드랍 5-5-Z', self.data, str))
 
@@ -69,14 +69,14 @@ class KanlogTests(unittest.TestCase):
           data-ship-id="1" data-ship-name="Test"
           data-m='["Test","common","type",0,0,0,0,0,0,0,1,0,0,1,0,0]'></tr>
         <script id="drop-rate-row-variant-data" type="application/json">
-        {"19-1-0":{"s":{"r":10,"c":1}}}</script>
+        {"19-1-0":{"s":{"r":100,"c":1}}}</script>
         <script id="drop-rate-rank-variant-total-data" type="application/json">
-        {"0:s":{"19":10},"0:a":{"19":20}}</script>'''
+        {"0:s":{"19":1},"0:a":{"19":0}}</script>'''
         data = drops.parse_page(html)
         self.assertTrue(data['rows'][0]['limited'])
         self.assertEqual(data['period_start'], '2026/10/15')
         with self.assertRaises(ValueError):
-            drops.parse_page(html.replace('"r":10', '"r":20'))
+            drops.parse_page(html.replace('"r":100', '"r":20'))
         with self.assertRaises((ValueError, KeyError)):
             drops.parse_page('<html>maintenance</html>')
 
@@ -85,23 +85,79 @@ class KanlogTests(unittest.TestCase):
         self.assertEqual(datetime.fromtimestamp(drops.next_refresh(now), drops.JST).hour, 5)
         with tempfile.TemporaryDirectory() as directory:
             store = drops.DropStore(directory)
-            with patch.object(requests, 'get', side_effect=requests.Timeout), self.assertLogs(drops.LOG, level='ERROR'):
+            store.due = 0
+            with patch.object(requests, 'get', side_effect=requests.Timeout), patch.object(drops.time, 'time', return_value=now), self.assertLogs(drops.LOG, level='ERROR'):
                 store.refresh_if_due(now)
-            self.assertEqual(store.snapshot, self.data)
+            self.assertEqual(store.snapshot['maps']['5-5'], self.data)
             restarted = drops.DropStore(directory)
             with patch.object(requests, 'get', side_effect=AssertionError('Must not immediately retry')):
                 restarted.refresh_if_due(now + 60)
-            self.assertEqual(restarted.due, now + 3600)
+            self.assertGreater(restarted.due, now + 60)
 
     def test_successful_refresh_is_saved_and_reused(self):
         with tempfile.TemporaryDirectory() as directory:
             store = drops.DropStore(directory)
-            fresh = dict(self.data, source_updated='2026/10/20 01:00:00')
+            store.due = 0
+            fresh = dict(store.snapshot['maps']['1-1'], source_updated='2099/10/20 01:00:00')
             with patch.object(requests, 'get') as get, patch.object(drops, 'parse_page', return_value=fresh):
                 get.return_value.text = 'mock page'
                 store.refresh_if_due()
                 get.assert_called_once()
-            self.assertEqual(drops.DropStore(directory).snapshot, fresh)
+            self.assertEqual(drops.DropStore(directory).snapshot['maps']['1-1'], fresh)
+
+    def test_full_seed_and_all_map_node_rank_commands(self):
+        bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
+        self.assertEqual(set(bundle['maps']), set(drops.MAPS))
+        for name, snapshot in bundle['maps'].items():
+            labels = [None] + [c['label'] for c in snapshot['cells'].values()]
+            for label in labels:
+                for rank in ('', ' S', ' A'):
+                    query = name.replace('-', '') + (label or '') + rank
+                    text = drops.format_reply('!드랍 ' + query, bundle, lambda i,n:n)
+                    self.assertNotEqual(text, drops.USAGE, query)
+                    self.assertNotIn('자료를 준비 중', text)
+                    self.assertNotIn('\n\n', text)
+                    self.assertLess(len(text), 4096)
+            for row in snapshot['rows']:
+                for rank, value in row['ranks'].items():
+                    total = snapshot['totals']['0:' + rank][row['cell']]
+                    self.assertAlmostEqual(value['rate'], value['count'] * 100 / total, delta=0.00011)
+
+    def test_multi_boss_stages_and_no_boss(self):
+        bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
+        for name, labels in drops.BOSS_STAGES.items():
+            final = drops.format_reply('!드랍 ' + name, bundle, lambda i,n:n).splitlines()[1:]
+            explicit = drops.format_reply('!드랍 ' + name + '-' + labels[-1], bundle, lambda i,n:n).splitlines()[1:]
+            self.assertEqual(final, explicit)
+            for number, label in enumerate(labels, 1):
+                stage = drops.format_reply(f'!드랍 {name}-{number}', bundle, lambda i,n:n)
+                node = drops.format_reply(f'!드랍 {name}-{label}', bundle, lambda i,n:n)
+                self.assertEqual(stage.splitlines()[1:], node.splitlines()[1:])
+        self.assertEqual(drops.format_reply('!드랍 16', bundle, lambda i,n:n), '보스방이 존재하지 않습니다.')
+        self.assertTrue(drops.format_reply('!드랍 16b', bundle, lambda i,n:n).startswith('1-6-B Drop (S/A)\n'))
+        self.assertTrue(drops.format_reply('!드랍 56q2', bundle, lambda i,n:n).startswith('5-6-Q2 Drop (S/A)\n'))
+
+    def test_refresh_spacing_resume_and_cycle_completion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store = drops.DropStore(directory)
+            store.due = 0
+            fresh = store.snapshot['maps']['1-1']
+            with patch.object(requests, 'get') as get, patch.object(drops, 'parse_page', return_value=fresh), patch.object(drops.time, 'time', return_value=1000):
+                get.return_value.text = 'mock'
+                store.refresh_if_due(1000)
+                self.assertEqual(store.due, 1010)
+                self.assertEqual(len(store.remaining), 36)
+                get.assert_called_once()
+                restarted = drops.DropStore(directory)
+                self.assertEqual(restarted.remaining, store.remaining)
+                restarted.refresh_if_due(1009)
+                get.assert_called_once()
+            restarted.remaining = ['1-1']
+            restarted.due = 0
+            with patch.object(requests, 'get'), patch.object(drops, 'parse_page', return_value=fresh):
+                restarted.refresh_if_due()
+            self.assertEqual(restarted.remaining, [])
+            self.assertGreater(restarted.due, 0)
 
     def test_webhook_uses_original_room_and_no_get(self):
         import bot
