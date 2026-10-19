@@ -840,6 +840,15 @@ except Exception as error:
 
 def load_ship_aliases():
     try:
+        with open(SHIP_ALIASES_FILE, encoding="utf-8") as file:
+            aliases = json.load(file)
+        if not isinstance(aliases, dict):
+            raise ValueError("로컬 별명 파일의 최상위 형식이 객체가 아닙니다.")
+        print(f"[함선 별명] 로컬 파일에서 {len(aliases)}개 함선 별명 읽기 완료")
+        return aliases
+    except Exception as local_error:
+        print(f"[함선 별명] 로컬 파일 로드 실패, GitHub에서 가져옵니다: {local_error}")
+    try:
         response = requests.get(SHIP_ALIASES_URL, timeout=15)
         response.raise_for_status()
         aliases = response.json()
@@ -848,17 +857,11 @@ def load_ship_aliases():
 
         # 저장소 파일은 수정하지 않습니다. 실행 중 로컬 Git 변경이 생기면
         # 감시 스크립트가 다음 GitHub 업데이트를 가져오지 못할 수 있습니다.
-        print(f"[함선 별명] GitHub에서 최신 {len(aliases)}개 함선 별명 읽기 완료")
+        print(f"[함선 별명] GitHub 대체 경로에서 {len(aliases)}개 함선 별명 읽기 완료")
         return aliases
     except Exception as error:
-        try:
-            with open(SHIP_ALIASES_FILE, encoding="utf-8") as file:
-                aliases = json.load(file)
-            print(f"[함선 별명] GitHub 동기화 실패, 로컬 캐시 {len(aliases)}개 사용: {error}")
-            return aliases
-        except Exception as cache_error:
-            print(f"[함선 별명] GitHub·로컬 파일 로드 실패: {error}; {cache_error}")
-            return {}
+        print(f"[함선 별명] GitHub 대체 경로도 로드 실패: {error}")
+        return {}
 
 
 SHIP_ALIASES = load_ship_aliases()
