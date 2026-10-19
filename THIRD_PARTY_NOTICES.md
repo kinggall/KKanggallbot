@@ -1,5 +1,12 @@
 # Third-party notices
 
+## Remodel-Status data
+
+- Author/project: s3gn, https://github.com/s3gn/Remodel-Status
+- Revision: `d7ab4df226e3d74912c4dc358694697f51f1b493` (`gh-pages`).
+- Unmodified data: upstream `data/ships.csv`, stored here as `data/ship_remodel_materials.csv`.
+- No explicit license file was found at this revision. This attribution does not relicense the data under the bot's GPL. See `REMODEL_MATERIALS_DATA.md` for schema and limitations.
+
 ## kc-development-tools
 
 - Project: SkywalkerJi/kc-development-tools
