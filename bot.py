@@ -1361,6 +1361,16 @@ def kanlog_ship_ids(keyword):
         if int(ship.get("艦船ID", 0) or 0) > 0
     }
 
+
+def kanlog_limited_ship_info(ship_id, original):
+    info = fit_bonus.catalog().ships.get(str(ship_id))
+    if info is None:
+        raise ValueError(f"한정 드랍 함선 정보 미등록: {ship_id}")
+    family_id = info['base']
+    base = SHIP_BY_GAME_ID.get(family_id)
+    name = kanlog_ship_name(family_id, base['艦名'] if base else original)
+    return family_id, name, info['type']
+
 COMMANDS = {
     "!도움말": (
         "사용 가능한 명령어:\n"
@@ -1368,6 +1378,7 @@ COMMANDS = {
         "!이벤트 !개구리야 !미르야\n"
         "!전과 [5/20/100/500]\n"
         "!드랍 [해역/함선명]\n"
+        "!한정드랍\n"
         "!칸무스 [함선명]\n"
         "!슬롯 [함선명]\n"
         "!초기장비 [함선명]\n"
@@ -1449,6 +1460,18 @@ def webhook():
     chat_id = data.get("json", {}).get("chat_id", room)
 
     print(f"[받은 메시지] 방={room}, 내용={message}")
+
+    if message == '!한정드랍':
+        reply = kanlog_drops.format_limited_reply(
+            KANLOG_DROPS.snapshot, kanlog_limited_ship_info
+        )
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={'type': 'text', 'room': str(chat_id), 'data': reply},
+            timeout=10,
+        )
+        print(f"[칸로그 한정 드랍 답변] 상태 코드={response.status_code}")
+        return jsonify({'ok': True})
 
     if message == '!드랍' or message.startswith('!드랍 '):
         reply = kanlog_drops.format_reply(

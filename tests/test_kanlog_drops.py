@@ -188,3 +188,43 @@ class KanlogTests(unittest.TestCase):
             self.assertEqual(body['room'], '123')
             self.assertIn('· 히에이 - S 12.84%', body['data'])
             self.assertNotIn(' / A ', body['data'])
+
+    def test_limited_drop_groups_use_cached_current_flags_and_ship_types(self):
+        import bot
+        bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
+        with patch.object(requests, 'get', side_effect=AssertionError('No GET for commands')):
+            reply = drops.format_limited_reply(bundle, bot.kanlog_limited_ship_info)
+        self.assertEqual([line.split(']')[0] + ']' for line in reply.splitlines()[1:]],
+                         [f'[{group}]' for group in drops.LIMITED_GROUPS])
+        self.assertIn('[전함] ', reply)
+        self.assertIn('애틀랜타', reply)
+        self.assertIn('하야나미', reply)
+        self.assertIn('쿠마노마루', reply)
+        self.assertNotIn(' / ', reply)
+        self.assertLess(len(reply), 4000)
+
+    def test_limited_drop_deduplicates_remodels_and_ignores_unobserved_rows(self):
+        data = copy.deepcopy(self.data)
+        data['rows'] = [
+            dict(ship_id=1, name='First', limited=True, ranks={'s': {'count': 2}}),
+            dict(ship_id=2, name='Second', limited=True, ranks={'a': {'count': 1}}),
+            dict(ship_id=3, name='Missing', limited=True, ranks={'s': {'count': 0}}),
+            dict(ship_id=4, name='Permanent', limited=False, ranks={'s': {'count': 10}}),
+        ]
+        names = {1: (1, '첫째', 2), 2: (1, '첫째', 2),
+                 3: (3, '미확인', 2), 4: (4, '상시', 2)}
+        reply = drops.format_limited_reply(data, lambda i, n: names[i])
+        self.assertEqual(reply, '현재 한정 드랍\n[구축] 첫째')
+
+    def test_limited_drop_webhook_preserves_room_and_help(self):
+        import bot
+        self.assertIn('!한정드랍', bot.COMMANDS['!도움말'])
+        with (patch.object(requests, 'get', side_effect=AssertionError('No GET for commands')),
+              patch.object(requests, 'post') as post):
+            post.return_value.status_code = 200
+            response = bot.app.test_client().post('/webhook', json={
+                'msg': '!한정드랍', 'json': {'chat_id': '123'},
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(post.call_args.kwargs['json']['room'], '123')
+        self.assertIn('[구축] ', post.call_args.kwargs['json']['data'])

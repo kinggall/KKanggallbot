@@ -19,6 +19,13 @@ BOSS_STAGES = {'5-6': ('G', 'N', 'Z'), '7-2': ('G', 'M'),
 JST = timezone(timedelta(hours=9))
 LOG = logging.getLogger(__name__)
 USAGE = "사용법: !드랍 [해역] / !드랍 [함선명]\n예: !드랍 55p / !드랍 후부키"
+LIMITED_GROUPS = ('전함', '항모', '중순', '경순', '구축', '해방', '잠수', '보조')
+LIMITED_TYPES = {
+    1: '해방', 2: '구축', 3: '경순', 4: '경순', 5: '중순', 6: '중순',
+    7: '항모', 8: '전함', 9: '전함', 10: '전함', 11: '항모',
+    12: '전함', 13: '잠수', 14: '잠수', 16: '보조', 17: '보조',
+    18: '항모', 19: '보조', 20: '보조', 21: '보조', 22: '보조',
+}
 
 
 def map_url(map_name):
@@ -134,6 +141,31 @@ def parse_map_query(query):
         return None
     return (f'{match[1]}-{match[2]}', match[3].upper() if match[3] else match[4],
             match[5].lower() if match[5] else None)
+
+
+def format_limited_reply(snapshot, ship_info_for):
+    """List distinct ship families with observed current limited drops."""
+    maps = snapshot.get('maps', {}) if 'maps' in snapshot else {snapshot.get('map'): snapshot}
+    grouped = {group: {} for group in LIMITED_GROUPS}
+    for data in maps.values():
+        if not data:
+            continue
+        for row in data.get('rows', []):
+            if not row.get('limited') or not any(
+                    value.get('count', 0) > 0 for value in row.get('ranks', {}).values()):
+                continue
+            family_id, name, ship_type = ship_info_for(row['ship_id'], row['name'])
+            group = LIMITED_TYPES.get(ship_type)
+            if group is None:
+                raise ValueError(f'한정 드랍 함종 미등록: {row["ship_id"]} ({ship_type})')
+            grouped[group][family_id] = name
+    lines = ['현재 한정 드랍']
+    for group, names in grouped.items():
+        if names:
+            lines.append(f'[{group}] ' + '/'.join(sorted(names.values())))
+    if len(lines) == 1:
+        lines.append('현재 확인된 한정 드랍이 없습니다.')
+    return '\n'.join(lines)
 
 
 def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
