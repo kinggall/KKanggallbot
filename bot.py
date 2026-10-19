@@ -18,6 +18,7 @@ import equipment_lookup
 import development
 import initial_equipment
 import improvement
+import remodel_materials
 
 app = Flask(__name__)
 
@@ -1082,6 +1083,7 @@ def ship_text(ship, name_ko):
         )
         next_stage = ship_stage(next_candidate) if next_candidate else "컨버트"
         result.append(f"{next_stage} 개장 레벨: {next_level}")
+        result.append(remodel_materials.material_text(ship, next_candidate))
     return "\n".join(result)
 
 

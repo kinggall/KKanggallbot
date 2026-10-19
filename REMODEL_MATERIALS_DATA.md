@@ -1,6 +1,8 @@
 # 개장 재료 보완 자료
 
-`data/ship_remodel_materials.csv`는 s3gn/Remodel-Status의 CSV 원본을 수정 없이 복사한 자료입니다. 기존 `ships.csv`와 별도 보관하며, 현재 봇 명령어에는 아직 연결하지 않았습니다.
+`data/ship_remodel_materials.csv`는 s3gn/Remodel-Status의 CSV 원본을 수정 없이 복사한 자료입니다. 기존 `ships.csv`와 별도 보관하며, `!칸무스`의 다음 형태 개장 재료 표시에 사용합니다.
+
+다음 형태의 이름(악센트 차이 정규화 및 후부키 개3호 표기 보완), 개장 레벨, 기존 CSV의 4종 재료 수량이 일치하는 경우 전체 참조 수량을 표시합니다. 역방향/같은 이름 컨버트나 정보가 부족한 경로는 기존 CSV의 확인된 수량만 표시하고 미확인을 명시합니다. 기존 CSV에도 개발자재·고속건조재 등은 없어, 컨버트 비용 전체를 보완할 수 없습니다.
 
 - 출처: https://github.com/s3gn/Remodel-Status
 - 실제 브랜치: `gh-pages`
