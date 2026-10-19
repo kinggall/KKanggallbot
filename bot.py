@@ -1166,6 +1166,17 @@ def build_improvement_reply(keyword):
     data = improvement.catalog()
     ship_names = {}
     ship_forms = {}
+    # 최신 함선 중 ships.csv 갱신보다 먼저 개수 데이터에 추가된 함선입니다.
+    # 개수 데이터의 2번함 ID도 기존 번역/별명 체계로 표시합니다.
+    improvement_extra_names = {
+        943: "쿠마노마루[미개장]",
+        948: "쿠마노마루[개1]",
+    }
+    ship_names.update(improvement_extra_names)
+    ship_forms.update({
+        943: ("쿠마노마루", "미개장", 0),
+        948: ("쿠마노마루", "개1", 1),
+    })
     for ship in SHIPS:
         ship_id = int(ship["艦船ID"])
         japanese = ship["艦名"]
@@ -1194,6 +1205,13 @@ def build_improvement_reply(keyword):
             base_name = next((alias for alias in SHIP_ALIASES.get(japanese_base, [])
                               if re.search(r"[가-힣]", alias)), base_name)
         ship_forms[ship_id] = (base_name, ship_stage(ship), int(ship["改装段階"]))
+    # The improvement dataset can contain newer helper IDs before ships.csv
+    # has received their translated display records.
+    ship_names.update(improvement_extra_names)
+    ship_forms.update({
+        943: ("쿠마노마루", "미개장", 0),
+        948: ("쿠마노마루", "개1", 1),
+    })
     return data.reply(keyword, ship_names, ship_forms)
 
 

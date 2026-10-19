@@ -77,6 +77,10 @@ class ImprovementTests(unittest.TestCase):
         self.assertIn("시구레", second)
         self.assertEqual(normal.count("★0~5"), 1)
 
+    def test_new_helper_ship_uses_korean_alias_when_csv_lags(self):
+        text = self.bot.build_improvement_reply("#70")
+        self.assertIn("쿠마노마루[미개장/개1]", text)
+
     def test_branch_specific_arsenal_materials_are_not_leaked(self):
         text = self.bot.build_improvement_reply("#63")
         first, second = text.split("※ 개수변환1")[1].split("※ 개수변환2")
