@@ -1307,7 +1307,7 @@ PANTY_COLORS = [
     "토끼팬티", "노팬티",
 ]
 
-PANTY_COMMAND = re.compile(r"^!(.+)팬티색$")
+PANTY_COMMAND = re.compile(r"^!(.+)팬티$")
 WIFE_COMMAND = re.compile(r"^![^!\s]+아내$")
 
 
@@ -1336,7 +1336,7 @@ COMMANDS = {
         "!개발 [장비명]\n"
         "!레시피 [함선명] [연/탄/강/보]\n"
         "!개수 [장비명]\n"
-        "![함선명]팬티색\n"
+        "![함선명]팬티\n"
         "![닉네임]아내"
     ),
 
@@ -1575,7 +1575,7 @@ def webhook():
         character = panty_match.group(1)
         reply = random.choice(PANTY_COLORS)
 
-        print(f"[오늘의 팬티색] 캐릭터={character}, 결과={reply}")
+        print(f"[랜덤 팬티] 캐릭터={character}, 결과={reply}")
 
         reply_data = {
             "type": "text",
