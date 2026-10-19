@@ -13,7 +13,7 @@ import requests
 URL = "https://kanlog.info/map/55/"
 JST = timezone(timedelta(hours=9))
 LOG = logging.getLogger(__name__)
-USAGE = "사용법: !드랍 5-5 / !드랍 5-5 S / !드랍 5-5 A / !드랍 5-5-P / !드랍 5-5-P S"
+USAGE = "사용법: !드랍 55 / !드랍 55 S / !드랍 55 A / !드랍 55p / !드랍 55p S (현재 5-5만 지원)"
 
 
 class MapParser(HTMLParser):
@@ -101,12 +101,24 @@ def parse_page(html):
             'cells': parser.cells, 'totals': totals, 'rows': rows}
 
 
+def parse_map_query(query):
+    # Only two map digits and an optional ASCII node letter qualify as a
+    # map. Names such as 이26 / U-511 must remain ship queries in future.
+    match = re.fullmatch(r'([1-7])-?([1-6])(?:-?([a-z]))?(?:\s+([sa]))?', query.strip(), re.I)
+    if not match:
+        return None
+    return (f'{match[1]}-{match[2]}', match[3].upper() if match[3] else None,
+            match[4].lower() if match[4] else None)
+
+
 def format_reply(message, snapshot, name_for):
-    match = re.fullmatch(r'!드랍\s+5-5(?:-([a-zA-Z]))?(?:\s+([sSaA]))?', message)
+    match = re.fullmatch(r'!드랍\s+(.+)', message)
     if not match:
         return USAGE
-    label = match[1].upper() if match[1] else None
-    rank = match[2].lower() if match[2] else None
+    parsed = parse_map_query(match[1])
+    if parsed is None or parsed[0] != snapshot['map']:
+        return USAGE
+    _, label, rank = parsed
     cells = snapshot['cells']
     chosen = next((key for key, cell in cells.items()
                    if (cell['label'] == label if label else cell['boss'])), None)
@@ -115,6 +127,8 @@ def format_reply(message, snapshot, name_for):
     title = f"5-5-{label} Drop" if label else '5-5 Boss Drop'
     if rank:
         title += f" ({rank.upper()}승)"
+    else:
+        title += ' (S/A)'
     lines = [title]
     rows = [row for row in snapshot['rows'] if row['cell'] == chosen
             and (row['rarity'] in ('rare', 'unique') or row['limited'])]

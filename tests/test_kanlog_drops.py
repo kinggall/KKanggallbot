@@ -49,8 +49,18 @@ class KanlogTests(unittest.TestCase):
         data['rows'] = [dict(cell='19', ship_id=1, name='Test', rarity='common', limited=True,
                             ranks={'s': {'rate': 0.005, 'count': 1}, 'a': {'rate': 0, 'count': 0}})]
         self.assertEqual(drops.format_reply('!드랍 5-5', data, lambda i,n:n),
-                         '5-5 Boss Drop\n· Test - S <0.01% (한정)')
+                         '5-5 Boss Drop (S/A)\n· Test - S <0.01% (한정)')
         self.assertIn('기록이 없습니다', drops.format_reply('!드랍 5-5 A', data, lambda i,n:n))
+
+    def test_short_map_queries_and_ship_name_separation(self):
+        for query in ('55p', '55P', '5-5-P', '5-5p', '55-P'):
+            self.assertEqual(drops.parse_map_query(query), ('5-5', 'P', None))
+            self.assertEqual(drops.format_reply('!드랍 '+query, self.data, lambda i,n:n),
+                             drops.format_reply('!드랍 5-5-P', self.data, lambda i,n:n))
+        self.assertTrue(drops.format_reply('!드랍 55', self.data, lambda i,n:n).startswith('5-5 Boss Drop (S/A)\n'))
+        self.assertTrue(drops.format_reply('!드랍 55p s', self.data, lambda i,n:n).startswith('5-5-P Drop (S승)\n'))
+        for name in ('이26', '이-26', '伊26', 'U-511', '로500', '뽀이', '2411', '55팬티'):
+            self.assertIsNone(drops.parse_map_query(name), name)
 
     def test_parser_denominators_and_structural_failure(self):
         html = '''<button data-cell-no="19" data-cell-label="S">S(Boss)</button>
