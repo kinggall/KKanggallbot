@@ -1304,6 +1304,19 @@ PANTY_COLORS = [
 ]
 
 PANTY_COMMAND = re.compile(r"^!(.+)팬티색$")
+WIFE_COMMAND = re.compile(r"^![^!\s]+아내$")
+
+
+def random_wife_name():
+    # The alias file has one entry per ship family, so remodels do not
+    # give a ship additional chances of being selected.
+    candidates = [
+        SHIP_TRANSLATIONS.get(canonical) or next(
+            (alias for alias in aliases if re.search(r"[가-힣]", alias)), canonical
+        )
+        for canonical, aliases in SHIP_ALIASES.items()
+    ]
+    return random.choice(candidates) if candidates else "칸무스 목록을 불러오지 못했습니다."
 
 COMMANDS = {
     "!도움말": (
@@ -1319,7 +1332,8 @@ COMMANDS = {
         "!개발 [장비명]\n"
         "!레시피 [함선명] [연/탄/강/보]\n"
         "!개수 [장비명]\n"
-        "![함선명]팬티색"
+        "![함선명]팬티색\n"
+        "!내아내 / ![이름]아내"
     ),
 
     "!공지": (
@@ -1539,6 +1553,16 @@ def webhook():
             timeout=10,
         )
         print(f"[장비 검색] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if WIFE_COMMAND.fullmatch(message):
+        reply = random_wife_name()
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[랜덤 칸무스] 결과={reply}, 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     panty_match = PANTY_COMMAND.fullmatch(message)
