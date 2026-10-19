@@ -1556,7 +1556,7 @@ def webhook():
         return jsonify({"ok": True})
 
     if WIFE_COMMAND.fullmatch(message):
-        reply = random_wife_name()
+        reply = "이나즈마" if message in {"!깡갤아내", "!왕갤아내"} else random_wife_name()
         response = requests.post(
             IRIS_REPLY_URL,
             json={"type": "text", "room": str(chat_id), "data": reply},
