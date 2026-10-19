@@ -1082,7 +1082,7 @@ def ship_text(ship, name_ko):
             default=None,
         )
         next_stage = ship_stage(next_candidate) if next_candidate else "컨버트"
-        result.append(f"{next_stage} 개장 레벨: {next_level}")
+        result.append(f"- {next_stage} 개장 레벨: {next_level}")
         materials = remodel_materials.material_text(ship, next_candidate)
         if materials:
             result.append(materials)

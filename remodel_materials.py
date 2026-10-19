@@ -47,4 +47,4 @@ def material_text(source, target):
     )
     counts = dict(enumerate(item[1])) if complete else known
     parts = [f"{MATERIALS[index]} {count}" for index, count in counts.items() if count]
-    return "- 재료 : " + "/".join(parts) if parts else ""
+    return " · 재료 : " + "/".join(parts) if parts else ""

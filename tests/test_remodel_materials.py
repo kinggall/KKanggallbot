@@ -19,6 +19,6 @@ class RemodelMaterialsTests(unittest.TestCase):
 
     def test_missing_reference_retains_only_known_csv_costs(self):
         source = {"艦名": "test", "改装後": "unknown", "改装設計図": "2枚"}
-        self.assertEqual(materials.material_text(source, {}), "- 재료 : 설계도 2")
+        self.assertEqual(materials.material_text(source, {}), " · 재료 : 설계도 2")
         with patch.object(materials, "reference", side_effect=OSError):
             self.assertIn("설계도 2", materials.material_text(source, {}))
