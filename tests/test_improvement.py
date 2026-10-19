@@ -81,6 +81,27 @@ class ImprovementTests(unittest.TestCase):
         text = self.bot.build_improvement_reply("#70")
         self.assertIn("쿠마노마루[미개장/개1]", text)
 
+    def test_ship_lookup_groups_equipment_by_exact_form_and_weekdays(self):
+        text = self.bot.build_improvement_reply('이세')
+        self.assertIn('· 21호 대공전탐\n  - 월/금/토/일 [미개장/개2]\n  - 월 [개1]', text)
+        self.assertIn('· 12cm 30연장분진포\n  - 금/토/일 [개1]', text)
+        self.assertEqual(self.bot.build_improvement_reply('이세구리'), text)
+        for query in ('이세개', '이세 개', '이세개1', '이세 개1'):
+            selected = self.bot.build_improvement_reply(query)
+            self.assertTrue(selected.startswith('이세 [개1] 개수 가능 장비'))
+            self.assertNotIn('[미개장', selected)
+        self.assertIn('41cm 삼연장포 개2', self.bot.build_improvement_reply('이세개2'))
+
+    def test_equipment_names_and_aliases_beat_ship_alias_collisions(self):
+        self.assertIn("'35.6' 검색 결과 9개", self.bot.build_improvement_reply('35.6'))
+        with patch.dict(self.bot.SHIP_ALIASES, {'伊勢': ['와일드캣']}):
+            self.assertNotIn('이세 개수 가능 장비', self.bot.build_improvement_reply('와일드캣'))
+        with patch.dict(self.bot.SHIP_ALIASES, {'伊勢': ['중복별명'], '加賀': ['중복별명']}):
+            self.assertEqual(self.bot.build_improvement_reply('중복별명'),
+                             self.catalog.reply('중복별명', {}, {}))
+        self.assertEqual(self.bot.build_improvement_reply('없는함선'),
+                         self.catalog.reply('없는함선', {}, {}))
+
     def test_branch_specific_arsenal_materials_are_not_leaked(self):
         text = self.bot.build_improvement_reply("#63")
         first, second = text.split("※ 개수변환1")[1].split("※ 개수변환2")
@@ -167,7 +188,7 @@ class ImprovementTests(unittest.TestCase):
                 self.assertEqual(send.call_args.kwargs["json"], {
                     "type": "text", "room": "improvement-test",
                     "data": self.bot.build_improvement_reply(command[len("!개수"):])})
-        self.assertIn("!개수 [장비명]", self.bot.COMMANDS["!도움말"])
+        self.assertIn("!개수 [장비명/함선명]", self.bot.COMMANDS["!도움말"])
 
 
 if __name__ == "__main__":

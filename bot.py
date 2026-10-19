@@ -1164,6 +1164,30 @@ def build_ship_slots_reply(keyword):
 
 def build_improvement_reply(keyword):
     data = improvement.catalog()
+    query = keyword.strip()
+    # Exact equipment names and equipment aliases always keep the existing
+    # equipment lookup, even when a ship happens to have the same nickname.
+    equipment_key = equipment_lookup.normalize(query)
+    ship_matches = []
+    selected_stage = None
+    if query and equipment_key not in data.equipment.names and not query.startswith('#'):
+        ship_matches = search_ships(query)
+        if ship_matches:
+            exact_forms = [ship_stage(ship) for ship, _ in ship_matches
+                           if normalize_ship_name(query) in {
+                               normalize_ship_name(ship['艦名']),
+                               normalize_ship_name(SHIP_TRANSLATIONS.get(ship['艦名'], '')),
+                           }]
+            if exact_forms and exact_forms[0] != '미개장':
+                selected_stage = exact_forms[0]
+        else:
+            stage_match = re.fullmatch(r'(.+?)(개(?:[123]|3호)?)', query)
+            if stage_match:
+                candidates = search_ships(stage_match[1])
+                stage = '개1' if stage_match[2] == '개' else stage_match[2]
+                if any(ship_stage(ship) == stage for ship, _ in candidates):
+                    ship_matches = candidates
+                    selected_stage = stage
     ship_names = {}
     ship_forms = {}
     # 최신 함선 중 ships.csv 갱신보다 먼저 개수 데이터에 추가된 함선입니다.
@@ -1212,6 +1236,17 @@ def build_improvement_reply(keyword):
         943: ("쿠마노마루", "미개장", 0),
         948: ("쿠마노마루", "개1", 1),
     })
+    if ship_matches:
+        family_ids = {data.families.get(int(ship['艦船ID']), int(ship['艦船ID']))
+                      for ship, _ in ship_matches}
+        if len(family_ids) == 1:
+            chosen = [int(ship['艦船ID']) for ship, _ in ship_matches
+                      if selected_stage is None or ship_stage(ship) == selected_stage]
+            if chosen:
+                base_id = next(iter(family_ids))
+                base_name = ship_forms.get(base_id, (ship_forms[chosen[0]][0],))[0]
+                title = f'{base_name} [{selected_stage}]' if selected_stage else base_name
+                return data.describe_ship(chosen, title, ship_forms)
     return data.reply(keyword, ship_names, ship_forms)
 
 
@@ -1386,7 +1421,7 @@ COMMANDS = {
         "!장비 [장비명]\n"
         "!개발 [장비명]\n"
         "!레시피 [함선명] [연/탄/강/보]\n"
-        "!개수 [장비명]\n"
+        "!개수 [장비명/함선명]\n"
         "![함선명]팬티\n"
         "![닉네임]아내"
     ),

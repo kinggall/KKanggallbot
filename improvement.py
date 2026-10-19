@@ -191,6 +191,33 @@ class ImprovementCatalog:
             return self.equipment.reply(query).replace("!장비", "!개수")
         return self.describe(hits[0], ship_names, ship_forms)
 
+    def describe_ship(self, ship_ids, base_name, ship_forms):
+        """List equipment for exact second-ship forms, merging only equal weekdays."""
+        forms = {ship_id: ship_forms[ship_id] for ship_id in ship_ids if ship_id in ship_forms}
+        if not forms:
+            return f"{base_name}\n· 등록된 2번함 개수 정보가 없습니다."
+        lines = [f"{base_name} 개수 가능 장비"]
+        for item_id, row in self.upgrades.items():
+            by_form = defaultdict(set)
+            for route in row['improvement']:
+                for helper in route['helpers']:
+                    for ship_id in helper['ship_ids']:
+                        if ship_id in forms:
+                            by_form[ship_id].update(helper['days'])
+            if not by_form:
+                continue
+            by_days = defaultdict(list)
+            for ship_id, days in by_form.items():
+                by_days[frozenset(days)].append(ship_id)
+            lines.append(f"· {self.item_name(item_id)}")
+            for days, ids in sorted(by_days.items(), key=lambda entry: min(forms[i][2] for i in entry[1])):
+                stages = '/'.join(forms[i][1] for i in sorted(ids, key=lambda i: (forms[i][2], i)))
+                weekdays = '/'.join(DAYS[d] for d in DAY_ORDER if d in days)
+                lines.append(f"  - {weekdays or '요일 미등록'} [{stages}]")
+        if len(lines) == 1:
+            lines.append('· 등록된 2번함 개수 정보가 없습니다.')
+        return '\n'.join(lines)
+
 
 @lru_cache(maxsize=1)
 def catalog():
