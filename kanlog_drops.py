@@ -18,7 +18,7 @@ BOSS_STAGES = {'5-6': ('G', 'N', 'Z'), '7-2': ('G', 'M'),
                '7-3': ('E', 'P'), '7-5': ('K', 'Q', 'T')}
 JST = timezone(timedelta(hours=9))
 LOG = logging.getLogger(__name__)
-USAGE = "사용법: !드랍 [해역 또는 함선명]\n예: !드랍 55 / !드랍 55p / !드랍 아사시오"
+USAGE = "사용법: !드랍 [해역] / !드랍 [함선명]\n예: !드랍 55p / !드랍 후부키"
 
 
 def map_url(map_name):
@@ -140,7 +140,7 @@ def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
     """Return the best cached map/cell records for a ship or alias."""
     ship_ids = {int(value) for value in ship_ids_for(keyword)}
     if not ship_ids:
-        return f"'{keyword}' 칸무스를 찾지 못했습니다."
+        return USAGE
     maps = snapshot.get('maps', {}) if 'maps' in snapshot else {snapshot.get('map'): snapshot}
     found = []
     for map_name, data in maps.items():

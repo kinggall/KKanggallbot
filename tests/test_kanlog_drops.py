@@ -79,7 +79,7 @@ class KanlogTests(unittest.TestCase):
             '!드랍 존재하지않는함선', self.data, str,
             lambda keyword: set(),
         )
-        self.assertEqual(text, "'존재하지않는함선' 칸무스를 찾지 못했습니다.")
+        self.assertEqual(text, drops.USAGE)
 
     def test_parser_denominators_and_structural_failure(self):
         html = '''<button data-cell-no="19" data-cell-label="S">S(Boss)</button>

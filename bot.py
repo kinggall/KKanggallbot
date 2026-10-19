@@ -773,7 +773,7 @@ def build_drop_reply(message):
                 f"{ship_count}개 함선)\n갱신 시각: {updated}")
     query = message[len("!드랍"):].strip()
     if not query:
-        return "사용법: !드랍 5-5 / !드랍 7-5-1 / !드랍 함선명 또는 별명"
+        return "사용법: !드랍 [해역] / !드랍 [함선명]\n예: !드랍 55p / !드랍 후부키"
     match = re.fullmatch(r"([1-7]-[1-6])(?:-([1-3]))?", query)
     if match:
         map_name, stage = match.groups()
