@@ -27,7 +27,24 @@ def reference():
                 for row in csv.reader(file)}
 
 
+@lru_cache(maxsize=1)
+def convert_reference():
+    import json
+    path = Path(__file__).parent / "data" / "ship_convert_materials.json"
+    with path.open(encoding="utf-8") as file:
+        return json.load(file)["routes"]
+
+
 def material_text(source, target):
+    try:
+        route = convert_reference().get(str(source.get("艦船ID", "")))
+    except (OSError, ValueError, KeyError):
+        route = None
+    if (route and route["source_name"] == source.get("艦名")
+            and route["target_name"] == source.get("改装後")
+            and str(route["level"]) == str(source.get("改装Lv"))):
+        parts = [f"{name} {count}" for name, count in zip(MATERIALS, route["materials"]) if count]
+        return " · 재료 : " + "/".join(parts) if parts else ""
     known = {}
     for index, field in CSV_FIELDS.items():
         match = re.search(r"\d+", str(source.get(field, "")))
