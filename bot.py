@@ -1067,8 +1067,8 @@ def ship_text(ship, name_ko):
 
     result = [
         f"[{stage}]",
-        f"화력 {ship.get('火力最大', '-')} / 뇌장 {ship.get('雷装最大', '-')} / "
-        f"대공 {ship.get('対空最大', '-')} / 장갑 {ship.get('装甲最大', '-')}"
+        f"화력 {ship.get('火力最大', '-')}/뇌장 {ship.get('雷装最大', '-')}/"
+        f"대공 {ship.get('対空最大', '-')}/장갑 {ship.get('装甲最大', '-')}"
     ]
     if next_ship_name not in ("", "-") and next_level not in ("", "0", "-"):
         next_candidates = [
@@ -1083,7 +1083,9 @@ def ship_text(ship, name_ko):
         )
         next_stage = ship_stage(next_candidate) if next_candidate else "컨버트"
         result.append(f"{next_stage} 개장 레벨: {next_level}")
-        result.append(remodel_materials.material_text(ship, next_candidate))
+        materials = remodel_materials.material_text(ship, next_candidate)
+        if materials:
+            result.append(materials)
     return "\n".join(result)
 
 

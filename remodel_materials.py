@@ -6,9 +6,9 @@ from functools import lru_cache
 from pathlib import Path
 
 MATERIALS = (
-    "설계도", "전투상보", "캐터펄트", "신형포공병장자재",
-    "신형항공병장자재", "신형병장자재", "개발자재", "고속건조재",
-    "신형고온고압보일러", "해외함 최신기술", "개수자재", "공창자원",
+    "설계도", "상보", "캐터펄트", "포공자재",
+    "항공자재", "병장자재", "자재", "건조재",
+    "신형보일러", "해외함", "나사", "공창자원",
 )
 CSV_FIELDS = {0: "改装設計図", 1: "戦闘詳報", 2: "カタパルト", 4: "新型航空兵装資材"}
 
@@ -46,7 +46,5 @@ def material_text(source, target):
         and all(item[1][index] == count for index, count in known.items())
     )
     counts = dict(enumerate(item[1])) if complete else known
-    parts = [f"{MATERIALS[index]} {count}개" for index, count in counts.items() if count]
-    if not complete:
-        parts.append("기타 재료 미확인" if parts else "미확인")
-    return "개장 재료: " + " / ".join(parts or ["없음"])
+    parts = [f"{MATERIALS[index]} {count}" for index, count in counts.items() if count]
+    return "- 재료 : " + "/".join(parts) if parts else ""
