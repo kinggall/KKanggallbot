@@ -12,14 +12,62 @@ $LogPath = Join-Path $ParentPath "logs"
 $BotProcess = $null
 $FailedCommit = $null
 
+# Only one watcher may manage this checkout. A second watcher must not kill
+# the first watcher's bot or race it during an update.
+$mutexKey = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($RepoPath.ToLowerInvariant())).Replace('/', '_')
+$WatcherMutex = New-Object Threading.Mutex($false, "Local\KakaoBot-$mutexKey")
+try { $ownsWatcher = $WatcherMutex.WaitOne(0) }
+catch [Threading.AbandonedMutexException] { $ownsWatcher = $true }
+if (-not $ownsWatcher) {
+    $WatcherMutex.Dispose()
+    throw "A watcher is already running for $RepoPath. Keep only the existing watcher window."
+}
+
+function Stop-BotTree([int]$ProcessId) {
+    # Windows venv python.exe may launch a child python.exe which owns Flask.
+    # Killing only the launcher leaves that server running with old aliases.
+    $ErrorActionPreference = 'Continue'
+    & taskkill.exe /PID $ProcessId /T /F 2>&1 | Out-Null
+}
+
+function Remove-DuplicateBots {
+    $processes = @(Get-CimInstance Win32_Process -Filter "Name = 'python.exe' OR Name = 'pythonw.exe'")
+    $ownedIds = @{}
+    if ($null -ne $script:BotProcess -and -not $script:BotProcess.HasExited) {
+        $ownedIds[[int]$script:BotProcess.Id] = $true
+        do {
+            $added = $false
+            foreach ($process in $processes) {
+                if ($ownedIds.ContainsKey([int]$process.ParentProcessId) -and -not $ownedIds.ContainsKey([int]$process.ProcessId)) {
+                    $ownedIds[[int]$process.ProcessId] = $true
+                    $added = $true
+                }
+            }
+        } while ($added)
+    }
+    $legacyScript = Join-Path $ParentPath 'bot.py'
+    foreach ($process in $processes) {
+        if ($ownedIds.ContainsKey([int]$process.ProcessId) -or -not $process.CommandLine) { continue }
+        $command = $process.CommandLine
+        $isOurBot = $command.IndexOf($BotScriptPath, [StringComparison]::OrdinalIgnoreCase) -ge 0 -or
+            $command.IndexOf($legacyScript, [StringComparison]::OrdinalIgnoreCase) -ge 0 -or
+            ($process.ExecutablePath -and $process.ExecutablePath.Equals($PythonPath, [StringComparison]::OrdinalIgnoreCase) -and
+             $command -match '(?i)(?:^|\s|")\.?[\\/]?bot\.py(?:$|\s|")')
+        if ($isOurBot -and (Get-Process -Id $process.ProcessId -ErrorAction SilentlyContinue)) {
+            Write-Host "Stopping stale bot tree $($process.ProcessId)..."
+            Stop-BotTree $process.ProcessId
+        }
+    }
+}
+
 function Stop-Bot {
     if ($null -ne $script:BotProcess) {
         $runningProcess = Get-Process -Id $script:BotProcess.Id -ErrorAction SilentlyContinue
         if ($null -ne $runningProcess) {
             Write-Host "Stopping bot process $($script:BotProcess.Id)..."
-            Stop-Process -Id $script:BotProcess.Id -Force -ErrorAction SilentlyContinue
+            Stop-BotTree $script:BotProcess.Id
         }
-        $script:BotProcess.WaitForExit()
+        $null = $script:BotProcess.WaitForExit(10000)
     }
     $script:BotProcess = $null
 }
@@ -31,7 +79,7 @@ function Start-Bot {
     Write-Host "Starting bot.py..."
     $process = Start-Process `
         -FilePath $PythonPath `
-        -ArgumentList $BotScriptPath `
+        -ArgumentList "-u `"$BotScriptPath`"" `
         -WorkingDirectory $RepoPath `
         -RedirectStandardOutput $stdout `
         -RedirectStandardError $stderr `
@@ -48,24 +96,7 @@ if (-not (Test-Path (Join-Path $RepoPath ".git"))) {
 }
 New-Item -ItemType Directory -Force -Path $LogPath | Out-Null
 
-# Clear duplicate bot.py processes left by an earlier watcher run.
-$staleBotProcesses = @(
-    Get-CimInstance Win32_Process -Filter "Name = 'python.exe' OR Name = 'pythonw.exe'" |
-        Where-Object {
-            $_.ExecutablePath -and
-            $_.ExecutablePath.Equals($PythonPath, [StringComparison]::OrdinalIgnoreCase) -and
-            $_.CommandLine -and (
-                $_.CommandLine.IndexOf($BotScriptPath, [StringComparison]::OrdinalIgnoreCase) -ge 0 -or
-                $_.CommandLine -match '(?i)(?:^|[\s"\\/])bot\.py(?:$|[\s"])'
-            )
-        }
-)
-if ($staleBotProcesses.Count -gt 0) {
-    Write-Host "Stopping $($staleBotProcesses.Count) previous bot.py process(es)..."
-    foreach ($staleProcess in $staleBotProcesses) {
-        Stop-Process -Id $staleProcess.ProcessId -Force -ErrorAction SilentlyContinue
-    }
-}
+Remove-DuplicateBots
 
 Write-Host "Checking GitHub main branch..."
 & git -C $RepoPath fetch --quiet origin $Branch
@@ -86,6 +117,8 @@ try {
     while ($true) {
         Start-Sleep -Seconds $CheckIntervalSeconds
 
+        Remove-DuplicateBots
+
         & git -C $RepoPath fetch --quiet origin $Branch
         if ($LASTEXITCODE -eq 0) {
             $localCommit = (& git -C $RepoPath rev-parse HEAD).Trim()
@@ -94,6 +127,7 @@ try {
             if ($localCommit -ne $remoteCommit) {
                 Write-Host "New GitHub commit detected. Updating and restarting..."
                 Stop-Bot
+                Remove-DuplicateBots
                 & git -C $RepoPath pull --ff-only origin $Branch
                 if ($LASTEXITCODE -eq 0) {
                     Write-Host "Updated to $((& git -C $RepoPath rev-parse --short HEAD).Trim())"
@@ -124,4 +158,6 @@ try {
 }
 finally {
     Stop-Bot
+    $WatcherMutex.ReleaseMutex()
+    $WatcherMutex.Dispose()
 }
