@@ -1702,8 +1702,8 @@ def webhook():
         print(f"[답변 전송] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
-    if message in COMMANDS:
-        reply = COMMANDS[message]
+    if message in COMMANDS or message in ("!도움", "!명령어", "!명령"):
+        reply = COMMANDS["!도움말"] if message in ("!도움", "!명령어", "!명령") else COMMANDS[message]
 
         reply_data = {
             "type": "text",
