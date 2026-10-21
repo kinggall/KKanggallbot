@@ -67,25 +67,46 @@ def select_article(html):
     raise ValueError('Article body not recognized; manual review required')
 
 
-def extract_article(html, url):
+def extract_article(html, url, expected_title):
     body = select_article(html)
+    root = Document(html).root
+    h1_titles = [node.text().strip() for node in root.walk() if node.tag == 'h1']
+    if not any(normalized(expected_title) in normalized(title) for title in h1_titles):
+        raise ValueError('Article title does not match the quest; manual review required')
+
+    heading = next((node for node in body.walk()
+                    if node.tag == 'h2' and normalized(node.text()) == normalized('編成例')), None)
+    if heading is None:
+        raise ValueError('編成例 section not found; manual review required')
+    section_nodes = []
+    parent = next((node for node in body.walk() if heading in node.children), None)
+    if parent is None:
+        raise ValueError('編成例 section structure not recognized; manual review required')
+    start = parent.children.index(heading) + 1
+    for sibling in parent.children[start:]:
+        if isinstance(sibling, Node) and sibling.tag == 'h2':
+            break
+        section_nodes.append(sibling)
+
     blocks, images = [], []
-    for node in body.walk():
-        if node.tag in {'h2', 'h3', 'h4', 'p', 'li'}:
-            text = re.sub(r'\s+', ' ', node.text()).strip()
-            if text:
-                blocks.append({'tag': node.tag, 'text': text})
-        if node.tag == 'a':
-            href = urljoin(url, node.attrs.get('href', ''))
-            if re.search(r'\.(?:png|jpe?g|webp)(?:\?|$)', href, re.I) and any(n.tag == 'img' for n in node.walk()):
-                images.append(href)
-        if node.tag == 'img':
-            src = node.attrs.get('data-src') or node.attrs.get('src', '')
-            if src and not src.startswith('data:'):
-                src = urljoin(url, src)
-                # A full-size linked image replaces its thumbnail.
-                if not any(re.sub(r'-\d+x\d+(?=\.)', '', src) == image for image in images):
-                    images.append(src)
+    for child in section_nodes:
+        if not isinstance(child, Node):
+            continue
+        for node in child.walk():
+            if node.tag in {'h3', 'h4', 'p', 'li'}:
+                text = re.sub(r'\s+', ' ', node.text()).strip()
+                if text:
+                    blocks.append({'tag': node.tag, 'text': text})
+            if node.tag == 'a':
+                href = urljoin(url, node.attrs.get('href', ''))
+                if re.search(r'\.(?:png|jpe?g|webp)(?:\?|$)', href, re.I) and any(n.tag == 'img' for n in node.walk()):
+                    images.append(href)
+            if node.tag == 'img':
+                src = node.attrs.get('data-src') or node.attrs.get('src', '')
+                if src and not src.startswith('data:'):
+                    src = urljoin(url, src)
+                    if not any(re.sub(r'-\d+x\d+(?=\.)', '', src) == image for image in images):
+                        images.append(src)
     return blocks, list(dict.fromkeys(images))
 
 
@@ -109,6 +130,7 @@ class Fetcher:
         if self.robots is not None and not self.robots.can_fetch(self.session.headers['User-Agent'], url):
             raise RuntimeError('robots.txt disallows collection: ' + url)
         time.sleep(max(0, self.interval - (time.monotonic() - self.last)))
+        print(f'Requesting: {url}', flush=True)
         self.last = time.monotonic()
         response = self.session.get(url, timeout=45)
         if response.status_code in (401, 403, 429) or response.status_code >= 500:
@@ -148,11 +170,12 @@ def main():
         code = quest['wiki_id']
         folder = args.output / re.sub(r'[^A-Za-z0-9_-]', '_', code)
         manifest = folder / 'manifest.json'
-        if manifest.exists() and json.loads(manifest.read_text(encoding='utf-8')).get('status') in {'downloaded', 'review_required', 'no_match_on_first_page'}:
+        old_record = json.loads(manifest.read_text(encoding='utf-8')) if manifest.exists() else {}
+        if old_record.get('schema_version') == 2 and old_record.get('status') in {'downloaded', 'review_required', 'no_match_on_first_page'}:
             print(f'{code}: already collected', flush=True)
             continue
         folder.mkdir(parents=True, exist_ok=True)
-        record = {'code': code, 'name_jp': quest.get('name_jp'), 'name_ko': quest.get('name_ko'),
+        record = {'schema_version': 2, 'code': code, 'name_jp': quest.get('name_jp'), 'name_ko': quest.get('name_ko'),
                   'collected_at': datetime.now(timezone.utc).isoformat(), 'status': 'in_progress'}
         write_json(manifest, record)
         title = quest.get('name_jp', '')
@@ -176,12 +199,18 @@ def main():
             continue
         url = next(iter(candidates))
         page_path = folder / 'article.html'
-        if page_path.exists():
+        if page_path.exists() and old_record.get('schema_version') == 2:
             html = page_path.read_text(encoding='utf-8')
         else:
             html = fetcher.get(url).text
             page_path.write_text(html, encoding='utf-8')
-        blocks, images = extract_article(html, url)
+        try:
+            blocks, images = extract_article(html, url, title)
+        except ValueError as error:
+            record.update(status='review_required', review_reason=str(error), url=url)
+            write_json(manifest, record)
+            print(f'{code}: review_required ({error})', flush=True)
+            continue
         record.update(url=url, blocks=blocks, images=[])
         for image_url in images:
             suffix = Path(urlparse(image_url).path).suffix or '.jpg'
