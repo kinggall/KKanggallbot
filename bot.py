@@ -22,6 +22,7 @@ import remodel_materials
 import kanlog_drops
 import expeditions
 import quests
+import guide_lookup
 
 app = Flask(__name__)
 
@@ -1512,6 +1513,31 @@ def webhook():
     chat_id = data.get("json", {}).get("chat_id", room)
 
     print(f"[받은 메시지] 방={room}, 내용={message}")
+
+    if message == '!공략' or message.startswith('!공략 '):
+        def send_guide_preview():
+            try:
+                text, pictures = guide_lookup.build_preview(message[len('!공략'):])
+                for start in range(0, len(pictures), 10):
+                    payload = [base64.b64encode(path.read_bytes()).decode('ascii')
+                               for path in pictures[start:start + 10]]
+                    response = requests.post(
+                        IRIS_REPLY_URL,
+                        json={'type': 'image_multiple', 'room': str(chat_id), 'data': payload},
+                        timeout=60,
+                    )
+                    response.raise_for_status()
+                response = requests.post(
+                    IRIS_REPLY_URL,
+                    json={'type': 'text', 'room': str(chat_id), 'data': text}, timeout=10,
+                )
+                response.raise_for_status()
+                print(f'[공략 미리보기] 명령={message}, 이미지={len(pictures)}')
+            except (OSError, ValueError, KeyError, requests.RequestException) as error:
+                print(f'[공략 미리보기 실패] 명령={message}, 오류={error}')
+
+        IMAGE_SEND_EXECUTOR.submit(send_guide_preview)
+        return jsonify({'ok': True})
 
     if message == '!한정드랍':
         reply = kanlog_drops.format_limited_reply(
