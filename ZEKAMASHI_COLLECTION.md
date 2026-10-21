@@ -8,10 +8,12 @@ C:\KakaoBot\.venv\Scripts\python.exe C:\KakaoBot\KKanggallbot\scripts\collect_ze
 ```
 
 먼저 일부만 확인하려면 끝에 `--codes B141 B142 B143 B144 B145`를 붙인다.
-기본 저장 위치는 `C:\KakaoBot\guide_cache\zekamashi`이다. 재실행하면 완료한 임무와
+기본 저장 위치는 `C:\KakaoBot\KKanggallbot\guide_cache\zekamashi`이다. 이 폴더는
+`.gitignore`로 제외하므로 GitHub에 올리지 않는다. 재실행하면 완료한 임무와
 다운로드한 이미지는 건너뛴다. 중단하려면 Ctrl+C를 누른다.
 
-각 요청 사이 기본 15초, 최소 10초를 두고 순차 처리한다. robots.txt를 먼저 확인하며
+검색·본문·이미지를 포함한 각 요청 사이 기본/최소 60초를 두고 순차 처리한다.
+더 느리게 하려면 `--interval 120`처럼 지정한다. robots.txt를 먼저 확인하며
 401/403/429/서버 오류와 통신 오류 시 중단한다. 이 간격이 차단 방지를 보장하지는 않는다.
 로컬 환경은 제카마시 연결 프록시 403으로 직접 수집하지 못했다.
 
