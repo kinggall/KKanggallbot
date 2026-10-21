@@ -26,6 +26,7 @@ import quests
 app = Flask(__name__)
 
 IRIS_REPLY_URL = "http://127.0.0.1:3000/reply"
+PICTURES_DIR = Path(__file__).resolve().parent.parent / "pictures"
 
 CSV_FILE = Path(__file__).parent / "ships.csv"
 SHIP_KO_FILE = Path(__file__).parent / "data" / "ship-ko.json"
@@ -1718,6 +1719,34 @@ def webhook():
             timeout=10,
         )
         print(f"[랜덤 칸무스] 결과={reply}, 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    image_commands = {
+        "!왕갤": PICTURES_DIR / "kinggall.png",
+        "!깡갤봇": PICTURES_DIR / "kkanggallbot.png",
+    }
+    if message in image_commands:
+        image_path = image_commands[message]
+        if not image_path.is_file():
+            reply = f"이미지 파일을 찾지 못했습니다: {image_path.name}"
+            response = requests.post(
+                IRIS_REPLY_URL,
+                json={"type": "text", "room": str(chat_id), "data": reply},
+                timeout=10,
+            )
+            print(f"[이미지 파일 없음] 경로={image_path}, 상태 코드={response.status_code}")
+            return jsonify({"ok": True})
+
+        try:
+            image_data = base64.b64encode(image_path.read_bytes()).decode("ascii")
+            response = requests.post(
+                IRIS_REPLY_URL,
+                json={"type": "image", "room": str(chat_id), "data": image_data},
+                timeout=20,
+            )
+            print(f"[이미지 답변] 파일={image_path.name}, 상태 코드={response.status_code}")
+        except OSError as error:
+            print(f"[이미지 읽기 실패] 경로={image_path}, 오류={error}")
         return jsonify({"ok": True})
 
     panty_match = PANTY_COMMAND.fullmatch(message)
