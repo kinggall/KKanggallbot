@@ -28,6 +28,11 @@ TERMS = {
     '重巡': '중순', '駆逐': '구축', '航巡': '항순', '航戦': '항전',
     '雷巡': '뇌순', '水母': '수모', '潜水': '잠수', '空母': '항모',
 }
+FLEET_TYPES = (
+    r'(?:航空戦艦|航空巡洋艦|重雷装巡洋艦|正規空母|装甲空母|軽空母|水上機母艦|'
+    r'軽巡洋艦|重巡洋艦|補給艦|海防艦|戦艦|軽巡|重巡|駆逐艦|駆逐|海防|'
+    r'正空|軽空|空母|水母|航巡|航戦|潜水|雷巡|補給)'
+)
 
 
 def translate_route(text):
@@ -63,6 +68,27 @@ def find_route(text):
                     end = index + 1
                     break
     return text[match.start():end]
+
+
+def find_random_fleet(text):
+    """A fleet-only lead paragraph is valid even without a fixed node route."""
+    text = unicodedata.normalize('NFKC', text).strip()
+    match = re.match(r'^(' + FLEET_TYPES + r'(?:\([^)]*\))?\s*\d+\s*)+', text)
+    if not match:
+        return None
+    fleet = translate_route(match.group().strip())
+    if 'ルートランダム' in text:
+        note = '경로 랜덤'
+        battle_count = re.search(r'道中\s*(\d+)戦', text)
+        if battle_count:
+            note += f' / 도중 {battle_count.group(1)}전'
+        if 'ボス確定' in text:
+            note += ' / 보스 도달 확정'
+    elif 'ボス到達はランダム' in text:
+        note = '보스 도달 랜덤'
+    else:
+        note = '고정 경로 표기 없음'
+    return fleet + '\n' + note
 
 
 def sortie_maps(value):
@@ -156,11 +182,12 @@ def build_preview(query, root=ROOT):
                 pending.append(path)
         if node.tag == 'p' and not air:
             match = find_route(text)
-            if match and current_map:
+            summary = translate_route(match) if match else find_random_fleet(text)
+            if summary and current_map:
                 if not pending:
                     continue
                 variants.append({'map': current_map, 'phase': phase,
-                                 'summary': translate_route(match), 'pictures': list(pending)})
+                                 'summary': summary, 'pictures': list(pending)})
                 pending = []
     summaries, pictures, selected = [], [], set()
     for variant in variants:
