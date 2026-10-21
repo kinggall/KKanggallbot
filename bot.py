@@ -21,6 +21,7 @@ import improvement
 import remodel_materials
 import kanlog_drops
 import expeditions
+import quests
 
 app = Flask(__name__)
 
@@ -1424,6 +1425,7 @@ COMMANDS = {
         "!레시피 [함선명] [연/탄/강/보]\n"
         "!개수 [장비명/2번함]\n"
         "!원정 [번호]\n"
+        "!임무 [임무번호/임무명]\n"
         "![함선명]팬티\n"
         "![닉네임]아내"
     ),
@@ -1627,6 +1629,20 @@ def webhook():
             timeout=10,
         )
         print(f"[개수 검색] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!임무" or message.startswith("!임무 "):
+        try:
+            reply = quests.catalog().reply(message[len("!임무"):])
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            print(f"[임무 조회 실패] {error}")
+            reply = "임무 데이터를 불러오지 못했습니다."
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[임무 검색] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
     if message == "!원정" or message.startswith("!원정 "):

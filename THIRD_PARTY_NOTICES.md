@@ -1,5 +1,14 @@
 # Third-party notices
 
+## TsunKit quest facts and EO quest translations
+
+- Quest facts: planetarian/TsunKitQuests, https://github.com/planetarian/TsunKitQuests at `6d7d05924815b9b44ad45bfb963533155983be65`. Its README credits the earlier kcwikizh quest data and requests that upstream edits be submitted through the quest tracker.
+- Selected factual fields from `verified/`, `quests.json`, and `unverified/` are stored in `data/quests.json`; per-record provenance and hashes are in `data/quest_verification.json`. No TsunKit site API is used by this command.
+- Korean quest and ship translations and external quest-code references: kinggall/Data at `79a2c818924060dcb3b18dbdb043b855bcc04694`, the user's fork of ElectronicObserverEN/Data, with credit to the ElectronicObserver translation contributors.
+- Item, ship and furniture ID labels: kcwiki/kancolle-data `api/api_start2.json` at `7b92cdb8e4601fdec45ddd00489c7c6da9fa346d`. Existing equipment catalog attributions also apply.
+- No explicit license file was found in the pinned TsunKitQuests repository. Attribution does not claim ownership of or relicense the upstream factual data or translations under the bot software's GPL. Only data is extracted; no upstream tracker implementation is copied.
+- `quests.py` and `scripts/build_quests.py` are new bot code. Source choices, identity discrepancies, limited coverage, and rebuilding are documented in `QUEST_DATA.md`.
+
 ## Expedition facts and ElectronicObserver reference
 
 - wikiwiki Kancolle contributors: https://wikiwiki.jp/kancolle/%E9%81%A0%E5%BE%81 . Expedition requirements, rewards and prerequisite facts were extracted from a user-provided HAR; the site's HTML and browser request credentials are not redistributed.
