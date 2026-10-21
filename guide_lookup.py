@@ -145,14 +145,29 @@ def find_random_fleet(text):
     return fleet + '\n' + note
 
 
+def guide_map(value, maps=()):
+    """Preserve explicit gauges; fill omitted gauges only when unambiguous."""
+    value = unicodedata.normalize('NFKC', value).strip()
+    value = quests.SORTIE_BOSS_MAPS.get(value, value)
+    match = re.fullmatch(r'([1-7])-?([1-6])(?:-?(?:P)?([1-3]))?', value)
+    if not match:
+        return None
+    area = '-'.join(part for part in match.groups() if part)
+    if match[3]:
+        return area
+    candidates = {item for item in maps if item == area or item.startswith(area + '-')}
+    return next(iter(candidates)) if len(candidates) == 1 else area
+
+
 def sortie_maps(value):
     found = []
     if isinstance(value, dict):
         for key, child in value.items():
-            if key == 'map' and isinstance(child, str):
-                match = re.search(r'[1-7]-[1-6]', child)
-                if match:
-                    found.append(match.group())
+            if key == 'map':
+                for item in child if isinstance(child, list) else [child]:
+                    area = guide_map(item) if isinstance(item, str) else None
+                    if area:
+                        found.append(area)
             else:
                 found.extend(sortie_maps(child))
     elif isinstance(value, list):
@@ -168,10 +183,9 @@ def build_preview(query, root=ROOT):
         return USAGE, []
     target_map = None
     if len(args) == 2:
-        match = re.fullmatch(r'([1-7])-?([1-6])', args[1])
-        if not match:
+        target_map = guide_map(args[1])
+        if not target_map:
             return USAGE, []
-        target_map = '-'.join(match.groups())
     catalog = quests.catalog()
     key = catalog.by_code.get(args[0].casefold())
     if key is None:
@@ -197,6 +211,8 @@ def build_preview(query, root=ROOT):
         known[image_identity(image['url'])] = path
     body = select_article((folder / 'article.html').read_text(encoding='utf-8'))
     maps = sortie_maps(quest.get('requirements', {}))
+    if target_map:
+        target_map = guide_map(target_map, maps)
     current_map = maps[0] if len(maps) == 1 else None
     active, air = False, False
     variants = []
@@ -212,9 +228,9 @@ def build_preview(query, root=ROOT):
             continue
         text = unicodedata.normalize('NFKC', visible_text(node)).strip()
         if node.tag in {'h3', 'h4', 'h5', 'h6'}:
-            match = re.search(r'[1-7]-[1-6]', text)
+            match = re.search(r'(?<![0-9])[1-7]-[1-6](?:-[1-3])?(?![0-9])', text)
             if match:
-                current_map, air = match.group(), False
+                current_map, air = guide_map(match.group(), maps), False
                 phase = ''
                 pending = []
             if '基地航空隊' in text:

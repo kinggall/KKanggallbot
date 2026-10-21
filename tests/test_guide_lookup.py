@@ -1,9 +1,28 @@
 import unittest
 
-from guide_lookup import find_route, translate_route
+from guide_lookup import find_route, translate_route, guide_map, sortie_maps
 
 
 class GuideTranslationTests(unittest.TestCase):
+    def test_gauge_maps_and_compact_queries(self):
+        for value in ('722', '7-2-2', '７－２－２', '7-2M', '7-2-P2'):
+            self.assertEqual(guide_map(value), '7-2-2')
+        self.assertEqual(guide_map('732'), '7-3-2')
+        self.assertEqual(guide_map('55'), '5-5')
+        self.assertIsNone(guide_map('7222'))
+
+    def test_only_unambiguous_gauge_is_inferred(self):
+        maps = ['7-2-2', '7-3-2', '4-2']
+        self.assertEqual(guide_map('7-2', maps), '7-2-2')
+        self.assertEqual(guide_map('7-3', maps), '7-3-2')
+        self.assertEqual(guide_map('7-2-1', maps), '7-2-1')
+        self.assertEqual(guide_map('7-2', ['7-2-1', '7-2-2']), '7-2')
+
+    def test_quest_map_arrays_preserve_gauges(self):
+        self.assertEqual(sortie_maps({'requirements': [
+            {'map': ['7-2M', '7-3P', '4-2']}, {'map': '7-2-2'}]}),
+            ['7-2-2', '7-3-2', '4-2'])
+
     def test_speed_class_and_numeric_constraints(self):
         self.assertEqual(translate_route('重巡級1潜母1揚陸艦1(高速+統一)'),
                          '중순급1 잠수항모1 상륙함1(고속+통일)')
