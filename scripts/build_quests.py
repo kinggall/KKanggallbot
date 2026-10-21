@@ -97,6 +97,7 @@ def build(source, eo, master_repo, root):
     }
 
     translations = read(eo / "Translations/ko-KR/quest.json")
+    text_corrections = read(root / "data/quest_text_corrections.json")
     eo_quests = read(eo / "Data/Quests.json")
     eo_by_id = {str(q["api_id"]): q for q in eo_quests}
     eo_by_code = {q["code"].strip().casefold(): q for q in eo_quests if q.get("code")}
@@ -165,7 +166,13 @@ def build(source, eo, master_repo, root):
             row["wiki_id"] = original_code
         translated = translations.get(key, {})
         ref = eo_by_id.get(key, {})
-        row["name_ko"] = translated.get("name") or ref.get("name_en") or row.get("name") or f"{row['wiki_id']} (임무명 미등록)"
+        correction = text_corrections.get(key, {})
+        if correction.get("historical_code"):
+            ref = next(q for q in eo_quests if q["api_id"] == correction["historical_api_id"]
+                       and q["code"].strip() == correction["historical_code"])
+            row["aliases"].append(row["wiki_id"])
+            row["wiki_id"] = ref["code"].strip()
+        row["name_ko"] = correction.get("name_ko") or translated.get("name") or ref.get("name_en") or row.get("name") or f"{row['wiki_id']} (임무명 미등록)"
         row["name_jp"] = translated.get("name_jp") or ref.get("name_jp", "")
         row["desc_ko"] = translated.get("desc", "")
         # Do not label an English string in the Korean translation as translated.
@@ -228,6 +235,7 @@ def build(source, eo, master_repo, root):
               "condition_supplements": {"B205": "Wikiwiki 5-5/6-5/4-5 boss S twice each; both escort alternatives",
                                         "B210": "Wikiwiki 1-1/1-2/1-3/1-4 boss S once each"},
               "wiki_prerequisites": wiki_comparison,
+              "text_corrections": text_corrections,
               "scope": "Offline source snapshot with documented Wikiwiki supplements; no October 14 update present"}
     for name, value in (("quests.json", data), ("quest_verification.json", report)):
         (root / "data" / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

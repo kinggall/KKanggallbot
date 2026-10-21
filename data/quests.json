@@ -5139,7 +5139,7 @@
     },
     "241009": {
       "game_id": 241009,
-      "wiki_id": "UNK_241009",
+      "wiki_id": "2404 B4",
       "category": "sortie",
       "frequency": "event",
       "release_date": "2024-04-23",
@@ -5224,11 +5224,13 @@
           }
         ]
       },
-      "aliases": [],
-      "name_ko": "UNK_241009 (임무명 미등록)",
-      "name_jp": "",
+      "aliases": [
+        "UNK_241009"
+      ],
+      "name_ko": "【기념임무: 확장작전】함대, 남방전선으로!",
+      "name_jp": "【記念任務:拡張作戦】艦隊、南方戦線へ！",
       "desc_ko": "",
-      "description": ""
+      "description": "Organize a fleet with any 2 of Fubuki, Jintsuu, Yura, Northampton, Helena and have an Akizuki-class in your fleet and score an S rank at the boss nodes on 5-1, 5-2, 5-3, 5-4 and 5-5"
     },
     "243": {
       "game_id": 243,
@@ -16892,7 +16894,7 @@
         ]
       },
       "aliases": [],
-      "name_ko": "제6구축대 대잠 초계가 철저하나노데!",
+      "name_ko": "제6구축대 대잠 초계가 철저하나노데스!",
       "name_jp": "「第六駆逐隊」対潜哨戒を徹底なのです！",
       "desc_ko": "제6구축대를 포함한 함대에서 진수부 정면에서 대잠 초계를 실시, 적 잠수함부대를 격파하라!",
       "description": "제6구축대를 포함한 함대에서 진수부 정면에서 대잠 초계를 실시, 적 잠수함부대를 격파하라!",
@@ -47735,7 +47737,7 @@
     "240971": "UNK_240971",
     "240972": "UNK_240972",
     "240979": "UNK_240979",
-    "241009": "UNK_241009",
+    "241009": "2404 B4",
     "260326": "Cs6"
   },
   "labels": {

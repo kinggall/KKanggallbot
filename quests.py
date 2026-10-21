@@ -487,7 +487,8 @@ class QuestCatalog:
         if not found:
             return f"'{query}' 임무를 찾지 못했습니다.\n" + USAGE
         lines = [f"'{query}' 검색 결과 {len(found)}개. 임무 번호를 입력해주세요."]
-        lines.extend(f"· {clean(self.items[k]['name_ko'])} ({self.items[k]['wiki_id']})" for k in found[:30])
+        lines.extend(f"· {clean(self.items[k]['name_ko'])} ({self.items[k]['wiki_id']})"
+                     + (" (종료)" if self.items[k].get("unavailable") else "") for k in found[:30])
         if len(found) > 30:
             lines.append("이름을 더 자세히 입력해주세요.")
         lines.append("번호 검색 예: !임무 " + self.items[found[0]]["wiki_id"])

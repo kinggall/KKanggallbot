@@ -1,0 +1,12 @@
+{
+  "277": {
+    "name_ko": "제6구축대 대잠 초계가 철저하나노데스!",
+    "note": "B45: restore the missing 스 in 나노데스."
+  },
+  "241009": {
+    "name_ko": "【기념임무: 확장작전】함대, 남방전선으로!",
+    "historical_api_id": 1009,
+    "historical_code": "2404 B4",
+    "note": "Archived 2024 quest. TsunKit uses synthetic ID 241009 / UNK_241009; match EO's historical 1009 record by code, release date and ship/map requirements, not the reused current 1009 ID."
+  }
+}

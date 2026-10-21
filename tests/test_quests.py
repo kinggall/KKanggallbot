@@ -223,6 +223,16 @@ Bw5 + B98'''
         self.assertIn("찾지 못했습니다", self.catalog.reply("B999999"))
         self.assertIn("찾지 못했습니다", self.catalog.reply("857"))
 
+    def test_corrected_title_and_archived_jintsuu_quest_identity(self):
+        self.assertIn("철저하나노데스!", self.catalog.reply("B45"))
+        reply = self.catalog.reply("진츠")
+        self.assertIn("【기념임무: 확장작전】함대, 남방전선으로! (2404 B4) (종료)", reply)
+        self.assertNotIn("임무명 미등록", reply)
+        archived = self.catalog.reply("2404 B4")
+        self.assertIn("(기간한정/종료)", archived)
+        self.assertEqual(archived, self.catalog.reply("UNK_241009"))
+        self.assertIn("5-1/5-2/5-3/5-4/5-5 보스 S승 각 1회", archived)
+
     def test_real_webhook_commands_reply_once_to_original_chat_without_get(self):
         with patch.object(requests, "get", side_effect=requests.RequestException("offline test")):
             import bot
