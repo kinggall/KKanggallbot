@@ -156,6 +156,13 @@ Bw5 + B98'''
             self.assertIn(label, self.catalog.reply(code))
         self.assertIn("7-4 O지점", self.catalog.reply("B175"))
 
+    def test_named_ship_selection_counts(self):
+        b157 = self.catalog.reply("B157")
+        self.assertIn("유구모 개2/마키구모 개2/카자구모 개2/아키구모 개2 + 자유 0~2", b157)
+        self.assertNotIn("아키구모 개2 4", b157)
+        self.assertIn("아키시모/키요시모 중 1", self.catalog.reply("B206"))
+        self.assertIn("후지나미 개2(기함)", self.catalog.reply("B207"))
+
     def test_all_quest_ship_ids_have_korean_display_names(self):
         ids = set()
 

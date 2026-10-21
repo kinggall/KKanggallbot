@@ -146,8 +146,16 @@ class QuestCatalog:
         amount = rule.get("amount")
         if isinstance(amount, list):
             amount = str(amount[0]) if amount[0] == amount[1] else f"{amount[0]}~{amount[1]}"
+        elif amount is not None:
+            amount = str(amount)
         if amount is not None:
-            if not ("ship_id" in rule and not isinstance(rule["ship_id"], list) and str(amount) == "1"):
+            ship_ids = values(rule["ship_id"]) if "ship_id" in rule else []
+            only_named_ships = ship_ids and not any(k in rule for k in ("class_id", "family_id", "group_id", "criteria"))
+            if only_named_ships and amount.isdigit() and int(amount) == len(set(ship_ids)):
+                pass  # Every listed ship is required; the count adds no information.
+            elif only_named_ships and len(ship_ids) > 1:
+                label += f" 중 {amount}"
+            else:
                 label += f" {amount}"
         if rule.get("otherships") and label != "자유" and any(k in rule for k in ("ship_id", "class_id", "family_id", "group_id")):
             label += "(추가)"
