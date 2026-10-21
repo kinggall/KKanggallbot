@@ -16,6 +16,12 @@ TERMS = {
     '補給艦': '보급', '補給': '보급', '旗艦': '기함',
     '渦潮': '와류', 'うずしお': '와류', '混成': '혼성',
     '正空': '정규항모', '軽空': '경항모',
+    '夜戦空襲': '야간공습', '対潜空襲': '대잠공습',
+    'レーダー射撃': '전탐', '電探射撃': '전탐', 'レーダー': '전탐', '電探': '전탐',
+    '夜昼戦': '야간→주간전', '昼夜戦': '주간→야간전', '払暁戦': '새벽전',
+    '空襲戦': '공습', '夜戦': '야전', '昼戦': '주간전', '空戦': '항공전',
+    '能動分岐': '능동분기', '資源': '자원', '燃料': '연료', '弾薬': '탄약',
+    '鋼材': '강재', 'ボーキサイト': '보키', 'ボーキ': '보키',
     '航空戦': '항공전', '空襲': '공습', '通常': '통상', '対潜': '대잠',
     '水雷': '수뢰', 'ボス': '보스', '戦艦': '전함', '軽巡': '경순',
     '重巡': '중순', '駆逐': '구축', '航巡': '항순', '航戦': '항전',
@@ -37,10 +43,25 @@ def find_route(text):
     # Articles can place fleet counts and the route on separate HTML lines.
     # Capture only the route and battle types, not following quest notes.
     text = re.sub(r'\s+', ' ', text).strip()
-    return re.search(
+    match = re.search(
         r'(?:戦艦|軽巡|重巡|駆逐|正空|軽空|空母|水母|航巡|航戦|潜水|雷巡|補給)'
-        r'.*?【[^】]+】(?:\s*\([^)]*\))?', text,
+        r'.*?【[^】]+】', text,
     )
+    if not match:
+        return None
+    end = match.end()
+    annotation_start = end + len(text[end:]) - len(text[end:].lstrip())
+    if annotation_start < len(text) and text[annotation_start] == '(':
+        depth = 0
+        for index in range(annotation_start, len(text)):
+            if text[index] == '(':
+                depth += 1
+            elif text[index] == ')':
+                depth -= 1
+                if depth == 0:
+                    end = index + 1
+                    break
+    return text[match.start():end]
 
 
 def sortie_maps(value):
@@ -138,7 +159,7 @@ def build_preview(query, root=ROOT):
                 if not pending:
                     continue
                 variants.append({'map': current_map, 'phase': phase,
-                                 'summary': translate_route(match.group()), 'pictures': list(pending)})
+                                 'summary': translate_route(match), 'pictures': list(pending)})
                 pending = []
     summaries, pictures, selected = [], [], set()
     for variant in variants:
