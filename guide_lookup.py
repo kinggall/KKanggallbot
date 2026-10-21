@@ -176,6 +176,33 @@ def sortie_maps(value):
     return list(dict.fromkeys(found))
 
 
+def map_fleet_sections(text):
+    """Split shared fleet paragraphs with explicit per-map route notes."""
+    labels = list(re.finditer(r'(?<![0-9])([1-7]-[1-6](?:-[1-3])?)\s*:', text))
+    if not labels:
+        return []
+    fleet = text[:labels[0].start()].strip()
+    if not re.match(r'^' + FLEET_TYPES + r'\s*\d', fleet):
+        return []
+    sections = []
+    for index, label in enumerate(labels):
+        end = labels[index + 1].start() if index + 1 < len(labels) else len(text)
+        note = re.split(r'※|制空シミュ', text[label.end():end])[0].strip()
+        route = find_route(fleet + ' ' + note)
+        if route:
+            summary = translate_route(route)
+        else:
+            count = re.search(r'道中\s*(\d+)戦', note)
+            if not count and 'ランダム' not in note and '固定不可' not in note:
+                continue
+            summary = translate_route(fleet) + '\n'
+            summary += f'도중 {count[1]}전' if count else '고정 경로 표기 없음'
+            if 'ランダム' in note or '固定不可' in note:
+                summary += ' / 경로 랜덤'
+        sections.append((label[1], summary))
+    return sections
+
+
 def build_preview(query, root=ROOT):
     """Return text and local fleet images; never fetch from the network."""
     args = query.strip().split()
@@ -251,6 +278,13 @@ def build_preview(query, root=ROOT):
             if path and not air and path not in pending:
                 pending.append(path)
         if node.tag == 'p' and not air:
+            sections = map_fleet_sections(text)
+            if sections and pending:
+                for area, summary in sections:
+                    variants.append({'map': guide_map(area, maps), 'phase': phase,
+                                     'summary': summary, 'pictures': list(pending)})
+                pending = []
+                continue
             match = find_route(text)
             summary = translate_route(match) if match else find_random_fleet(text)
             if summary and current_map:

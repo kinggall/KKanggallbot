@@ -1,9 +1,17 @@
 import unittest
 
-from guide_lookup import find_route, translate_route, guide_map, sortie_maps
+from guide_lookup import find_route, translate_route, guide_map, sortie_maps, map_fleet_sections
 
 
 class GuideTranslationTests(unittest.TestCase):
+    def test_shared_fleet_has_separate_map_routes(self):
+        sections = map_fleet_sections('軽空2駆逐4\n1-3:【CFJ】(C:通常 F:通常 J:ボス)\n'
+                                     '1-4:道中2戦固定(ランダム)\n※任務条件')
+        self.assertEqual([area for area, _ in sections], ['1-3', '1-4'])
+        self.assertEqual(sections[0][1], '경항모2 구축4 【CFJ】(C:통상 F:통상 J:보스)')
+        self.assertEqual(sections[1][1], '경항모2 구축4\n도중 2전 / 경로 랜덤')
+        self.assertNotIn('1-3:', sections[0][1])
+
     def test_gauge_maps_and_compact_queries(self):
         for value in ('722', '7-2-2', '７－２－２', '7-2M', '7-2-P2'):
             self.assertEqual(guide_map(value), '7-2-2')
