@@ -27,6 +27,9 @@ app = Flask(__name__)
 
 IRIS_REPLY_URL = "http://127.0.0.1:3000/reply"
 PICTURES_DIR = Path(__file__).resolve().parent.parent / "pictures"
+IMAGE_CACHE = {}
+IMAGE_CACHE_LOCK = threading.RLock()
+IMAGE_SEND_EXECUTOR = ThreadPoolExecutor(max_workers=2)
 
 CSV_FILE = Path(__file__).parent / "ships.csv"
 SHIP_KO_FILE = Path(__file__).parent / "data" / "ship-ko.json"
@@ -1738,15 +1741,29 @@ def webhook():
             return jsonify({"ok": True})
 
         try:
-            image_data = base64.b64encode(image_path.read_bytes()).decode("ascii")
-            response = requests.post(
-                IRIS_REPLY_URL,
-                json={"type": "image", "room": str(chat_id), "data": image_data},
-                timeout=20,
-            )
-            print(f"[이미지 답변] 파일={image_path.name}, 상태 코드={response.status_code}")
+            cache_key = str(image_path)
+            with IMAGE_CACHE_LOCK:
+                image_data = IMAGE_CACHE.get(cache_key)
+            if image_data is None:
+                image_data = base64.b64encode(image_path.read_bytes()).decode("ascii")
+                with IMAGE_CACHE_LOCK:
+                    IMAGE_CACHE[cache_key] = image_data
         except OSError as error:
             print(f"[이미지 읽기 실패] 경로={image_path}, 오류={error}")
+            return jsonify({"ok": True})
+
+        def send_image():
+            try:
+                response = requests.post(
+                    IRIS_REPLY_URL,
+                    json={"type": "image", "room": str(chat_id), "data": image_data},
+                    timeout=20,
+                )
+                print(f"[이미지 답변] 파일={image_path.name}, 상태 코드={response.status_code}")
+            except requests.RequestException as error:
+                print(f"[이미지 전송 실패] 파일={image_path.name}, 오류={error}")
+
+        IMAGE_SEND_EXECUTOR.submit(send_image)
         return jsonify({"ok": True})
 
     panty_match = PANTY_COMMAND.fullmatch(message)
