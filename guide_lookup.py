@@ -154,10 +154,14 @@ def build_preview(query, root=ROOT):
             continue
         selected.add(identity)
         heading = f'{area} [{label}]' if target_map and label else area
-        summaries.append(f"{heading}: {variant['summary']}")
+        fleet, separator, route = variant['summary'].partition('【')
+        summary = f'{heading}: {fleet.rstrip()}'
+        if separator:
+            summary += '\n【' + route
+        summaries.append(summary)
         for path in variant['pictures']:
             if path not in pictures:
                 pictures.append(path)
     if not summaries or not pictures:
         return header + '\n\n저장된 공략의 편성·해역 연결을 확인 중입니다.', []
-    return header + '\n\n' + '\n'.join(summaries), pictures
+    return header + '\n\n' + '\n\n'.join(summaries), pictures
