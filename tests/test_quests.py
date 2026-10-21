@@ -177,7 +177,7 @@ Bw5 + B98'''
     def test_real_webhook_commands_reply_once_to_original_chat_without_get(self):
         with patch.object(requests, "get", side_effect=requests.RequestException("offline test")):
             import bot
-        self.assertIn("!임무 [임무번호/임무명]", bot.COMMANDS["!도움말"])
+        self.assertIn("!임무 [번호/키워드]", bot.COMMANDS["!도움말"])
         for query in ("b100", "증강 해상호위총대", "증강", "B98", "F108", ""):
             with self.subTest(query=query), patch.object(bot.requests, "get", side_effect=AssertionError("No GET")), \
                     patch.object(bot.requests, "post") as post:
