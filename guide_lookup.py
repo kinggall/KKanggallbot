@@ -13,6 +13,9 @@ TERMS = {
     '航空戦艦': '항전', '航空巡洋艦': '항순', '重雷装巡洋艦': '뇌순',
     '正規空母': '정규항모', '装甲空母': '장갑항모', '軽空母': '경항모',
     '水上機母艦': '수모', '軽巡洋艦': '경순', '重巡洋艦': '중순',
+    '補給艦': '보급', '補給': '보급', '旗艦': '기함',
+    '渦潮': '와류', 'うずしお': '와류', '混成': '혼성',
+    '正空': '정규항모', '軽空': '경항모',
     '航空戦': '항공전', '空襲': '공습', '通常': '통상', '対潜': '대잠',
     '水雷': '수뢰', 'ボス': '보스', '戦艦': '전함', '軽巡': '경순',
     '重巡': '중순', '駆逐': '구축', '航巡': '항순', '航戦': '항전',
@@ -79,6 +82,7 @@ def build_preview(query, root=ROOT):
     current_map = maps[0] if len(maps) == 1 else None
     active, air = False, False
     summaries, pictures = [], []
+    selected_maps = set()
     pending = []
     for node in body.walk():
         if node.tag == 'h2':
@@ -103,11 +107,14 @@ def build_preview(query, root=ROOT):
             if path and not air and path not in pending:
                 pending.append(path)
         if node.tag == 'p' and not air:
-            match = re.search(r'(?:戦艦|軽巡|重巡|駆逐|空母|水母|航巡|航戦|潜水|雷巡).*?【[^】]+】[^\n]*', text)
+            match = re.search(r'(?:戦艦|軽巡|重巡|駆逐|正空|軽空|空母|水母|航巡|航戦|潜水|雷巡|補給).*?【[^】]+】[^\n]*', text)
             if match and current_map:
+                if current_map in selected_maps or not pending:
+                    pending = []
+                    continue
                 summary = f'{current_map}: {translate_route(match.group())}'
-                if summary not in summaries:
-                    summaries.append(summary)
+                summaries.append(summary)
+                selected_maps.add(current_map)
                 for path in pending:
                     if path not in pictures:
                         pictures.append(path)
