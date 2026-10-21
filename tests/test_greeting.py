@@ -7,6 +7,40 @@ import bot
 
 
 class GreetingTests(unittest.TestCase):
+    def test_profanity_keywords_reply_inside_longer_messages(self):
+        cases = {
+            "진짜 시발 뭐야": "욕하지 마세요",
+            "씨발": "욕하지 마세요",
+            "애미라고 쓰지 마": "바르고 고운 말 써요~",
+            "좆같네": "바르고 고운 말 써요~",
+        }
+        for message, expected in cases.items():
+            with self.subTest(message=message), patch.object(bot.requests, "post") as post:
+                response = bot.app.test_client().post(
+                    "/webhook",
+                    json={"msg": message, "json": {"chat_id": "greeting-room"}},
+                )
+
+            self.assertEqual(response.status_code, 200)
+            post.assert_called_once()
+            self.assertEqual(post.call_args.kwargs["json"]["data"], expected)
+
+    def test_profanity_replies_do_not_trigger_again(self):
+        for message in ("욕하지 마세요", "바르고 고운 말 써요~"):
+            with self.subTest(message=message), patch.object(bot.requests, "post") as post:
+                response = bot.app.test_client().post(
+                    "/webhook",
+                    json={
+                        "msg": message,
+                        "room": "Iris",
+                        "sender": "Iris",
+                        "json": {"chat_id": "greeting-room"},
+                    },
+                )
+
+            self.assertEqual(response.status_code, 200)
+            post.assert_not_called()
+
     def test_good_morning_keyword_replies_once_to_original_chat(self):
         with patch.object(bot.requests, "post") as post:
             response = bot.app.test_client().post(

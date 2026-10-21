@@ -1718,9 +1718,29 @@ def webhook():
         print(f"[답변 전송] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
+    if "시발" in message or "씨발" in message:
+        reply = "욕하지 마세요"
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[비속어 답변] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if "애미" in message or "좆" in message:
+        reply = "바르고 고운 말 써요~"
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[비속어 답변] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
     # Iris also sends the bot's own outgoing messages back to this webhook.
-    # Exclude the exact reply so the substring trigger cannot answer itself
-    # forever.
+    # Exclude exact replies that contain their own trigger so they cannot
+    # answer themselves forever. Profanity replies contain no trigger words.
     if "굿모닝" in message and message != "굿모닝~":
         reply = "굿모닝~"
         response = requests.post(
