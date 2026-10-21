@@ -8,7 +8,7 @@ import quests
 from scripts.collect_zekamashi import image_identity, normalized, select_article, visible_text, visible_walk
 
 ROOT = Path(__file__).resolve().parent
-USAGE = '사용법: !공략 [임무번호]\n예: !공략 B44 / !공략 By10'
+USAGE = '사용법: !공략 [임무번호] [해역(선택)]\n예: !공략 By10 / !공략 By10 55'
 TERMS = {
     '航空戦艦': '항전', '航空巡洋艦': '항순', '重雷装巡洋艦': '뇌순',
     '正規空母': '정규항모', '装甲空母': '장갑항모', '軽空母': '경항모',
@@ -52,8 +52,14 @@ def sortie_maps(value):
 def build_preview(query, root=ROOT):
     """Return text and local fleet images; never fetch from the network."""
     args = query.strip().split()
-    if len(args) != 1:
+    if len(args) not in (1, 2):
         return USAGE, []
+    target_map = None
+    if len(args) == 2:
+        match = re.fullmatch(r'([1-7])-?([1-6])', args[1])
+        if not match:
+            return USAGE, []
+        target_map = '-'.join(match.groups())
     catalog = quests.catalog()
     key = catalog.by_code.get(args[0].casefold())
     if key is None:
@@ -81,8 +87,8 @@ def build_preview(query, root=ROOT):
     maps = sortie_maps(quest.get('requirements', {}))
     current_map = maps[0] if len(maps) == 1 else None
     active, air = False, False
-    summaries, pictures = [], []
-    selected_maps = set()
+    variants = []
+    phase = ''
     pending = []
     for node in visible_walk(body):
         if node.tag == 'h2':
@@ -93,13 +99,23 @@ def build_preview(query, root=ROOT):
         if not active:
             continue
         text = unicodedata.normalize('NFKC', visible_text(node)).strip()
-        if node.tag in {'h3', 'h4'}:
+        if node.tag in {'h3', 'h4', 'h5', 'h6'}:
             match = re.search(r'[1-7]-[1-6]', text)
             if match:
                 current_map, air = match.group(), False
+                phase = ''
                 pending = []
             if '基地航空隊' in text:
                 air = True
+        phase_label = node.tag in {'h3', 'h4', 'h5', 'h6'} or (
+            node.tag == 'p' and re.match(r'^[●※\s]*ゲージ破壊(?:前|後)', text))
+        if phase_label:
+            before, after = 'ゲージ破壊前' in text, 'ゲージ破壊後' in text
+            if before != after:
+                phase = '게이지 파괴 전' if before else '게이지 파괴 후'
+                air = False
+                if node.tag != 'p':
+                    pending = []
         if node.tag in {'a', 'img'}:
             url = (node.attrs.get('href', '') if node.tag == 'a'
                    else node.attrs.get('data-src') or node.attrs.get('src', ''))
@@ -109,16 +125,29 @@ def build_preview(query, root=ROOT):
         if node.tag == 'p' and not air:
             match = re.search(r'(?:戦艦|軽巡|重巡|駆逐|正空|軽空|空母|水母|航巡|航戦|潜水|雷巡|補給).*?【[^】]+】[^\n]*', text)
             if match and current_map:
-                if current_map in selected_maps or not pending:
-                    pending = []
+                if not pending:
                     continue
-                summary = f'{current_map}: {translate_route(match.group())}'
-                summaries.append(summary)
-                selected_maps.add(current_map)
-                for path in pending:
-                    if path not in pictures:
-                        pictures.append(path)
+                variants.append({'map': current_map, 'phase': phase,
+                                 'summary': translate_route(match.group()), 'pictures': list(pending)})
                 pending = []
+    summaries, pictures, selected = [], [], set()
+    for variant in variants:
+        area, label = variant['map'], variant['phase']
+        if target_map and area != target_map:
+            continue
+        # The overview picks the first example per map. The detail picks
+        # the first example per explicit gauge phase; unlabelled variants
+        # remain separate rather than guessing whether they are pre/post.
+        identity = (area, label) if target_map and label else (
+            (area, len(summaries)) if target_map else area)
+        if identity in selected:
+            continue
+        selected.add(identity)
+        heading = f'{area} [{label}]' if target_map and label else area
+        summaries.append(f"{heading}: {variant['summary']}")
+        for path in variant['pictures']:
+            if path not in pictures:
+                pictures.append(path)
     if not summaries or not pictures:
         return header + '\n\n저장된 공략의 편성·해역 연결을 확인 중입니다.', []
     return header + '\n\n' + '\n'.join(summaries), pictures
