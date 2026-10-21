@@ -110,7 +110,7 @@ Bw5 + B98'''
 
     def test_every_quest_renders_offline_and_external_code_returns_same_record(self):
         with patch.object(requests, "get", side_effect=AssertionError("Quest lookup must stay offline")):
-            self.assertEqual(len(self.catalog.items), 652)
+            self.assertEqual(len(self.catalog.items), 651)
             for key, row in self.catalog.items.items():
                 with self.subTest(code=row["wiki_id"]):
                     result = self.catalog.reply(row["wiki_id"].lower())
@@ -223,15 +223,20 @@ Bw5 + B98'''
         self.assertIn("찾지 못했습니다", self.catalog.reply("B999999"))
         self.assertIn("찾지 못했습니다", self.catalog.reply("857"))
 
-    def test_corrected_title_and_archived_jintsuu_quest_identity(self):
+    def test_corrected_names_removed_expired_quest_and_usage(self):
         self.assertIn("철저하나노데스!", self.catalog.reply("B45"))
-        reply = self.catalog.reply("진츠")
-        self.assertIn("【기념임무: 확장작전】함대, 남방전선으로! (2404 B4) (종료)", reply)
-        self.assertNotIn("임무명 미등록", reply)
-        archived = self.catalog.reply("2404 B4")
-        self.assertIn("(기간한정/종료)", archived)
-        self.assertEqual(archived, self.catalog.reply("UNK_241009"))
-        self.assertIn("5-1/5-2/5-3/5-4/5-5 보스 S승 각 1회", archived)
+        self.assertEqual(self.catalog.reply("진츠"), self.catalog.reply("A14"))
+        self.assertNotIn("241009", self.catalog.items)
+        self.assertIn("센다이/진츠/나카", self.catalog.reply("A14"))
+        self.assertNotIn("나차", self.catalog.reply("A14"))
+        self.assertEqual(self.catalog.reply("ㅇㅇㅇ"), "'ㅇㅇㅇ' 임무를 찾지 못했습니다.\n"
+                         "사용법: !임무 [번호/키워드]\n예: !임무 B44 / 반격 / 6구 / 찐빵")
+        with patch.object(requests, "get", side_effect=requests.RequestException("offline test")):
+            import bot
+        self.assertEqual(bot.SHIP_TRANSLATIONS["那珂"], "나카")
+        improvement = bot.build_improvement_reply("나카")
+        self.assertIn("나카 개수 가능 장비", improvement)
+        self.assertNotIn("나차", improvement)
 
     def test_real_webhook_commands_reply_once_to_original_chat_without_get(self):
         with patch.object(requests, "get", side_effect=requests.RequestException("offline test")):

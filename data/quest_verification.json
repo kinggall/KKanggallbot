@@ -26,8 +26,8 @@
     "quests.json",
     "unverified"
   ],
-  "count": 652,
-  "unverified": 54,
+  "count": 651,
+  "unverified": 53,
   "provenance": {
     "101": {
       "source_id": 101,
@@ -500,14 +500,6 @@
       "source_requirements_sha256": "61006a9893893a2631f0356f99ef77e46ec67e88afd68fa8b87e6de1b7982ed4",
       "requirements_sha256": "61006a9893893a2631f0356f99ef77e46ec67e88afd68fa8b87e6de1b7982ed4",
       "rewards_sha256": "cc2a9f823f8aad890c34a3bdbf2502a1e89c42400f1182a56e106836d966109e"
-    },
-    "241009": {
-      "source_id": 241009,
-      "path": "quests.json",
-      "source_sha256": "1e41620277d87a0d47b75cb0bd72f4ae582434dd829bdc7e220b6bb49065fca8",
-      "source_requirements_sha256": "524e20fc3316d8a9a3d418f0eeb9182865c7477f7e83889150b4d1ef63cb5b31",
-      "requirements_sha256": "524e20fc3316d8a9a3d418f0eeb9182865c7477f7e83889150b4d1ef63cb5b31",
-      "rewards_sha256": "090ac847e0725cd478bac3f0591e1efa15c70c94bc43176c6ece7e563893a6f4"
     },
     "243": {
       "source_id": 243,
@@ -5305,7 +5297,6 @@
     840,
     841,
     971,
-    972,
     1020,
     1037,
     1152,
@@ -5943,13 +5934,10 @@
     "277": {
       "name_ko": "제6구축대 대잠 초계가 철저하나노데스!",
       "note": "B45: restore the missing 스 in 나노데스."
-    },
-    "241009": {
-      "name_ko": "【기념임무: 확장작전】함대, 남방전선으로!",
-      "historical_api_id": 1009,
-      "historical_code": "2404 B4",
-      "note": "Archived 2024 quest. TsunKit uses synthetic ID 241009 / UNK_241009; match EO's historical 1009 record by code, release date and ship/map requirements, not the reused current 1009 ID."
     }
+  },
+  "excluded_quests": {
+    "241009": "User requested removal of the expired 2024 southern-front quest"
   },
   "scope": "Offline source snapshot with documented Wikiwiki supplements; no October 14 update present"
 }

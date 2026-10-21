@@ -5137,101 +5137,6 @@
       "desc_ko": "",
       "description": ""
     },
-    "241009": {
-      "game_id": 241009,
-      "wiki_id": "2404 B4",
-      "category": "sortie",
-      "frequency": "event",
-      "release_date": "2024-04-23",
-      "updated": "2025-05-20T02:39:57.8699209Z",
-      "unverified": true,
-      "unavailable": true,
-      "prereqs": [
-        972
-      ],
-      "requirements": {
-        "category": "sortie",
-        "sortie": [
-          {
-            "map": [
-              "5-1",
-              "5-2",
-              "5-3",
-              "5-4",
-              "5-5"
-            ],
-            "boss": true,
-            "result": "S",
-            "times": 1
-          }
-        ],
-        "comp": [
-          {
-            "ship_id": [
-              9,
-              55,
-              23,
-              655,
-              615
-            ],
-            "amount": 2
-          },
-          {
-            "family_id": 54,
-            "amount": 1
-          },
-          {
-            "otherships": true,
-            "amount": [
-              0,
-              3
-            ]
-          }
-        ]
-      },
-      "rewards": {
-        "resources": [
-          1700,
-          1700,
-          1700,
-          1700
-        ],
-        "other": [
-          {
-            "choices": []
-          },
-          {
-            "choices": [
-              {
-                "category": "inventory",
-                "id": 57,
-                "stars": 0,
-                "amount": 4
-              },
-              {
-                "category": "equipment",
-                "id": 307,
-                "stars": 3,
-                "amount": 1
-              },
-              {
-                "category": "inventory",
-                "id": 78,
-                "stars": 0,
-                "amount": 2
-              }
-            ]
-          }
-        ]
-      },
-      "aliases": [
-        "UNK_241009"
-      ],
-      "name_ko": "【기념임무: 확장작전】함대, 남방전선으로!",
-      "name_jp": "【記念任務:拡張作戦】艦隊、南方戦線へ！",
-      "desc_ko": "",
-      "description": "Organize a fleet with any 2 of Fubuki, Jintsuu, Yura, Northampton, Helena and have an Akizuki-class in your fleet and score an S rank at the boss nodes on 5-1, 5-2, 5-3, 5-4 and 5-5"
-    },
     "243": {
       "game_id": 243,
       "wiki_id": "Bw9",
@@ -47737,7 +47642,6 @@
     "240971": "UNK_240971",
     "240972": "UNK_240972",
     "240979": "UNK_240979",
-    "241009": "2404 B4",
     "260326": "Cs6"
   },
   "labels": {
@@ -47793,7 +47697,7 @@
       "53": "나토리",
       "54": "센다이",
       "55": "진츠",
-      "56": "나차",
+      "56": "나카",
       "57": "오오이개",
       "58": "키타카미개",
       "59": "후루타카",
@@ -47897,7 +47801,7 @@
       "157": "류죠 개2",
       "158": "센다이 개2",
       "159": "진츠 개2",
-      "160": "나차 개2",
+      "160": "나카 개2",
       "161": "아키츠마루",
       "162": "카모이",
       "163": "마루유",
@@ -47961,7 +47865,7 @@
       "221": "나토리개",
       "222": "센다이개",
       "223": "진츠개",
-      "224": "나차개",
+      "224": "나카개",
       "225": "카게로개",
       "226": "시라누이개",
       "227": "쿠로시오개",

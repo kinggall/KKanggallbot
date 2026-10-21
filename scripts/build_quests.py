@@ -127,8 +127,9 @@ def build(source, eo, master_repo, root):
                                   "action": "Use EO established code; retain source provisional code as alias"})
 
     items, provenance = {}, {}
+    excluded = {"241009": "User requested removal of the expired 2024 southern-front quest"}
     for source_id, original in selected.items():
-        if source_id == "221114":
+        if source_id == "221114" or source_id in excluded:
             continue
         key = identities[source_id]
         row = deepcopy(original)
@@ -167,11 +168,6 @@ def build(source, eo, master_repo, root):
         translated = translations.get(key, {})
         ref = eo_by_id.get(key, {})
         correction = text_corrections.get(key, {})
-        if correction.get("historical_code"):
-            ref = next(q for q in eo_quests if q["api_id"] == correction["historical_api_id"]
-                       and q["code"].strip() == correction["historical_code"])
-            row["aliases"].append(row["wiki_id"])
-            row["wiki_id"] = ref["code"].strip()
         row["name_ko"] = correction.get("name_ko") or translated.get("name") or ref.get("name_en") or row.get("name") or f"{row['wiki_id']} (임무명 미등록)"
         row["name_jp"] = translated.get("name_jp") or ref.get("name_jp", "")
         row["desc_ko"] = translated.get("desc", "")
@@ -220,6 +216,7 @@ def build(source, eo, master_repo, root):
     # EO ship translation is a Japanese-name -> Korean-name dictionary.
     if isinstance(ship_names, dict) and "data" in ship_names:
         ship_names = ship_names["data"]
+    ship_names = {**ship_names, **read(root / "data/ship_name_overrides.json")}
     data["labels"] = {
         "ships": {str(s["api_id"]): quest_ship_name(s["api_name"], ship_names)
                   for s in master["api_mst_ship"]},
@@ -236,6 +233,7 @@ def build(source, eo, master_repo, root):
                                         "B210": "Wikiwiki 1-1/1-2/1-3/1-4 boss S once each"},
               "wiki_prerequisites": wiki_comparison,
               "text_corrections": text_corrections,
+              "excluded_quests": excluded,
               "scope": "Offline source snapshot with documented Wikiwiki supplements; no October 14 update present"}
     for name, value in (("quests.json", data), ("quest_verification.json", report)):
         (root / "data" / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

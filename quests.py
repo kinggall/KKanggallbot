@@ -15,7 +15,7 @@ import unicodedata
 
 import equipment_lookup
 
-USAGE = "사용법: !임무 [번호/키워드]\n예: !임무 B44 / !임무 수상반격"
+USAGE = "사용법: !임무 [번호/키워드]\n예: !임무 B44 / 반격 / 6구 / 찐빵"
 UNVERIFIED = "※ 조건 등을 검증중인 임무입니다."
 FREQUENCY = {"onetime": "단발", "daily": "일간", "weekly": "주간", "monthly": "월간",
              "quarterly": "계간", "annual": "연간", "event": "기간한정", "seasonal": "기간한정",

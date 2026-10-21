@@ -825,6 +825,8 @@ def load_ship_data():
         SHIP_KO_FILE.write_bytes(response.content)
     with open(SHIP_KO_FILE, encoding="utf-8-sig") as file:
         translations = json.load(file).get("ship", {})
+    with open(Path(__file__).parent / "data" / "ship_name_overrides.json", encoding="utf-8") as file:
+        translations.update(json.load(file))
 
     # Electronic Observer의 선박 ID 1501 이상은 심해서함입니다.
     # 일반 칸무스 검색에서는 심해서함을 제외합니다.
