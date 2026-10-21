@@ -4,6 +4,7 @@ SPDX-License-Identifier: GPL-3.0-only
 Source priority, identity decisions and limitations: QUEST_DATA.md.
 """
 from collections import defaultdict
+from copy import deepcopy
 from functools import lru_cache
 import html
 import json
@@ -14,7 +15,7 @@ import unicodedata
 import equipment_lookup
 
 USAGE = "사용법: !임무 [임무번호/임무명]\n예: !임무 B100 / !임무 해상호위총대"
-UNVERIFIED = "※ 선행조건 등이 검증중인 임무입니다."
+UNVERIFIED = "※ 조건 등을 검증중인 임무입니다."
 FREQUENCY = {"onetime": "단발", "daily": "일간", "weekly": "주간", "monthly": "월간",
              "quarterly": "계간", "annual": "연간", "event": "기간한정", "seasonal": "기간한정",
              "special1": "일간", "special2": "일간"}
@@ -142,10 +143,8 @@ class QuestCatalog:
         if isinstance(amount, list):
             amount = str(amount[0]) if amount[0] == amount[1] else f"{amount[0]}~{amount[1]}"
         if amount is not None:
-            if "ship_id" in rule or "family_id" in rule or "group_id" in rule:
-                label += f" 중 {amount}척"
-            else:
-                label += str(amount)
+            if not ("ship_id" in rule and not isinstance(rule["ship_id"], list) and str(amount) == "1"):
+                label += f" {amount}"
         if rule.get("otherships") and label != "자유" and any(k in rule for k in ("ship_id", "class_id", "family_id", "group_id")):
             label += "(추가)"
         if "position" in rule:
@@ -181,7 +180,8 @@ class QuestCatalog:
         if row.get("stars"):
             name += f" ★{row['stars']}"
         if "amount" in row:
-            name += f" {row['amount']}"
+            if row["amount"] != 1:
+                name += f" x{row['amount']}"
         return name
 
     def resource_line(self, amounts):
@@ -272,11 +272,17 @@ class QuestCatalog:
     def detail(self, key):
         row = self.items[key]
         tags = FREQUENCY[row["frequency"]] + ("/종료" if row.get("unavailable") else "")
-        lines = [f"{row['wiki_id']}: {clean(row['name_ko'])} ({tags})", "", "[조건]"]
+        lines = [f"{row['wiki_id']}: {clean(row['name_ko'])} ({tags})", "", "[임무 내용]"]
         if row["frequency"] in ("special1", "special2"):
             lines.append("· 출현: 날짜 끝자리 " + ("3/7/0" if row["frequency"] == "special1" else "2/8"))
         try:
-            requirements = self.requirements(row["requirements"])
+            req = row["requirements"]
+            if row["wiki_id"] == "B205":
+                # Keep the actual two alternative fleets in the data; share
+                # their common ships and maps in the compact display.
+                req = deepcopy(req["list"][0])
+                req["comp"][2]["family_id"] = [23, 38]
+            requirements = self.requirements(req)
         except (UnsupportedCondition, KeyError):
             requirements = [clean(row["description"]) or "상세 조건 미등록"]
         lines.extend("· " + text for text in requirements or [clean(row["description"]) or "상세 조건 미등록"])
@@ -301,12 +307,23 @@ class QuestCatalog:
                     lines.append("· " + self.item_name(reward))
         if not resources and not other:
             lines.append("· 보상 정보 없음")
-        lines.extend(["", "[선행조건]"])
-        before = [self.codes[str(i)] for i in row["prereqs"]]
-        lines.append(" + ".join(before) if before else "등록 정보 없음")
-        lines.extend(["", "[후속임무]"])
+        before, grouped = [], set()
+        groups = row.get("prereq_any_of", [])
+        for item_id in row["prereqs"]:
+            if item_id in grouped:
+                continue
+            group = next((g for g in groups if item_id in g), None)
+            if group:
+                before.append("(" + " 또는 ".join(self.codes[str(i)] for i in group) + ")")
+                grouped.update(group)
+            else:
+                before.append(self.codes[str(item_id)])
+        if before:
+            suffix = "(검증중)" if row.get("prereqs_unverified") else ""
+            lines.extend(["", "[선행임무]" + suffix, " + ".join(before)])
         after = sorted((self.items[i]["wiki_id"] for i in self.after[key]), key=natural_code)
-        lines.append(" / ".join(after) if after else "등록 정보 없음")
+        if after:
+            lines.extend(["", "[후속임무]", " / ".join(after)])
         if row["unverified"]:
             lines.extend(["", UNVERIFIED])
         return "\n".join(lines)

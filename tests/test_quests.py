@@ -20,19 +20,16 @@ class QuestTests(unittest.TestCase):
     def test_b100_actual_reply_and_case_insensitive_number(self):
         expected = '''B100: 증강 해상호위총대, 발묘하라! (단발)
 
-[조건]
-· 경항모/항순1 + 경순1 + 구축/해방2 + 자유2
+[임무 내용]
+· 경항모/항순 1 + 경순 1 + 구축/해방 2 + 자유 2
 · 2-2/2-3/2-4/2-5 보스 A승 이상 각 1회
 
 [보상]
 · 연료 700
-· 선택: 훈장 1 / 신형포공병장자재 1 (택1)
+· 선택: 훈장 / 신형포공병장자재 (택1)
 
-[선행조건]
-Bw5 + B98
-
-[후속임무]
-등록 정보 없음'''
+[선행임무](검증중)
+Bw5 + B98'''
         self.assertEqual(self.catalog.reply(" b100 "), expected)
         self.assertEqual(self.catalog.reply("B100"), expected)
         self.assertEqual(self.catalog.by_code["b100"], "857")
@@ -57,8 +54,8 @@ Bw5 + B98
         self.assertEqual(self.catalog.by_code["f19"], "623")
         self.assertEqual(self.catalog.by_code["f20"], "622")
         self.assertIn("97식 함상공격기", self.catalog.items["623"]["name_ko"])
-        self.assertIn("F19", self.catalog.reply("F88").split("[선행조건]")[1])
-        self.assertIn("F20", self.catalog.reply("F127").split("[선행조건]")[1])
+        self.assertIn("F19", self.catalog.reply("F88").split("[선행임무]")[1])
+        self.assertIn("F20", self.catalog.reply("F127").split("[선행임무]")[1])
 
     def test_graph_has_no_cycles_and_all_ids_have_external_codes(self):
         visited = set()
@@ -85,10 +82,14 @@ Bw5 + B98
                     result = self.catalog.reply(row["wiki_id"].lower())
                     self.assertEqual(result, self.catalog.detail(key))
                     self.assertTrue(result.startswith(row["wiki_id"] + ": "))
-                    for heading in ("[조건]", "[보상]", "[선행조건]", "[후속임무]"):
+                    for heading in ("[임무 내용]", "[보상]"):
                         self.assertEqual(result.count(heading), 1)
+                    self.assertEqual(result.count("[선행임무]"), bool(row["prereqs"]))
+                    self.assertEqual(result.count("[후속임무]"), bool(self.catalog.after[key]))
                     self.assertEqual(quests.UNVERIFIED in result, bool(row["unverified"]))
-                    self.assertNotIn("[선행조건](검증중)", result)
+                    self.assertEqual("[선행임무](검증중)" in result,
+                                     bool(row["prereqs"] and row.get("prereqs_unverified")))
+                    self.assertNotIn("등록 정보 없음", result)
                     self.assertLess(len(result), 4000)
 
     def test_priority_and_condition_reward_facts_match_saved_source_hashes(self):
@@ -122,14 +123,30 @@ Bw5 + B98
         self.assertIn("(계간)", self.catalog.reply("Bq6"))
         self.assertIn("(연간)", self.catalog.reply("Cy1"))
         b205 = self.catalog.reply("B205")
-        self.assertEqual(b205.count("5-5/6-5/4-5 보스 S승 각 2회"), 2)
+        self.assertEqual(b205.count("5-5/6-5/4-5 보스 S승 각 2회"), 1)
         self.assertIn("히에이 개2병", b205)
         self.assertIn("키리시마 개2병", b205)
-        self.assertIn("유구모급 중 2척", b205)
-        self.assertIn("시라츠유급 중 2척", b205)
+        self.assertIn("시라츠유급/유구모급 2", b205)
+        self.assertNotIn("편성안", b205)
+        self.assertNotIn("중 1척", b205)
         self.assertIn("1-1/1-2/1-3/1-4 보스 S승 각 1회", self.catalog.reply("B210"))
         self.assertIn("후지나미 개2", self.catalog.reply("B207"))
         self.assertIn("시라유키 개2", self.catalog.reply("B208"))
+
+    def test_wiki_prerequisites_and_reward_quantities(self):
+        self.assertIn("[선행임무](검증중)\nB35", self.catalog.reply("B208"))
+        self.assertIn("B208", self.catalog.reply("B35").split("[후속임무]")[1])
+        self.assertIn("B5 + (Bd1 또는 Bd2)", self.catalog.reply("B48"))
+        self.assertIn("B159 + Cy11", self.catalog.reply("B193"))
+        self.assertNotIn("2307B1", self.catalog.reply("B193"))
+        # A wiki omission alone must not delete previously registered edges.
+        self.assertEqual(self.catalog.items["857"]["prereqs"], [228, 855])
+        b205 = self.catalog.reply("B205")
+        self.assertIn("35.6cm 연장포 개2 x2", b205)
+        self.assertIn("신형포공병장자재 x6", b205)
+        self.assertIn("전투상보 /", b205)
+        self.assertNotIn(" x1 /", b205)
+        self.assertIn("[선행임무]\nC77", b205)
 
     def test_all_quest_ship_ids_have_korean_display_names(self):
         ids = set()

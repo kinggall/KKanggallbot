@@ -8,6 +8,14 @@
       "url": "https://github.com/kinggall/Data",
       "revision": "79a2c818924060dcb3b18dbdb043b855bcc04694"
     },
+    "wiki_prerequisites": {
+      "url": "https://wikiwiki.jp/kancolle/%E4%BB%BB%E5%8B%99/%E5%87%BA%E6%92%83%E4%BB%BB%E5%8B%99",
+      "captured_at": "2026-10-21T10:01:27.557Z",
+      "html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "code_aliases": {
+        "2609B1": "By17"
+      }
+    },
     "master": {
       "url": "https://github.com/kcwiki/kancolle-data",
       "revision": "7b92cdb8e4601fdec45ddd00489c7c6da9fa346d"
@@ -5306,6 +5314,630 @@
   "condition_supplements": {
     "B205": "Wikiwiki 5-5/6-5/4-5 boss S twice each; both escort alternatives",
     "B210": "Wikiwiki 1-1/1-2/1-3/1-4 boss S once each"
+  },
+  "wiki_prerequisites": {
+    "source": {
+      "url": "https://wikiwiki.jp/kancolle/%E4%BB%BB%E5%8B%99/%E5%87%BA%E6%92%83%E4%BB%BB%E5%8B%99",
+      "captured_at": "2026-10-21T10:01:27.557Z",
+      "html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "code_aliases": {
+        "2609B1": "By17"
+      }
+    },
+    "compared": 217,
+    "differences": [
+      {
+        "code": "B48",
+        "original": [
+          "B5",
+          "Bd2"
+        ],
+        "wiki": [
+          "B5",
+          "Bd1",
+          "Bd2"
+        ],
+        "selected": [
+          "B5",
+          "Bd2",
+          "Bd1"
+        ],
+        "any_of": [
+          [
+            "Bd1",
+            "Bd2"
+          ]
+        ],
+        "replaces": []
+      },
+      {
+        "code": "B58",
+        "original": [
+          "A32",
+          "A46",
+          "Cd1"
+        ],
+        "wiki": [
+          "A32",
+          "Cd1"
+        ],
+        "selected": [
+          "A32",
+          "A46",
+          "Cd1"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B67",
+        "original": [
+          "A5",
+          "B6",
+          "B10"
+        ],
+        "wiki": [
+          "B6",
+          "A5"
+        ],
+        "selected": [
+          "A5",
+          "B6",
+          "B10"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B75",
+        "original": [
+          "B70",
+          "C57"
+        ],
+        "wiki": [
+          "B70"
+        ],
+        "selected": [
+          "B70",
+          "C57"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B76",
+        "original": [
+          "A12",
+          "B9"
+        ],
+        "wiki": [],
+        "selected": [
+          "A12",
+          "B9"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B77",
+        "original": [
+          "A14",
+          "Cd1"
+        ],
+        "wiki": [
+          "Cd1"
+        ],
+        "selected": [
+          "A14",
+          "Cd1"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B79",
+        "original": [
+          "B78",
+          "Dw3"
+        ],
+        "wiki": [
+          "B78"
+        ],
+        "selected": [
+          "B78",
+          "Dw3"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B80",
+        "original": [
+          "B41",
+          "B62",
+          "Bw9"
+        ],
+        "wiki": [
+          "B41",
+          "B62"
+        ],
+        "selected": [
+          "B41",
+          "B62",
+          "Bw9"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B82",
+        "original": [
+          "B6",
+          "Bd2"
+        ],
+        "wiki": [
+          "B6"
+        ],
+        "selected": [
+          "B6",
+          "Bd2"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B83",
+        "original": [
+          "B6"
+        ],
+        "wiki": [],
+        "selected": [
+          "B6"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B87",
+        "original": [
+          "A9",
+          "B7"
+        ],
+        "wiki": [
+          "A9"
+        ],
+        "selected": [
+          "A9",
+          "B7"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B89",
+        "original": [
+          "B8",
+          "B19"
+        ],
+        "wiki": [
+          "B19"
+        ],
+        "selected": [
+          "B8",
+          "B19"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B93",
+        "original": [
+          "B7"
+        ],
+        "wiki": [],
+        "selected": [
+          "B7"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B97",
+        "original": [
+          "B7",
+          "B50",
+          "B88"
+        ],
+        "wiki": [],
+        "selected": [
+          "B7",
+          "B50",
+          "B88"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B98",
+        "original": [
+          "B8",
+          "Bd2"
+        ],
+        "wiki": [
+          "Bd2"
+        ],
+        "selected": [
+          "B8",
+          "Bd2"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B100",
+        "original": [
+          "Bw5",
+          "B98"
+        ],
+        "wiki": [
+          "B98"
+        ],
+        "selected": [
+          "Bw5",
+          "B98"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B107",
+        "original": [
+          "D1",
+          "F11"
+        ],
+        "wiki": [],
+        "selected": [
+          "D1",
+          "F11"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B108",
+        "original": [
+          "A31",
+          "B88"
+        ],
+        "wiki": [
+          "A31"
+        ],
+        "selected": [
+          "A31",
+          "B88"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B117",
+        "original": [
+          "B115",
+          "C21",
+          "F3"
+        ],
+        "wiki": [
+          "C21",
+          "B115"
+        ],
+        "selected": [
+          "B115",
+          "C21",
+          "F3"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B125",
+        "original": [
+          "B6",
+          "Cd1"
+        ],
+        "wiki": [
+          "Cd1"
+        ],
+        "selected": [
+          "B6",
+          "Cd1"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B128",
+        "original": [
+          "B50",
+          "Fd8"
+        ],
+        "wiki": [
+          "B50"
+        ],
+        "selected": [
+          "B50",
+          "Fd8"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B135",
+        "original": [
+          "B6"
+        ],
+        "wiki": [],
+        "selected": [
+          "B6"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B138",
+        "original": [
+          "A15",
+          "B135"
+        ],
+        "wiki": [
+          "B135"
+        ],
+        "selected": [
+          "A15",
+          "B135"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B152",
+        "original": [
+          "A77",
+          "B23",
+          "B49"
+        ],
+        "wiki": [
+          "A77",
+          "B49"
+        ],
+        "selected": [
+          "A77",
+          "B23",
+          "B49"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B155",
+        "original": [
+          "A15",
+          "B13"
+        ],
+        "wiki": [
+          "B13"
+        ],
+        "selected": [
+          "A15",
+          "B13"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B162",
+        "original": [
+          "A15",
+          "B5"
+        ],
+        "wiki": [],
+        "selected": [
+          "A15",
+          "B5"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B165",
+        "original": [
+          "B124",
+          "B135",
+          "Cy4"
+        ],
+        "wiki": [
+          "B124",
+          "B135"
+        ],
+        "selected": [
+          "B124",
+          "B135",
+          "Cy4"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B166",
+        "original": [
+          "B14",
+          "Bd2"
+        ],
+        "wiki": [],
+        "selected": [
+          "B14",
+          "Bd2"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B180",
+        "original": [
+          "B79",
+          "Bq5",
+          "By1"
+        ],
+        "wiki": [
+          "By1",
+          "B79"
+        ],
+        "selected": [
+          "B79",
+          "Bq5",
+          "By1"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B193",
+        "original": [
+          "2307B1",
+          "B159"
+        ],
+        "wiki": [
+          "B159",
+          "Cy11"
+        ],
+        "selected": [
+          "B159",
+          "Cy11"
+        ],
+        "any_of": [],
+        "replaces": [
+          "2307B1"
+        ]
+      },
+      {
+        "code": "B202",
+        "original": [
+          "B201"
+        ],
+        "wiki": [
+          "B30",
+          "B201"
+        ],
+        "selected": [
+          "B201",
+          "B30"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B204",
+        "original": [
+          "2409 B1"
+        ],
+        "wiki": [
+          "2409B1",
+          "B135",
+          "C15"
+        ],
+        "selected": [
+          "2409 B1",
+          "B135",
+          "C15"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B208",
+        "original": [],
+        "wiki": [
+          "B35"
+        ],
+        "selected": [
+          "B35"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B212",
+        "original": [],
+        "wiki": [
+          "B202"
+        ],
+        "selected": [
+          "B202"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B214",
+        "original": [
+          "F139"
+        ],
+        "wiki": [
+          "F135",
+          "F139"
+        ],
+        "selected": [
+          "F139",
+          "F135"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B215",
+        "original": [
+          "F142"
+        ],
+        "wiki": [
+          "B207",
+          "F142"
+        ],
+        "selected": [
+          "F142",
+          "B207"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B216",
+        "original": [],
+        "wiki": [
+          "B207"
+        ],
+        "selected": [
+          "B207"
+        ],
+        "any_of": [],
+        "replaces": []
+      },
+      {
+        "code": "B217",
+        "original": [
+          "Cs1",
+          "By17"
+        ],
+        "wiki": [
+          "By17"
+        ],
+        "selected": [
+          "Cs1",
+          "By17"
+        ],
+        "any_of": [],
+        "replaces": []
+      }
+    ],
+    "missing_quest_details": []
   },
   "scope": "Offline source snapshot with documented Wikiwiki supplements; no October 14 update present"
 }

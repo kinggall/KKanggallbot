@@ -1,0 +1,1613 @@
+{
+  "source": {
+    "url": "https://wikiwiki.jp/kancolle/%E4%BB%BB%E5%8B%99/%E5%87%BA%E6%92%83%E4%BB%BB%E5%8B%99",
+    "captured_at": "2026-10-21T10:01:27.557Z",
+    "html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "code_aliases": {
+      "2609B1": "By17"
+    }
+  },
+  "quests": {
+    "B1": {
+      "prerequisites": [],
+      "text_jp": "",
+      "wiki_unverified": false
+    },
+    "B2": {
+      "prerequisites": [
+        "B1"
+      ],
+      "text_jp": "(B1)はじめての「出撃」！ 達成後",
+      "wiki_unverified": false
+    },
+    "B3": {
+      "prerequisites": [
+        "A6"
+      ],
+      "text_jp": "(A6)第2艦隊を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B4": {
+      "prerequisites": [
+        "B2"
+      ],
+      "text_jp": "(B2)鎮守府正面海域を護れ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B5": {
+      "prerequisites": [
+        "B4"
+      ],
+      "text_jp": "(B4)南西諸島沖に出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B6": {
+      "prerequisites": [
+        "B5"
+      ],
+      "text_jp": "(B5)接近する「敵前衛艦隊」を迎撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B7": {
+      "prerequisites": [
+        "B6"
+      ],
+      "text_jp": "(B6)「水雷戦隊」で出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B8": {
+      "prerequisites": [
+        "B7"
+      ],
+      "text_jp": "(B7)「重巡洋艦」を出撃させよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B9": {
+      "prerequisites": [
+        "B8"
+      ],
+      "text_jp": "(B8)「戦艦」を出撃させよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B10": {
+      "prerequisites": [
+        "A11"
+      ],
+      "text_jp": "(A11)第2艦隊で空母機動部隊を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B11": {
+      "prerequisites": [
+        "A20"
+      ],
+      "text_jp": "(A20)「三川艦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B12": {
+      "prerequisites": [
+        "A10",
+        "Bw3"
+      ],
+      "text_jp": "【 要確認 】 (A10)「第六駆逐隊」を編成せよ！ 及び (Bw3)海上通商破壊作戦 達成後",
+      "wiki_unverified": true
+    },
+    "B13": {
+      "prerequisites": [
+        "A21"
+      ],
+      "text_jp": "(A21)「第四戦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B14": {
+      "prerequisites": [
+        "A22"
+      ],
+      "text_jp": "(A22)「西村艦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B15": {
+      "prerequisites": [
+        "A23"
+      ],
+      "text_jp": "(A23)「第五航空戦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B16": {
+      "prerequisites": [
+        "A24"
+      ],
+      "text_jp": "(A24)新「三川艦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B17": {
+      "prerequisites": [
+        "A25"
+      ],
+      "text_jp": "(A25)潜水艦隊を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B18": {
+      "prerequisites": [
+        "A26"
+      ],
+      "text_jp": "(A26)航空水上打撃艦隊を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B19": {
+      "prerequisites": [
+        "A28"
+      ],
+      "text_jp": "(A28)「第六戦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B20": {
+      "prerequisites": [
+        "A31"
+      ],
+      "text_jp": "(A31)「第八駆逐隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B21": {
+      "prerequisites": [
+        "A32"
+      ],
+      "text_jp": "(A32)「第十八駆逐隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B22": {
+      "prerequisites": [
+        "A33"
+      ],
+      "text_jp": "(A33)「第三十駆逐隊(一次)」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B23": {
+      "prerequisites": [
+        "D10"
+      ],
+      "text_jp": "(D10)航空火力艦の運用を強化せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B24": {
+      "prerequisites": [
+        "A34"
+      ],
+      "text_jp": "(A34)「第三十駆逐隊(第二次)」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B25": {
+      "prerequisites": [
+        "A36"
+      ],
+      "text_jp": "(A36)新編「第二航空戦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B26": {
+      "prerequisites": [
+        "A39"
+      ],
+      "text_jp": "(A39)再編成「第二航空戦隊」を強化せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B27": {
+      "prerequisites": [
+        "B24"
+      ],
+      "text_jp": "(B24)「第三十駆逐隊」対潜哨戒！ 達成後",
+      "wiki_unverified": false
+    },
+    "B28": {
+      "prerequisites": [
+        "A41"
+      ],
+      "text_jp": "(A41)「新型正規空母」を配備せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B29": {
+      "prerequisites": [
+        "A5"
+      ],
+      "text_jp": "(A5)軽巡2隻を擁する隊を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B30": {
+      "prerequisites": [
+        "B6"
+      ],
+      "text_jp": "(B6)「水雷戦隊」で出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B31": {
+      "prerequisites": [
+        "A42"
+      ],
+      "text_jp": "(A42)主力戦艦部隊「第二戦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B32": {
+      "prerequisites": [
+        "Bm4"
+      ],
+      "text_jp": "(Bm4)「水上打撃部隊」南方へ！ 及び 【 検証中 】 () 達成後",
+      "wiki_unverified": true
+    },
+    "B33": {
+      "prerequisites": [
+        "A44"
+      ],
+      "text_jp": "(A44)「西村艦隊」を再編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B34": {
+      "prerequisites": [
+        "B19"
+      ],
+      "text_jp": "(B19)「第六戦隊」出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B35": {
+      "prerequisites": [
+        "A47"
+      ],
+      "text_jp": "(A47)「第十一駆逐隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B36": {
+      "prerequisites": [
+        "A47"
+      ],
+      "text_jp": "(A47)「第十一駆逐隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B37": {
+      "prerequisites": [
+        "A48"
+      ],
+      "text_jp": "(A48)「第二一駆逐隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B38": {
+      "prerequisites": [
+        "B37",
+        "Bm1"
+      ],
+      "text_jp": "(B37)「第二一駆逐隊」出撃せよ！ 及び (Bm1)「第五戦隊」出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B39": {
+      "prerequisites": [
+        "A49"
+      ],
+      "text_jp": "(A49)「第二二駆逐隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B40": {
+      "prerequisites": [
+        "D15"
+      ],
+      "text_jp": "(D15)防空射撃演習を実施せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B41": {
+      "prerequisites": [
+        "C5"
+      ],
+      "text_jp": "(C5)艦隊の練度向上に努めよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B42": {
+      "prerequisites": [
+        "A10"
+      ],
+      "text_jp": "(A10)「第六駆逐隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B43": {
+      "prerequisites": [
+        "A51"
+      ],
+      "text_jp": "(A51)「第十八戦隊」を新編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B44": {
+      "prerequisites": [
+        "A52",
+        "Bw9"
+      ],
+      "text_jp": "(A52)海上突入部隊を編成せよ！ 及び (Bw9)南方海域珊瑚諸島沖の制空権を握れ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B45": {
+      "prerequisites": [
+        "B42",
+        "A53"
+      ],
+      "text_jp": "(B42)「第六駆逐隊」対潜哨戒なのです！ 及び (A53)新編「第六駆逐隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B46": {
+      "prerequisites": [
+        "A54"
+      ],
+      "text_jp": "(A54)「第一水雷戦隊」北方突入準備！ 達成後",
+      "wiki_unverified": false
+    },
+    "B47": {
+      "prerequisites": [
+        "A55"
+      ],
+      "text_jp": "(A55)「第一水雷戦隊」北方再突入準備！ 達成後",
+      "wiki_unverified": false
+    },
+    "B48": {
+      "prerequisites": [
+        "B5",
+        "Bd1",
+        "Bd2"
+      ],
+      "text_jp": "【 検証中 】 (B5)接近する「敵前衛艦隊」を迎撃せよ！ 及び 【 検証中 】 (Bd1)敵艦隊を撃破せよ！ または 【 検証中 】 (Bd2)敵艦隊主力を撃滅せよ！ 達成後",
+      "wiki_unverified": true,
+      "any_of": [
+        [
+          "Bd1",
+          "Bd2"
+        ]
+      ]
+    },
+    "B49": {
+      "prerequisites": [
+        "B32",
+        "Bd8"
+      ],
+      "text_jp": "(B32)「戦艦部隊」北方海域に突入せよ！ 及び (Bd8)敵潜水艦を制圧せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B50": {
+      "prerequisites": [
+        "A56"
+      ],
+      "text_jp": "(A56)「第五航空戦隊」を再編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B51": {
+      "prerequisites": [
+        "A57"
+      ],
+      "text_jp": "(A57)新編「第二一戦隊」出撃準備！ 達成後",
+      "wiki_unverified": false
+    },
+    "B52": {
+      "prerequisites": [
+        "A58"
+      ],
+      "text_jp": "(A58)「第十六戦隊(第一次)」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B53": {
+      "prerequisites": [
+        "A59"
+      ],
+      "text_jp": "(A59)「第三航空戦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B54": {
+      "prerequisites": [
+        "A61"
+      ],
+      "text_jp": "(A61)「小沢艦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B55": {
+      "prerequisites": [
+        "A63"
+      ],
+      "text_jp": "(A63)「第十六戦隊(第二次)」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B56": {
+      "prerequisites": [
+        "A64"
+      ],
+      "text_jp": "(A64)「新編成航空戦隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B57": {
+      "prerequisites": [
+        "A65",
+        "Bm5"
+      ],
+      "text_jp": "(A65)精強な「水上反撃部隊」を再編成せよ！ 及び (Bm5)海上護衛強化月間 達成後",
+      "wiki_unverified": false
+    },
+    "B58": {
+      "prerequisites": [
+        "A32",
+        "Cd1"
+      ],
+      "text_jp": "(A32)「第十八駆逐隊」を編成せよ！ 及び (Cd1)「演習」で練度向上！ 達成後",
+      "wiki_unverified": false
+    },
+    "B59": {
+      "prerequisites": [
+        "B58",
+        "Dd1"
+      ],
+      "text_jp": "(B58)旗艦「霞」北方海域を哨戒せよ！ 及び (Dd1)「遠征」を3回成功させよう！ 達成後",
+      "wiki_unverified": false
+    },
+    "B60": {
+      "prerequisites": [
+        "A66",
+        "Bd1"
+      ],
+      "text_jp": "(A66)「第三十一戦隊(第一次)」を編成せよ！ 及び 【 要検証 】 (Bd1)敵艦隊を撃破せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B61": {
+      "prerequisites": [
+        "A67"
+      ],
+      "text_jp": "【 検証中 】 (A67)「第二七駆逐隊」を編成せよ！ 及び 他 達成後",
+      "wiki_unverified": true
+    },
+    "B62": {
+      "prerequisites": [
+        "Bw9",
+        "D19"
+      ],
+      "text_jp": "(Bw9)南方海域珊瑚諸島沖の制空権を握れ！ 及び 【 検証中 】 (D19)機動部隊の運用を強化せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B63": {
+      "prerequisites": [
+        "Bd2"
+      ],
+      "text_jp": "【 検証中 】 (Bd2)敵艦隊主力を撃滅せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B64": {
+      "prerequisites": [
+        "B63",
+        "F31"
+      ],
+      "text_jp": "(B63)製油所地帯を防衛せよ！ 及び 【 要確認 】 (F31)新家具の準備 達成後",
+      "wiki_unverified": true
+    },
+    "B65": {
+      "prerequisites": [
+        "B64",
+        "B20"
+      ],
+      "text_jp": "(B64)南西諸島防衛線を強化せよ！ 及び (B20)「第八駆逐隊」出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B66": {
+      "prerequisites": [
+        "B65",
+        "B59"
+      ],
+      "text_jp": "(B65)オリョール海の制海権を確保せよ！ 及び (B59)旗艦「霞」出撃！敵艦隊を撃滅せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B67": {
+      "prerequisites": [
+        "B6",
+        "A5"
+      ],
+      "text_jp": "(B6)「水雷戦隊」で出撃せよ！ 及び 【 要確認 】 (A5)軽巡2隻を擁する隊を編成せよ！！ 達成後",
+      "wiki_unverified": true
+    },
+    "B68": {
+      "prerequisites": [
+        "A68"
+      ],
+      "text_jp": "(A68)強行高速輸送部隊を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B69": {
+      "prerequisites": [
+        "B68",
+        "F33"
+      ],
+      "text_jp": "(B68)強行高速輸送部隊、出撃せよ！ 及び (F33)上陸戦用新装備の調達 達成後",
+      "wiki_unverified": false
+    },
+    "B70": {
+      "prerequisites": [
+        "A69"
+      ],
+      "text_jp": "(A69)新編「水雷戦隊」を含む艦隊を再編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B71": {
+      "prerequisites": [
+        "B70"
+      ],
+      "text_jp": "(B70)新編艦隊、南西諸島防衛線へ急行せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B72": {
+      "prerequisites": [
+        "A66",
+        "Bw5"
+      ],
+      "text_jp": "(A66)「第三十一戦隊(第一次)」を編成せよ！ 及び (Bw5)海上護衛戦 達成後",
+      "wiki_unverified": false
+    },
+    "B73": {
+      "prerequisites": [
+        "A70"
+      ],
+      "text_jp": "(A70)新編「第八駆逐隊」を再編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B74": {
+      "prerequisites": [
+        "A71"
+      ],
+      "text_jp": "(A71)精鋭！八駆第一小隊！ 及び 【 検証中 】 他 達成後",
+      "wiki_unverified": true
+    },
+    "B75": {
+      "prerequisites": [
+        "B70"
+      ],
+      "text_jp": "(B70)新編艦隊、南西諸島防衛線へ急行せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B76": {
+      "prerequisites": [],
+      "text_jp": "【 検証中 】 (条件不明) 達成後",
+      "wiki_unverified": true
+    },
+    "B77": {
+      "prerequisites": [
+        "Cd1"
+      ],
+      "text_jp": "【 検証中 】 (Cd1)「演習」で練度向上！ 及び 【 検証中 】 他 達成後",
+      "wiki_unverified": true
+    },
+    "B78": {
+      "prerequisites": [
+        "A72"
+      ],
+      "text_jp": "【 要検証 】 (A72)「第十九駆逐隊」を編成せよ！ 及び 他 達成後",
+      "wiki_unverified": true
+    },
+    "B79": {
+      "prerequisites": [
+        "B78"
+      ],
+      "text_jp": "(B78)「第十九駆逐隊」出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B80": {
+      "prerequisites": [
+        "B41",
+        "B62"
+      ],
+      "text_jp": "【 検証中 】 (B41)新編「三川艦隊」ソロモン方面へ！ 及び (B62)強襲上陸作戦用戦力を増強せよ！ 及び 【 要検証 】 他 達成後",
+      "wiki_unverified": true
+    },
+    "B81": {
+      "prerequisites": [
+        "B80"
+      ],
+      "text_jp": "(B80)飛行場設営の準備を実施せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B82": {
+      "prerequisites": [
+        "B6"
+      ],
+      "text_jp": "【 要確認 】 (B6)「水雷戦隊」で出撃せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B83": {
+      "prerequisites": [],
+      "text_jp": "【 検証中 】 達成後",
+      "wiki_unverified": true
+    },
+    "B84": {
+      "prerequisites": [
+        "A73"
+      ],
+      "text_jp": "(A73)「第十六戦隊(第三次)」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B85": {
+      "prerequisites": [
+        "A74"
+      ],
+      "text_jp": "(A74)精鋭「第十六戦隊」を再編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B86": {
+      "prerequisites": [
+        "B85",
+        "B79"
+      ],
+      "text_jp": "(B85)精鋭「第十六戦隊」突入せよ！ 及び (B79)「第十九駆逐隊」敵主力に突入せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B87": {
+      "prerequisites": [
+        "A9"
+      ],
+      "text_jp": "(A9)「水上機母艦」を配備せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B88": {
+      "prerequisites": [
+        "B87",
+        "B8"
+      ],
+      "text_jp": "(B87)重巡戦隊、抜錨せよ！ 及び 【 要検証 】 (B8)「戦艦」を出撃させよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B89": {
+      "prerequisites": [
+        "B19"
+      ],
+      "text_jp": "【 検証中 】 (B19)「第六戦隊」出撃せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B90": {
+      "prerequisites": [
+        "B73",
+        "B81"
+      ],
+      "text_jp": "(B73)新編「第八駆逐隊」出撃せよ！ 及び (B81)夜間突入！敵上陸部隊を叩け！ 達成後",
+      "wiki_unverified": false
+    },
+    "B91": {
+      "prerequisites": [
+        "B69",
+        "Bd5"
+      ],
+      "text_jp": "(B69)「第一航空戦隊」西へ！ 及び (Bd5)敵補給艦を3隻撃沈せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B92": {
+      "prerequisites": [
+        "B91"
+      ],
+      "text_jp": "(B91)潜水艦隊、中部海域の哨戒を実施せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B93": {
+      "prerequisites": [],
+      "text_jp": "【 検証中 】 () 達成後",
+      "wiki_unverified": true
+    },
+    "B94": {
+      "prerequisites": [
+        "B93",
+        "B91"
+      ],
+      "text_jp": "(B93)南西諸島方面の敵艦隊を撃破せよ！ 及び (B91)潜水艦隊、中部海域の哨戒を実施せよ！ 達成後 【 要確認 】",
+      "wiki_unverified": true
+    },
+    "B95": {
+      "prerequisites": [
+        "B87",
+        "B50"
+      ],
+      "text_jp": "(B87)重巡戦隊、抜錨せよ！ 及び (B50)「第五航空戦隊」珊瑚諸島沖に出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B96": {
+      "prerequisites": [
+        "B95"
+      ],
+      "text_jp": "(B95)改装航空巡洋艦、出撃！ 及び 【 要検証 】 他 達成後",
+      "wiki_unverified": true
+    },
+    "B97": {
+      "prerequisites": [],
+      "text_jp": "【 要検証 】 () 達成後",
+      "wiki_unverified": true
+    },
+    "B98": {
+      "prerequisites": [
+        "Bd2"
+      ],
+      "text_jp": "(Bd2)敵艦隊主力を撃滅せよ！ 及び 【 検証中 】 他？ 達成後",
+      "wiki_unverified": true
+    },
+    "B99": {
+      "prerequisites": [
+        "B98",
+        "A75"
+      ],
+      "text_jp": "【 要検証 】 (B98)海上護衛体制の強化に努めよ！ 及び (A75)新編「第一戦隊」を編成せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B100": {
+      "prerequisites": [
+        "B98"
+      ],
+      "text_jp": "(B98)海上護衛体制の強化に努めよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B101": {
+      "prerequisites": [
+        "A76",
+        "Cd1"
+      ],
+      "text_jp": "(A76)新編「第七戦隊」を編成せよ！ 及び (Cd1)「演習」で練度向上！ 達成後",
+      "wiki_unverified": false
+    },
+    "B102": {
+      "prerequisites": [
+        "A77"
+      ],
+      "text_jp": "(A77)精鋭「第四航空戦隊」を再編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B103": {
+      "prerequisites": [
+        "A78"
+      ],
+      "text_jp": "【 検証中 】 (A78)新編「第四水雷戦隊」を編成せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B104": {
+      "prerequisites": [
+        "A79",
+        "Cd1"
+      ],
+      "text_jp": "【 検証中 】 (A79)精鋭「第二二駆逐隊」を再編成せよ！ 及び (Cd1)「演習」で練度向上！ 達成後",
+      "wiki_unverified": true
+    },
+    "B105": {
+      "prerequisites": [
+        "A80",
+        "Bd2"
+      ],
+      "text_jp": "(A80)精強「任務部隊」を編成せよ！ 及び (Bd2)敵艦隊主力を撃滅せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B106": {
+      "prerequisites": [
+        "B105",
+        "B91"
+      ],
+      "text_jp": "【 検証中 】 (B105)精強大型航空母艦、抜錨！ 及び (B91)潜水艦隊、中部海域の哨戒を実施せよ！ 達成後？",
+      "wiki_unverified": true
+    },
+    "B107": {
+      "prerequisites": [],
+      "text_jp": "【 検証中 】 () 達成後？",
+      "wiki_unverified": true
+    },
+    "B108": {
+      "prerequisites": [
+        "A31"
+      ],
+      "text_jp": "(A31)「第八駆逐隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B109": {
+      "prerequisites": [
+        "A81",
+        "D27"
+      ],
+      "text_jp": "任務達成ボイス有 (A81)最精鋭「第八駆逐隊」を編成せよ！ 及び (D27)「捷一号作戦」、発動準備！ 達成後",
+      "wiki_unverified": false
+    },
+    "B110": {
+      "prerequisites": [
+        "Bq5",
+        "B107"
+      ],
+      "text_jp": "【 検証中 】 (Bq5)北方海域警備を実施せよ！ 及び 【 検証中 】 (B107)補給線の安全を確保せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B111": {
+      "prerequisites": [
+        "B30",
+        "Fd7"
+      ],
+      "text_jp": "【 検証中 】 (B30)「水雷戦隊」バシー島沖緊急展開 及び (Fd7)装備開発力の整備 達成後",
+      "wiki_unverified": true
+    },
+    "B112": {
+      "prerequisites": [
+        "A84",
+        "B103"
+      ],
+      "text_jp": "任務達成ボイス有 (A84)精鋭「四水戦」抜錨準備！ 及び (B103)旗艦「由良」、抜錨！ 達成後",
+      "wiki_unverified": false
+    },
+    "B113": {
+      "prerequisites": [
+        "B111"
+      ],
+      "text_jp": "【 検証中 】 (B111)松輸送作戦、開始せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B114": {
+      "prerequisites": [
+        "B23",
+        "A60"
+      ],
+      "text_jp": "【 検証中 】 (B23)「航空戦艦」抜錨せよ！ 及び (A60)「第四航空戦隊」を編成せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B115": {
+      "prerequisites": [
+        "C18",
+        "Fq6"
+      ],
+      "text_jp": "(C18)駆逐隊、特訓始め！ 及び (Fq6)対空兵装の整備拡充 達成後",
+      "wiki_unverified": false
+    },
+    "B116": {
+      "prerequisites": [
+        "Bd8",
+        "A87"
+      ],
+      "text_jp": "(Bd8)敵潜水艦を制圧せよ！ 及び (A87)精鋭「第十八駆逐隊」を編成せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B117": {
+      "prerequisites": [
+        "C21",
+        "B115"
+      ],
+      "text_jp": "【 検証中 】 (C21)最精鋭甲型駆逐艦、特訓始め！ 及び (B115)精鋭駆逐隊、獅子奮迅！ 達成後",
+      "wiki_unverified": true
+    },
+    "B118": {
+      "prerequisites": [
+        "C22"
+      ],
+      "text_jp": "(C22)戦闘航空母艦一番艦、演習始め！ 達成後",
+      "wiki_unverified": false
+    },
+    "B119": {
+      "prerequisites": [
+        "C22"
+      ],
+      "text_jp": "(C22)戦闘航空母艦一番艦、演習始め！ 達成後",
+      "wiki_unverified": false
+    },
+    "B120": {
+      "prerequisites": [
+        "A89"
+      ],
+      "text_jp": "【 検証中 】 (A89)精鋭「第十八戦隊」を再編成せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B121": {
+      "prerequisites": [
+        "B115",
+        "Dd1",
+        "Bm3"
+      ],
+      "text_jp": "(B115)精鋭駆逐隊、獅子奮迅！ 及び (Dd1)「遠征」を3回成功させよう！ 及び 【 検証中 】 (反証待ち) (Bm3)「水雷戦隊」南西へ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B122": {
+      "prerequisites": [
+        "B13",
+        "Cd1"
+      ],
+      "text_jp": "(B13)「第四戦隊」出撃せよ！ 及び 【 検証中 】 (Cd1)「演習」で練度向上！ 達成後",
+      "wiki_unverified": true
+    },
+    "B123": {
+      "prerequisites": [
+        "F3",
+        "A90",
+        "B108"
+      ],
+      "text_jp": "(F3)はじめての「解体」！ 及び (A90)精強「第十七駆逐隊」を編成せよ！ 及び (B108)「第八駆逐隊」、南西へ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B124": {
+      "prerequisites": [
+        "B20",
+        "B42"
+      ],
+      "text_jp": "(B20) 「第八駆逐隊」出撃せよ！ 及び (B42)「第六駆逐隊」対潜哨戒なのです！ 達成後",
+      "wiki_unverified": false
+    },
+    "B125": {
+      "prerequisites": [
+        "Cd1"
+      ],
+      "text_jp": "【 検証中 】 (Cd1)「演習」で練度向上！ 達成後",
+      "wiki_unverified": true
+    },
+    "B126": {
+      "prerequisites": [
+        "A91",
+        "Bd1"
+      ],
+      "text_jp": "(A91)精鋭「第十駆逐隊」、抜錨準備！ 及び (Bd1)敵艦隊を撃破せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B127": {
+      "prerequisites": [
+        "Bq9",
+        "C9"
+      ],
+      "text_jp": "【 検証中 】 (Bq9)空母戦力の投入による兵站線戦闘哨戒 及び (C9)上陸部隊演習 達成後",
+      "wiki_unverified": true
+    },
+    "B128": {
+      "prerequisites": [
+        "B50"
+      ],
+      "text_jp": "(B50)「第五航空戦隊」珊瑚諸島沖に出撃せよ！ 及び 【 検証中 】 () 達成後？",
+      "wiki_unverified": true
+    },
+    "B129": {
+      "prerequisites": [
+        "A92"
+      ],
+      "text_jp": "【 検証中 】 (A92)精鋭無比「第一戦隊」抜錨準備！ 達成後？",
+      "wiki_unverified": true
+    },
+    "B130": {
+      "prerequisites": [
+        "B129"
+      ],
+      "text_jp": "(B129)精鋭無比「第一戦隊」まかり通る！ 及び 【 検証中 】 (他あり？) 達成後",
+      "wiki_unverified": true
+    },
+    "B131": {
+      "prerequisites": [
+        "A18",
+        "Fd2"
+      ],
+      "text_jp": "【 検証中 】 (A18)「伊勢」型戦艦姉妹の全2隻を編成せよ！ 及び (Fd2)新造艦「建造」指令 及び () 達成後？",
+      "wiki_unverified": true
+    },
+    "B132": {
+      "prerequisites": [
+        "B131",
+        "F85"
+      ],
+      "text_jp": "【 検証中 】 (B131)航空戦艦戦隊、戦闘哨戒！ 及び (F85)新型航空艤装の研究 及び (他条件?) 達成後",
+      "wiki_unverified": true
+    },
+    "B133": {
+      "prerequisites": [
+        "B128",
+        "Cd1"
+      ],
+      "text_jp": "(B128)「比叡」の出撃 及び (Cd1)「演習」で練度向上！ 達成後",
+      "wiki_unverified": false
+    },
+    "B134": {
+      "prerequisites": [
+        "D29"
+      ],
+      "text_jp": "【 検証中 】 (D29)艦隊司令部の強化 【準備段階】 及び () 達成後？",
+      "wiki_unverified": true
+    },
+    "B135": {
+      "prerequisites": [],
+      "text_jp": "【 検証中 】 () 達成後？",
+      "wiki_unverified": true
+    },
+    "B136": {
+      "prerequisites": [
+        "B135",
+        "B41"
+      ],
+      "text_jp": "(B135)近海哨戒を実施せよ！ 及び (B41)新編「三川艦隊」ソロモン方面へ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B137": {
+      "prerequisites": [
+        "C33",
+        "B40"
+      ],
+      "text_jp": "(C33)航空戦隊演習(その壱) 及び 【 検証中 】 (B40)「改装防空重巡」出撃せよ！ 達成後？",
+      "wiki_unverified": true
+    },
+    "B138": {
+      "prerequisites": [
+        "B135"
+      ],
+      "text_jp": "(B135)近海哨戒を実施せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B139": {
+      "prerequisites": [
+        "B80",
+        "F89"
+      ],
+      "text_jp": "(B80)飛行場設営の準備を実施せよ！ 及び (F89)陸戦用装備の艦載運用研究 達成後",
+      "wiki_unverified": false
+    },
+    "B140": {
+      "prerequisites": [
+        "B11",
+        "Fd1"
+      ],
+      "text_jp": "【 検証中 】 (B11)「三川艦隊」出撃せよ！ 及び (Fd1)新装備「開発」指令 達成後",
+      "wiki_unverified": true
+    },
+    "B141": {
+      "prerequisites": [
+        "B140"
+      ],
+      "text_jp": "(B140)「夕張改二」試してみてもいいかしら？ 達成後",
+      "wiki_unverified": false
+    },
+    "B142": {
+      "prerequisites": [
+        "Cd1",
+        "B65"
+      ],
+      "text_jp": "【 検証中 】 (Cd1)「演習」で練度向上！ 及び (B65)オリョール海の制海権を確保せよ！ 達成後？",
+      "wiki_unverified": true
+    },
+    "B143": {
+      "prerequisites": [
+        "D21",
+        "B15"
+      ],
+      "text_jp": "(D21)潜水艦派遣作戦による噴式技術の入手 及び 【 検証中 】 (B15)「第五航空戦隊」出撃せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B144": {
+      "prerequisites": [
+        "B133"
+      ],
+      "text_jp": "(B133)重改装高速戦艦「金剛改二丙」、南方突入！ 達成後",
+      "wiki_unverified": false
+    },
+    "B145": {
+      "prerequisites": [
+        "Bd5",
+        "B62"
+      ],
+      "text_jp": "(Bd5)敵補給艦を3隻撃沈せよ！ 及び 【 検証中 】 (B62)強襲上陸作戦用戦力を増強せよ！ 達成後?",
+      "wiki_unverified": true
+    },
+    "B146": {
+      "prerequisites": [
+        "B145"
+      ],
+      "text_jp": "(B145)改装航空軽巡「Gotland andra」、出撃！ 達成後",
+      "wiki_unverified": false
+    },
+    "B147": {
+      "prerequisites": [
+        "B135"
+      ],
+      "text_jp": "(B135)近海哨戒を実施せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B148": {
+      "prerequisites": [
+        "B147",
+        "B30"
+      ],
+      "text_jp": "(B147)南西諸島海域合同哨戒 及び 【 検証中 】 (B30)「水雷戦隊」バシー島沖緊急展開 達成後?",
+      "wiki_unverified": true
+    },
+    "B149": {
+      "prerequisites": [
+        "B148",
+        "B98"
+      ],
+      "text_jp": "(B148)合同艦隊旗艦、改装「Fletcher」、抜錨！ 及び 【 検証中 】 (B98)海上護衛体制の強化に努めよ！ 達成後？",
+      "wiki_unverified": true
+    },
+    "B150": {
+      "prerequisites": [
+        "B149"
+      ],
+      "text_jp": "【 検証中 】 (B149)改装護衛駆逐艦「Fletcher Mk.II」作戦開始！ 及び (？)？ 達成後？",
+      "wiki_unverified": true
+    },
+    "B151": {
+      "prerequisites": [
+        "B147"
+      ],
+      "text_jp": "(B147)南西諸島海域合同哨戒 達成後 及び (？)？ 【 検証中 】",
+      "wiki_unverified": true
+    },
+    "B152": {
+      "prerequisites": [
+        "A77",
+        "B49"
+      ],
+      "text_jp": "(A77)精鋭「第四航空戦隊」を再編成せよ！ 及び (B49)「空母機動部隊」北方海域に進出せよ！ 及び 【 検証中 】 (他条件?) 達成後",
+      "wiki_unverified": true
+    },
+    "B153": {
+      "prerequisites": [
+        "B152"
+      ],
+      "text_jp": "(B152)【航空母艦特別任務】航空戦隊、精鋭無比！ 及び 【 検証中 】 () 達成後",
+      "wiki_unverified": true
+    },
+    "B154": {
+      "prerequisites": [
+        "B153",
+        "B137"
+      ],
+      "text_jp": "【 検証中 】 (B153)改加賀型航空母艦「加賀改二」、抜錨！ 及び (B137)精強！「第一航空戦隊」出撃せよ！ 達成後？",
+      "wiki_unverified": true
+    },
+    "B155": {
+      "prerequisites": [
+        "B13"
+      ],
+      "text_jp": "(B13)「第四戦隊」出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B156": {
+      "prerequisites": [
+        "B17",
+        "B135"
+      ],
+      "text_jp": "(B17)「潜水艦隊」出撃せよ！ 及び (B135)近海哨戒を実施せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B157": {
+      "prerequisites": [
+        "A93",
+        "B155"
+      ],
+      "text_jp": "(A93)主力オブ主力、精強「十駆」出撃準備ヨシ！ 及び (B155)重巡「羽黒」、出撃！ペナン沖海戦 達成後",
+      "wiki_unverified": false
+    },
+    "B158": {
+      "prerequisites": [
+        "Bd3",
+        "B121"
+      ],
+      "text_jp": "(Bd3)敵艦隊を10回邀撃せよ！ 及び (B121)精鋭「二七駆」第一小隊、出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B159": {
+      "prerequisites": [
+        "D23"
+      ],
+      "text_jp": "(D23)海上護衛総隊、遠征開始！ 【 検証中 】 及び () 達成後?",
+      "wiki_unverified": true
+    },
+    "B160": {
+      "prerequisites": [
+        "B115",
+        "B123"
+      ],
+      "text_jp": "【 検証中 】 (B115)精鋭駆逐隊、獅子奮迅！ 及び (B123)精強「十七駆」、北へ、南へ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B161": {
+      "prerequisites": [
+        "B159",
+        "B160"
+      ],
+      "text_jp": "【 検証中 】 (B159)【艦隊司令部強化】艦隊旗艦、出撃せよ！ 及び (B160)奇跡の駆逐艦「雪風」、再び出撃す！ 達成後",
+      "wiki_unverified": true
+    },
+    "B162": {
+      "prerequisites": [],
+      "text_jp": "【 検証中 】 () 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B163": {
+      "prerequisites": [
+        "B124",
+        "B125"
+      ],
+      "text_jp": "(B124)「第七駆逐隊」、南西諸島を駆ける！ 及び (B125)近海の警戒監視と哨戒活動を強化せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B164": {
+      "prerequisites": [
+        "B65"
+      ],
+      "text_jp": "【 検証中 】 (B65)オリョール海の制海権を確保せよ！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B165": {
+      "prerequisites": [
+        "B124",
+        "B135"
+      ],
+      "text_jp": "【 検証中 】 *11 (B124)「第七駆逐隊」、南西諸島を駆ける！ 及び (B135)近海哨戒を実施せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B166": {
+      "prerequisites": [],
+      "text_jp": "【 検証中 】 () 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B167": {
+      "prerequisites": [
+        "B166"
+      ],
+      "text_jp": "【 検証中 】 (B166)改装航空巡洋艦「最上」、抜錨せよ！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B168": {
+      "prerequisites": [
+        "B75",
+        "B103"
+      ],
+      "text_jp": "【 検証中 】 (B75)水雷戦隊、南西防衛線に反復出撃せよ！ 及び (B103)旗艦「由良」、抜錨！ 達成後",
+      "wiki_unverified": true
+    },
+    "B169": {
+      "prerequisites": [
+        "B47",
+        "D19"
+      ],
+      "text_jp": "(B47)「第一水雷戦隊」北方ケ号作戦、再突入！ 及び (D19)機動部隊の運用を強化せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B170": {
+      "prerequisites": [
+        "B151",
+        "B159"
+      ],
+      "text_jp": "(B151)合同艦隊機動部隊、出撃せよ！ 及び (B159)【艦隊司令部強化】艦隊旗艦、出撃せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B171": {
+      "prerequisites": [
+        "D42"
+      ],
+      "text_jp": "【 検証中 】 (D42)【作戦準備】第一段階任務(対潜整備) 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B172": {
+      "prerequisites": [
+        "B135"
+      ],
+      "text_jp": "(B135)近海哨戒を実施せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B173": {
+      "prerequisites": [
+        "B136",
+        "B172"
+      ],
+      "text_jp": "(B136)精鋭「二四駆逐隊」出撃せよ！ 及び (B172)「山風改二」、抜錨せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B174": {
+      "prerequisites": [
+        "B117"
+      ],
+      "text_jp": "【 検証中 】 (B117)最精鋭甲型駆逐艦、突入！敵中突破！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B175": {
+      "prerequisites": [
+        "B113",
+        "B131"
+      ],
+      "text_jp": "【 検証中 】 (B113) 松輸送作戦、継続実施せよ！ 及び (B131) 航空戦艦戦隊、戦闘哨戒！ 達成後",
+      "wiki_unverified": true
+    },
+    "B176": {
+      "prerequisites": [
+        "B175"
+      ],
+      "text_jp": "(B175) 南西海域「基地航空隊」開設！ 達成後",
+      "wiki_unverified": false
+    },
+    "B177": {
+      "prerequisites": [
+        "B176"
+      ],
+      "text_jp": "(B176) 海上護衛！ヒ船団を護り抜け！ 達成後",
+      "wiki_unverified": false
+    },
+    "B178": {
+      "prerequisites": [
+        "B90",
+        "B176"
+      ],
+      "text_jp": "(B90)精鋭「第八駆逐隊」突入せよ！ 及び (B176)海上護衛！ヒ船団を護り抜け！ 達成後",
+      "wiki_unverified": false
+    },
+    "B179": {
+      "prerequisites": [
+        "B86"
+      ],
+      "text_jp": "(B86)輸送作戦を成功させ、帰還せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B180": {
+      "prerequisites": [
+        "By1",
+        "B79"
+      ],
+      "text_jp": "(By1) 精鋭「十九駆」、躍り出る！ 及び (B79)「第十九駆逐隊」敵主力に突入せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B181": {
+      "prerequisites": [
+        "F109",
+        "B32"
+      ],
+      "text_jp": "(F109) 【工廠任務】新装備開発計画II 及び (B32)「戦艦部隊」北方海域に突入せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B182": {
+      "prerequisites": [
+        "B181",
+        "Cy9"
+      ],
+      "text_jp": "(B181) 改大和型戦艦「大和改二」、出撃せよ！ 及び (Cy9)「大和型戦艦」第一戦隊演習、始め！ 達成後",
+      "wiki_unverified": false
+    },
+    "B183": {
+      "prerequisites": [
+        "B182"
+      ],
+      "text_jp": "(B182) 見敵必殺！最精鋭大和型「第一戦隊」抜錨！ 達成後",
+      "wiki_unverified": false
+    },
+    "B184": {
+      "prerequisites": [
+        "B174",
+        "Bd1"
+      ],
+      "text_jp": "【 検証中 】 (B174) 奮戦！精鋭「第十五駆逐隊」第一小隊 及び (Bd1) 敵艦隊を撃破せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B185": {
+      "prerequisites": [
+        "B184",
+        "F110"
+      ],
+      "text_jp": "(B184) 抜錨！精強「第十五駆逐隊」 及び 【 検証中 】 (F110) 【工廠任務】新装備開発計画III 達成後",
+      "wiki_unverified": true
+    },
+    "B186": {
+      "prerequisites": [
+        "B107",
+        "D18"
+      ],
+      "text_jp": "【 検証中 】 (B107) 補給線の安全を確保せよ！ 及び (D18) 観艦式を敢行せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B187": {
+      "prerequisites": [
+        "C68",
+        "F112"
+      ],
+      "text_jp": "【 検証中 】 (C68) 「Taffy Ⅲ」 This is a drill! 及び (F112) 【工廠任務】Hedgehogの配備 達成後",
+      "wiki_unverified": true
+    },
+    "B188": {
+      "prerequisites": [
+        "B176"
+      ],
+      "text_jp": "【 検証中 】 () 及び (B176)「海上護衛！ヒ船団を護り抜け！」 達成後",
+      "wiki_unverified": true
+    },
+    "B189": {
+      "prerequisites": [
+        "B155",
+        "B156"
+      ],
+      "text_jp": "【 検証中 】 (B155) 重巡「羽黒」、出撃！ペナン沖海戦 及び (B156) 静かな海を護る「鯨」、動き出す！ 達成後",
+      "wiki_unverified": true
+    },
+    "B190": {
+      "prerequisites": [
+        "B133"
+      ],
+      "text_jp": "(B133) 重改装高速戦艦「金剛改二丙」、南方突入！ 達成後",
+      "wiki_unverified": false
+    },
+    "B191": {
+      "prerequisites": [
+        "B135"
+      ],
+      "text_jp": "【 検証中 】 (B135)近海哨戒を実施せよ！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B192": {
+      "prerequisites": [
+        "B158",
+        "C75"
+      ],
+      "text_jp": "【 検証中 】 (B158)精鋭「二七駆」、回避運動は気をつけて！ 及び (C75)「佐世保の時雨」練度向上を図れ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B193": {
+      "prerequisites": [
+        "B159",
+        "Cy11"
+      ],
+      "text_jp": "(B159)【艦隊司令部強化】艦隊旗艦、出撃せよ！ 【 検証中 】 及び (Cy11)「十六駆」演習！ 達成後 ※期間限定任務 2307B1 からCy11に変更",
+      "wiki_unverified": true,
+      "replaces": [
+        "2307B1"
+      ]
+    },
+    "B194": {
+      "prerequisites": [
+        "B59",
+        "B179"
+      ],
+      "text_jp": "(B59)旗艦「霞」出撃！敵艦隊を撃滅せよ！ 及び (B179)第十六戦隊、改装「浦波改二」出撃します！ 達成後",
+      "wiki_unverified": false
+    },
+    "B195": {
+      "prerequisites": [
+        "B17",
+        "B76"
+      ],
+      "text_jp": "【 検証中 】 (B17)「潜水艦隊」出撃せよ！ 及び (B76) 製油所地帯沿岸の哨戒を実施せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B196": {
+      "prerequisites": [
+        "Bd2",
+        "B87"
+      ],
+      "text_jp": "(Bd2) 敵艦隊主力を撃滅せよ！ 及び 【 検証中 】 (B87) 重巡戦隊、抜錨せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B197": {
+      "prerequisites": [],
+      "text_jp": "【 検証中 】 () 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B198": {
+      "prerequisites": [
+        "B128",
+        "B197"
+      ],
+      "text_jp": "(B128) 「比叡」の出撃 及び (B197) 「第二駆逐隊」抜錨！ 達成後",
+      "wiki_unverified": false
+    },
+    "B199": {
+      "prerequisites": [
+        "Cy12"
+      ],
+      "text_jp": "【 検証中 】 (Cy12) 春です！「春雨」、演習しますっ！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B200": {
+      "prerequisites": [
+        "By2"
+      ],
+      "text_jp": "【 検証中 】 () 及び (By2)「海防艦」、海を護る！ 達成後",
+      "wiki_unverified": true
+    },
+    "B201": {
+      "prerequisites": [],
+      "text_jp": "【 検証中 】 () 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B202": {
+      "prerequisites": [
+        "B30",
+        "B201"
+      ],
+      "text_jp": "【 検証中 】 *12 (B30)「水雷戦隊」バシー島沖緊急展開 及び (B201) 哨戒部隊で近海及び南西諸島を警戒せよ！ 達成後",
+      "wiki_unverified": true
+    },
+    "B203": {
+      "prerequisites": [
+        "B202"
+      ],
+      "text_jp": "【 検証中 】 (B202) 防空水上艦、出撃せよッ！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B204": {
+      "prerequisites": [
+        "2409B1",
+        "B135",
+        "C15"
+      ],
+      "text_jp": "【 検証中 】 (2409B1)【期間限定任務】「第三戦隊」緊急展開！ 及び (B135)近海哨戒を実施せよ！ 及び (C15)甲型駆逐艦の戦力整備計画 達成後",
+      "wiki_unverified": true
+    },
+    "B205": {
+      "prerequisites": [
+        "C77"
+      ],
+      "text_jp": "【 検証中 】 (C77)「第三戦隊」精鋭第二小隊、特別演習！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B206": {
+      "prerequisites": [
+        "Cy16",
+        "B126"
+      ],
+      "text_jp": "【 検証中 】 (Cy16)「第二駆逐隊(後期編成)」、練度向上！ 及び (B126)主力オブ主力、抜錨開始！ 達成後",
+      "wiki_unverified": true
+    },
+    "B207": {
+      "prerequisites": [
+        "Bq8"
+      ],
+      "text_jp": "【 検証中 】 (Bq8)泊地周辺海域の安全確保を徹底せよ！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B208": {
+      "prerequisites": [
+        "B35"
+      ],
+      "text_jp": "【 検証中 】 (B35)「第十一駆逐隊」出撃せよ！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B209": {
+      "prerequisites": [
+        "B207"
+      ],
+      "text_jp": "【 検証中 】 (B207)三十二駆「藤波改二」、鳥海を護衛せよ！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B210": {
+      "prerequisites": [
+        "F33",
+        "B159"
+      ],
+      "text_jp": "(F33)上陸戦用新装備の調達 *13 及び (B159)【艦隊司令部強化】艦隊旗艦、出撃せよ！ *14 達成後",
+      "wiki_unverified": false
+    },
+    "B211": {
+      "prerequisites": [
+        "F132"
+      ],
+      "text_jp": "【 検証中 】 (F132)【対潜戦力強化】海防艦対潜兵装の強化 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B212": {
+      "prerequisites": [
+        "B202"
+      ],
+      "text_jp": "【 検証中 】 (B202) 防空水上艦、出撃せよッ！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B213": {
+      "prerequisites": [
+        "B207",
+        "F136"
+      ],
+      "text_jp": "【 検証中 】 (B207)三十二駆「藤波改二」、鳥海を護衛せよ！ 及び (F136)第三十二駆逐隊「早波」、改装準備！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B214": {
+      "prerequisites": [
+        "F135",
+        "F139"
+      ],
+      "text_jp": "【 検証中 】 (F135)秋月型防空駆逐艦用兵装の拡充 及び (F139)【工廠任務】新装備運用のための工廠整備【壱】 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B215": {
+      "prerequisites": [
+        "B207",
+        "F142"
+      ],
+      "text_jp": "【 検証中 】 (B207)三十二駆「藤波改二」、鳥海を護衛せよ！ 及び (F142)【工廠任務】水雷戦隊新改装艦、改装準備！ 及び () 達成後",
+      "wiki_unverified": true
+    },
+    "B216": {
+      "prerequisites": [
+        "B207"
+      ],
+      "text_jp": "(B207)三十二駆「藤波改二」、鳥海を護衛せよ！ 達成後",
+      "wiki_unverified": false
+    },
+    "B217": {
+      "prerequisites": [
+        "By17"
+      ],
+      "text_jp": "【 検証中 】 (2609B1)「第九戦隊」抜錨！前線展開せよッ！ 達成後",
+      "wiki_unverified": true
+    }
+  }
+}

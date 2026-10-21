@@ -39,6 +39,40 @@ def quest_ship_name(name, translations):
     return re.sub(r"(?<=[가-힣])(?=개[123])", " ", translated)
 
 
+def supplement_prerequisites(items, code_map, root):
+    snapshot = read(root / "data/quest_wiki_prereqs.json")
+    normalize = lambda code: re.sub(r"\s", "", code).casefold()
+    ids = {normalize(code): int(key) for key, code in code_map.items()}
+    by_code = {q["wiki_id"]: q for q in items.values()}
+    changes, missing_details = [], []
+    for code, wiki in snapshot["quests"].items():
+        if code not in by_code:
+            missing_details.append(code)
+            continue
+        row = by_code[code]
+        old = [code_map[str(i)] for i in row["prereqs"]]
+        refs = wiki["prerequisites"]
+        old_set, wiki_set = set(map(normalize, old)), set(map(normalize, refs))
+        differs = old_set != wiki_set
+        removed = set(map(normalize, wiki.get("replaces", [])))
+        row["prereqs"] = [i for i in row["prereqs"] if normalize(code_map[str(i)]) not in removed]
+        for ref in refs:
+            if normalize(ref) not in ids:
+                raise ValueError(f"Unresolved wiki prerequisite: {code}: {ref}")
+            item_id = ids[normalize(ref)]
+            if item_id not in row["prereqs"]:
+                row["prereqs"].append(item_id)
+        row["prereqs_unverified"] = differs
+        if wiki.get("any_of"):
+            row["prereq_any_of"] = [[ids[normalize(c)] for c in group] for group in wiki["any_of"]]
+        if differs:
+            changes.append({"code": code, "original": old, "wiki": refs,
+                            "selected": [code_map[str(i)] for i in row["prereqs"]],
+                            "any_of": wiki.get("any_of", []), "replaces": wiki.get("replaces", [])})
+    return {"source": snapshot["source"], "compared": len(snapshot["quests"]),
+            "differences": changes, "missing_quest_details": missing_details}
+
+
 def build(source, eo, master_repo, root):
     selected, origins = {}, {}
     # Insert low priority records first, replacing the WHOLE record at each step.
@@ -162,12 +196,14 @@ def build(source, eo, master_repo, root):
     for key, val in translations.items():
         if isinstance(val, dict) and val.get("code"):
             code_map.setdefault(key, val["code"].strip())
+    wiki_comparison = supplement_prerequisites(items, code_map, root)
     duplicates = [k for k, n in Counter(q["wiki_id"].casefold() for q in items.values()).items() if n > 1]
     assert not duplicates, duplicates
     unresolved = sorted({i for q in items.values() for i in q["prereqs"] if str(i) not in code_map})
     link_only = sorted({i for q in items.values() for i in q["prereqs"] if str(i) not in items})
     sources = {"tsunkit": {"url": "https://github.com/planetarian/TsunKitQuests", "revision": revision(source)},
                "eo": {"url": "https://github.com/kinggall/Data", "revision": revision(eo)}}
+    sources["wiki_prerequisites"] = wiki_comparison["source"]
     data = {"schema": 1, "sources": sources, "quests": items, "codes": code_map}
     # Minimal master labels for rewards, fleet classes and ship names.
     master = json.loads(subprocess.check_output(
@@ -191,6 +227,7 @@ def build(source, eo, master_repo, root):
               "unresolved_prerequisite_ids": unresolved, "prerequisites_without_detail": link_only,
               "condition_supplements": {"B205": "Wikiwiki 5-5/6-5/4-5 boss S twice each; both escort alternatives",
                                         "B210": "Wikiwiki 1-1/1-2/1-3/1-4 boss S once each"},
+              "wiki_prerequisites": wiki_comparison,
               "scope": "Offline source snapshot with documented Wikiwiki supplements; no October 14 update present"}
     for name, value in (("quests.json", data), ("quest_verification.json", report)):
         (root / "data" / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
