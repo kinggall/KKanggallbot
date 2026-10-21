@@ -1718,6 +1718,29 @@ def webhook():
         print(f"[답변 전송] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
+    # Iris also sends the bot's own outgoing messages back to this webhook.
+    # Exclude the exact reply so the substring trigger cannot answer itself
+    # forever.
+    if "굿모닝" in message and message != "굿모닝~":
+        reply = "굿모닝~"
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[굿모닝 답변] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if ("좋은 아침" in message or "좋은아침" in message) and message != "좋은 아침입니다!":
+        reply = "좋은 아침입니다!"
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": reply},
+            timeout=10,
+        )
+        print(f"[좋은 아침 답변] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
     if message in COMMANDS or message in ("!도움", "!명령어", "!명령"):
         reply = COMMANDS["!도움말"] if message in ("!도움", "!명령어", "!명령") else COMMANDS[message]
 
