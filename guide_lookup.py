@@ -33,6 +33,16 @@ def translate_route(text):
     return text
 
 
+def find_route(text):
+    # Articles can place fleet counts and the route on separate HTML lines.
+    # Capture only the route and battle types, not following quest notes.
+    text = re.sub(r'\s+', ' ', text).strip()
+    return re.search(
+        r'(?:戦艦|軽巡|重巡|駆逐|正空|軽空|空母|水母|航巡|航戦|潜水|雷巡|補給)'
+        r'.*?【[^】]+】(?:\s*\([^)]*\))?', text,
+    )
+
+
 def sortie_maps(value):
     found = []
     if isinstance(value, dict):
@@ -123,7 +133,7 @@ def build_preview(query, root=ROOT):
             if path and not air and path not in pending:
                 pending.append(path)
         if node.tag == 'p' and not air:
-            match = re.search(r'(?:戦艦|軽巡|重巡|駆逐|正空|軽空|空母|水母|航巡|航戦|潜水|雷巡|補給).*?【[^】]+】[^\n]*', text)
+            match = find_route(text)
             if match and current_map:
                 if not pending:
                     continue
