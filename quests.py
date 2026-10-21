@@ -47,6 +47,10 @@ EQUIP_GROUPS = {1: "소구경주포", 2: "중구경주포", 3: "대구경주포"
                 10: "수상정찰기", 11: "수상폭격기", 12: "소형전탐", 13: "대형전탐",
                 5: "어뢰", 15: "폭뢰", 16: "벌지", 17: "기관부강화", 21: "기총", 47: "육상공격기",
                 -12: "전탐"}
+SORTIE_BOSS_MAPS = {
+    "7-2M": "7-2-2", "7-3E": "7-3-1", "7-3P": "7-3-2",
+    "7-4P": "7-4", "7-5T": "7-5-3",
+}
 
 
 def normalized(value):
@@ -212,7 +216,13 @@ class QuestCatalog:
                           "otherships": "지정 함선 외 편성 불가"}[req["disallowed"]])
         if kind == "sortie":
             for row in req.get("sortie", []):
-                maps = "/".join(map(str, values(row["map"]))) if "map" in row else "해역 무관"
+                def map_label(value):
+                    value = str(value)
+                    if value not in SORTIE_BOSS_MAPS and row.get("node") and value.upper().endswith(str(row["node"]).upper()):
+                        value = value[:-len(str(row["node"]))]
+                    return SORTIE_BOSS_MAPS.get(value, value)
+
+                maps = "/".join(map_label(m) for m in values(row["map"])) if "map" in row else "해역 무관"
                 node = f" {str(row['node']).upper()}지점" if "node" in row else (" 보스" if row.get("boss") else "")
                 result = row.get("result")
                 victory = " 도달" if result == "clear" else (f" {result}승" + (" 이상" if result != "S" else "") if result else " 도달")

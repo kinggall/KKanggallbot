@@ -148,6 +148,14 @@ Bw5 + B98'''
         self.assertNotIn(" x1 /", b205)
         self.assertIn("[선행임무]\nC77", b205)
 
+    def test_multistage_bosses_use_map_stage_labels(self):
+        reply = self.catalog.reply("B206")
+        self.assertIn("2-5/7-2-2/7-4/5-4 보스 S승 각 1회", reply)
+        for code, label in (("B155", "7-3-1"), ("B157", "7-3-2"),
+                            ("B190", "7-5-3")):
+            self.assertIn(label, self.catalog.reply(code))
+        self.assertIn("7-4 O지점", self.catalog.reply("B175"))
+
     def test_all_quest_ship_ids_have_korean_display_names(self):
         ids = set()
 
