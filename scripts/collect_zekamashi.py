@@ -74,6 +74,36 @@ def normalized(text):
     return re.sub(r'[\W_]+', '', unicodedata.normalize('NFKC', text)).casefold()
 
 
+def hidden_node(node):
+    attrs = node.attrs
+    classes = set(attrs.get('class', '').split())
+    style = re.sub(r'\s+', '', attrs.get('style', '')).lower()
+    return (
+        (node.tag == 'details' and 'open' not in attrs)
+        or 'hidden' in attrs
+        or attrs.get('aria-hidden', '').lower() == 'true'
+        or bool(re.search(r'(?:^|;)(?:display:none|visibility:hidden)(?:!important)?(?:;|$)', style))
+        or 'su-spoiler-closed' in classes
+    )
+
+
+def visible_walk(node):
+    """Skip collapsed/explicitly hidden subtrees, including their headings."""
+    if hidden_node(node):
+        return
+    yield node
+    for child in node.children:
+        if isinstance(child, Node):
+            yield from visible_walk(child)
+
+
+def visible_text(node):
+    if hidden_node(node):
+        return ''
+    return ''.join(visible_text(child) if isinstance(child, Node) else child
+                   for child in node.children)
+
+
 def select_article(html):
     root = Document(html).root
     for node in root.walk():
@@ -90,8 +120,8 @@ def extract_article(html, url, expected_title):
     if not any(normalized(expected_title) in normalized(title) for title in h1_titles):
         raise ValueError('Article title does not match the quest; manual review required')
 
-    heading = next((node for node in body.walk()
-                    if node.tag == 'h2' and normalized(node.text()) == normalized('編成例')), None)
+    heading = next((node for node in visible_walk(body)
+                    if node.tag == 'h2' and normalized(visible_text(node)) == normalized('編成例')), None)
     if heading is None:
         raise ValueError('編成例 section not found; manual review required')
     section_nodes = []
@@ -108,14 +138,14 @@ def extract_article(html, url, expected_title):
     for child in section_nodes:
         if not isinstance(child, Node):
             continue
-        for node in child.walk():
+        for node in visible_walk(child):
             if node.tag in {'h3', 'h4', 'p', 'li'}:
-                text = re.sub(r'\s+', ' ', node.text()).strip()
+                text = re.sub(r'\s+', ' ', visible_text(node)).strip()
                 if text:
                     blocks.append({'tag': node.tag, 'text': text})
             if node.tag == 'a':
                 href = urljoin(url, node.attrs.get('href', ''))
-                if re.search(r'\.(?:png|jpe?g|webp)(?:\?|$)', href, re.I) and any(n.tag == 'img' for n in node.walk()):
+                if re.search(r'\.(?:png|jpe?g|webp)(?:\?|$)', href, re.I) and any(n.tag == 'img' for n in visible_walk(node)):
                     images.append(href)
             if node.tag == 'img':
                 src = node.attrs.get('data-src') or node.attrs.get('src', '')

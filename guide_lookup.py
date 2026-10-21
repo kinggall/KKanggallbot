@@ -5,7 +5,7 @@ import unicodedata
 from pathlib import Path
 
 import quests
-from scripts.collect_zekamashi import image_identity, normalized, select_article
+from scripts.collect_zekamashi import image_identity, normalized, select_article, visible_text, visible_walk
 
 ROOT = Path(__file__).resolve().parent
 USAGE = '사용법: !공략 [임무번호]\n예: !공략 B44 / !공략 By10'
@@ -84,15 +84,15 @@ def build_preview(query, root=ROOT):
     summaries, pictures = [], []
     selected_maps = set()
     pending = []
-    for node in body.walk():
+    for node in visible_walk(body):
         if node.tag == 'h2':
             if active:
                 break
-            active = normalized(node.text()) == normalized('編成例')
+            active = normalized(visible_text(node)) == normalized('編成例')
             continue
         if not active:
             continue
-        text = unicodedata.normalize('NFKC', node.text()).strip()
+        text = unicodedata.normalize('NFKC', visible_text(node)).strip()
         if node.tag in {'h3', 'h4'}:
             match = re.search(r'[1-7]-[1-6]', text)
             if match:
