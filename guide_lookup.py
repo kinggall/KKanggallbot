@@ -10,6 +10,24 @@ from scripts.collect_zekamashi import image_identity, normalized, select_article
 ROOT = Path(__file__).resolve().parent
 USAGE = '사용법: !공략 [임무번호] [해역(선택)]\n예: !공략 By10 / !공략 By10 55'
 TERMS = {
+    '高速+統一': '고속+통일', '高速統一': '고속통일', '低速統一': '저속통일',
+    '高速': '고속', '低速': '저속', '最速': '최속',
+    '巡洋艦': '순양함', '潜水空母': '잠수항모', '潜水艦': '잠수', '潜母': '잠수항모',
+    '揚陸艦': '상륙함', '駆逐艦': '구축', '混合': '혼합', '港': '항구',
+    '要索敵': '색적 필요', '索敵値': '색적', '式係数': '식 계수', '程度': '정도',
+    '自由枠': '자유', '自由': '자유', '対地': '대지', '水雷戦隊': '수뢰전대',
+    'ドラム缶': '드럼통', '輸送用': '수송용', '装備艦': '장비함',
+    '秋津洲': '아키츠시마', '羽黒': '하구로', '足柄': '아시가라', '神風': '카미카제',
+    'ボス到達ランダム': '보스 도달 랜덤', 'ボス確定': '보스 도달 확정',
+    'ルートランダム': '경로 랜덤', '道中ランダム': '도중 랜덤', 'ランダム': '랜덤',
+    'ルート固定': '경로 고정', '固定不可': '고정 불가', '低確率で逸れあり': '낮은 확률로 이탈',
+    'ランダムで逸れます': '랜덤으로 이탈', '経由することあり': '경유 가능',
+    '初戦上の道中': '첫 분기 상단 / 도중', '道中': '도중', '戦固定': '전 고정',
+    '後述': '후술', '何れも要索敵': '모두 색적 필요',
+    '中央ルートで攻略可能です': '중앙 경로로 공략 가능',
+    'のような編成にしたほうが攻略しやすいかも': '편성이 공략에 유리할 수 있음',
+    'がいない場合や英米': '가 없거나 영미 ', 'が足りない場合': '이 부족한 경우',
+    'がいない場合': '가 없는 경우',
     '航空戦艦': '항전', '航空巡洋艦': '항순', '重雷装巡洋艦': '뇌순',
     '正規空母': '정규항모', '装甲空母': '장갑항모', '軽空母': '경항모',
     '水上機母艦': '수모', '軽巡洋艦': '경순', '重巡洋艦': '중순',
@@ -33,13 +51,50 @@ FLEET_TYPES = (
     r'軽巡洋艦|重巡洋艦|補給艦|海防艦|戦艦|軽巡|重巡|駆逐艦|駆逐|海防|'
     r'正空|軽空|空母|水母|航巡|航戦|潜水|雷巡|補給)'
 )
+NODE_ROUTE = r'【(?=[^】]*[A-Z])[A-Z0-9\s()→⇒←↔/・,.\-~?]+】'
 
 
 def translate_route(text):
     text = unicodedata.normalize('NFKC', text)
+    # Keep numeric constraints while removing redundant prose around a fleet.
+    text = re.sub(r'が(\d+)隻以下', r' 합계 \1척 이하', text)
+    text = re.sub(r'(\d+)隻以上', r'\1척 이상', text)
+    text = re.sub(r'(\d+)隻以下', r'\1척 이하', text)
+    text = re.sub(r'(\d+)隻に装備', r'\1척에 장착', text)
+    text = re.sub(r'を(\d+)隻を採用', r'\1척', text)
+    for phrase in ('のような編成で', 'の編成で', 'とすることで', 'を採用することで',
+                   'という形にして', '以上の編成で', '以上の条件であれば'):
+        replacement = '이상' if phrase.startswith('以上') else ''
+        text = text.replace(phrase, replacement)
+    text = text.replace('を入れなければ', ' 제외')
+    text = text.replace('といった編成で', '')
+    text = text.replace('で最短ルート', '(최단 경로)').replace('で下ルートの', '(하단 경로)')
+    text = text.replace('隻以上で', '척 이상').replace('の水雷戦隊編成で', '')
+    text = text.replace('の 水雷戦隊編成で', '')
+    text = text.replace('に変更可能です。', '로 변경 가능. ')
+    text = text.replace('に変更すること。', '로 변경. ')
+    text = text.replace('を', ' ').replace('等', ' 등')
     for original in sorted(TERMS, key=len, reverse=True):
         text = text.replace(original, TERMS[original])
-    text = re.sub(r'(\d)(?=[가-힣])', r'\1 ', text)
+    text = re.sub(r'(아키츠시마|하구로|아시가라|카미카제)(?=[가-힣])', r'\1 ', text)
+    text = re.sub(r'(?<=[가-힣])系', '계', text)
+    text = re.sub(r'(?<=[가-힣])級', '급', text)
+    text = re.sub(r'(?<=\d)系', '계', text)
+    text = re.sub(r'(?<=[가-힣])艦', '함', text)
+    text = text.replace('以上', ' 이상').replace('以下', ' 이하')
+    text = re.sub(r'(\d+)戦の', r'\1전 / ', text)
+    text = re.sub(r'(\d+)戦', r'\1전', text)
+    text = re.sub(r'(?<=\d)で(?=\d)', ' / ', text)
+    text = re.sub(r'(の編成で|のような編成で|編成で)', '', text)
+    text = re.sub(r'で[、\s]*(?=【)', '', text)
+    text = re.sub(r'の[、\s]*(?=【)', '', text)
+    text = re.sub(r'も[、\s]*(?=【)', '', text)
+    text = re.sub(r'[、。]\s*(?=【)', '', text)
+    text = re.sub(
+        r'(\d)(?=(?:정규항모|장갑항모|경항모|전함|항전|항순|중순|경순|뇌순|구축|해방|'
+        r'잠수항모|잠수|수모|상륙함|보급|순양함|자유|아키츠시마|하구로|아시가라|카미카제))',
+        r'\1 ', text,
+    )
     text = re.sub(r'([A-Z])보스', r'\1:보스', text)
     text = re.sub(r'(?<!\s)【', ' 【', text)
     return text
@@ -49,10 +104,9 @@ def find_route(text):
     # Articles can place fleet counts and the route on separate HTML lines.
     # Capture only the route and battle types, not following quest notes.
     text = re.sub(r'\s+', ' ', text).strip()
-    match = re.search(
-        r'(?:戦艦|軽巡|重巡|駆逐|海防|正空|軽空|空母|水母|航巡|航戦|潜水|雷巡|補給)'
-        r'.*?【(?=[^】]*[A-Z])[A-Z0-9\s()→⇒←↔/・,.\-~?]+】', text,
-    )
+    starter = (r'(?:' + FLEET_TYPES + r'(?:系|級)?(?=\s*(?:\d|[+(]|を\d))'
+               r'|秋津洲|羽黒|足柄|神風)')
+    match = re.search(starter + r'[^。※]*?。?\s*' + NODE_ROUTE, text)
     if not match:
         return None
     end = match.end()
@@ -203,10 +257,14 @@ def build_preview(query, root=ROOT):
             continue
         selected.add(identity)
         heading = f'{area} [{label}]' if target_map and label else area
-        fleet, separator, route = variant['summary'].partition('【')
-        summary = f'{heading}: {fleet.rstrip()}'
-        if separator:
-            summary += '\n【' + route
+        route_match = re.search(NODE_ROUTE, variant['summary'])
+        if route_match:
+            fleet = variant['summary'][:route_match.start()].strip()
+            # Alternative fleet descriptions may themselves be bracketed.
+            fleet = fleet.replace('】【', ' / ').replace('【', '').replace('】', '')
+            summary = f'{heading}: {fleet}\n{variant["summary"][route_match.start():]}'
+        else:
+            summary = f'{heading}: {variant["summary"]}'
         summaries.append(summary)
         for path in variant['pictures']:
             if path not in pictures:
