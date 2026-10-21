@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+import re
 import unittest
 from unittest.mock import patch
 
@@ -120,8 +121,36 @@ Bw5 + B98
         self.assertIn("날짜 끝자리 2/8", self.catalog.reply("Bd6"))
         self.assertIn("(계간)", self.catalog.reply("Bq6"))
         self.assertIn("(연간)", self.catalog.reply("Cy1"))
-        row = self.catalog.items[self.catalog.by_code["b210"]]
-        self.assertIn(quests.clean(row["description"]), self.catalog.reply("B210"))
+        b205 = self.catalog.reply("B205")
+        self.assertEqual(b205.count("5-5/6-5/4-5 보스 S승 각 2회"), 2)
+        self.assertIn("히에이 개2병", b205)
+        self.assertIn("키리시마 개2병", b205)
+        self.assertIn("유구모급 중 2척", b205)
+        self.assertIn("시라츠유급 중 2척", b205)
+        self.assertIn("1-1/1-2/1-3/1-4 보스 S승 각 1회", self.catalog.reply("B210"))
+        self.assertIn("후지나미 개2", self.catalog.reply("B207"))
+        self.assertIn("시라유키 개2", self.catalog.reply("B208"))
+
+    def test_all_quest_ship_ids_have_korean_display_names(self):
+        ids = set()
+
+        def visit(value):
+            if isinstance(value, dict):
+                if "ship_id" in value:
+                    item = value["ship_id"]
+                    ids.update(item if isinstance(item, list) else [item])
+                for part in value.values():
+                    visit(part)
+            elif isinstance(value, list):
+                for part in value:
+                    visit(part)
+
+        for row in self.catalog.items.values():
+            visit(row["requirements"])
+            visit(row["rewards"])
+        remaining = {i: self.catalog.ship_name(i) for i in ids
+                     if re.search(r"[一-龯ぁ-んァ-ン]", self.catalog.ship_name(i))}
+        self.assertEqual(remaining, {})
 
     def test_usage_unknown_number_and_internal_id_are_not_misrouted(self):
         self.assertEqual(self.catalog.reply(""), quests.USAGE)

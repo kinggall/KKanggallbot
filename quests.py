@@ -103,6 +103,9 @@ class QuestCatalog:
 
     def family_name(self, item_id):
         jp = self.labels["families"].get(str(item_id), "")
+        foreign_classes = {"Fletcher級": "플레처급", "John C.Butler級": "존 C. 버틀러급"}
+        if jp in foreign_classes:
+            return foreign_classes[jp]
         if jp.endswith("型") and jp[:-1] in self.aliases:
             name = next((a for a in self.aliases[jp[:-1]] if re.search(r"[가-힣]", a)), jp[:-1])
             return name + "급"

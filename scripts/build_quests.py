@@ -9,7 +9,12 @@ from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
+import re
 import subprocess
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from development import translated_ship_name
 
 
 def read(path):
@@ -22,6 +27,16 @@ def revision(path):
 
 def digest(value):
     return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+
+
+def quest_ship_name(name, translations):
+    translated = translated_ship_name(name, translations)
+    # These names combine a translated base with kanji not handled by the
+    # ordinary remodel suffix converter.
+    translated = translated.replace("航", "항").replace("戦", "전").replace("丸", "마루")
+    if translated == "스즈야항개2":
+        return "스즈야 개2항"
+    return re.sub(r"(?<=[가-힣])(?=개[123])", " ", translated)
 
 
 def build(source, eo, master_repo, root):
@@ -39,6 +54,13 @@ def build(source, eo, master_repo, root):
         row = read(file)
         key = str(row["game_id"])
         selected[key], origins[key] = row, str(file.relative_to(source))
+
+    # Wikiwiki's detailed quest instructions fill gaps in the selected
+    # structured source. Preserve the original source hashes in provenance.
+    condition_supplements = {
+        "1019": {"map": ["5-5", "6-5", "4-5"], "boss": True, "result": "S", "times": 2},
+        "1033": {"map": ["1-1", "1-2", "1-3", "1-4"], "boss": True, "result": "S", "times": 1},
+    }
 
     translations = read(eo / "Translations/ko-KR/quest.json")
     eo_quests = read(eo / "Data/Quests.json")
@@ -75,6 +97,26 @@ def build(source, eo, master_repo, root):
             continue
         key = identities[source_id]
         row = deepcopy(original)
+        if source_id == "1019":
+            # Either two Yuugumo-class or two Shiratsuyu-class escorts;
+            # Hiei and Kirishima Kai Ni Hei are both required.
+            branches = row["requirements"]["list"]
+            for branch in branches:
+                branch["sortie"] = [deepcopy(condition_supplements[source_id])]
+                branch["comp"] = [
+                    {"ship_id": 592, "amount": 1},
+                    {"ship_id": 694, "amount": 1},
+                    {"family_id": branch["comp"][0]["family_id"], "amount": 2},
+                    {"otherships": True, "amount": [0, 2]},
+                ]
+        elif source_id == "1033":
+            row["requirements"]["sortie"] = [deepcopy(condition_supplements[source_id])]
+            row["requirements"]["comp"] = [
+                {"ship_id": 945, "amount": 1, "position": 1},
+                {"class_id": [3, 4, 21], "amount": 1},
+                {"class_id": 2, "amount": 2},
+                {"otherships": True, "amount": 2},
+            ]
         original_code = row["wiki_id"].strip()
         row["game_id"] = int(key)
         # Prerequisite references are real game IDs, including 622/623.
@@ -101,7 +143,8 @@ def build(source, eo, master_repo, root):
         items[key] = row
         provenance[key] = {"source_id": int(source_id), "path": origins[source_id],
                            "source_sha256": digest(original),
-                           "requirements_sha256": digest(original["requirements"]),
+                           "source_requirements_sha256": digest(original["requirements"]),
+                           "requirements_sha256": digest(row["requirements"]),
                            "rewards_sha256": digest(original["rewards"])}
 
     condition_conflicts = [
@@ -135,7 +178,8 @@ def build(source, eo, master_repo, root):
     if isinstance(ship_names, dict) and "data" in ship_names:
         ship_names = ship_names["data"]
     data["labels"] = {
-        "ships": {str(s["api_id"]): ship_names.get(s["api_name"], s["api_name"]) for s in master["api_mst_ship"]},
+        "ships": {str(s["api_id"]): quest_ship_name(s["api_name"], ship_names)
+                  for s in master["api_mst_ship"]},
         "inventory": {str(s["api_id"]): s["api_name"] for s in master["api_mst_useitem"] if s["api_name"]},
         "furniture": {str(s["api_id"]): s["api_title"] for s in master["api_mst_furniture"]},
         "families": {str(s["ApiId"]): s["NameJapanese"] for s in read(eo / "Data/ShipClass.json")},
@@ -145,7 +189,9 @@ def build(source, eo, master_repo, root):
               "count": len(items), "unverified": sum(q["unverified"] for q in items.values()),
               "provenance": provenance, "identity_conflicts": conflicts, "condition_conflicts": condition_conflicts,
               "unresolved_prerequisite_ids": unresolved, "prerequisites_without_detail": link_only,
-              "scope": "Offline source snapshot, not independent in-game verification; no October 14 update present"}
+              "condition_supplements": {"B205": "Wikiwiki 5-5/6-5/4-5 boss S twice each; both escort alternatives",
+                                        "B210": "Wikiwiki 1-1/1-2/1-3/1-4 boss S once each"},
+              "scope": "Offline source snapshot with documented Wikiwiki supplements; no October 14 update present"}
     for name, value in (("quests.json", data), ("quest_verification.json", report)):
         (root / "data" / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in report.items() if k not in ("provenance", "sources")}, ensure_ascii=False, indent=2))
