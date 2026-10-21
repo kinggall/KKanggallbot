@@ -143,10 +143,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=ROOT / 'guide_cache' / 'zekamashi')
     parser.add_argument('--codes', nargs='*', help='Optional subset, e.g. B141 B142')
-    parser.add_argument('--interval', type=float, default=60)
+    parser.add_argument('--interval', type=float, default=10)
     args = parser.parse_args()
-    if args.interval < 60:
-        parser.error('Use an interval of at least 60 seconds')
+    if args.interval < 10:
+        parser.error('Use an interval of at least 10 seconds')
     quests = json.loads((ROOT / 'data/quests.json').read_text(encoding='utf-8'))['quests']
     targets = [q for q in quests.values() if q.get('category') == 'sortie'
                and not q.get('unavailable') and q.get('frequency') in
