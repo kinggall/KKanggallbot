@@ -15,6 +15,22 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://zekamashi.net/'
+IMAGE_CDN_HOSTS = {'i0.wp.com', 'i1.wp.com', 'i2.wp.com'}
+
+
+def image_source_url(url):
+    """Identify only WordPress CDN images belonging to this site's uploads."""
+    parsed = urlparse(url)
+    if (parsed.scheme == 'https' and parsed.hostname in IMAGE_CDN_HOSTS
+            and parsed.path.startswith('/zekamashi.net/wp-content/uploads/')
+            and re.search(r'\.(?:png|jpe?g|webp)$', parsed.path, re.I)):
+        return BASE + parsed.path[len('/zekamashi.net/'):]
+    return url
+
+
+def image_identity(url):
+    parsed = urlparse(image_source_url(url))
+    return parsed.hostname, re.sub(r'-\d+x\d+(?=\.)', '', parsed.path)
 
 
 class Node:
@@ -105,9 +121,12 @@ def extract_article(html, url, expected_title):
                 src = node.attrs.get('data-src') or node.attrs.get('src', '')
                 if src and not src.startswith('data:'):
                     src = urljoin(url, src)
-                    if not any(re.sub(r'-\d+x\d+(?=\.)', '', src) == image for image in images):
+                    if not any(image_identity(src) == image_identity(image) for image in images):
                         images.append(src)
-    return blocks, list(dict.fromkeys(images))
+    unique_images = {}
+    for image in images:
+        unique_images.setdefault(image_identity(image), image)
+    return blocks, list(unique_images.values())
 
 
 def write_json(path, data):
@@ -125,9 +144,10 @@ class Fetcher:
         self.robots = None
 
     def get(self, url):
-        if urlparse(url).hostname != 'zekamashi.net':
+        source_url = image_source_url(url)
+        if urlparse(source_url).hostname != 'zekamashi.net':
             raise ValueError('External host requires manual review: ' + url)
-        if self.robots is not None and not self.robots.can_fetch(self.session.headers['User-Agent'], url):
+        if self.robots is not None and not self.robots.can_fetch(self.session.headers['User-Agent'], source_url):
             raise RuntimeError('robots.txt disallows collection: ' + url)
         time.sleep(max(0, self.interval - (time.monotonic() - self.last)))
         print(f'Requesting: {url}', flush=True)
@@ -183,10 +203,14 @@ def main():
             record['status'] = 'review_required'
             write_json(manifest, record)
             continue
-        search = fetcher.get(BASE + '?' + urlencode({'s': title}))
-        (folder / 'search.html').write_text(search.text, encoding='utf-8')
+        search_path = folder / 'search.html'
+        if old_record.get('schema_version') == 2 and old_record.get('status') == 'in_progress' and search_path.exists():
+            search_html = search_path.read_text(encoding='utf-8')
+        else:
+            search_html = fetcher.get(BASE + '?' + urlencode({'s': title})).text
+            search_path.write_text(search_html, encoding='utf-8')
         candidates = {}
-        for node in Document(search.text).root.walk():
+        for node in Document(search_html).root.walk():
             if node.tag == 'a' and normalized(title) in normalized(node.text()):
                 href = urljoin(BASE, node.attrs.get('href', ''))
                 if urlparse(href).hostname == 'zekamashi.net' and '/kancolle-kouryaku/' in href and not urlparse(href).query:

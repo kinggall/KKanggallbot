@@ -15,6 +15,8 @@ C:\KakaoBot\.venv\Scripts\python.exe C:\KakaoBot\KKanggallbot\scripts\collect_ze
 검색·본문·이미지를 포함한 각 요청 사이 기본/최소 10초를 두고 순차 처리한다.
 더 느리게 하려면 `--interval 60`처럼 지정한다. robots.txt의 대기 시간이 더 길면
 그 시간을 적용한다. robots.txt를 먼저 확인하며
+이미지 서버 `i0.wp.com`~`i2.wp.com`은 주소가 제카마시의 `wp-content/uploads` 이미지인
+경우에만 허용한다. 원본/축소판과 CDN 주소가 같은 이미지를 가리키면 중복 저장하지 않는다.
 401/403/429/서버 오류와 통신 오류 시 중단한다. 이 간격이 차단 방지를 보장하지는 않는다.
 로컬 환경은 제카마시 연결 프록시 403으로 직접 수집하지 못했다.
 
