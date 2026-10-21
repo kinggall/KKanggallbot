@@ -181,7 +181,7 @@ def map_fleet_sections(text):
     labels = list(re.finditer(r'(?<![0-9])([1-7]-[1-6](?:-[1-3])?)\s*:', text))
     if not labels:
         return []
-    fleet = text[:labels[0].start()].strip()
+    fleet = text[:labels[0].start()].strip().rstrip('・● \r\n')
     if not re.match(r'^' + FLEET_TYPES + r'\s*\d', fleet):
         return []
     sections = []
@@ -201,6 +201,32 @@ def map_fleet_sections(text):
                 summary += ' / 경로 랜덤'
         sections.append((label[1], summary))
     return sections
+
+
+def group_shared_fleets(entries):
+    """Share fleet labels only when both the images and fleet text agree."""
+    groups = []
+    for heading, summary, images in entries:
+        fleet, separator, route = summary.partition('\n')
+        key = (tuple(images), fleet) if separator else None
+        group = next((item for item in groups if key and item['key'] == key
+                      and heading not in item['headings']), None)
+        if group is None:
+            groups.append({'key': key, 'fleet': fleet, 'headings': [heading],
+                           'routes': [route], 'summary': summary})
+        else:
+            group['headings'].append(heading)
+            group['routes'].append(route)
+    rendered = []
+    for group in groups:
+        headings = group['headings']
+        if len(headings) == 1:
+            rendered.append(f'{headings[0]}: {group["summary"]}')
+        else:
+            rendered.append('/'.join(headings) + ': ' + group['fleet'] + '\n' +
+                            '\n'.join(f'{area}: {route}' for area, route in
+                                      zip(headings, group['routes'])))
+    return rendered
 
 
 def build_preview(query, root=ROOT):
@@ -312,13 +338,13 @@ def build_preview(query, root=ROOT):
             fleet = variant['summary'][:route_match.start()].strip()
             # Alternative fleet descriptions may themselves be bracketed.
             fleet = fleet.replace('】【', ' / ').replace('【', '').replace('】', '')
-            summary = f'{heading}: {fleet}\n{variant["summary"][route_match.start():]}'
+            summary = f'{fleet}\n{variant["summary"][route_match.start():]}'
         else:
-            summary = f'{heading}: {variant["summary"]}'
-        summaries.append(summary)
+            summary = variant['summary']
+        summaries.append((heading, summary, variant['pictures']))
         for path in variant['pictures']:
             if path not in pictures:
                 pictures.append(path)
     if not summaries or not pictures:
         return header + '\n\n저장된 공략의 편성·해역 연결을 확인 중입니다.', []
-    return header + '\n\n' + '\n\n'.join(summaries), pictures
+    return header + '\n\n' + '\n\n'.join(group_shared_fleets(summaries)), pictures

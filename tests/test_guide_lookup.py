@@ -1,9 +1,19 @@
 import unittest
 
-from guide_lookup import find_route, translate_route, guide_map, sortie_maps, map_fleet_sections
+from guide_lookup import find_route, translate_route, guide_map, sortie_maps, map_fleet_sections, group_shared_fleets
 
 
 class GuideTranslationTests(unittest.TestCase):
+    def test_group_only_identical_fleets_and_images(self):
+        entries = [('1-3', '경항모2 구축4\n【CFJ】', ['shared.jpg']),
+                   ('1-4', '경항모2 구축4\n도중 2전 / 경로 랜덤', ['shared.jpg'])]
+        self.assertEqual(group_shared_fleets(entries), [
+            '1-3/1-4: 경항모2 구축4\n1-3: 【CFJ】\n1-4: 도중 2전 / 경로 랜덤'])
+        self.assertEqual(len(group_shared_fleets([
+            entries[0], ('1-4', entries[1][1], ['other.jpg'])])), 2)
+        self.assertEqual(len(group_shared_fleets([
+            entries[0], ('1-4', '경항모1 구축4\n경로 랜덤', ['shared.jpg'])])), 2)
+
     def test_shared_fleet_has_separate_map_routes(self):
         sections = map_fleet_sections('軽空2駆逐4\n1-3:【CFJ】(C:通常 F:通常 J:ボス)\n'
                                      '1-4:道中2戦固定(ランダム)\n※任務条件')
