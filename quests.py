@@ -5,6 +5,7 @@ Source priority, identity decisions and limitations: QUEST_DATA.md.
 """
 from collections import defaultdict
 from copy import deepcopy
+import csv
 from functools import lru_cache
 import html
 import json
@@ -51,6 +52,38 @@ SORTIE_BOSS_MAPS = {
     "7-2M": "7-2-2", "7-3E": "7-3-1", "7-3P": "7-3-2",
     "7-4P": "7-4", "7-5T": "7-5-3",
 }
+UNIT_KINDS = {
+    "수뢰전대": "수전", "水雷戦隊": "수전", "수전": "수전", "水戦": "수전",
+    "항공전대": "항전", "航空戦隊": "항전", "항전": "항전", "航戦": "항전",
+    "구축대": "구", "駆逐隊": "구", "구": "구", "駆": "구",
+    "전대": "전대", "戦隊": "전대",
+}
+UNIT_PATTERN = re.compile(r"(?<![0-9])(?:제|第)?\s*([0-9]+|[一二三四五六七八九十百〇零]+)\s*("
+                          + "|".join(map(re.escape, sorted(UNIT_KINDS, key=len, reverse=True))) + r")")
+
+
+def unit_mentions(text):
+    """Canonical numbered units, keeping 1st and 11th squadrons distinct."""
+    digits = dict(zip("〇零一二三四五六七八九", (0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)))
+    result = set()
+    for match in UNIT_PATTERN.finditer(unicodedata.normalize("NFKC", clean(text))):
+        number, kind = match.groups()
+        if number.isascii() and number.isdigit():
+            number = int(number)
+        elif not any(c in number for c in "十百"):
+            number = int("".join(str(digits[c]) for c in number))
+        else:
+            total, current = 0, 0
+            for char in number:
+                if char in "十百":
+                    total += (current or 1) * {"十": 10, "百": 100}[char]
+                    current = 0
+                else:
+                    current = digits[char]
+            number = total + current
+        if 0 < number < 100:
+            result.add((number, UNIT_KINDS[kind]))
+    return result
 
 
 def normalized(value):
@@ -97,6 +130,90 @@ class QuestCatalog:
                 if str(before) not in self.codes or before == row["game_id"]:
                     raise ValueError(f"선행 임무 번호 누락/자기참조: {key}: {before}")
                 self.after[str(before)].add(key)
+        self.build_search_index(root)
+
+    def build_search_index(self, root):
+        # Connect all remodel forms, including renamed ships, using shipped
+        # game metadata and the CSV. No translation download or bot import.
+        master = json.loads((root / "data/development/start2.json").read_text(encoding="utf-8"))
+        graph, names = defaultdict(set), defaultdict(set)
+        for ship in master["api_mst_ship"]:
+            ship_id = ship["api_id"]
+            if not 0 < ship_id < 1500:
+                continue
+            names[ship_id].add(ship["api_name"])
+            after = int(ship.get("api_aftershipid", 0))
+            if 0 < after < 1500:
+                graph[ship_id].add(after)
+                graph[after].add(ship_id)
+        with (root / "ships.csv").open(encoding="cp932", newline="") as file:
+            ships = [s for s in csv.DictReader(file) if 0 < int(s["艦船ID"]) < 1500]
+        by_name = defaultdict(set)
+        for ship in ships:
+            ship_id = int(ship["艦船ID"])
+            names[ship_id].add(ship["艦名"])
+            by_name[ship["艦名"]].add(ship_id)
+        for ship in ships:
+            ship_id = int(ship["艦船ID"])
+            for field in ("改装前", "改装後"):
+                for linked in by_name.get(ship.get(field, ""), ()):
+                    graph[ship_id].add(linked)
+                    graph[linked].add(ship_id)
+        for ship_id, name in self.labels["ships"].items():
+            if 0 < int(ship_id) < 1500:
+                names[int(ship_id)].add(name)
+        self.ship_queries, self.ship_title_terms = defaultdict(set), defaultdict(set)
+        remaining = set(names)
+        while remaining:
+            pending, component = [next(iter(remaining))], set()
+            while pending:
+                ship_id = pending.pop()
+                if ship_id not in component:
+                    component.add(ship_id)
+                    pending.extend(graph[ship_id] - component)
+            remaining.difference_update(component)
+            family_names = {n for i in component for n in names[i] if n}
+            for name in family_names:
+                if normalized(name):
+                    self.ship_queries[normalized(name)].update(component)
+                    self.ship_title_terms[normalized(name)].update(component)
+            for canonical, aliases in self.aliases.items():
+                if canonical in family_names:
+                    for alias in (canonical, *aliases):
+                        if normalized(alias):
+                            self.ship_queries[normalized(alias)].update(component)
+
+        # Longest names first prevents 潮 from matching inside 朝潮 or 満潮.
+        title_pattern = re.compile("|".join(re.escape(n) for n in
+                                           sorted(self.ship_title_terms, key=lambda n: (-len(n), n))))
+        self.quest_ship_ids, self.quest_units = {}, {}
+
+        def required_ships(value):
+            found = set()
+            if isinstance(value, dict):
+                found.update(values(value["ship_id"]) if "ship_id" in value else [])
+                for field, part in value.items():
+                    if field not in ("comp_banned", "secretary_banned"):
+                        found.update(required_ships(part))
+            elif isinstance(value, list):
+                for part in value:
+                    found.update(required_ships(part))
+            return found
+
+        for key, row in self.items.items():
+            ids = required_ships(row["requirements"])
+            titles = [row.get(field, "") for field in ("name_ko", "name_jp")]
+            for title in titles:
+                for match in title_pattern.finditer(normalized(title)):
+                    term = match.group()
+                    # One-kanji names like 雷 must be explicit ship mentions,
+                    # otherwise generic words such as 魚雷 would match them.
+                    if len(term) == 1 and not re.search(r"(?:^|[「『\"\s])" + re.escape(term)
+                                                       + r"(?=改|[」』\"\s]|$)", title):
+                        continue
+                    ids.update(self.ship_title_terms[term])
+            self.quest_ship_ids[key] = ids
+            self.quest_units[key] = unit_mentions(" ".join([*titles, row.get("description", "")]))
 
     def ship_name(self, item_id):
         name = self.labels["ships"].get(str(item_id), f"함선 #{item_id}")
@@ -356,8 +473,14 @@ class QuestCatalog:
         needle = normalized(query)
         if not needle:
             return USAGE
+        ships = self.ship_queries.get(needle, set())
+        units = unit_mentions(query)
+        is_unit_query = UNIT_PATTERN.fullmatch(unicodedata.normalize("NFKC", query)) is not None
         found = [key for key, row in self.items.items()
-                 if any(needle in normalized(row.get(field, "")) for field in ("name_ko", "name_jp"))]
+                 if (not is_unit_query and any(needle in normalized(row.get(field, ""))
+                                              for field in ("name_ko", "name_jp")))
+                 or bool(ships & self.quest_ship_ids[key])
+                 or bool(units & self.quest_units[key])]
         found.sort(key=lambda k: natural_code(self.items[k]["wiki_id"]))
         if len(found) == 1:
             return self.detail(found[0])

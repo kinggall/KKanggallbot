@@ -57,6 +57,40 @@ Bw5 + B98'''
         self.assertIn("F19", self.catalog.reply("F88").split("[선행임무]")[1])
         self.assertIn("F20", self.catalog.reply("F127").split("[선행임무]")[1])
 
+    def test_ship_aliases_search_conditions_and_titles_across_remodels(self):
+        examples = {
+            "베이": {"B170", "B187", "C68", "Cy6"},
+            "뽀이": {"A78", "A84", "B103", "B112", "B197", "B199", "Cy12", "F78"},
+            "오야시오": {"B174", "B184", "Cy7"},
+        }
+        for query, expected in examples.items():
+            with self.subTest(query=query):
+                reply = self.catalog.reply(query)
+                codes = set(re.findall(r"\(([A-Za-z]+\d+)\)", reply))
+                self.assertEqual(codes, expected)
+        # C76 names Shigure in its title, while its structured candidate
+        # list omits Shigure. The title must still make it searchable.
+        self.assertIn("(C76)", self.catalog.reply("시구레"))
+        self.assertIn("(C76)", self.catalog.reply("런구레"))
+
+    def test_numbered_unit_short_names_and_long_names(self):
+        expected = {
+            "15구": {"B174", "B184", "Cy7"},
+            "4수전": {"A78", "A84", "B112"},
+            "1항전": {"A19", "B69", "B137", "B154", "F88"},
+            "18전대": {"A51", "A89", "B43", "B120"},
+        }
+        for query, codes in expected.items():
+            with self.subTest(query=query):
+                actual = set(re.findall(r"\(([A-Za-z]+\d+)\)", self.catalog.reply(query)))
+                self.assertEqual(actual, codes)
+        for short, long in (("15구", "제15구축대"), ("4수전", "제4수뢰전대"),
+                            ("1항전", "제1항공전대"), ("18전대", "第十八戦隊")):
+            self.assertEqual(set(re.findall(r"\(([A-Za-z]+\d+)\)", self.catalog.reply(short))),
+                             set(re.findall(r"\(([A-Za-z]+\d+)\)", self.catalog.reply(long))))
+        self.assertEqual(quests.unit_mentions("제18구축대 / 第十八戦隊 / 제1항공전대"),
+                         {(18, "구"), (18, "전대"), (1, "항전")})
+
     def test_graph_has_no_cycles_and_all_ids_have_external_codes(self):
         visited = set()
 
