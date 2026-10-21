@@ -1416,7 +1416,7 @@ COMMANDS = {
         "!공지 !통합공략 !반복퀘 !멘테 !이벤트\n"
         "!전과 [5/20/100/500]\n"
         "!드랍 [해역/함선명]\n"
-        "!기간한정\n"
+        "!한정드랍\n"
         "!칸무스 [함선명]\n"
         "!슬롯 [함선명]\n"
         "!초기장비 [함선명]\n"
@@ -1509,7 +1509,7 @@ def webhook():
 
     print(f"[받은 메시지] 방={room}, 내용={message}")
 
-    if message in ('!기간한정', '!한정드랍'):
+    if message == '!한정드랍':
         reply = kanlog_drops.format_limited_reply(
             KANLOG_DROPS.snapshot, kanlog_ship_name
         )

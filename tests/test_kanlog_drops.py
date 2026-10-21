@@ -235,12 +235,13 @@ class KanlogTests(unittest.TestCase):
 
     def test_limited_drop_webhook_preserves_room_and_help(self):
         import bot
-        self.assertIn('!기간한정', bot.COMMANDS['!도움말'])
+        self.assertIn('!한정드랍', bot.COMMANDS['!도움말'])
+        self.assertNotIn('!기간한정', bot.COMMANDS['!도움말'])
         with (patch.object(requests, 'get', side_effect=AssertionError('No GET for commands')),
               patch.object(requests, 'post') as post):
             post.return_value.status_code = 200
             response = bot.app.test_client().post('/webhook', json={
-                'msg': '!기간한정', 'json': {'chat_id': '123'},
+                'msg': '!한정드랍', 'json': {'chat_id': '123'},
             })
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.call_args.kwargs['json']['room'], '123')
