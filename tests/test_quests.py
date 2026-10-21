@@ -34,6 +34,17 @@ Bw5 + B98'''
         self.assertEqual(self.catalog.reply("B100"), expected)
         self.assertEqual(self.catalog.by_code["b100"], "857")
 
+    def test_by5_conditions_do_not_copy_by4(self):
+        by4, by5 = self.catalog.reply('By4'), self.catalog.reply('By5')
+        self.assertIn('4-1/4-2/4-3/4-4 보스 A승 이상 각 1회', by4)
+        self.assertIn('하구로/아시가라/묘코/타카오/카미카제 중 2', by5)
+        self.assertIn('7-2-2/7-3-2/4-2 보스 S승 각 2회', by5)
+        self.assertNotIn('4-1/4-2/4-3/4-4', by5)
+        self.assertIn('연료 1000/탄약 1000/강재 1000/보키 1000', by5)
+        self.assertIn('B138 + B155', by5)
+        self.assertIn('928', self.catalog.search_keys('하구로'))
+        self.assertIn('4-5/5-3/5-5/6-4/6-5 보스 S승 각 1회', self.catalog.reply('B161'))
+
     def test_single_name_and_multiple_keyword_results(self):
         self.assertEqual(self.catalog.reply("증강 해상호위총대"), self.catalog.reply("B100"))
         result = self.catalog.reply("증강")

@@ -98,6 +98,7 @@ def build(source, eo, master_repo, root):
 
     translations = read(eo / "Translations/ko-KR/quest.json")
     text_corrections = read(root / "data/quest_text_corrections.json")
+    condition_overrides = read(root / "data/quest_condition_overrides.json")
     eo_quests = read(eo / "Data/Quests.json")
     eo_by_id = {str(q["api_id"]): q for q in eo_quests}
     eo_by_code = {q["code"].strip().casefold(): q for q in eo_quests if q.get("code")}
@@ -152,6 +153,12 @@ def build(source, eo, master_repo, root):
                 {"class_id": 2, "amount": 2},
                 {"otherships": True, "amount": 2},
             ]
+        override = condition_overrides.get(source_id)
+        if override:
+            assert row["wiki_id"] == override["code"], (source_id, row["wiki_id"])
+            assert digest(original["requirements"]) == override["expected_source_requirements_sha256"], (
+                source_id, "Upstream conditions changed; review the local correction before rebuilding")
+            row["requirements"].update(deepcopy(override["fields"]))
         original_code = row["wiki_id"].strip()
         row["game_id"] = int(key)
         # Prerequisite references are real game IDs, including 622/623.
@@ -187,6 +194,8 @@ def build(source, eo, master_repo, root):
                            "source_requirements_sha256": digest(original["requirements"]),
                            "requirements_sha256": digest(row["requirements"]),
                            "rewards_sha256": digest(original["rewards"])}
+        if override:
+            provenance[key]["condition_override"] = deepcopy(override)
 
     # Historical IDs were reused in later years. Only historical records
     # link to the corresponding historical prerequisite, never to a 2026 quest.
@@ -243,6 +252,7 @@ def build(source, eo, master_repo, root):
               "unresolved_prerequisite_ids": unresolved, "prerequisites_without_detail": link_only,
               "condition_supplements": {"B205": "Wikiwiki 5-5/6-5/4-5 boss S twice each; both escort alternatives",
                                         "B210": "Wikiwiki 1-1/1-2/1-3/1-4 boss S once each"},
+              "condition_overrides": condition_overrides,
               "wiki_prerequisites": wiki_comparison,
               "text_corrections": text_corrections,
               "archive_search_policy": "Unavailable quests are accessible by exact code only, excluded from all keyword searches",

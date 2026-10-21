@@ -1,0 +1,28 @@
+{
+  "928": {
+    "code": "By5",
+    "expected_source_requirements_sha256": "42a4998faf58847e7cb96dcefa3d26f695a831c8c6ed837de71a1ae3168d4e4e",
+    "reason": "Upstream By5 requirements duplicate By4; its title, description, rewards and prerequisites identify By5 correctly.",
+    "source_url": "https://zekamashi.net/kancolle-kouryaku/rekisen-zyuhoumen/",
+    "source_html_sha256": "180049bf7ee8dd1ab08cd95b61277134125012ecb410819b52ac8d08fc5fee48",
+    "source_quote": "(羽黒/足柄/妙高/高雄/神風)から2隻,自由4隻の編成で / 7-2-2, 7-3-2, 4-2 それぞれS勝利×2回",
+    "fields": {
+      "sortie": [{"map": ["7-2M", "7-3P", "4-2"], "boss": true, "result": "S", "times": 2}],
+      "comp": [
+        {"ship_id": [65, 64, 62, 66, 471], "amount": 2},
+        {"otherships": true, "amount": [0, 4]}
+      ]
+    }
+  },
+  "935": {
+    "code": "B161",
+    "expected_source_requirements_sha256": "df2ebe2939a7578c141c3f00e2e7d71dd435c02345075a8f83fd01db561c3389",
+    "reason": "Upstream sortie list omits 6-4; fleet, rewards and prerequisites are preserved.",
+    "source_url": "https://zekamashi.net/kancolle-kouryaku/yukikaze-sigure/",
+    "source_html_sha256": "89f0212029c7e370d2c53c75be078ff1d97660101432b082c510b122c6654eff",
+    "source_quote": "雪風改二/時雨改二/自由4の艦隊で / 4-5, 5-3, 5-5, 6-4, 6-5 それぞれS勝利",
+    "fields": {
+      "sortie": [{"map": ["4-5", "5-3", "5-5", "6-4", "6-5"], "boss": true, "result": "S", "times": 1}]
+    }
+  }
+}

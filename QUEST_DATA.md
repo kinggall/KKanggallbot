@@ -130,3 +130,7 @@ python -m unittest discover -s tests
 검증은 652개 전체 출력과 번호 대응, 조건/보상 원본 해시, 선후행 그래프,
 검증중 표시, 날짜 지정 임무, 두 묶음 선택 보상, 이름 검색과 실제 Flask 웹훅 응답을 포함합니다.
 출력 예시는 `QUEST_PREVIEW.txt`에 저장합니다.
+
+2026-10-22 추가 점검에서 상류 By5 조건의 By4 복사 오류와 B161의 6-4 누락을 보정했습니다.
+근거·점검 범위는 [QUEST_CONDITION_AUDIT.md](QUEST_CONDITION_AUDIT.md), 생성기용 보정은
+`data/quest_condition_overrides.json`에 기록합니다. 보정은 원본 조건 해시를 확인한 뒤 적용합니다.

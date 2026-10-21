@@ -38629,30 +38629,31 @@
         "sortie": [
           {
             "map": [
-              "4-1",
-              "4-2",
-              "4-3",
-              "4-4"
+              "7-2M",
+              "7-3P",
+              "4-2"
             ],
             "boss": true,
-            "result": "A",
-            "times": 1
+            "result": "S",
+            "times": 2
           }
         ],
         "comp": [
           {
-            "class_id": 5,
-            "amount": 3
-          },
-          {
-            "class_id": 2,
-            "amount": 1
+            "ship_id": [
+              65,
+              64,
+              62,
+              66,
+              471
+            ],
+            "amount": 2
           },
           {
             "otherships": true,
             "amount": [
               0,
-              2
+              4
             ]
           }
         ]
@@ -39227,6 +39228,7 @@
               "4-5",
               "5-3",
               "5-5",
+              "6-4",
               "6-5"
             ],
             "boss": true,
