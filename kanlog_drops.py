@@ -340,11 +340,11 @@ def format_reply(message, snapshot, name_for, ship_ids_for=None):
 
 
 def next_refresh(now):
-    """01:15, 05:15, ... 21:15 Korean/Japanese local time."""
+    """01:15, 03:15, ... 23:15 Korean/Japanese local time."""
     local = datetime.fromtimestamp(now, JST)
     for offset in (0, 1):
         day = local + timedelta(days=offset)
-        for hour in (1, 5, 9, 13, 17, 21):
+        for hour in range(1, 24, 2):
             candidate = day.replace(hour=hour, minute=15, second=0, microsecond=0)
             if candidate.timestamp() > now:
                 return candidate.timestamp()
@@ -379,6 +379,10 @@ class DropStore:
         except (OSError, ValueError, KeyError, TypeError):
             self.remaining = []
             self.due = next_refresh(time.time())
+        # Bring an idle cache's old four-hour schedule forward on upgrade.
+        # Pending sweeps retain their persisted request/retry boundary.
+        if not self.remaining:
+            self.due = min(self.due, next_refresh(time.time()))
         # Carry over the earlier 5-5-only cache without deleting it.
         try:
             old = json.loads((Path(cache_dir) / 'kanlog_55.json').read_text(encoding='utf-8'))['snapshot']

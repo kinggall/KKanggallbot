@@ -101,7 +101,7 @@ class KanlogTests(unittest.TestCase):
 
     def test_schedule_and_persistent_retry_cache(self):
         now = datetime(2026, 10, 20, 1, 15, tzinfo=drops.JST).timestamp()
-        self.assertEqual(datetime.fromtimestamp(drops.next_refresh(now), drops.JST).hour, 5)
+        self.assertEqual(datetime.fromtimestamp(drops.next_refresh(now), drops.JST).hour, 3)
         with tempfile.TemporaryDirectory() as directory:
             store = drops.DropStore(directory)
             store.due = 0
