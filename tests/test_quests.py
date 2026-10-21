@@ -91,6 +91,21 @@ Bw5 + B98'''
         self.assertEqual(quests.unit_mentions("제18구축대 / 第十八戦隊 / 제1항공전대"),
                          {(18, "구"), (18, "전대"), (1, "항전")})
 
+    def test_commander_names_aliases_and_member_unions(self):
+        self.assertEqual(len(self.catalog.search_keys("나구모")), 16)
+        for name, commander in self.catalog.commanders.items():
+            with self.subTest(commander=name):
+                expected = set().union(*(set(self.catalog.search_keys(ship)) for ship in commander["ships"]))
+                self.assertEqual(set(self.catalog.search_keys(name)), expected)
+                for alias in commander["aliases"]:
+                    self.assertEqual(set(self.catalog.search_keys(alias)), expected)
+                self.assertTrue(all(not self.catalog.items[key].get("unavailable") for key in expected))
+        self.assertEqual(self.catalog.search_keys("다몬마루"), self.catalog.search_keys("히류"))
+        self.assertEqual(self.catalog.search_keys("시마키요 히데"), self.catalog.search_keys("키요히데"))
+        self.assertEqual(self.catalog.search_keys("구리다 타케오"), self.catalog.search_keys("쿠리다"))
+        self.assertIn("검색 결과 40개", self.catalog.reply("니시무라"))
+        self.assertIn("앞의 30개만 표시합니다", self.catalog.reply("니시무라"))
+
     def test_graph_has_no_cycles_and_all_ids_have_external_codes(self):
         visited = set()
 
@@ -259,7 +274,7 @@ Bw5 + B98'''
         with patch.object(requests, "get", side_effect=requests.RequestException("offline test")):
             import bot
         self.assertIn("!임무 [번호/키워드]", bot.COMMANDS["!도움말"])
-        for query in ("b100", "증강 해상호위총대", "증강", "B98", "F108", ""):
+        for query in ("b100", "증강 해상호위총대", "증강", "B98", "F108", "나구모", "기무라", "다몬마루", ""):
             with self.subTest(query=query), patch.object(bot.requests, "get", side_effect=AssertionError("No GET")), \
                     patch.object(bot.requests, "post") as post:
                 response = bot.app.test_client().post("/webhook", json={

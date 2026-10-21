@@ -214,6 +214,17 @@ class QuestCatalog:
                     ids.update(self.ship_title_terms[term])
             self.quest_ship_ids[key] = ids
             self.quest_units[key] = unit_mentions(" ".join([*titles, row.get("description", "")]))
+        self.commanders = json.loads((root / "data/quest_commanders.json").read_text(encoding="utf-8"))
+        self.commander_queries = {}
+        for name, commander in self.commanders.items():
+            member_queries = tuple(normalized(ship) for ship in commander["ships"])
+            if any(not self.ship_queries.get(ship) for ship in member_queries):
+                raise ValueError(f"함장 검색의 함선명을 확인하세요: {name}")
+            for alias in (name, *commander["aliases"]):
+                key = normalized(alias)
+                if key in self.commander_queries and self.commander_queries[key] != member_queries:
+                    raise ValueError(f"함장 검색 별칭 중복: {alias}")
+                self.commander_queries[key] = member_queries
 
     def ship_name(self, item_id):
         name = self.labels["ships"].get(str(item_id), f"함선 #{item_id}")
@@ -466,6 +477,21 @@ class QuestCatalog:
             lines.extend(["", UNVERIFIED])
         return "\n".join(lines)
 
+    def search_keys(self, query):
+        needle = normalized(query)
+        members = self.commander_queries.get(needle)
+        needles = members or (needle,)
+        ships = set().union(*(self.ship_queries.get(name, set()) for name in needles))
+        units = set() if members else unit_mentions(query)
+        is_unit_query = not members and UNIT_PATTERN.fullmatch(unicodedata.normalize("NFKC", query)) is not None
+        found = [key for key, row in self.items.items()
+                 if not row.get("unavailable") and ((not is_unit_query and any(term in normalized(row.get(field, ""))
+                                              for term in needles for field in ("name_ko", "name_jp")))
+                 or bool(ships & self.quest_ship_ids[key])
+                 or bool(units & self.quest_units[key]))]
+        found.sort(key=lambda k: natural_code(self.items[k]["wiki_id"]))
+        return found
+
     def reply(self, query):
         query = query.strip()
         if not query:
@@ -473,18 +499,9 @@ class QuestCatalog:
         key = self.by_code.get(query.casefold())
         if key:
             return self.detail(key)
-        needle = normalized(query)
-        if not needle:
+        if not normalized(query):
             return USAGE
-        ships = self.ship_queries.get(needle, set())
-        units = unit_mentions(query)
-        is_unit_query = UNIT_PATTERN.fullmatch(unicodedata.normalize("NFKC", query)) is not None
-        found = [key for key, row in self.items.items()
-                 if not row.get("unavailable") and ((not is_unit_query and any(needle in normalized(row.get(field, ""))
-                                              for field in ("name_ko", "name_jp")))
-                 or bool(ships & self.quest_ship_ids[key])
-                 or bool(units & self.quest_units[key]))]
-        found.sort(key=lambda k: natural_code(self.items[k]["wiki_id"]))
+        found = self.search_keys(query)
         if len(found) == 1:
             return self.detail(found[0])
         if not found:
@@ -493,7 +510,7 @@ class QuestCatalog:
         lines.extend(f"· {clean(self.items[k]['name_ko'])} ({self.items[k]['wiki_id']})"
                      + (" (종료)" if self.items[k].get("unavailable") else "") for k in found[:30])
         if len(found) > 30:
-            lines.append("이름을 더 자세히 입력해주세요.")
+            lines.append("앞의 30개만 표시합니다. 함선명이나 임무명으로 검색 범위를 좁혀주세요.")
         lines.append("번호 검색 예: !임무 " + self.items[found[0]]["wiki_id"])
         return "\n".join(lines)
 
