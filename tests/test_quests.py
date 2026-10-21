@@ -110,7 +110,7 @@ Bw5 + B98'''
 
     def test_every_quest_renders_offline_and_external_code_returns_same_record(self):
         with patch.object(requests, "get", side_effect=AssertionError("Quest lookup must stay offline")):
-            self.assertEqual(len(self.catalog.items), 651)
+            self.assertEqual(len(self.catalog.items), 652)
             for key, row in self.catalog.items.items():
                 with self.subTest(code=row["wiki_id"]):
                     result = self.catalog.reply(row["wiki_id"].lower())
@@ -226,7 +226,14 @@ Bw5 + B98'''
     def test_corrected_names_removed_expired_quest_and_usage(self):
         self.assertIn("철저하나노데스!", self.catalog.reply("B45"))
         self.assertEqual(self.catalog.reply("진츠"), self.catalog.reply("A14"))
-        self.assertNotIn("241009", self.catalog.items)
+        self.assertIn("241009", self.catalog.items)
+        archived = self.catalog.reply("2404 B4")
+        self.assertIn("(기간한정/종료)", archived)
+        self.assertIn("[선행임무]\n2404 B2", archived)
+        self.assertNotIn("2604 B5", archived)
+        self.assertIn("선택1: 보상 정보 미등록", archived)
+        self.assertNotIn("선택1:  (택1)", archived)
+        self.assertIn("찾지 못했습니다", self.catalog.reply("함대, 남방전선으로"))
         self.assertIn("센다이/진츠/나카", self.catalog.reply("A14"))
         self.assertNotIn("나차", self.catalog.reply("A14"))
         self.assertEqual(self.catalog.reply("ㅇㅇㅇ"), "'ㅇㅇㅇ' 임무를 찾지 못했습니다.\n"
@@ -237,6 +244,16 @@ Bw5 + B98'''
         improvement = bot.build_improvement_reply("나카")
         self.assertIn("나카 개수 가능 장비", improvement)
         self.assertNotIn("나차", improvement)
+
+    def test_expired_quests_only_match_exact_codes(self):
+        for key, row in self.catalog.items.items():
+            if not row.get("unavailable"):
+                continue
+            with self.subTest(code=row["wiki_id"]):
+                self.assertEqual(self.catalog.reply(row["wiki_id"].lower()), self.catalog.detail(key))
+                reply = self.catalog.reply(row["name_ko"])
+                self.assertNotIn(f"({row['wiki_id']})", reply)
+                self.assertNotEqual(reply, self.catalog.detail(key))
 
     def test_real_webhook_commands_reply_once_to_original_chat_without_get(self):
         with patch.object(requests, "get", side_effect=requests.RequestException("offline test")):

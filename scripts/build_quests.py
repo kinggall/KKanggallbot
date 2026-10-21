@@ -127,9 +127,8 @@ def build(source, eo, master_repo, root):
                                   "action": "Use EO established code; retain source provisional code as alias"})
 
     items, provenance = {}, {}
-    excluded = {"241009": "User requested removal of the expired 2024 southern-front quest"}
     for source_id, original in selected.items():
-        if source_id == "221114" or source_id in excluded:
+        if source_id == "221114":
             continue
         key = identities[source_id]
         row = deepcopy(original)
@@ -168,6 +167,11 @@ def build(source, eo, master_repo, root):
         translated = translations.get(key, {})
         ref = eo_by_id.get(key, {})
         correction = text_corrections.get(key, {})
+        if correction.get("historical_code"):
+            ref = next(q for q in eo_quests if q["api_id"] == correction["historical_api_id"]
+                       and q["code"].strip() == correction["historical_code"])
+            row["aliases"].append(row["wiki_id"])
+            row["wiki_id"] = ref["code"].strip()
         row["name_ko"] = correction.get("name_ko") or translated.get("name") or ref.get("name_en") or row.get("name") or f"{row['wiki_id']} (임무명 미등록)"
         row["name_jp"] = translated.get("name_jp") or ref.get("name_jp", "")
         row["desc_ko"] = translated.get("desc", "")
@@ -183,6 +187,14 @@ def build(source, eo, master_repo, root):
                            "source_requirements_sha256": digest(original["requirements"]),
                            "requirements_sha256": digest(row["requirements"]),
                            "rewards_sha256": digest(original["rewards"])}
+
+    # Historical IDs were reused in later years. Only historical records
+    # link to the corresponding historical prerequisite, never to a 2026 quest.
+    historical_ids = {r["historical_api_id"]: int(key) for key, r in text_corrections.items()
+                      if "historical_api_id" in r}
+    for key, correction in text_corrections.items():
+        if "historical_api_id" in correction:
+            items[key]["prereqs"] = [historical_ids.get(i, i) for i in items[key]["prereqs"]]
 
     condition_conflicts = [
         {"code": "Fd8", "field": "requirements.resources[2]", "selected": 800,
@@ -233,7 +245,7 @@ def build(source, eo, master_repo, root):
                                         "B210": "Wikiwiki 1-1/1-2/1-3/1-4 boss S once each"},
               "wiki_prerequisites": wiki_comparison,
               "text_corrections": text_corrections,
-              "excluded_quests": excluded,
+              "archive_search_policy": "Unavailable quests are accessible by exact code only, excluded from all keyword searches",
               "scope": "Offline source snapshot with documented Wikiwiki supplements; no October 14 update present"}
     for name, value in (("quests.json", data), ("quest_verification.json", report)):
         (root / "data" / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

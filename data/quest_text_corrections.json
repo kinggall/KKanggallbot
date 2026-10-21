@@ -2,5 +2,41 @@
   "277": {
     "name_ko": "제6구축대 대잠 초계가 철저하나노데스!",
     "note": "B45: restore the missing 스 in 나노데스."
+  },
+  "240363": {
+    "name_ko": "【함대 11주년 기념임무】기념함대 연습!",
+    "historical_api_id": 363,
+    "historical_code": "2404 C1"
+  },
+  "240448": {
+    "name_ko": "【함대 11주년 기념임무】해상호위 원정",
+    "historical_api_id": 448,
+    "historical_code": "2404 D1"
+  },
+  "240449": {
+    "name_ko": "【함대 11주년 기념임무】자원 수출",
+    "historical_api_id": 449,
+    "historical_code": "2404 D2"
+  },
+  "240971": {
+    "name_ko": "【함대 11주년 기념임무】제11구축대, 발묘!",
+    "historical_api_id": 971,
+    "historical_code": "2404 B1"
+  },
+  "240972": {
+    "name_ko": "【함대 11주년 기념임무】11주년 함대, 출격!",
+    "historical_api_id": 972,
+    "historical_code": "2404 B2"
+  },
+  "240979": {
+    "name_ko": "【함대 11주년 기념임무】자원 확보 해상호위 작전",
+    "historical_api_id": 979,
+    "historical_code": "2404 B3"
+  },
+  "241009": {
+    "name_ko": "【기념임무: 확장작전】함대, 남방전선으로!",
+    "historical_api_id": 1009,
+    "historical_code": "2404 B4",
+    "note": "Archived quest, accessible by exact code only. Use the 2024 EO record rather than the currently reused API ID."
   }
 }

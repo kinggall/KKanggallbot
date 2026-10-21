@@ -432,7 +432,10 @@ class QuestCatalog:
             if "choices" in reward:
                 n += 1
                 label = f"선택{n}" if choice_count > 1 else "선택"
-                lines.append("· " + label + ": " + " / ".join(self.item_name(x) for x in reward["choices"]) + " (택1)")
+                if reward["choices"]:
+                    lines.append("· " + label + ": " + " / ".join(self.item_name(x) for x in reward["choices"]) + " (택1)")
+                else:
+                    lines.append("· " + label + ": 보상 정보 미등록")
             else:
                 if reward.get("category") == "feature" and reward.get("id") == 5:
                     # Upstream uses #5 for both unrelated unlocks.
@@ -477,10 +480,10 @@ class QuestCatalog:
         units = unit_mentions(query)
         is_unit_query = UNIT_PATTERN.fullmatch(unicodedata.normalize("NFKC", query)) is not None
         found = [key for key, row in self.items.items()
-                 if (not is_unit_query and any(needle in normalized(row.get(field, ""))
+                 if not row.get("unavailable") and ((not is_unit_query and any(needle in normalized(row.get(field, ""))
                                               for field in ("name_ko", "name_jp")))
                  or bool(ships & self.quest_ship_ids[key])
-                 or bool(units & self.quest_units[key])]
+                 or bool(units & self.quest_units[key]))]
         found.sort(key=lambda k: natural_code(self.items[k]["wiki_id"]))
         if len(found) == 1:
             return self.detail(found[0])

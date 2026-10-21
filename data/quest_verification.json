@@ -26,8 +26,8 @@
     "quests.json",
     "unverified"
   ],
-  "count": 651,
-  "unverified": 53,
+  "count": 652,
+  "unverified": 54,
   "provenance": {
     "101": {
       "source_id": 101,
@@ -500,6 +500,14 @@
       "source_requirements_sha256": "61006a9893893a2631f0356f99ef77e46ec67e88afd68fa8b87e6de1b7982ed4",
       "requirements_sha256": "61006a9893893a2631f0356f99ef77e46ec67e88afd68fa8b87e6de1b7982ed4",
       "rewards_sha256": "cc2a9f823f8aad890c34a3bdbf2502a1e89c42400f1182a56e106836d966109e"
+    },
+    "241009": {
+      "source_id": 241009,
+      "path": "quests.json",
+      "source_sha256": "1e41620277d87a0d47b75cb0bd72f4ae582434dd829bdc7e220b6bb49065fca8",
+      "source_requirements_sha256": "524e20fc3316d8a9a3d418f0eeb9182865c7477f7e83889150b4d1ef63cb5b31",
+      "requirements_sha256": "524e20fc3316d8a9a3d418f0eeb9182865c7477f7e83889150b4d1ef63cb5b31",
+      "rewards_sha256": "090ac847e0725cd478bac3f0591e1efa15c70c94bc43176c6ece7e563893a6f4"
     },
     "243": {
       "source_id": 243,
@@ -5292,11 +5300,8 @@
   "prerequisites_without_detail": [
     313,
     329,
-    363,
-    448,
     840,
     841,
-    971,
     1020,
     1037,
     1152,
@@ -5934,10 +5939,44 @@
     "277": {
       "name_ko": "제6구축대 대잠 초계가 철저하나노데스!",
       "note": "B45: restore the missing 스 in 나노데스."
+    },
+    "240363": {
+      "name_ko": "【함대 11주년 기념임무】기념함대 연습!",
+      "historical_api_id": 363,
+      "historical_code": "2404 C1"
+    },
+    "240448": {
+      "name_ko": "【함대 11주년 기념임무】해상호위 원정",
+      "historical_api_id": 448,
+      "historical_code": "2404 D1"
+    },
+    "240449": {
+      "name_ko": "【함대 11주년 기념임무】자원 수출",
+      "historical_api_id": 449,
+      "historical_code": "2404 D2"
+    },
+    "240971": {
+      "name_ko": "【함대 11주년 기념임무】제11구축대, 발묘!",
+      "historical_api_id": 971,
+      "historical_code": "2404 B1"
+    },
+    "240972": {
+      "name_ko": "【함대 11주년 기념임무】11주년 함대, 출격!",
+      "historical_api_id": 972,
+      "historical_code": "2404 B2"
+    },
+    "240979": {
+      "name_ko": "【함대 11주년 기념임무】자원 확보 해상호위 작전",
+      "historical_api_id": 979,
+      "historical_code": "2404 B3"
+    },
+    "241009": {
+      "name_ko": "【기념임무: 확장작전】함대, 남방전선으로!",
+      "historical_api_id": 1009,
+      "historical_code": "2404 B4",
+      "note": "Archived quest, accessible by exact code only. Use the 2024 EO record rather than the currently reused API ID."
     }
   },
-  "excluded_quests": {
-    "241009": "User requested removal of the expired 2024 southern-front quest"
-  },
+  "archive_search_policy": "Unavailable quests are accessible by exact code only, excluded from all keyword searches",
   "scope": "Offline source snapshot with documented Wikiwiki supplements; no October 14 update present"
 }
