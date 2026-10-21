@@ -1,0 +1,641 @@
+{
+  "source": {
+    "revision": "6d7d05924815b9b44ad45bfb963533155983be65",
+    "raw_records": 1351,
+    "merged_records": 653,
+    "layer_counts": {
+      "unverified": 95,
+      "quests.json": 653,
+      "verified": 603
+    },
+    "filename_id_mismatches": [],
+    "verified_vs_base_changes": [],
+    "duplicate_external_codes": [
+      {
+        "code": "f108",
+        "ids": [
+          "221114",
+          "1114"
+        ]
+      }
+    ],
+    "identical_requirement_groups": [
+      [
+        {
+          "id": "1166",
+          "code": "Fd9"
+        },
+        {
+          "id": "618",
+          "code": "F17"
+        },
+        {
+          "id": "619",
+          "code": "Fd6"
+        }
+      ],
+      [
+        {
+          "id": "160313",
+          "code": "Cs1"
+        },
+        {
+          "id": "230326",
+          "code": "Cs5"
+        },
+        {
+          "id": "314",
+          "code": "Cs2"
+        },
+        {
+          "id": "315",
+          "code": "Cs3"
+        }
+      ],
+      [
+        {
+          "id": "205",
+          "code": "B5"
+        },
+        {
+          "id": "204",
+          "code": "B4"
+        }
+      ],
+      [
+        {
+          "id": "601",
+          "code": "F1"
+        },
+        {
+          "id": "606",
+          "code": "Fd2"
+        }
+      ],
+      [
+        {
+          "id": "625",
+          "code": "F23"
+        },
+        {
+          "id": "634",
+          "code": "F31"
+        }
+      ],
+      [
+        {
+          "id": "308",
+          "code": "C6"
+        },
+        {
+          "id": "309",
+          "code": "C7"
+        },
+        {
+          "id": "312",
+          "code": "C9"
+        },
+        {
+          "id": "316",
+          "code": "C13"
+        }
+      ],
+      [
+        {
+          "id": "405",
+          "code": "D5"
+        },
+        {
+          "id": "406",
+          "code": "D6"
+        }
+      ],
+      [
+        {
+          "id": "408",
+          "code": "D7"
+        },
+        {
+          "id": "443",
+          "code": "D39"
+        }
+      ],
+      [
+        {
+          "id": "602",
+          "code": "F2"
+        },
+        {
+          "id": "605",
+          "code": "Fd1"
+        }
+      ],
+      [
+        {
+          "id": "659",
+          "code": "F51"
+        },
+        {
+          "id": "660",
+          "code": "F52"
+        }
+      ],
+      [
+        {
+          "id": "685",
+          "code": "F76"
+        },
+        {
+          "id": "686",
+          "code": "Fq7"
+        }
+      ],
+      [
+        {
+          "id": "914",
+          "code": "By4"
+        },
+        {
+          "id": "928",
+          "code": "By5"
+        }
+      ]
+    ]
+  },
+  "bot": {
+    "count": 652,
+    "identical_requirement_groups": [
+      [
+        {
+          "id": "1166",
+          "code": "Fd9"
+        },
+        {
+          "id": "618",
+          "code": "F17"
+        },
+        {
+          "id": "619",
+          "code": "Fd6"
+        }
+      ],
+      [
+        {
+          "id": "160313",
+          "code": "Cs1"
+        },
+        {
+          "id": "230326",
+          "code": "Cs5"
+        },
+        {
+          "id": "314",
+          "code": "Cs2"
+        },
+        {
+          "id": "315",
+          "code": "Cs3"
+        }
+      ],
+      [
+        {
+          "id": "601",
+          "code": "F1"
+        },
+        {
+          "id": "606",
+          "code": "Fd2"
+        }
+      ],
+      [
+        {
+          "id": "625",
+          "code": "F23"
+        },
+        {
+          "id": "634",
+          "code": "F31"
+        }
+      ],
+      [
+        {
+          "id": "308",
+          "code": "C6"
+        },
+        {
+          "id": "309",
+          "code": "C7"
+        },
+        {
+          "id": "312",
+          "code": "C9"
+        },
+        {
+          "id": "316",
+          "code": "C13"
+        }
+      ],
+      [
+        {
+          "id": "405",
+          "code": "D5"
+        },
+        {
+          "id": "406",
+          "code": "D6"
+        }
+      ],
+      [
+        {
+          "id": "408",
+          "code": "D7"
+        },
+        {
+          "id": "443",
+          "code": "D39"
+        }
+      ],
+      [
+        {
+          "id": "602",
+          "code": "F2"
+        },
+        {
+          "id": "605",
+          "code": "Fd1"
+        }
+      ],
+      [
+        {
+          "id": "659",
+          "code": "F51"
+        },
+        {
+          "id": "660",
+          "code": "F52"
+        }
+      ],
+      [
+        {
+          "id": "685",
+          "code": "F76"
+        },
+        {
+          "id": "686",
+          "code": "Fq7"
+        }
+      ]
+    ],
+    "composition_size_candidates": []
+  },
+  "guides": {
+    "compared": 93,
+    "identity_warnings": [
+      {
+        "code": "Bm7",
+        "url": "https://zekamashi.net/kancolle-kouryaku/suizyouhangekibutai-totunyuu-2-5/",
+        "article_title": "２－５「水上反撃部隊」突入せよ！　マンスリー編成例【第二期】",
+        "reason": "Title only contains the quest name, not an exact leading title"
+      },
+      {
+        "code": "B104",
+        "url": "https://zekamashi.net/kancolle-kouryaku/22kutikutai/",
+        "article_title": "【一期】精鋭「第二二駆逐隊」出撃せよ！　文月改二任務",
+        "reason": "Title only contains the quest name, not an exact leading title"
+      },
+      {
+        "code": "B17",
+        "url": "https://zekamashi.net/kancolle-kouryaku/6-1-s/",
+        "article_title": "６－１ 「潜水艦隊」出撃せよ！ マンスリー任務編成例【第二期】",
+        "reason": "Title only contains the quest name, not an exact leading title"
+      },
+      {
+        "code": "Bd1",
+        "url": "https://zekamashi.net/kancolle-kouryaku/nanseihoumen-gekiha/",
+        "article_title": "南西諸島方面の敵艦隊を撃破せよ！　編成例",
+        "reason": "Title only contains the quest name, not an exact leading title"
+      },
+      {
+        "code": "Bm2",
+        "url": "https://zekamashi.net/kancolle-kouryaku/6-1-s/",
+        "article_title": "６－１ 「潜水艦隊」出撃せよ！ マンスリー任務編成例【第二期】",
+        "reason": "Title only contains the quest name, not an exact leading title"
+      },
+      {
+        "code": "Bm3",
+        "url": "https://zekamashi.net/kancolle-kouryaku/suiraisentai-nansei/",
+        "article_title": "１－４「水雷戦隊」南西へ！マンスリー任務編成例【第二期】",
+        "reason": "Title only contains the quest name, not an exact leading title"
+      },
+      {
+        "code": "Bm4",
+        "url": "https://zekamashi.net/kancolle-kouryaku/5-1-suizyoudagekibutai/",
+        "article_title": "５－１ 「水上打撃部隊」南方へ！ マンスリー編成例【第二期】",
+        "reason": "Title only contains the quest name, not an exact leading title"
+      }
+    ],
+    "difference_candidates": [
+      {
+        "code": "By16",
+        "url": "https://zekamashi.net/kancolle-kouryaku/hubukikaisan-batubyou/",
+        "article_file": "article (92).html",
+        "condition_jp": "吹雪改三/改三護(六式)旗艦、特I型2番艦の艦隊で、\r\n7-5-3, 5-1, 5-3, 5-4, 5-5 それぞれS勝利×1回",
+        "candidates": [
+          {
+            "field": "named_ship_families",
+            "saved": [
+              "初雪",
+              "初雪改",
+              "叢雲",
+              "叢雲改",
+              "叢雲改二",
+              "吹雪",
+              "吹雪改",
+              "吹雪改三",
+              "吹雪改三護(六式)",
+              "吹雪改二",
+              "浦波",
+              "浦波改",
+              "浦波改二",
+              "深雪",
+              "深雪改",
+              "深雪改二",
+              "白雪",
+              "白雪改",
+              "白雪改二",
+              "白雲",
+              "白雲改",
+              "磯波",
+              "磯波改",
+              "磯波改二",
+              "薄雲",
+              "薄雲改"
+            ],
+            "article": [
+              "吹雪改三"
+            ],
+            "note": "Potential missing/extra named ship; manually distinguish candidates, classes and alternatives"
+          }
+        ]
+      },
+      {
+        "code": "B113",
+        "url": "https://zekamashi.net/kancolle-kouryaku/matuyusou-keizouku/",
+        "article_file": "article (14).html",
+        "condition_jp": "旗艦(軽巡または駆逐),(随伴に)3隻以上の駆逐または海防艦,\r\n自由枠2隻の編成で 1-4を3回S勝利,1-6を3回クリア ?",
+        "candidates": [
+          {
+            "field": "rank",
+            "saved": [
+              "A"
+            ],
+            "article": [
+              "S"
+            ]
+          }
+        ]
+      },
+      {
+        "code": "B117",
+        "url": "https://zekamashi.net/kancolle-kouryaku/saiseiei-toppa/",
+        "article_file": "article (18).html",
+        "condition_jp": "「陽炎改二」「不知火改二」「黒潮改二」何れか旗艦と\r\nlv75以上の甲型駆逐艦2隻(合わせて3隻)を含んだ編成で\r\n3-2,4-2,5-3 それぞれS勝利×2回ずつ達成",
+        "candidates": [
+          {
+            "field": "named_ship_families",
+            "saved": [
+              "不知火",
+              "不知火改",
+              "不知火改二",
+              "丹陽",
+              "初風",
+              "初風改",
+              "夕雲",
+              "夕雲改",
+              "夕雲改二",
+              "天津風",
+              "天津風改",
+              "天津風改二",
+              "岸波",
+              "岸波改",
+              "嵐",
+              "嵐改",
+              "巻波",
+              "巻波改",
+              "巻雲",
+              "巻雲改",
+              "巻雲改二",
+              "早波",
+              "早波改",
+              "早潮",
+              "早潮改",
+              "早潮改二",
+              "早霜",
+              "早霜改",
+              "早霜改二",
+              "時津風",
+              "時津風改",
+              "朝霜",
+              "朝霜改",
+              "朝霜改二",
+              "沖波",
+              "沖波改",
+              "沖波改二",
+              "浜波",
+              "浜波改",
+              "浜風",
+              "浜風乙改",
+              "浜風改",
+              "浦風",
+              "浦風丁改",
+              "浦風改",
+              "涼波",
+              "涼波改",
+              "清霜",
+              "清霜改",
+              "清霜改二",
+              "清霜改二丁",
+              "玉波",
+              "玉波改",
+              "磯風",
+              "磯風乙改",
+              "磯風改",
+              "秋雲",
+              "秋雲改",
+              "秋雲改二",
+              "秋霜",
+              "秋霜改",
+              "舞風",
+              "舞風改",
+              "萩風",
+              "萩風改",
+              "藤波",
+              "藤波改",
+              "藤波改二",
+              "親潮",
+              "親潮改",
+              "親潮改二",
+              "谷風",
+              "谷風丁改",
+              "谷風改",
+              "野分",
+              "野分改",
+              "長波",
+              "長波改",
+              "長波改二",
+              "陽炎",
+              "陽炎改",
+              "陽炎改二",
+              "雪風",
+              "雪風改",
+              "雪風改二",
+              "風雲",
+              "風雲改",
+              "風雲改二",
+              "高波",
+              "高波改",
+              "高波改二",
+              "黒潮",
+              "黒潮改",
+              "黒潮改二"
+            ],
+            "article": [
+              "不知火改二",
+              "陽炎改二",
+              "黒潮改二"
+            ],
+            "note": "Potential missing/extra named ship; manually distinguish candidates, classes and alternatives"
+          }
+        ]
+      },
+      {
+        "code": "B133",
+        "url": "https://zekamashi.net/kancolle-kouryaku/kongoukainihei-totunyuu/",
+        "article_file": "article (33).html",
+        "condition_jp": "金剛改二丙旗艦/金剛型1隻/駆逐2を含む艦隊で\r\n5-1,5-3,5-4,5-5 それぞれ2回ずつS勝利",
+        "candidates": [
+          {
+            "field": "named_ship_families",
+            "saved": [
+              "榛名",
+              "榛名改",
+              "榛名改二",
+              "榛名改二丙",
+              "榛名改二乙",
+              "比叡",
+              "比叡改",
+              "比叡改二",
+              "比叡改二丙",
+              "金剛",
+              "金剛改",
+              "金剛改二",
+              "金剛改二丙",
+              "霧島",
+              "霧島改",
+              "霧島改二",
+              "霧島改二丙"
+            ],
+            "article": [
+              "金剛改二丙"
+            ],
+            "note": "Potential missing/extra named ship; manually distinguish candidates, classes and alternatives"
+          }
+        ]
+      },
+      {
+        "code": "B141",
+        "url": "https://zekamashi.net/kancolle-kouryaku/yuubarikaini-dairoku/",
+        "article_file": "article (41).html",
+        "condition_jp": "夕張改二型旗艦・第六水雷戦隊(後述)から3隻を含む艦隊で\r\n1-5,1-6,2-2,3-2,7-1 それぞれS勝利(港到達)",
+        "candidates": [
+          {
+            "field": "named_ship_families",
+            "saved": [
+              "卯月",
+              "夕張改二",
+              "夕張改二丁",
+              "夕張改二特",
+              "如月",
+              "弥生",
+              "望月",
+              "睦月",
+              "菊月"
+            ],
+            "article": [
+              "夕張改二"
+            ],
+            "note": "Potential missing/extra named ship; manually distinguish candidates, classes and alternatives"
+          }
+        ]
+      },
+      {
+        "code": "B144",
+        "url": "https://zekamashi.net/kancolle-kouryaku/hieikainihei-napou/",
+        "article_file": "article (44).html",
+        "condition_jp": "比叡改二丙,金剛型1,軽巡級1,駆逐1を含む編成で\r\n5-1,5-2,5-3,5-4,5-5それぞれS勝利",
+        "candidates": [
+          {
+            "field": "named_ship_families",
+            "saved": [
+              "榛名",
+              "榛名改",
+              "榛名改二",
+              "榛名改二丙",
+              "榛名改二乙",
+              "比叡",
+              "比叡改",
+              "比叡改二",
+              "比叡改二丙",
+              "金剛",
+              "金剛改",
+              "金剛改二",
+              "金剛改二丙",
+              "霧島",
+              "霧島改",
+              "霧島改二",
+              "霧島改二丙"
+            ],
+            "article": [
+              "比叡改二丙"
+            ],
+            "note": "Potential missing/extra named ship; manually distinguish candidates, classes and alternatives"
+          }
+        ]
+      },
+      {
+        "code": "B170",
+        "url": "https://zekamashi.net/kancolle-kouryaku/bay-batubyou/",
+        "article_file": "article (71).html",
+        "condition_jp": "Gambier Bay Mk.II(旗艦)/Fletcher級1隻/自由4 の編成で\r\n2-4,3-5 S勝利×2 6-4 A勝利以上×2",
+        "candidates": [
+          {
+            "field": "named_ship_families",
+            "saved": [
+              "Fletcher",
+              "Fletcher Mk.II",
+              "Fletcher改",
+              "Fletcher改 Mod.2",
+              "Gambier Bay Mk.II",
+              "Heywood L.E.",
+              "Heywood L.E.改",
+              "Johnston",
+              "Johnston改"
+            ],
+            "article": [
+              "Gambier Bay Mk.II"
+            ],
+            "note": "Potential missing/extra named ship; manually distinguish candidates, classes and alternatives"
+          }
+        ]
+      }
+    ],
+    "scope": "First condition list: explicit maps, common rank, explicit xN count, named ship families and presence of flagship selector only. Candidates require manual review; not all classes/counts/remodels are validated."
+  },
+  "wiki": {
+    "compared_rows": 217,
+    "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "rank_candidates": [],
+    "resource_reward_candidates": [],
+    "scope": "Wiki table rank mentions and four fixed resource rewards only. Not a full fleet/reward-choice validation."
+  }
+}

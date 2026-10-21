@@ -27,7 +27,7 @@
     "unverified"
   ],
   "count": 652,
-  "unverified": 54,
+  "unverified": 55,
   "provenance": {
     "101": {
       "source_id": 101,
@@ -130,24 +130,173 @@
       "path": "quests.json",
       "source_sha256": "14c0d7e9f24196a286c6a1cee36700f6369559cb25adab5c4ed74cad8fb12ea4",
       "source_requirements_sha256": "0c3fbbb7b2bf45fa53edb4beb4181ec3f5a9438296aa3cece92d00c5401c64ee",
-      "requirements_sha256": "0c3fbbb7b2bf45fa53edb4beb4181ec3f5a9438296aa3cece92d00c5401c64ee",
-      "rewards_sha256": "4e247b3dafe3fc094ab6b8c49b5ebe9b400d767397a27d11bf318b8eb25b4f70"
+      "requirements_sha256": "e9aca73644e33c3633ab1a13ef181981992eb511f3355487d9e514ab96799c5e",
+      "rewards_sha256": "4e247b3dafe3fc094ab6b8c49b5ebe9b400d767397a27d11bf318b8eb25b4f70",
+      "condition_override": {
+        "code": "B211",
+        "expected_source_requirements_sha256": "0c3fbbb7b2bf45fa53edb4beb4181ec3f5a9438296aa3cece92d00c5401c64ee",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "sortie": [
+            {
+              "map": [
+                "1-2",
+                "1-3",
+                "1-4",
+                "1-5"
+              ],
+              "boss": true,
+              "result": "A",
+              "times": 2
+            }
+          ],
+          "comp": [
+            {
+              "class_id": [
+                22,
+                17
+              ],
+              "amount": [
+                2,
+                2
+              ]
+            },
+            {
+              "class_id": 1,
+              "amount": [
+                2,
+                2
+              ]
+            },
+            {
+              "otherships": true,
+              "amount": [
+                0,
+                2
+              ]
+            }
+          ]
+        },
+        "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+        "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+        "source_quote": "揚陸艦及び補給艦計2隻以上、海防艦2隻以上の艦隊で、南西諸島沖、製油所地帯沿岸、鎮守府近海、南西諸島防衛線に反復出撃!護衛部隊により敵艦隊を退けて、輸送船団護衛を完遂せよ!※(揚陸艦+補給艦)2隻+海防艦2隻+自由枠2隻の艦隊で・(1-2) 南西諸島沖・(1-3) 製油所地帯沿岸・(1-4) 南西諸島防衛線・(1-5) 鎮守府近海を各2回A勝利で達成。※任務進捗変化(同一海域2回達成を1単位として)50%(2/4)→80%(3/4)→達成(4/4)"
+      }
     },
     "1041": {
       "source_id": 1041,
       "path": "quests.json",
       "source_sha256": "adc0c817afaa7214f0ecdb0af5e40ebbdfc5fd25c8f8a8b044fd1044cfbb2088",
       "source_requirements_sha256": "4504135bbcbb9996757d68d8e4e9c21cfea12a172858c2401c1186a1dd69b983",
-      "requirements_sha256": "4504135bbcbb9996757d68d8e4e9c21cfea12a172858c2401c1186a1dd69b983",
-      "rewards_sha256": "7370dce636f01c41feb471b9814d14ad711fbc5bad4f567070d503eb3bc140b5"
+      "requirements_sha256": "701105cd3c540f4fb12c5fa003d21ab50f7fb74f9252e711072b07e563e5d3a4",
+      "rewards_sha256": "7370dce636f01c41feb471b9814d14ad711fbc5bad4f567070d503eb3bc140b5",
+      "condition_override": {
+        "code": "B213",
+        "expected_source_requirements_sha256": "4504135bbcbb9996757d68d8e4e9c21cfea12a172858c2401c1186a1dd69b983",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "sortie": [
+            {
+              "map": [
+                "2-2",
+                "2-4",
+                "2-5",
+                "7-1",
+                "7-2M"
+              ],
+              "result": "S",
+              "boss": true,
+              "times": 1
+            }
+          ],
+          "comp": [
+            {
+              "ship_id": 982,
+              "position": 1
+            },
+            {
+              "ship_id": [
+                674,
+                675,
+                485,
+                484
+              ],
+              "amount": [
+                2,
+                2
+              ]
+            },
+            {
+              "otherships": true,
+              "amount": [
+                0,
+                3
+              ]
+            }
+          ]
+        },
+        "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+        "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+        "source_quote": "「早波改二」旗艦、他に第三十二駆逐隊2隻以上を含む艦隊で、バシー海峡、沖ノ島海域、沖ノ島沖、ブルネイ泊地沖、タウイタウイ泊地沖(深部)に展開!出没する敵艦隊を捕捉、これを痛打撃滅せよ!※旗艦に「早波改二」、随伴に(「玉波」、「涼波」、「藤波」、「浜波」)より2隻+自由枠3隻とし・(2-2) バシー海峡・(2-4) 沖ノ島海域・(2-5) 沖ノ島沖・(7-1) ブルネイ泊地沖・(7-2-2/M) タウイタウイ泊地沖深部を各1回S勝利で達成。※任務進捗変化50%(3/5)→80%(4/5)→達成(5/5)"
+      }
     },
     "1042": {
       "source_id": 1042,
       "path": "quests.json",
       "source_sha256": "507f4c4f8e93cb0a80de40d907acc8dfcdbeca2faabd12ef15e063b0b1598dff",
       "source_requirements_sha256": "431284b49e4945f4d4ca7a0e0e0a330059e682087a7d68194e1ec7560cbaa0fa",
-      "requirements_sha256": "431284b49e4945f4d4ca7a0e0e0a330059e682087a7d68194e1ec7560cbaa0fa",
-      "rewards_sha256": "66a2494e34456b84bf9a7d28bcd53c8aba51a109373bf6340f5654338b32ad8c"
+      "requirements_sha256": "5db948732fb46657befdf3a70789d466d0bedfdcce1103a8fe9de8afa4b77c54",
+      "rewards_sha256": "66a2494e34456b84bf9a7d28bcd53c8aba51a109373bf6340f5654338b32ad8c",
+      "condition_override": {
+        "code": "B214",
+        "expected_source_requirements_sha256": "431284b49e4945f4d4ca7a0e0e0a330059e682087a7d68194e1ec7560cbaa0fa",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "sortie": [
+            {
+              "map": [
+                "2-5",
+                "3-5",
+                "4-5",
+                "5-5",
+                "6-4"
+              ],
+              "result": "S",
+              "boss": true,
+              "times": 1
+            }
+          ],
+          "comp": [
+            {
+              "ship_id": 1031,
+              "position": 1
+            },
+            {
+              "ship_id": [
+                453,
+                674,
+                675,
+                485,
+                528,
+                484
+              ],
+              "amount": [
+                2,
+                2
+              ]
+            },
+            {
+              "otherships": true,
+              "amount": [
+                0,
+                3
+              ]
+            }
+          ]
+        },
+        "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+        "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+        "source_quote": "「飛龍改三」旗艦、他に「風雲」または第三十二駆逐隊計2隻以上を含む機動部隊で出撃!疾風怒涛で沖ノ島沖、北方AL海域、カレー洋リランカ島沖、サーモン海域北方、中部北海域ピーコック島沖の敵を討て!※旗艦に「飛龍改三」、随伴に(「風雲」、「玉波」、「涼波」、「藤波」、「早波」、「浜波」)より2隻+自由枠3隻とし・(2-5) 沖ノ島沖・(3-5) 北方AL海域・(4-5) カレー洋リランカ島沖・(5-5) サーモン海域北方・(6-4) 中部北海域ピーコック島沖を各1回S勝利で達成。※任務進捗変化50%(3/5)→80%(4/5)→達成(5/5)"
+      }
     },
     "1044": {
       "source_id": 1044,
@@ -162,8 +311,54 @@
       "path": "quests.json",
       "source_sha256": "f74fd0ef3bafa881076516df50661f5ecce3a0963542840d6956fb229c7e5372",
       "source_requirements_sha256": "e281403644698b0275deef1ee6ec614d5c5f70176ba18d060dc065dd3c8f03ca",
-      "requirements_sha256": "e281403644698b0275deef1ee6ec614d5c5f70176ba18d060dc065dd3c8f03ca",
-      "rewards_sha256": "74cb56f6ab1d88bdc8e2f66751c157d2797fe33687f91c3e9a7ef3ee49ee83d6"
+      "requirements_sha256": "7447065365c85780d81a1d878f6f19f68bc05f3d71d39cb4732f210dd155a52c",
+      "rewards_sha256": "74cb56f6ab1d88bdc8e2f66751c157d2797fe33687f91c3e9a7ef3ee49ee83d6",
+      "condition_override": {
+        "code": "By16",
+        "expected_source_requirements_sha256": "e281403644698b0275deef1ee6ec614d5c5f70176ba18d060dc065dd3c8f03ca",
+        "reason": "Guide explicitly allows alternate remodel forms of the required flagship.",
+        "source_url": "https://zekamashi.net/kancolle-kouryaku/hubukikaisan-batubyou/",
+        "source_html_sha256": "439ccd232a04f599a1e466ebf8f2d4101e94ee5eb4cd054e865196d24d41d19d",
+        "source_quote": "吹雪改三/改三護(六式)旗艦、特I型2番艦の艦隊で、\r\n7-5-3, 5-1, 5-3, 5-4, 5-5 それぞれS勝利×1回",
+        "fields": {
+          "comp": [
+            {
+              "ship_id": [
+                1035,
+                1040
+              ],
+              "amount": 1,
+              "position": 1
+            },
+            {
+              "family_id": 12,
+              "amount": 1,
+              "position": 2
+            },
+            {
+              "otherships": true,
+              "amount": [
+                0,
+                4
+              ]
+            }
+          ],
+          "sortie": [
+            {
+              "map": [
+                "7-5T",
+                "5-1",
+                "5-3",
+                "5-4",
+                "5-5"
+              ],
+              "boss": true,
+              "result": "S",
+              "times": 1
+            }
+          ]
+        }
+      }
     },
     "1047": {
       "source_id": 1047,
@@ -194,8 +389,72 @@
       "path": "quests.json",
       "source_sha256": "1850d116a94cf6b737a631f7a9616da70cbd200434d24e92ff6300e54446e481",
       "source_requirements_sha256": "c9201b8bd03b368c54a15761a84a397e94b7fbaa8ffd575f622ab1784c3ff0a5",
-      "requirements_sha256": "c9201b8bd03b368c54a15761a84a397e94b7fbaa8ffd575f622ab1784c3ff0a5",
-      "rewards_sha256": "f26d6aaf8001e4781904d00d87ceaed8c5dfcf5a65e15ab888511b44102e09d0"
+      "requirements_sha256": "46160c00ef72287e9cee4bd478a1e71067e163d40fa4310fff4b22ae3ea59324",
+      "rewards_sha256": "f26d6aaf8001e4781904d00d87ceaed8c5dfcf5a65e15ab888511b44102e09d0",
+      "condition_override": {
+        "code": "By18",
+        "expected_source_requirements_sha256": "c9201b8bd03b368c54a15761a84a397e94b7fbaa8ffd575f622ab1784c3ff0a5",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "sortie": [
+            {
+              "map": [
+                "1-5",
+                "2-3",
+                "2-5",
+                "4-3"
+              ],
+              "boss": true,
+              "result": "A",
+              "times": 1
+            },
+            {
+              "map": "1-6",
+              "node": "n",
+              "times": 1
+            }
+          ],
+          "comp": [
+            {
+              "ship_id": 749,
+              "position": 1
+            },
+            {
+              "ship_id": [
+                26,
+                43
+              ],
+              "amount": [
+                1,
+                1
+              ]
+            },
+            {
+              "ship_id": [
+                70,
+                97,
+                413,
+                414
+              ],
+              "amount": [
+                2,
+                2
+              ]
+            },
+            {
+              "otherships": true,
+              "amount": [
+                0,
+                2
+              ]
+            }
+          ]
+        },
+        "source_url": "https://zekamashi.net/kancolle-kouryaku/1yb3h-tekityuutoppa/",
+        "source_html_sha256": "e3c4e98e30382c490acc70e9b1d47339e710f1035683c40622bd1f109bc4af90",
+        "source_quote": "「山城改二補」旗艦、「扶桑」「時雨」から1隻、\r\n「最上」「満潮」「朝雲」「山雲」から2隻以上を含めた艦隊で\r\n1-5, 2-3, 2-5, 4-3 A勝利以上×1回 1-6港マス到達×1回",
+        "source_code": "2609By2"
+      }
     },
     "1052": {
       "source_id": 1052,
@@ -402,8 +661,26 @@
       "path": "verified/quest_205.json",
       "source_sha256": "d1517a60998c9ae9a578dfc519cb4e374d54c8f3a506340760e94a716d19e950",
       "source_requirements_sha256": "7c11ac75e924bc824698ff5ef03fd4e238e97b0bf921c12429fc0f89513f0631",
-      "requirements_sha256": "7c11ac75e924bc824698ff5ef03fd4e238e97b0bf921c12429fc0f89513f0631",
-      "rewards_sha256": "83cecab009d4aaab822508cd22e30091f84a3a48c5148f64bcae542b072c5334"
+      "requirements_sha256": "7832f32f04dd4d1c788e19f2d7de788ac68879f2b25afacd4220756eaa33c540",
+      "rewards_sha256": "83cecab009d4aaab822508cd22e30091f84a3a48c5148f64bcae542b072c5334",
+      "condition_override": {
+        "code": "B5",
+        "expected_source_requirements_sha256": "7c11ac75e924bc824698ff5ef03fd4e238e97b0bf921c12429fc0f89513f0631",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "sortie": [
+            {
+              "map": "1-2",
+              "boss": true,
+              "times": 1,
+              "result": "B"
+            }
+          ]
+        },
+        "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+        "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+        "source_quote": "南西諸島沖に接近する「敵前衛艦隊」を捕捉、これを撃滅せよ!※「敵主力部隊」(1-2ボス戦)にB勝利以上で達成"
+      }
     },
     "230326": {
       "source_id": 230326,
@@ -1490,8 +1767,25 @@
       "path": "verified/quest_204.json",
       "source_sha256": "31bcfe9bc466739cd7ef30eea35b24acf50822af20dbcf51143dfb14fe3acdf0",
       "source_requirements_sha256": "7c11ac75e924bc824698ff5ef03fd4e238e97b0bf921c12429fc0f89513f0631",
-      "requirements_sha256": "7c11ac75e924bc824698ff5ef03fd4e238e97b0bf921c12429fc0f89513f0631",
-      "rewards_sha256": "b7bcbc2a21ecd1d00f7ec8699341ce6e103f65fb2f262a609eed1f12e83298e8"
+      "requirements_sha256": "31aaa578312ee0427e9a41f73a24205c2bf64410ca045811895f63401355d3d5",
+      "rewards_sha256": "b7bcbc2a21ecd1d00f7ec8699341ce6e103f65fb2f262a609eed1f12e83298e8",
+      "condition_override": {
+        "code": "B4",
+        "expected_source_requirements_sha256": "7c11ac75e924bc824698ff5ef03fd4e238e97b0bf921c12429fc0f89513f0631",
+        "reason": "Remove unsupported boss requirement; Wikiwiki still marks sortie-only completion as unverified, so keep verification notice.",
+        "fields": {
+          "sortie": [
+            {
+              "map": "1-2",
+              "times": 1
+            }
+          ]
+        },
+        "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+        "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+        "source_quote": "南西諸島沖に艦隊を出撃させ、敵艦隊と交戦せよ！※出撃のみで達成？【要検証】",
+        "unverified": true
+      }
     },
     "206": {
       "source_id": 206,
@@ -4098,8 +4392,30 @@
       "path": "verified/quest_849.json",
       "source_sha256": "98fc427c97cbc2361881b6545d46e18f71ab232fb4b580447e668a5f6db0785e",
       "source_requirements_sha256": "d4027cd1bd022af60d90bdca97d63caffa78ac812547b9d6b69809510ac6e28e",
-      "requirements_sha256": "d4027cd1bd022af60d90bdca97d63caffa78ac812547b9d6b69809510ac6e28e",
-      "rewards_sha256": "7b2f254cf4ae35eb560b24561fe9532f1c6db29ab9768eee046a03a8fac9bee0"
+      "requirements_sha256": "63cc892ccc39c70ff86f65cd1ba8d7f2576525fd53fe12ddf2b95298e4e50fff",
+      "rewards_sha256": "7b2f254cf4ae35eb560b24561fe9532f1c6db29ab9768eee046a03a8fac9bee0",
+      "condition_override": {
+        "code": "B93",
+        "expected_source_requirements_sha256": "d4027cd1bd022af60d90bdca97d63caffa78ac812547b9d6b69809510ac6e28e",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "sortie": [
+            {
+              "map": [
+                "1-4",
+                "2-2",
+                "2-3"
+              ],
+              "boss": true,
+              "result": "A",
+              "times": 1
+            }
+          ]
+        },
+        "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+        "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+        "source_quote": "軽巡を旗艦とした艦隊を編成し、南西諸島防衛線、バシー島沖及び東部オリョール海に展開、同海域に遊弋する敵艦隊を撃破せよ!※「敵機動部隊」(1-4ボス戦)及び「敵通商破壊艦隊」(2-2ボス戦)、「敵主力打撃群」(2-3ボス戦)を各1回A勝利以上で達成※旗艦軽巡+自由枠5隻"
+      }
     },
     "850": {
       "source_id": 850,
@@ -4346,8 +4662,31 @@
       "path": "verified/quest_891.json",
       "source_sha256": "5bc177ac517307eca8d80e69320c6de9d656195e379cebd49a8b01c482f5d7cc",
       "source_requirements_sha256": "04fbd5b84eb8a67432bd260f7731b95da1bdd7e155ae0488aed6adc9c34586d1",
-      "requirements_sha256": "04fbd5b84eb8a67432bd260f7731b95da1bdd7e155ae0488aed6adc9c34586d1",
-      "rewards_sha256": "6a67c6e5933bfe64a4306fb2496e91940d77b08ba7131b432f29e9c6a942131b"
+      "requirements_sha256": "21f78742a64c1e59902f2bfb3b2893a25b4d156c60119ead8d27f53468fe3c58",
+      "rewards_sha256": "6a67c6e5933bfe64a4306fb2496e91940d77b08ba7131b432f29e9c6a942131b",
+      "condition_override": {
+        "code": "B123",
+        "expected_source_requirements_sha256": "04fbd5b84eb8a67432bd260f7731b95da1bdd7e155ae0488aed6adc9c34586d1",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "sortie": [
+            {
+              "map": [
+                "1-5",
+                "3-2",
+                "7-1",
+                "5-1"
+              ],
+              "boss": true,
+              "result": "A",
+              "times": 1
+            }
+          ]
+        },
+        "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+        "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+        "source_quote": "改装甲型駆逐艦「磯風乙改」「浜風乙改」「浦風丁改」「谷風丁改」4隻の精強「十七駆」を含む艦隊で鎮守府近海、キス島沖、ブルネイ泊地沖、南方海域前面に出撃、敵戦力と交戦、これを撃破せよ!※「磯風乙改」+「浜風乙改」+「浦風丁改」+「谷風丁改」+自由枠2隻とし、「敵通商破壊主力艦隊」(1-5ボス戦)、「敵キス島包囲艦隊」(3-2ボス戦)、「深海潜水艦隊集団 旗艦戦隊」(7-1ボス戦)、「敵南方前線司令艦隊」(5-1ボス戦)を各1回A勝利以上で達成"
+      }
     },
     "892": {
       "source_id": 892,
@@ -4410,8 +4749,47 @@
       "path": "verified/quest_902.json",
       "source_sha256": "abe5153a9e4e3b605e1072fb15f4c1ac0773d589b5822e60f0145256eee97cb7",
       "source_requirements_sha256": "0945b69bfd783dfb8b77bd461b3d1cdb6dce8323f5969411f845aea3bd2be4f6",
-      "requirements_sha256": "0945b69bfd783dfb8b77bd461b3d1cdb6dce8323f5969411f845aea3bd2be4f6",
-      "rewards_sha256": "5921050e450f57ff64645f38d678008b6592f87d642fba92922e7be5f2b7ece0"
+      "requirements_sha256": "42266947c2c1df3b42945cfb939e00534b615b72bc26f24c6e85b3ae56c1a52b",
+      "rewards_sha256": "5921050e450f57ff64645f38d678008b6592f87d642fba92922e7be5f2b7ece0",
+      "condition_override": {
+        "code": "B141",
+        "expected_source_requirements_sha256": "0945b69bfd783dfb8b77bd461b3d1cdb6dce8323f5969411f845aea3bd2be4f6",
+        "reason": "Guide explicitly allows alternate remodel forms of the required flagship.",
+        "source_url": "https://zekamashi.net/kancolle-kouryaku/yuubarikaini-dairoku/",
+        "source_html_sha256": "33ccb1c3ae04b0915cfc0a6dc1791dd5e5e726d1da716c570c064c3d3926fd64",
+        "source_quote": "夕張改二型旗艦・第六水雷戦隊(後述)から3隻を含む艦隊で\r\n1-5,1-6,2-2,3-2,7-1 それぞれS勝利(港到達)",
+        "fields": {
+          "comp": [
+            {
+              "ship_id": [
+                622,
+                623,
+                624
+              ],
+              "position": 1,
+              "amount": 1
+            },
+            {
+              "ship_id": [
+                1,
+                2,
+                164,
+                165,
+                30,
+                31
+              ],
+              "amount": 3
+            },
+            {
+              "otherships": true,
+              "amount": [
+                0,
+                2
+              ]
+            }
+          ]
+        }
+      }
     },
     "903": {
       "source_id": 903,
@@ -4434,8 +4812,32 @@
       "path": "verified/quest_911.json",
       "source_sha256": "bee629e11e98ed07ad68f3d274c5c9e53fe8e0b61bf864f970212e20d99469ed",
       "source_requirements_sha256": "95b093014ccc9b18e829a8e2f2c8c5354fbc28412c5e2a94bb31604dbb360768",
-      "requirements_sha256": "95b093014ccc9b18e829a8e2f2c8c5354fbc28412c5e2a94bb31604dbb360768",
-      "rewards_sha256": "9eda108c32e73676d9489d03e6d8e2cae984d871761c19ef6ca2cd2a92739a21"
+      "requirements_sha256": "47b3ba8b36f960762ea2844181adbe2fc6234bfec0f2d88d336406bc4e083eae",
+      "rewards_sha256": "9eda108c32e73676d9489d03e6d8e2cae984d871761c19ef6ca2cd2a92739a21",
+      "condition_override": {
+        "code": "B142",
+        "expected_source_requirements_sha256": "95b093014ccc9b18e829a8e2f2c8c5354fbc28412c5e2a94bb31604dbb360768",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "sortie": [
+            {
+              "map": [
+                "1-3",
+                "1-4",
+                "1-5",
+                "2-2",
+                "2-3"
+              ],
+              "boss": true,
+              "result": "A",
+              "times": 1
+            }
+          ]
+        },
+        "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+        "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+        "source_quote": "夕雲型駆逐艦「長波」「岸波」「朝霜」、そして「沖波改二」からなる再編第三一駆逐隊を含む艦隊を、製油所地帯沿岸、南西諸島防衛線、鎮守府近海、バシー海峡、東部オリョール海に展開、敵を撃破せよ!※「沖波改二」+「長波」+「岸波」+「朝霜」+自由枠2隻とし・(1-3) 製油所地帯沿岸・(1-4) 南西諸島防衛線・(1-5) 鎮守府近海・(2-2) バシー海峡・(2-3) 東部オリョール海のボス戦を各1回A勝利以上で達成※任務進捗変化50%(3/5)→80%(4/5)→達成(5/5)"
+      }
     },
     "912": {
       "source_id": 912,
@@ -4538,8 +4940,40 @@
       "path": "verified/quest_927.json",
       "source_sha256": "9f46cee8065ba7e9d7877726e49b7ec2fd73a7a4fb08f705e413839f5b5ba86c",
       "source_requirements_sha256": "e5ad43f4f15d985621e4cfd4df362f8079f8fdf3226d8a2610d48c320d25c0e6",
-      "requirements_sha256": "e5ad43f4f15d985621e4cfd4df362f8079f8fdf3226d8a2610d48c320d25c0e6",
-      "rewards_sha256": "ad0859f7b2a973f56c34f9ee053a03f7ca7faabdeaec692ea0aef13671647e26"
+      "requirements_sha256": "e270342ac79245990e60bc34fe30cd69d95f61e0b5aca24fb1c7c13666abbb6a",
+      "rewards_sha256": "ad0859f7b2a973f56c34f9ee053a03f7ca7faabdeaec692ea0aef13671647e26",
+      "condition_override": {
+        "code": "B155",
+        "expected_source_requirements_sha256": "e5ad43f4f15d985621e4cfd4df362f8079f8fdf3226d8a2610d48c320d25c0e6",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "sortie": [
+            {
+              "map": "7-3E",
+              "boss": true,
+              "result": "A",
+              "times": 4
+            }
+          ],
+          "comp": [
+            {
+              "ship_id": 65,
+              "amount": 1,
+              "position": 1
+            },
+            {
+              "otherships": true,
+              "amount": [
+                0,
+                4
+              ]
+            }
+          ]
+        },
+        "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+        "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+        "source_quote": "重巡「羽黒」を旗艦とした5隻以下の艦隊で、南西海域マラッカ海峡に進出!ペナン島沖において、敵駆逐隊を捕捉、これに複数回痛打を与えよ!精強たる我が重巡「羽黒」、出撃せよ!※旗艦「羽黒」+自由枠4隻の総数5隻までの艦隊とし・(7-3-1/E) ペナン島沖のボス戦を4回A勝利以上で達成※任務進捗変化50%(2/4)→80%(3/4)→達成(4/4)"
+      }
     },
     "928": {
       "source_id": 928,
@@ -4595,8 +5029,42 @@
       "path": "verified/quest_929.json",
       "source_sha256": "f5cc68cfd3a0de0d931db1d76d477403d7beb7e939a46738de669d1a8a2b566c",
       "source_requirements_sha256": "86eff8f73f3513dd2b321589ad901a5c4aec4fb0c5a7b279e501b687f75c9eba",
-      "requirements_sha256": "86eff8f73f3513dd2b321589ad901a5c4aec4fb0c5a7b279e501b687f75c9eba",
-      "rewards_sha256": "eb83e73a319b7ba62dde722e92c85726b5febf84ac068ee6fc5940252386cc82"
+      "requirements_sha256": "bb7b6916a2233a4bbaa3bf5ecfc1a5ebbf5d04b861b04f996cdf656bf45d1b7c",
+      "rewards_sha256": "eb83e73a319b7ba62dde722e92c85726b5febf84ac068ee6fc5940252386cc82",
+      "condition_override": {
+        "code": "B156",
+        "expected_source_requirements_sha256": "86eff8f73f3513dd2b321589ad901a5c4aec4fb0c5a7b279e501b687f75c9eba",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "comp": [
+            {
+              "family_id": [
+                50,
+                100
+              ],
+              "amount": 1,
+              "position": 1
+            },
+            {
+              "class_id": [
+                13,
+                14
+              ],
+              "amount": 2
+            },
+            {
+              "otherships": true,
+              "amount": [
+                0,
+                3
+              ]
+            }
+          ]
+        },
+        "source_url": "https://zekamashi.net/kancolle-kouryaku/sizukanaumi-kuzira/",
+        "source_html_sha256": "8ef1f06e02dbdb8930cf15b190eb90ba2b4ab4455c3e5694be048196b890587e",
+        "source_quote": "(大鯨or迅鯨or長鯨)旗艦,潜水艦2隻以上の編成で、\r\n1-2,1-3,2-1,2-3 それぞれS勝利"
+      }
     },
     "930": {
       "source_id": 930,
@@ -4635,15 +5103,15 @@
       "path": "verified/quest_935.json",
       "source_sha256": "4ace22ffbb9e9e600a621488d2b2e7c57e8867e400321af0ad7643567d36e236",
       "source_requirements_sha256": "df2ebe2939a7578c141c3f00e2e7d71dd435c02345075a8f83fd01db561c3389",
-      "requirements_sha256": "9c6aae9160a63a0400d2b2dfd1f77ee49e24da330cd60573bef7e26290d14e61",
+      "requirements_sha256": "39f95c9647f625a3c4d6878a5dfab475432ab0e5697c4be1a3c02185f0f3e448",
       "rewards_sha256": "9c1d89fee621dca99ab302c74ee9f8214c4668f03d5453dd11c5a5f8f43df13e",
       "condition_override": {
         "code": "B161",
         "expected_source_requirements_sha256": "df2ebe2939a7578c141c3f00e2e7d71dd435c02345075a8f83fd01db561c3389",
-        "reason": "Upstream sortie list omits 6-4; fleet, rewards and prerequisites are preserved.",
+        "reason": "Add omitted 6-4 and explicitly allow Shigure Kai San as documented; Yukikaze Kai Ni remains required.",
         "source_url": "https://zekamashi.net/kancolle-kouryaku/yukikaze-sigure/",
         "source_html_sha256": "89f0212029c7e370d2c53c75be078ff1d97660101432b082c510b122c6654eff",
-        "source_quote": "雪風改二/時雨改二/自由4の艦隊で / 4-5, 5-3, 5-5, 6-4, 6-5 それぞれS勝利",
+        "source_quote": "雪風改二/時雨改二/自由4の艦隊で / 4-5, 5-3, 5-5, 6-4, 6-5 それぞれS勝利 / ※丹陽ではクリアできません。時雨改三OK。",
         "fields": {
           "sortie": [
             {
@@ -4657,6 +5125,26 @@
               "boss": true,
               "result": "S",
               "times": 1
+            }
+          ],
+          "comp": [
+            {
+              "ship_id": 656,
+              "amount": 1
+            },
+            {
+              "ship_id": [
+                145,
+                961
+              ],
+              "amount": 1
+            },
+            {
+              "otherships": true,
+              "amount": [
+                0,
+                4
+              ]
             }
           ]
         }
@@ -4979,8 +5467,62 @@
       "path": "verified/quest_1005.json",
       "source_sha256": "a55de4a9ae2d766737c2e7e9215136e25834f67ba230ab7122f1f6369651e390",
       "source_requirements_sha256": "e42923de4bee6f93f6520d86b8df37c7506d7393fb3bd93ff25a1e1c6d329065",
-      "requirements_sha256": "e42923de4bee6f93f6520d86b8df37c7506d7393fb3bd93ff25a1e1c6d329065",
-      "rewards_sha256": "b2e59c8a44e23779b3c96cba250b2282c115288fee531db867497fdf0687a932"
+      "requirements_sha256": "2bdfa1a402f862884478d1737b91b69eef7b4dd6f3354f3b349c2c3256b432f7",
+      "rewards_sha256": "b2e59c8a44e23779b3c96cba250b2282c115288fee531db867497fdf0687a932",
+      "condition_override": {
+        "code": "By13",
+        "expected_source_requirements_sha256": "e42923de4bee6f93f6520d86b8df37c7506d7393fb3bd93ff25a1e1c6d329065",
+        "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+        "fields": {
+          "sortie": [
+            {
+              "map": [
+                "1-2",
+                "1-3",
+                "1-5",
+                "3-2"
+              ],
+              "boss": true,
+              "result": "A",
+              "times": 1
+            }
+          ],
+          "comp": [
+            {
+              "ship_id": 230,
+              "amount": 1
+            },
+            {
+              "ship_id": 232,
+              "amount": 1
+            },
+            {
+              "ship_id": [
+                231,
+                665
+              ],
+              "amount": 1
+            },
+            {
+              "ship_id": [
+                233,
+                407
+              ],
+              "amount": 1
+            },
+            {
+              "otherships": true,
+              "amount": [
+                0,
+                2
+              ]
+            }
+          ]
+        },
+        "source_url": "https://zekamashi.net/kancolle-kouryaku/dainanakutikutai-kinkyuu/",
+        "source_html_sha256": "f8ff6b3f151363c87e7990f482ce580f55874688b4229b683b73905292857004",
+        "source_quote": "「朧改」「漣改」「曙改(二)」「潮改(二)」を含む艦隊で\r\n1-2, 1-3, 1-5, 3-2 それぞれA勝利以上×1回"
+      }
     },
     "1006": {
       "source_id": 1006,
@@ -5421,10 +5963,10 @@
     "935": {
       "code": "B161",
       "expected_source_requirements_sha256": "df2ebe2939a7578c141c3f00e2e7d71dd435c02345075a8f83fd01db561c3389",
-      "reason": "Upstream sortie list omits 6-4; fleet, rewards and prerequisites are preserved.",
+      "reason": "Add omitted 6-4 and explicitly allow Shigure Kai San as documented; Yukikaze Kai Ni remains required.",
       "source_url": "https://zekamashi.net/kancolle-kouryaku/yukikaze-sigure/",
       "source_html_sha256": "89f0212029c7e370d2c53c75be078ff1d97660101432b082c510b122c6654eff",
-      "source_quote": "雪風改二/時雨改二/自由4の艦隊で / 4-5, 5-3, 5-5, 6-4, 6-5 それぞれS勝利",
+      "source_quote": "雪風改二/時雨改二/自由4の艦隊で / 4-5, 5-3, 5-5, 6-4, 6-5 それぞれS勝利 / ※丹陽ではクリアできません。時雨改三OK。",
       "fields": {
         "sortie": [
           {
@@ -5434,6 +5976,548 @@
               "5-5",
               "6-4",
               "6-5"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 1
+          }
+        ],
+        "comp": [
+          {
+            "ship_id": 656,
+            "amount": 1
+          },
+          {
+            "ship_id": [
+              145,
+              961
+            ],
+            "amount": 1
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    "204": {
+      "code": "B4",
+      "expected_source_requirements_sha256": "7c11ac75e924bc824698ff5ef03fd4e238e97b0bf921c12429fc0f89513f0631",
+      "reason": "Remove unsupported boss requirement; Wikiwiki still marks sortie-only completion as unverified, so keep verification notice.",
+      "fields": {
+        "sortie": [
+          {
+            "map": "1-2",
+            "times": 1
+          }
+        ]
+      },
+      "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+      "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "source_quote": "南西諸島沖に艦隊を出撃させ、敵艦隊と交戦せよ！※出撃のみで達成？【要検証】",
+      "unverified": true
+    },
+    "205": {
+      "code": "B5",
+      "expected_source_requirements_sha256": "7c11ac75e924bc824698ff5ef03fd4e238e97b0bf921c12429fc0f89513f0631",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "sortie": [
+          {
+            "map": "1-2",
+            "boss": true,
+            "times": 1,
+            "result": "B"
+          }
+        ]
+      },
+      "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+      "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "source_quote": "南西諸島沖に接近する「敵前衛艦隊」を捕捉、これを撃滅せよ!※「敵主力部隊」(1-2ボス戦)にB勝利以上で達成"
+    },
+    "849": {
+      "code": "B93",
+      "expected_source_requirements_sha256": "d4027cd1bd022af60d90bdca97d63caffa78ac812547b9d6b69809510ac6e28e",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "sortie": [
+          {
+            "map": [
+              "1-4",
+              "2-2",
+              "2-3"
+            ],
+            "boss": true,
+            "result": "A",
+            "times": 1
+          }
+        ]
+      },
+      "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+      "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "source_quote": "軽巡を旗艦とした艦隊を編成し、南西諸島防衛線、バシー島沖及び東部オリョール海に展開、同海域に遊弋する敵艦隊を撃破せよ!※「敵機動部隊」(1-4ボス戦)及び「敵通商破壊艦隊」(2-2ボス戦)、「敵主力打撃群」(2-3ボス戦)を各1回A勝利以上で達成※旗艦軽巡+自由枠5隻"
+    },
+    "891": {
+      "code": "B123",
+      "expected_source_requirements_sha256": "04fbd5b84eb8a67432bd260f7731b95da1bdd7e155ae0488aed6adc9c34586d1",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "sortie": [
+          {
+            "map": [
+              "1-5",
+              "3-2",
+              "7-1",
+              "5-1"
+            ],
+            "boss": true,
+            "result": "A",
+            "times": 1
+          }
+        ]
+      },
+      "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+      "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "source_quote": "改装甲型駆逐艦「磯風乙改」「浜風乙改」「浦風丁改」「谷風丁改」4隻の精強「十七駆」を含む艦隊で鎮守府近海、キス島沖、ブルネイ泊地沖、南方海域前面に出撃、敵戦力と交戦、これを撃破せよ!※「磯風乙改」+「浜風乙改」+「浦風丁改」+「谷風丁改」+自由枠2隻とし、「敵通商破壊主力艦隊」(1-5ボス戦)、「敵キス島包囲艦隊」(3-2ボス戦)、「深海潜水艦隊集団 旗艦戦隊」(7-1ボス戦)、「敵南方前線司令艦隊」(5-1ボス戦)を各1回A勝利以上で達成"
+    },
+    "911": {
+      "code": "B142",
+      "expected_source_requirements_sha256": "95b093014ccc9b18e829a8e2f2c8c5354fbc28412c5e2a94bb31604dbb360768",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "sortie": [
+          {
+            "map": [
+              "1-3",
+              "1-4",
+              "1-5",
+              "2-2",
+              "2-3"
+            ],
+            "boss": true,
+            "result": "A",
+            "times": 1
+          }
+        ]
+      },
+      "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+      "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "source_quote": "夕雲型駆逐艦「長波」「岸波」「朝霜」、そして「沖波改二」からなる再編第三一駆逐隊を含む艦隊を、製油所地帯沿岸、南西諸島防衛線、鎮守府近海、バシー海峡、東部オリョール海に展開、敵を撃破せよ!※「沖波改二」+「長波」+「岸波」+「朝霜」+自由枠2隻とし・(1-3) 製油所地帯沿岸・(1-4) 南西諸島防衛線・(1-5) 鎮守府近海・(2-2) バシー海峡・(2-3) 東部オリョール海のボス戦を各1回A勝利以上で達成※任務進捗変化50%(3/5)→80%(4/5)→達成(5/5)"
+    },
+    "927": {
+      "code": "B155",
+      "expected_source_requirements_sha256": "e5ad43f4f15d985621e4cfd4df362f8079f8fdf3226d8a2610d48c320d25c0e6",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "sortie": [
+          {
+            "map": "7-3E",
+            "boss": true,
+            "result": "A",
+            "times": 4
+          }
+        ],
+        "comp": [
+          {
+            "ship_id": 65,
+            "amount": 1,
+            "position": 1
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              4
+            ]
+          }
+        ]
+      },
+      "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+      "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "source_quote": "重巡「羽黒」を旗艦とした5隻以下の艦隊で、南西海域マラッカ海峡に進出!ペナン島沖において、敵駆逐隊を捕捉、これに複数回痛打を与えよ!精強たる我が重巡「羽黒」、出撃せよ!※旗艦「羽黒」+自由枠4隻の総数5隻までの艦隊とし・(7-3-1/E) ペナン島沖のボス戦を4回A勝利以上で達成※任務進捗変化50%(2/4)→80%(3/4)→達成(4/4)"
+    },
+    "1036": {
+      "code": "B211",
+      "expected_source_requirements_sha256": "0c3fbbb7b2bf45fa53edb4beb4181ec3f5a9438296aa3cece92d00c5401c64ee",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "sortie": [
+          {
+            "map": [
+              "1-2",
+              "1-3",
+              "1-4",
+              "1-5"
+            ],
+            "boss": true,
+            "result": "A",
+            "times": 2
+          }
+        ],
+        "comp": [
+          {
+            "class_id": [
+              22,
+              17
+            ],
+            "amount": [
+              2,
+              2
+            ]
+          },
+          {
+            "class_id": 1,
+            "amount": [
+              2,
+              2
+            ]
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              2
+            ]
+          }
+        ]
+      },
+      "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+      "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "source_quote": "揚陸艦及び補給艦計2隻以上、海防艦2隻以上の艦隊で、南西諸島沖、製油所地帯沿岸、鎮守府近海、南西諸島防衛線に反復出撃!護衛部隊により敵艦隊を退けて、輸送船団護衛を完遂せよ!※(揚陸艦+補給艦)2隻+海防艦2隻+自由枠2隻の艦隊で・(1-2) 南西諸島沖・(1-3) 製油所地帯沿岸・(1-4) 南西諸島防衛線・(1-5) 鎮守府近海を各2回A勝利で達成。※任務進捗変化(同一海域2回達成を1単位として)50%(2/4)→80%(3/4)→達成(4/4)"
+    },
+    "1041": {
+      "code": "B213",
+      "expected_source_requirements_sha256": "4504135bbcbb9996757d68d8e4e9c21cfea12a172858c2401c1186a1dd69b983",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "sortie": [
+          {
+            "map": [
+              "2-2",
+              "2-4",
+              "2-5",
+              "7-1",
+              "7-2M"
+            ],
+            "result": "S",
+            "boss": true,
+            "times": 1
+          }
+        ],
+        "comp": [
+          {
+            "ship_id": 982,
+            "position": 1
+          },
+          {
+            "ship_id": [
+              674,
+              675,
+              485,
+              484
+            ],
+            "amount": [
+              2,
+              2
+            ]
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              3
+            ]
+          }
+        ]
+      },
+      "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+      "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "source_quote": "「早波改二」旗艦、他に第三十二駆逐隊2隻以上を含む艦隊で、バシー海峡、沖ノ島海域、沖ノ島沖、ブルネイ泊地沖、タウイタウイ泊地沖(深部)に展開!出没する敵艦隊を捕捉、これを痛打撃滅せよ!※旗艦に「早波改二」、随伴に(「玉波」、「涼波」、「藤波」、「浜波」)より2隻+自由枠3隻とし・(2-2) バシー海峡・(2-4) 沖ノ島海域・(2-5) 沖ノ島沖・(7-1) ブルネイ泊地沖・(7-2-2/M) タウイタウイ泊地沖深部を各1回S勝利で達成。※任務進捗変化50%(3/5)→80%(4/5)→達成(5/5)"
+    },
+    "1042": {
+      "code": "B214",
+      "expected_source_requirements_sha256": "431284b49e4945f4d4ca7a0e0e0a330059e682087a7d68194e1ec7560cbaa0fa",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "sortie": [
+          {
+            "map": [
+              "2-5",
+              "3-5",
+              "4-5",
+              "5-5",
+              "6-4"
+            ],
+            "result": "S",
+            "boss": true,
+            "times": 1
+          }
+        ],
+        "comp": [
+          {
+            "ship_id": 1031,
+            "position": 1
+          },
+          {
+            "ship_id": [
+              453,
+              674,
+              675,
+              485,
+              528,
+              484
+            ],
+            "amount": [
+              2,
+              2
+            ]
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              3
+            ]
+          }
+        ]
+      },
+      "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+      "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+      "source_quote": "「飛龍改三」旗艦、他に「風雲」または第三十二駆逐隊計2隻以上を含む機動部隊で出撃!疾風怒涛で沖ノ島沖、北方AL海域、カレー洋リランカ島沖、サーモン海域北方、中部北海域ピーコック島沖の敵を討て!※旗艦に「飛龍改三」、随伴に(「風雲」、「玉波」、「涼波」、「藤波」、「早波」、「浜波」)より2隻+自由枠3隻とし・(2-5) 沖ノ島沖・(3-5) 北方AL海域・(4-5) カレー洋リランカ島沖・(5-5) サーモン海域北方・(6-4) 中部北海域ピーコック島沖を各1回S勝利で達成。※任務進捗変化50%(3/5)→80%(4/5)→達成(5/5)"
+    },
+    "1005": {
+      "code": "By13",
+      "expected_source_requirements_sha256": "e42923de4bee6f93f6520d86b8df37c7506d7393fb3bd93ff25a1e1c6d329065",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "sortie": [
+          {
+            "map": [
+              "1-2",
+              "1-3",
+              "1-5",
+              "3-2"
+            ],
+            "boss": true,
+            "result": "A",
+            "times": 1
+          }
+        ],
+        "comp": [
+          {
+            "ship_id": 230,
+            "amount": 1
+          },
+          {
+            "ship_id": 232,
+            "amount": 1
+          },
+          {
+            "ship_id": [
+              231,
+              665
+            ],
+            "amount": 1
+          },
+          {
+            "ship_id": [
+              233,
+              407
+            ],
+            "amount": 1
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              2
+            ]
+          }
+        ]
+      },
+      "source_url": "https://zekamashi.net/kancolle-kouryaku/dainanakutikutai-kinkyuu/",
+      "source_html_sha256": "f8ff6b3f151363c87e7990f482ce580f55874688b4229b683b73905292857004",
+      "source_quote": "「朧改」「漣改」「曙改(二)」「潮改(二)」を含む艦隊で\r\n1-2, 1-3, 1-5, 3-2 それぞれA勝利以上×1回"
+    },
+    "1051": {
+      "code": "By18",
+      "expected_source_requirements_sha256": "c9201b8bd03b368c54a15761a84a397e94b7fbaa8ffd575f622ab1784c3ff0a5",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "sortie": [
+          {
+            "map": [
+              "1-5",
+              "2-3",
+              "2-5",
+              "4-3"
+            ],
+            "boss": true,
+            "result": "A",
+            "times": 1
+          },
+          {
+            "map": "1-6",
+            "node": "n",
+            "times": 1
+          }
+        ],
+        "comp": [
+          {
+            "ship_id": 749,
+            "position": 1
+          },
+          {
+            "ship_id": [
+              26,
+              43
+            ],
+            "amount": [
+              1,
+              1
+            ]
+          },
+          {
+            "ship_id": [
+              70,
+              97,
+              413,
+              414
+            ],
+            "amount": [
+              2,
+              2
+            ]
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              2
+            ]
+          }
+        ]
+      },
+      "source_url": "https://zekamashi.net/kancolle-kouryaku/1yb3h-tekityuutoppa/",
+      "source_html_sha256": "e3c4e98e30382c490acc70e9b1d47339e710f1035683c40622bd1f109bc4af90",
+      "source_quote": "「山城改二補」旗艦、「扶桑」「時雨」から1隻、\r\n「最上」「満潮」「朝雲」「山雲」から2隻以上を含めた艦隊で\r\n1-5, 2-3, 2-5, 4-3 A勝利以上×1回 1-6港マス到達×1回",
+      "source_code": "2609By2"
+    },
+    "929": {
+      "code": "B156",
+      "expected_source_requirements_sha256": "86eff8f73f3513dd2b321589ad901a5c4aec4fb0c5a7b279e501b687f75c9eba",
+      "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+      "fields": {
+        "comp": [
+          {
+            "family_id": [
+              50,
+              100
+            ],
+            "amount": 1,
+            "position": 1
+          },
+          {
+            "class_id": [
+              13,
+              14
+            ],
+            "amount": 2
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              3
+            ]
+          }
+        ]
+      },
+      "source_url": "https://zekamashi.net/kancolle-kouryaku/sizukanaumi-kuzira/",
+      "source_html_sha256": "8ef1f06e02dbdb8930cf15b190eb90ba2b4ab4455c3e5694be048196b890587e",
+      "source_quote": "(大鯨or迅鯨or長鯨)旗艦,潜水艦2隻以上の編成で、\r\n1-2,1-3,2-1,2-3 それぞれS勝利"
+    },
+    "902": {
+      "code": "B141",
+      "expected_source_requirements_sha256": "0945b69bfd783dfb8b77bd461b3d1cdb6dce8323f5969411f845aea3bd2be4f6",
+      "reason": "Guide explicitly allows alternate remodel forms of the required flagship.",
+      "source_url": "https://zekamashi.net/kancolle-kouryaku/yuubarikaini-dairoku/",
+      "source_html_sha256": "33ccb1c3ae04b0915cfc0a6dc1791dd5e5e726d1da716c570c064c3d3926fd64",
+      "source_quote": "夕張改二型旗艦・第六水雷戦隊(後述)から3隻を含む艦隊で\r\n1-5,1-6,2-2,3-2,7-1 それぞれS勝利(港到達)",
+      "fields": {
+        "comp": [
+          {
+            "ship_id": [
+              622,
+              623,
+              624
+            ],
+            "position": 1,
+            "amount": 1
+          },
+          {
+            "ship_id": [
+              1,
+              2,
+              164,
+              165,
+              30,
+              31
+            ],
+            "amount": 3
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    "1045": {
+      "code": "By16",
+      "expected_source_requirements_sha256": "e281403644698b0275deef1ee6ec614d5c5f70176ba18d060dc065dd3c8f03ca",
+      "reason": "Guide explicitly allows alternate remodel forms of the required flagship.",
+      "source_url": "https://zekamashi.net/kancolle-kouryaku/hubukikaisan-batubyou/",
+      "source_html_sha256": "439ccd232a04f599a1e466ebf8f2d4101e94ee5eb4cd054e865196d24d41d19d",
+      "source_quote": "吹雪改三/改三護(六式)旗艦、特I型2番艦の艦隊で、\r\n7-5-3, 5-1, 5-3, 5-4, 5-5 それぞれS勝利×1回",
+      "fields": {
+        "comp": [
+          {
+            "ship_id": [
+              1035,
+              1040
+            ],
+            "amount": 1,
+            "position": 1
+          },
+          {
+            "family_id": 12,
+            "amount": 1,
+            "position": 2
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              4
+            ]
+          }
+        ],
+        "sortie": [
+          {
+            "map": [
+              "7-5T",
+              "5-1",
+              "5-3",
+              "5-4",
+              "5-5"
             ],
             "boss": true,
             "result": "S",

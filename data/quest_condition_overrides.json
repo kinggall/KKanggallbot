@@ -7,22 +7,603 @@
     "source_html_sha256": "180049bf7ee8dd1ab08cd95b61277134125012ecb410819b52ac8d08fc5fee48",
     "source_quote": "(羽黒/足柄/妙高/高雄/神風)から2隻,自由4隻の編成で / 7-2-2, 7-3-2, 4-2 それぞれS勝利×2回",
     "fields": {
-      "sortie": [{"map": ["7-2M", "7-3P", "4-2"], "boss": true, "result": "S", "times": 2}],
+      "sortie": [
+        {
+          "map": [
+            "7-2M",
+            "7-3P",
+            "4-2"
+          ],
+          "boss": true,
+          "result": "S",
+          "times": 2
+        }
+      ],
       "comp": [
-        {"ship_id": [65, 64, 62, 66, 471], "amount": 2},
-        {"otherships": true, "amount": [0, 4]}
+        {
+          "ship_id": [
+            65,
+            64,
+            62,
+            66,
+            471
+          ],
+          "amount": 2
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            4
+          ]
+        }
       ]
     }
   },
   "935": {
     "code": "B161",
     "expected_source_requirements_sha256": "df2ebe2939a7578c141c3f00e2e7d71dd435c02345075a8f83fd01db561c3389",
-    "reason": "Upstream sortie list omits 6-4; fleet, rewards and prerequisites are preserved.",
+    "reason": "Add omitted 6-4 and explicitly allow Shigure Kai San as documented; Yukikaze Kai Ni remains required.",
     "source_url": "https://zekamashi.net/kancolle-kouryaku/yukikaze-sigure/",
     "source_html_sha256": "89f0212029c7e370d2c53c75be078ff1d97660101432b082c510b122c6654eff",
-    "source_quote": "雪風改二/時雨改二/自由4の艦隊で / 4-5, 5-3, 5-5, 6-4, 6-5 それぞれS勝利",
+    "source_quote": "雪風改二/時雨改二/自由4の艦隊で / 4-5, 5-3, 5-5, 6-4, 6-5 それぞれS勝利 / ※丹陽ではクリアできません。時雨改三OK。",
     "fields": {
-      "sortie": [{"map": ["4-5", "5-3", "5-5", "6-4", "6-5"], "boss": true, "result": "S", "times": 1}]
+      "sortie": [
+        {
+          "map": [
+            "4-5",
+            "5-3",
+            "5-5",
+            "6-4",
+            "6-5"
+          ],
+          "boss": true,
+          "result": "S",
+          "times": 1
+        }
+      ],
+      "comp": [
+        {
+          "ship_id": 656,
+          "amount": 1
+        },
+        {
+          "ship_id": [
+            145,
+            961
+          ],
+          "amount": 1
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            4
+          ]
+        }
+      ]
+    }
+  },
+  "204": {
+    "code": "B4",
+    "expected_source_requirements_sha256": "7c11ac75e924bc824698ff5ef03fd4e238e97b0bf921c12429fc0f89513f0631",
+    "reason": "Remove unsupported boss requirement; Wikiwiki still marks sortie-only completion as unverified, so keep verification notice.",
+    "fields": {
+      "sortie": [
+        {
+          "map": "1-2",
+          "times": 1
+        }
+      ]
+    },
+    "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+    "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "source_quote": "南西諸島沖に艦隊を出撃させ、敵艦隊と交戦せよ！※出撃のみで達成？【要検証】",
+    "unverified": true
+  },
+  "205": {
+    "code": "B5",
+    "expected_source_requirements_sha256": "7c11ac75e924bc824698ff5ef03fd4e238e97b0bf921c12429fc0f89513f0631",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "sortie": [
+        {
+          "map": "1-2",
+          "boss": true,
+          "times": 1,
+          "result": "B"
+        }
+      ]
+    },
+    "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+    "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "source_quote": "南西諸島沖に接近する「敵前衛艦隊」を捕捉、これを撃滅せよ!※「敵主力部隊」(1-2ボス戦)にB勝利以上で達成"
+  },
+  "849": {
+    "code": "B93",
+    "expected_source_requirements_sha256": "d4027cd1bd022af60d90bdca97d63caffa78ac812547b9d6b69809510ac6e28e",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "sortie": [
+        {
+          "map": [
+            "1-4",
+            "2-2",
+            "2-3"
+          ],
+          "boss": true,
+          "result": "A",
+          "times": 1
+        }
+      ]
+    },
+    "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+    "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "source_quote": "軽巡を旗艦とした艦隊を編成し、南西諸島防衛線、バシー島沖及び東部オリョール海に展開、同海域に遊弋する敵艦隊を撃破せよ!※「敵機動部隊」(1-4ボス戦)及び「敵通商破壊艦隊」(2-2ボス戦)、「敵主力打撃群」(2-3ボス戦)を各1回A勝利以上で達成※旗艦軽巡+自由枠5隻"
+  },
+  "891": {
+    "code": "B123",
+    "expected_source_requirements_sha256": "04fbd5b84eb8a67432bd260f7731b95da1bdd7e155ae0488aed6adc9c34586d1",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "sortie": [
+        {
+          "map": [
+            "1-5",
+            "3-2",
+            "7-1",
+            "5-1"
+          ],
+          "boss": true,
+          "result": "A",
+          "times": 1
+        }
+      ]
+    },
+    "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+    "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "source_quote": "改装甲型駆逐艦「磯風乙改」「浜風乙改」「浦風丁改」「谷風丁改」4隻の精強「十七駆」を含む艦隊で鎮守府近海、キス島沖、ブルネイ泊地沖、南方海域前面に出撃、敵戦力と交戦、これを撃破せよ!※「磯風乙改」+「浜風乙改」+「浦風丁改」+「谷風丁改」+自由枠2隻とし、「敵通商破壊主力艦隊」(1-5ボス戦)、「敵キス島包囲艦隊」(3-2ボス戦)、「深海潜水艦隊集団 旗艦戦隊」(7-1ボス戦)、「敵南方前線司令艦隊」(5-1ボス戦)を各1回A勝利以上で達成"
+  },
+  "911": {
+    "code": "B142",
+    "expected_source_requirements_sha256": "95b093014ccc9b18e829a8e2f2c8c5354fbc28412c5e2a94bb31604dbb360768",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "sortie": [
+        {
+          "map": [
+            "1-3",
+            "1-4",
+            "1-5",
+            "2-2",
+            "2-3"
+          ],
+          "boss": true,
+          "result": "A",
+          "times": 1
+        }
+      ]
+    },
+    "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+    "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "source_quote": "夕雲型駆逐艦「長波」「岸波」「朝霜」、そして「沖波改二」からなる再編第三一駆逐隊を含む艦隊を、製油所地帯沿岸、南西諸島防衛線、鎮守府近海、バシー海峡、東部オリョール海に展開、敵を撃破せよ!※「沖波改二」+「長波」+「岸波」+「朝霜」+自由枠2隻とし・(1-3) 製油所地帯沿岸・(1-4) 南西諸島防衛線・(1-5) 鎮守府近海・(2-2) バシー海峡・(2-3) 東部オリョール海のボス戦を各1回A勝利以上で達成※任務進捗変化50%(3/5)→80%(4/5)→達成(5/5)"
+  },
+  "927": {
+    "code": "B155",
+    "expected_source_requirements_sha256": "e5ad43f4f15d985621e4cfd4df362f8079f8fdf3226d8a2610d48c320d25c0e6",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "sortie": [
+        {
+          "map": "7-3E",
+          "boss": true,
+          "result": "A",
+          "times": 4
+        }
+      ],
+      "comp": [
+        {
+          "ship_id": 65,
+          "amount": 1,
+          "position": 1
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            4
+          ]
+        }
+      ]
+    },
+    "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+    "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "source_quote": "重巡「羽黒」を旗艦とした5隻以下の艦隊で、南西海域マラッカ海峡に進出!ペナン島沖において、敵駆逐隊を捕捉、これに複数回痛打を与えよ!精強たる我が重巡「羽黒」、出撃せよ!※旗艦「羽黒」+自由枠4隻の総数5隻までの艦隊とし・(7-3-1/E) ペナン島沖のボス戦を4回A勝利以上で達成※任務進捗変化50%(2/4)→80%(3/4)→達成(4/4)"
+  },
+  "1036": {
+    "code": "B211",
+    "expected_source_requirements_sha256": "0c3fbbb7b2bf45fa53edb4beb4181ec3f5a9438296aa3cece92d00c5401c64ee",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "sortie": [
+        {
+          "map": [
+            "1-2",
+            "1-3",
+            "1-4",
+            "1-5"
+          ],
+          "boss": true,
+          "result": "A",
+          "times": 2
+        }
+      ],
+      "comp": [
+        {
+          "class_id": [
+            22,
+            17
+          ],
+          "amount": [
+            2,
+            2
+          ]
+        },
+        {
+          "class_id": 1,
+          "amount": [
+            2,
+            2
+          ]
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            2
+          ]
+        }
+      ]
+    },
+    "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+    "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "source_quote": "揚陸艦及び補給艦計2隻以上、海防艦2隻以上の艦隊で、南西諸島沖、製油所地帯沿岸、鎮守府近海、南西諸島防衛線に反復出撃!護衛部隊により敵艦隊を退けて、輸送船団護衛を完遂せよ!※(揚陸艦+補給艦)2隻+海防艦2隻+自由枠2隻の艦隊で・(1-2) 南西諸島沖・(1-3) 製油所地帯沿岸・(1-4) 南西諸島防衛線・(1-5) 鎮守府近海を各2回A勝利で達成。※任務進捗変化(同一海域2回達成を1単位として)50%(2/4)→80%(3/4)→達成(4/4)"
+  },
+  "1041": {
+    "code": "B213",
+    "expected_source_requirements_sha256": "4504135bbcbb9996757d68d8e4e9c21cfea12a172858c2401c1186a1dd69b983",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "sortie": [
+        {
+          "map": [
+            "2-2",
+            "2-4",
+            "2-5",
+            "7-1",
+            "7-2M"
+          ],
+          "result": "S",
+          "boss": true,
+          "times": 1
+        }
+      ],
+      "comp": [
+        {
+          "ship_id": 982,
+          "position": 1
+        },
+        {
+          "ship_id": [
+            674,
+            675,
+            485,
+            484
+          ],
+          "amount": [
+            2,
+            2
+          ]
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            3
+          ]
+        }
+      ]
+    },
+    "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+    "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "source_quote": "「早波改二」旗艦、他に第三十二駆逐隊2隻以上を含む艦隊で、バシー海峡、沖ノ島海域、沖ノ島沖、ブルネイ泊地沖、タウイタウイ泊地沖(深部)に展開!出没する敵艦隊を捕捉、これを痛打撃滅せよ!※旗艦に「早波改二」、随伴に(「玉波」、「涼波」、「藤波」、「浜波」)より2隻+自由枠3隻とし・(2-2) バシー海峡・(2-4) 沖ノ島海域・(2-5) 沖ノ島沖・(7-1) ブルネイ泊地沖・(7-2-2/M) タウイタウイ泊地沖深部を各1回S勝利で達成。※任務進捗変化50%(3/5)→80%(4/5)→達成(5/5)"
+  },
+  "1042": {
+    "code": "B214",
+    "expected_source_requirements_sha256": "431284b49e4945f4d4ca7a0e0e0a330059e682087a7d68194e1ec7560cbaa0fa",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "sortie": [
+        {
+          "map": [
+            "2-5",
+            "3-5",
+            "4-5",
+            "5-5",
+            "6-4"
+          ],
+          "result": "S",
+          "boss": true,
+          "times": 1
+        }
+      ],
+      "comp": [
+        {
+          "ship_id": 1031,
+          "position": 1
+        },
+        {
+          "ship_id": [
+            453,
+            674,
+            675,
+            485,
+            528,
+            484
+          ],
+          "amount": [
+            2,
+            2
+          ]
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            3
+          ]
+        }
+      ]
+    },
+    "source_url": "https://wikiwiki.jp/kancolle/任務/出撃任務",
+    "source_html_sha256": "6aef54a7c4daddf013a9ab4fd79519ae0d1d9cf89cfae35e64863bdbdfb1b3a3",
+    "source_quote": "「飛龍改三」旗艦、他に「風雲」または第三十二駆逐隊計2隻以上を含む機動部隊で出撃!疾風怒涛で沖ノ島沖、北方AL海域、カレー洋リランカ島沖、サーモン海域北方、中部北海域ピーコック島沖の敵を討て!※旗艦に「飛龍改三」、随伴に(「風雲」、「玉波」、「涼波」、「藤波」、「早波」、「浜波」)より2隻+自由枠3隻とし・(2-5) 沖ノ島沖・(3-5) 北方AL海域・(4-5) カレー洋リランカ島沖・(5-5) サーモン海域北方・(6-4) 中部北海域ピーコック島沖を各1回S勝利で達成。※任務進捗変化50%(3/5)→80%(4/5)→達成(5/5)"
+  },
+  "1005": {
+    "code": "By13",
+    "expected_source_requirements_sha256": "e42923de4bee6f93f6520d86b8df37c7506d7393fb3bd93ff25a1e1c6d329065",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "sortie": [
+        {
+          "map": [
+            "1-2",
+            "1-3",
+            "1-5",
+            "3-2"
+          ],
+          "boss": true,
+          "result": "A",
+          "times": 1
+        }
+      ],
+      "comp": [
+        {
+          "ship_id": 230,
+          "amount": 1
+        },
+        {
+          "ship_id": 232,
+          "amount": 1
+        },
+        {
+          "ship_id": [
+            231,
+            665
+          ],
+          "amount": 1
+        },
+        {
+          "ship_id": [
+            233,
+            407
+          ],
+          "amount": 1
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            2
+          ]
+        }
+      ]
+    },
+    "source_url": "https://zekamashi.net/kancolle-kouryaku/dainanakutikutai-kinkyuu/",
+    "source_html_sha256": "f8ff6b3f151363c87e7990f482ce580f55874688b4229b683b73905292857004",
+    "source_quote": "「朧改」「漣改」「曙改(二)」「潮改(二)」を含む艦隊で\r\n1-2, 1-3, 1-5, 3-2 それぞれA勝利以上×1回"
+  },
+  "1051": {
+    "code": "By18",
+    "expected_source_requirements_sha256": "c9201b8bd03b368c54a15761a84a397e94b7fbaa8ffd575f622ab1784c3ff0a5",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "sortie": [
+        {
+          "map": [
+            "1-5",
+            "2-3",
+            "2-5",
+            "4-3"
+          ],
+          "boss": true,
+          "result": "A",
+          "times": 1
+        },
+        {
+          "map": "1-6",
+          "node": "n",
+          "times": 1
+        }
+      ],
+      "comp": [
+        {
+          "ship_id": 749,
+          "position": 1
+        },
+        {
+          "ship_id": [
+            26,
+            43
+          ],
+          "amount": [
+            1,
+            1
+          ]
+        },
+        {
+          "ship_id": [
+            70,
+            97,
+            413,
+            414
+          ],
+          "amount": [
+            2,
+            2
+          ]
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            2
+          ]
+        }
+      ]
+    },
+    "source_url": "https://zekamashi.net/kancolle-kouryaku/1yb3h-tekityuutoppa/",
+    "source_html_sha256": "e3c4e98e30382c490acc70e9b1d47339e710f1035683c40622bd1f109bc4af90",
+    "source_quote": "「山城改二補」旗艦、「扶桑」「時雨」から1隻、\r\n「最上」「満潮」「朝雲」「山雲」から2隻以上を含めた艦隊で\r\n1-5, 2-3, 2-5, 4-3 A勝利以上×1回 1-6港マス到達×1回",
+    "source_code": "2609By2"
+  },
+  "929": {
+    "code": "B156",
+    "expected_source_requirements_sha256": "86eff8f73f3513dd2b321589ad901a5c4aec4fb0c5a7b279e501b687f75c9eba",
+    "reason": "Reviewed condition mismatch against user-supplied Wikiwiki/guide snapshot; no title, reward or prerequisite changes.",
+    "fields": {
+      "comp": [
+        {
+          "family_id": [
+            50,
+            100
+          ],
+          "amount": 1,
+          "position": 1
+        },
+        {
+          "class_id": [
+            13,
+            14
+          ],
+          "amount": 2
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            3
+          ]
+        }
+      ]
+    },
+    "source_url": "https://zekamashi.net/kancolle-kouryaku/sizukanaumi-kuzira/",
+    "source_html_sha256": "8ef1f06e02dbdb8930cf15b190eb90ba2b4ab4455c3e5694be048196b890587e",
+    "source_quote": "(大鯨or迅鯨or長鯨)旗艦,潜水艦2隻以上の編成で、\r\n1-2,1-3,2-1,2-3 それぞれS勝利"
+  },
+  "902": {
+    "code": "B141",
+    "expected_source_requirements_sha256": "0945b69bfd783dfb8b77bd461b3d1cdb6dce8323f5969411f845aea3bd2be4f6",
+    "reason": "Guide explicitly allows alternate remodel forms of the required flagship.",
+    "source_url": "https://zekamashi.net/kancolle-kouryaku/yuubarikaini-dairoku/",
+    "source_html_sha256": "33ccb1c3ae04b0915cfc0a6dc1791dd5e5e726d1da716c570c064c3d3926fd64",
+    "source_quote": "夕張改二型旗艦・第六水雷戦隊(後述)から3隻を含む艦隊で\r\n1-5,1-6,2-2,3-2,7-1 それぞれS勝利(港到達)",
+    "fields": {
+      "comp": [
+        {
+          "ship_id": [
+            622,
+            623,
+            624
+          ],
+          "position": 1,
+          "amount": 1
+        },
+        {
+          "ship_id": [
+            1,
+            2,
+            164,
+            165,
+            30,
+            31
+          ],
+          "amount": 3
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  "1045": {
+    "code": "By16",
+    "expected_source_requirements_sha256": "e281403644698b0275deef1ee6ec614d5c5f70176ba18d060dc065dd3c8f03ca",
+    "reason": "Guide explicitly allows alternate remodel forms of the required flagship.",
+    "source_url": "https://zekamashi.net/kancolle-kouryaku/hubukikaisan-batubyou/",
+    "source_html_sha256": "439ccd232a04f599a1e466ebf8f2d4101e94ee5eb4cd054e865196d24d41d19d",
+    "source_quote": "吹雪改三/改三護(六式)旗艦、特I型2番艦の艦隊で、\r\n7-5-3, 5-1, 5-3, 5-4, 5-5 それぞれS勝利×1回",
+    "fields": {
+      "comp": [
+        {
+          "ship_id": [
+            1035,
+            1040
+          ],
+          "amount": 1,
+          "position": 1
+        },
+        {
+          "family_id": 12,
+          "amount": 1,
+          "position": 2
+        },
+        {
+          "otherships": true,
+          "amount": [
+            0,
+            4
+          ]
+        }
+      ],
+      "sortie": [
+        {
+          "map": [
+            "7-5T",
+            "5-1",
+            "5-3",
+            "5-4",
+            "5-5"
+          ],
+          "boss": true,
+          "result": "S",
+          "times": 1
+        }
+      ]
     }
   }
 }

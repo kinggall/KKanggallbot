@@ -134,3 +134,5 @@ python -m unittest discover -s tests
 2026-10-22 추가 점검에서 상류 By5 조건의 By4 복사 오류와 B161의 6-4 누락을 보정했습니다.
 근거·점검 범위는 [QUEST_CONDITION_AUDIT.md](QUEST_CONDITION_AUDIT.md), 생성기용 보정은
 `data/quest_condition_overrides.json`에 기록합니다. 보정은 원본 조건 해시를 확인한 뒤 적용합니다.
+추가 전체 구조 점검과 확보 자료의 조건 대조는 `scripts/audit_quest_sources.py`로 재현하며,
+`data/quest_source_audit.json`에 후보를 저장합니다. 자동 후보와 확인된 오류는 구분합니다.

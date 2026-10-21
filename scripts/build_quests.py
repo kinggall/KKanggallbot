@@ -155,10 +155,12 @@ def build(source, eo, master_repo, root):
             ]
         override = condition_overrides.get(source_id)
         if override:
-            assert row["wiki_id"] == override["code"], (source_id, row["wiki_id"])
+            assert row["wiki_id"] == override.get("source_code", override["code"]), (source_id, row["wiki_id"])
             assert digest(original["requirements"]) == override["expected_source_requirements_sha256"], (
                 source_id, "Upstream conditions changed; review the local correction before rebuilding")
             row["requirements"].update(deepcopy(override["fields"]))
+            if override.get("unverified"):
+                row["unverified"] = True
         original_code = row["wiki_id"].strip()
         row["game_id"] = int(key)
         # Prerequisite references are real game IDs, including 622/623.

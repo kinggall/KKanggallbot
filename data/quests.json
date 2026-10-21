@@ -1164,7 +1164,7 @@
               "1-5"
             ],
             "boss": true,
-            "result": "S",
+            "result": "A",
             "times": 2
           }
         ],
@@ -1183,6 +1183,13 @@
             "class_id": 1,
             "amount": [
               2,
+              2
+            ]
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
               2
             ]
           }
@@ -1229,7 +1236,10 @@
               "2-5",
               "7-1",
               "7-2M"
-            ]
+            ],
+            "result": "S",
+            "boss": true,
+            "times": 1
           }
         ],
         "comp": [
@@ -1244,10 +1254,16 @@
               485,
               484
             ],
-            "otherships": true,
             "amount": [
               2,
               2
+            ]
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
+              3
             ]
           }
         ]
@@ -1334,7 +1350,10 @@
               "4-5",
               "5-5",
               "6-4"
-            ]
+            ],
+            "result": "S",
+            "boss": true,
+            "times": 1
           }
         ],
         "comp": [
@@ -1359,8 +1378,8 @@
           {
             "otherships": true,
             "amount": [
-              3,
-              6
+              0,
+              3
             ]
           }
         ]
@@ -1545,23 +1564,30 @@
               "5-5"
             ],
             "boss": true,
-            "result": "S"
+            "result": "S",
+            "times": 1
           }
         ],
         "comp": [
           {
-            "ship_id": 1035,
-            "otherships": true,
+            "ship_id": [
+              1035,
+              1040
+            ],
+            "amount": 1,
             "position": 1
           },
           {
             "family_id": 12,
+            "amount": 1,
+            "position": 2
+          },
+          {
             "otherships": true,
             "amount": [
-              1,
-              1
-            ],
-            "position": 2
+              0,
+              4
+            ]
           }
         ]
       },
@@ -1905,16 +1931,18 @@
               "4-3"
             ],
             "boss": true,
-            "result": "S"
+            "result": "A",
+            "times": 1
           },
           {
             "map": "1-6",
-            "node": "n"
+            "node": "n",
+            "times": 1
           }
         ],
         "comp": [
           {
-            "ship_id": 412,
+            "ship_id": 749,
             "position": 1
           },
           {
@@ -1934,9 +1962,15 @@
               413,
               414
             ],
-            "otherships": true,
             "amount": [
               2,
+              2
+            ]
+          },
+          {
+            "otherships": true,
+            "amount": [
+              0,
               2
             ]
           }
@@ -3995,7 +4029,8 @@
           {
             "map": "1-2",
             "boss": true,
-            "times": 1
+            "times": 1,
+            "result": "B"
           }
         ]
       },
@@ -12782,7 +12817,6 @@
         "sortie": [
           {
             "map": "1-2",
-            "boss": true,
             "times": 1
           }
         ]
@@ -12802,12 +12836,12 @@
           }
         ]
       },
+      "unverified": true,
       "aliases": [],
       "name_ko": "남서제도 앞바다에 출격하라!",
       "name_jp": "南西諸島沖に出撃せよ！",
       "desc_ko": "남서제도 앞바다에 함대를 출격시켜 적 함대와 교전하라!",
       "description": "남서제도 앞바다에 함대를 출격시켜 적 함대와 교전하라!",
-      "unverified": false,
       "prereqs_unverified": false
     },
     "206": {
@@ -33652,7 +33686,7 @@
               "2-3"
             ],
             "boss": true,
-            "result": "S",
+            "result": "A",
             "times": 1
           }
         ],
@@ -36241,7 +36275,7 @@
               "5-1"
             ],
             "boss": true,
-            "result": "S",
+            "result": "A",
             "times": 1
           }
         ],
@@ -36952,8 +36986,13 @@
         ],
         "comp": [
           {
-            "ship_id": 622,
-            "position": 1
+            "ship_id": [
+              622,
+              623,
+              624
+            ],
+            "position": 1,
+            "amount": 1
           },
           {
             "ship_id": [
@@ -37275,7 +37314,7 @@
               "2-3"
             ],
             "boss": true,
-            "result": "S",
+            "result": "A",
             "times": 1
           }
         ],
@@ -38555,14 +38594,15 @@
           {
             "map": "7-3E",
             "boss": true,
-            "result": "S",
+            "result": "A",
             "times": 4
           }
         ],
         "comp": [
           {
             "ship_id": 65,
-            "amount": 1
+            "amount": 1,
+            "position": 1
           },
           {
             "otherships": true,
@@ -38751,7 +38791,8 @@
               50,
               100
             ],
-            "amount": 1
+            "amount": 1,
+            "position": 1
           },
           {
             "class_id": [
@@ -39238,11 +39279,15 @@
         ],
         "comp": [
           {
+            "ship_id": 656,
+            "amount": 1
+          },
+          {
             "ship_id": [
               145,
-              656
+              961
             ],
-            "amount": 2
+            "amount": 1
           },
           {
             "otherships": true,
@@ -43302,19 +43347,32 @@
               "3-2"
             ],
             "boss": true,
-            "result": "S",
+            "result": "A",
             "times": 1
           }
         ],
         "comp": [
           {
+            "ship_id": 230,
+            "amount": 1
+          },
+          {
+            "ship_id": 232,
+            "amount": 1
+          },
+          {
             "ship_id": [
-              230,
               231,
-              232,
-              233
+              665
             ],
-            "amount": 4
+            "amount": 1
+          },
+          {
+            "ship_id": [
+              233,
+              407
+            ],
+            "amount": 1
           },
           {
             "otherships": true,

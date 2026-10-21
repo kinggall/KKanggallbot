@@ -45,6 +45,30 @@ Bw5 + B98'''
         self.assertIn('928', self.catalog.search_keys('하구로'))
         self.assertIn('4-5/5-3/5-5/6-4/6-5 보스 S승 각 1회', self.catalog.reply('B161'))
 
+    def test_audited_victory_grades_and_flagships(self):
+        for code in ('B93', 'B123', 'B142', 'B155', 'B211', 'By13', 'By18'):
+            with self.subTest(code=code):
+                reply = self.catalog.reply(code)
+                self.assertIn('A승 이상', reply)
+                self.assertNotIn('보스 S승', reply)
+        self.assertIn('1-2 보스 B승 이상 1회', self.catalog.reply('B5'))
+        self.assertNotIn('보스', self.catalog.reply('B4').split('[보상]')[0])
+        self.assertIn(quests.UNVERIFIED, self.catalog.reply('B4'))
+        for code in ('B213', 'B214'):
+            self.assertIn('보스 S승 각 1회', self.catalog.reply(code))
+        self.assertIn('하구로(기함)', self.catalog.reply('B155'))
+        self.assertIn('(기함)', self.catalog.reply('B156').split('[보상]')[0])
+        self.assertIn('야마시로 개2보(기함)', self.catalog.reply('By18'))
+        self.assertIn('자유 0~3', self.catalog.reply('B214'))
+
+    def test_audited_flagship_remodel_alternatives(self):
+        for code, ship_ids in (('B141', {622, 623, 624}), ('By16', {1035, 1040})):
+            row = self.catalog.items[self.catalog.by_code[code.casefold()]]
+            flagship = next(c for c in row['requirements']['comp'] if c.get('position') == 1)
+            self.assertEqual(set(flagship['ship_id']), ship_ids)
+        self.assertIn('시구레 개2/시구레 개3 중 1', self.catalog.reply('B161'))
+        self.assertIn('아케보노개/아케보노 개2 중 1', self.catalog.reply('By13'))
+
     def test_single_name_and_multiple_keyword_results(self):
         self.assertEqual(self.catalog.reply("증강 해상호위총대"), self.catalog.reply("B100"))
         result = self.catalog.reply("증강")
