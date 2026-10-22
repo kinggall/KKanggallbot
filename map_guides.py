@@ -238,9 +238,10 @@ def preview(query,root=ROOT,*,cache_root=None):
         return f'{area} 해역 공략\n\n공략 수집 또는 구조 확인 중입니다.',[]
     routes=record['routes'];selected=routes
     multiple=len(routes)>1
-    if not multiple and len(parts)==2:
+    detailed=len(parts)==2
+    if not multiple and detailed and parts[1]!='상세':
         return '',[]
-    if len(parts)==2:
+    if detailed and parts[1]!='상세':
         selector=parts[1].lower();number=re.fullmatch(r'(?:루트|route)?(\d+)',selector)
         aliases={'중앙(하단)':{'중앙','중앙하단','중하단','중하','중앙(하단)'},
                  '중앙':{'중앙','중단'},'상단':{'상단','위','위쪽','상'},
@@ -253,10 +254,10 @@ def preview(query,root=ROOT,*,cache_root=None):
         if not selected:return f'{area} 해역 공략\n\n해당 루트가 없습니다.\n'+ '\n'.join(f'· 루트{r["number"]}: {r["label"]}' for r in routes)+'\n'+USAGE,[]
     lines=[f'{area} 해역 공략'];pictures=[]
     for route in selected:
-        variants=route['variants'] if len(parts)==2 or not multiple else route['variants'][:1]
+        variants=route['variants'] if detailed or not multiple else route['variants'][:1]
         for variant in variants:
             heading=(f'루트{route["number"]}'+(' · '+route['label'] if route['label']!='기본' else '')) if multiple else ''
-            if (len(parts)==2 or not multiple) and variant['phase']:
+            if (len(parts)==2 or not multiple) and variant['phase'] and variant['phase'] not in heading:
                 heading+=(' ' if heading else '')+'['+variant['phase']+']'
             elif len(variants)>1:
                 source=variant.get('source_heading','')
@@ -265,21 +266,19 @@ def preview(query,root=ROOT,*,cache_root=None):
             summary=variant['summary'] or '편성은 이미지 참조 / 경로 요약 미확인'
             match=re.search(NODE_ROUTE,summary)
             if match:summary=summary[:match.start()].strip()+'\n'+summary[match.start():]
-            notes=translated_branch_notes([variant.get('source_heading',''),*variant.get('notes_jp',[])])
-            compact=[]
-            for note in notes:
-                bits=[part for part in note.removeprefix('※ ').split(' / ')
-                      if not (part in {'고속통일','고속+통일'} and part in summary)]
-                if bits:compact.append('※ '+' / '.join(bits))
-            notes=compact
+            if detailed:
+                from map_guide_details import detail_lines
+                notes=detail_lines(area,variant,root)
+            else:notes=[]
             lines.append((heading+'\n' if heading else '')+summary+
                          ('\n'+'\n'.join(notes) if notes else ''))
             entries=list(variant['images'])
-            if len(parts)==2:entries+=variant.get('airbase_images',[])
+            if detailed:entries+=variant.get('airbase_images',[])
             for name in entries:
                 p=folder/name
                 if p.parent.resolve()!=folder.resolve() or not p.is_file():
                     return f'{area} 해역 공략\n\n공략 이미지 수집이 완료되지 않았습니다.',[]
                 if p not in pictures:pictures.append(p)
     if multiple and len(parts)==1:lines.append(f'루트 선택: !공략 {area.replace("-","")} 루트1')
+    elif not multiple and not detailed:lines.append(f'상세공략: !공략 {area.replace("-","")} 상세')
     return '\n\n'.join(lines),pictures

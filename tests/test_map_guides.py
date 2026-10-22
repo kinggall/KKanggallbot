@@ -170,6 +170,8 @@ class MapGuideTests(unittest.TestCase):
             (folder/'manifest.json').write_text(json.dumps(record),encoding='utf-8')
             text,images=guide_lookup.build_preview('55',root=root)
             self.assertEqual(len(images),3)
+            self.assertNotIn('· 제공',text)
+            self.assertNotIn('· 색적',text)
             self.assertIn('루트1 · 중앙(하단)',text)
             self.assertNotIn('원문:',text)
             self.assertNotIn('https://zekamashi.net',text)
@@ -179,6 +181,7 @@ class MapGuideTests(unittest.TestCase):
             self.assertIn('게이지 파괴 전',text);self.assertIn('게이지 파괴 후',text)
             self.assertIn('와류',text)
             self.assertEqual(len(guide_lookup.build_preview('55 하단',root=root)[1]),2)
+            self.assertEqual(len(guide_lookup.build_preview('55 상세',root=root)[1]),5)
             self.assertIn('해당 루트가 없습니다',guide_lookup.build_preview('55 루트99',root=root)[0])
 
     def test_wrong_area_and_old_articles_fail_closed(self):
@@ -200,8 +203,11 @@ class MapGuideTests(unittest.TestCase):
             (folder/'fleet.jpg').write_bytes(b'image')
             (folder/'manifest.json').write_text(json.dumps(record),encoding='utf-8')
             text,pictures=guide_lookup.build_preview('11',root=root)
-            self.assertEqual(text,'1-1 해역 공략\n\n구축4\n【AC】(A:통상 C:보스)\n※ C 진입 70% / B 이탈 30%')
+            self.assertEqual(text,'1-1 해역 공략\n\n구축4\n【AC】(A:통상 C:보스)\n\n상세공략: !공략 11 상세')
             self.assertEqual(len(pictures),1)
+            detailed,photos=guide_lookup.build_preview('11 상세',root=root)
+            self.assertIn('C 진입 70% / B 이탈 30%',detailed)
+            self.assertEqual(photos,pictures)
             for selector in ['루트1','1','기본']:
                 self.assertEqual(guide_lookup.build_preview('11 '+selector,root=root),('',[]))
 
