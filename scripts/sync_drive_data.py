@@ -305,8 +305,19 @@ def push(drive, root, state_path, includes, bootstrap=False):
                     raise RuntimeError('Duplicate or non-folder parent: ' + key)
                 folders[key] = matches[0]['id'] if matches else drive.create_folder(part, parent)
             parent = folders[key]
-        if not prior and any(f['name'] == path.name for f in drive.children(parent)):
-            raise RuntimeError('Unindexed Drive file already exists; review before overwriting: ' + name)
+        if not prior:
+            existing=[f for f in drive.children(parent) if f['name']==path.name]
+            if existing:
+                # A prior run may have uploaded a new file before a gateway
+                # failure prevented publishing the index. Reuse exact content.
+                current_md5=md5(path)
+                if (len(existing)!=1 or existing[0].get('md5Checksum')!=current_md5
+                        or int(existing[0].get('size',-1))!=path.stat().st_size):
+                    raise RuntimeError('Unindexed Drive file already exists; review before overwriting: ' + name)
+                indexed[name]={'id':existing[0]['id'],'sha256':files[name],
+                               'md5':current_md5,'bytes':path.stat().st_size}
+                print(f'Verified prior upload {i}/{len(changed)}: {name}',flush=True)
+                continue
         fid = drive.upload(path, path.name, prior['id'] if prior else None, parent=parent)
         if digest(path) != files[name]:
             raise RuntimeError('Local file changed during transfer: ' + name)

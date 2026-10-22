@@ -68,6 +68,19 @@ class FakeDrive:
 
 
 class SyncTests(unittest.TestCase):
+    def test_new_file_upload_before_index_failure_is_reused(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'pictures').mkdir()
+            (root/'pictures/a.png').write_bytes(b'a')
+            d=FakeDrive();state=root/'.drive-sync/state.json'
+            sync.push(d,root,state,['pictures'],True)
+            b=root/'pictures/b.png';b.write_bytes(b'b')
+            fid=d.upload(b,'b.png',parent=d.current['folders']['pictures'])
+            d.uploads.clear()
+            sync.push(d,root,state,['pictures'])
+            self.assertEqual(d.current['files']['pictures/b.png']['id'],fid)
+            self.assertEqual(d.uploads,[sync.HEAD_NAME])
+
     def test_root_instruction_file_roundtrip_and_tree(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);pc=root/'pc';cloud=root/'cloud';pc.mkdir()
