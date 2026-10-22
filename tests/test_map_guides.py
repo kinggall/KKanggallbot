@@ -1,4 +1,5 @@
 import json
+import hashlib
 from pathlib import Path
 import tempfile
 import unittest
@@ -26,6 +27,32 @@ HTML='''<h1>5-5 サーモン海域北方</h1><div class="entry-content">
 
 
 class MapGuideTests(unittest.TestCase):
+    def test_reviewed_source_correction_is_bound_to_exact_html(self):
+        html='<h1>1-2 攻略</h1><div class="entry-content"><h2>編成例(周回)</h2><p>軽巡1駆逐4【AE】</p></div>'
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'data').mkdir()
+            correction={'1-2':{'html_sha256':hashlib.sha256(html.encode()).hexdigest(),
+                'fleets':[{'heading':'編成例(周回)','original':'경순1 구축4',
+                           'replacement':'항순1 구축4','reason':'Reviewed fixture'}]}}
+            (root/'data/map_guide_overrides.json').write_text(json.dumps(correction))
+            with patch.object(map_guides,'ROOT',root):
+                reviewed=map_guides.extract(html,'1-2','url')
+                changed=map_guides.extract(html+' ','1-2','url')
+            self.assertTrue(reviewed['routes'][0]['variants'][0]['summary'].startswith('항순1 구축4'))
+            self.assertTrue(changed['routes'][0]['variants'][0]['summary'].startswith('경순1 구축4'))
+
+    def test_usage_text_and_unknown_quest_match_requested_format(self):
+        self.assertEqual(map_guides.USAGE,'사용법: !공략 [임무번호/해역]\n예: !공략 By10 / !공략 By10 65\n     !공략 55 / !공략 55 중앙')
+        text,pictures=guide_lookup.build_preview('ㅇ')
+        self.assertEqual(text,"'ㅇ' 임무를 찾지 못했습니다.\n"+map_guides.USAGE)
+        self.assertEqual(pictures,[])
+
+    def test_same_node_path_is_one_route_with_several_fleets(self):
+        html='<h1>1-2 攻略</h1><div class="entry-content"><h2>編成例(周回)</h2><p>航巡1駆逐4【AE】(E:ボス)</p><h2>編成例(初攻略)</h2><p>軽巡1駆逐4【AE】(E:ボス)</p></div>'
+        record=map_guides.extract(html,'1-2','https://zekamashi.net/kancolle-kouryaku/1-2/')
+        self.assertEqual(len(record['routes']),1)
+        self.assertEqual(len(record['routes'][0]['variants']),2)
+
     def test_codes_do_not_overlap_quest_codes(self):
         for value in ['55','5-5','１－１']:
             self.assertIsNotNone(map_guides.parse_area(value))

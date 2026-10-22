@@ -9,7 +9,7 @@ import quests
 from scripts.collect_zekamashi import Document, fleet_section_heading, image_identity, normalized, obsolete_article, select_article, visible_text, visible_walk
 
 ROOT = Path(__file__).resolve().parent
-USAGE = '사용법: !공략 [임무번호/해역] [해역/루트(선택)]\n예: !공략 By10 / !공략 By10 55 / !공략 55 중앙'
+from map_guides import USAGE
 TERMS = {
     '高速+統一': '고속+통일', '高速統一': '고속통일', '低速統一': '저속통일',
     '高速': '고속', '低速': '저속', '最速': '최속',

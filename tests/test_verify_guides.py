@@ -99,7 +99,7 @@ class GuideAuditTests(unittest.TestCase):
 
     def test_ready_guide_is_listed_in_help(self):
         import bot
-        self.assertIn('!공략 [임무번호/해역]',bot.COMMANDS['!도움말'])
+        self.assertIn('!공략 [해역/임무번호]',bot.COMMANDS['!도움말'])
 
     def test_identity_mismatch_not_served(self):
         self.record['code']='B17'

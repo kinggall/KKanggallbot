@@ -30,6 +30,10 @@ def collect(areas,output,interval=10):
         if article.exists():html=article.read_text(encoding='utf-8')
         else:
             try:response=f.get(url)
+            except RuntimeError as error:
+                write_json(manifest,{'schema':1,'area':area,'url':url,
+                                    'status':'http_error','reason':str(error)})
+                raise
             except requests.HTTPError as error:
                 if error.response is not None and error.response.status_code==404:
                     write_json(manifest,{'schema':1,'area':area,'url':url,'status':'not_found'})

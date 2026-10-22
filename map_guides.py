@@ -1,5 +1,6 @@
 """General-area guide parsing and offline previews, separate from quest guides."""
 import json
+import hashlib
 from pathlib import Path
 import re
 import unicodedata
@@ -10,7 +11,7 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parent
 AREA_COUNTS = {1:6, 2:5, 3:5, 4:5, 5:6, 6:5, 7:5}
 AREAS = tuple(f'{a}-{n}' for a,count in AREA_COUNTS.items() for n in range(1,count+1))
-USAGE = '사용법: !공략 [해역] [루트번호/이름(선택)]\n예: !공략 55 / !공략 55 루트1 / !공략 55 중앙'
+USAGE = '사용법: !공략 [임무번호/해역]\n예: !공략 By10 / !공략 By10 65\n     !공략 55 / !공략 55 중앙'
 
 
 def parse_area(value):
@@ -114,14 +115,26 @@ def extract(html,area,url):
                 if summary:current['summary']=summary
     examples=[e for e in examples if e['summary'] or e['images']]
     if not examples:raise ValueError('No visible fleet examples found; manual review required')
+    corrections=ROOT/'data/map_guide_overrides.json'
+    reviewed=json.loads(corrections.read_text(encoding='utf-8')).get(area,{}) if corrections.exists() else {}
+    if reviewed.get('html_sha256')==hashlib.sha256(html.replace('\r\n','\n').encode()).hexdigest():
+        for example in examples:
+            for correction in reviewed.get('fleets',[]):
+                if (example['source_heading']==correction['heading']
+                        and example['summary'].startswith(correction['original'])):
+                    example['summary']=correction['replacement']+example['summary'][len(correction['original']):]
+                    example['reviewed_correction']=correction['reason']
     groups=[]
     for example in examples:
         label=example['label']
-        existing=next((g for g in groups if label and g['label']==label),None)
+        node_route=re.search(r'【[^】]+】',example['summary'])
+        key=label or (node_route.group() if node_route else None)
+        existing=next((g for g in groups if key and g.get('_key')==key),None)
         if existing is None:
-            existing={'number':len(groups)+1,'label':label or '기본','variants':[]}
+            existing={'number':len(groups)+1,'label':label or '기본','variants':[],'_key':key}
             groups.append(existing)
         existing['variants'].append(example)
+    for group in groups:group.pop('_key',None)
     return {'schema':1,'area':area,'title_jp':title,'url':url,'routes':groups}
 
 
@@ -170,6 +183,10 @@ def preview(query,root=ROOT,*,cache_root=None):
             heading=f'루트{route["number"]} · {route["label"]}' if multiple else ''
             if (len(parts)==2 or not multiple) and variant['phase']:
                 heading+=(' ' if heading else '')+'['+variant['phase']+']'
+            elif not multiple and len(variants)>1:
+                source=variant.get('source_heading','')
+                purpose='주회 편성' if '周回' in source else '초기 공략' if '初攻略' in source else '편성 '+str(variants.index(variant)+1)
+                heading='['+purpose+']'
             summary=variant['summary'] or '편성은 이미지 참조 / 경로 요약 미확인'
             match=re.search(NODE_ROUTE,summary)
             if match:summary=summary[:match.start()].strip()+'\n'+summary[match.start():]
