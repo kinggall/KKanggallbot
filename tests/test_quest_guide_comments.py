@@ -10,6 +10,23 @@ import quest_guide_comments as comments
 
 
 class QuestGuideCommentTests(unittest.TestCase):
+    def test_battle_counts_are_not_map_headings(self):
+        import re
+        for heading in ['3-4戦ランダム', '３－４戦ランダム', '3-4 戦']:
+            import unicodedata
+            self.assertIsNone(re.search(guide_lookup.MAP_HEADING, unicodedata.normalize('NFKC', heading)))
+        self.assertEqual(re.search(guide_lookup.MAP_HEADING, '6-3 編成例')[0], '6-3')
+
+    def test_retired_quest_guides_use_general_navigation_without_source_images(self):
+        for code in guide_lookup.GENERAL_ONLY_QUESTS:
+            quest=self.quest(code)
+            for area in guide_lookup.sortie_maps(quest.get('requirements',{})):
+                if not (self.root/'guide_cache/zekamashi_maps'/area).exists():self.add_general(area)
+            text,images=guide_lookup.build_preview(code,self.root)
+            self.assertEqual(images,[])
+            self.assertIn('등록된 임무 공략이 없습니다.',text)
+            self.assertIn('일반해역 공략을 참고해주세요.',text)
+
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
         self.root=Path(self.temp.name);self.catalog=quests.catalog()

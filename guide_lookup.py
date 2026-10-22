@@ -54,6 +54,8 @@ FLEET_TYPES = (
     r'高戦|低戦|正空|軽空|空母|水母|航巡|航戦|潜水|潜母|雷巡|補給)'
 )
 NODE_ROUTE = r'【(?=[^】]*[A-Z])[A-Z0-9\s()→⇒←↔/・,.\-~?]+】'
+MAP_HEADING = r'(?<![0-9])[1-7]-[1-6](?:-[1-3])?(?![0-9]|\s*戦)'
+GENERAL_ONLY_QUESTS = {'B39', 'B50', 'B54', 'B59', 'B62', 'B80', 'B81', 'B104'}
 
 
 def translate_route(text):
@@ -360,6 +362,8 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
         return missing_quest_guide(quest,reason,root,target_map=target_map,diagnostics=diagnostics)
     code = quest['wiki_id']
     header = f"{code}: {quest['name_ko']}"
+    if code in GENERAL_ONLY_QUESTS:
+        return unavailable('등록된 임무 공략이 없습니다.')
     folder = (Path(cache_root) if cache_root else Path(root) / 'guide_cache' / 'zekamashi') / re.sub(r'[^A-Za-z0-9_-]', '_', code)
     try:
         record = json.loads((folder / 'manifest.json').read_text(encoding='utf-8'))
@@ -429,7 +433,7 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
             active = is_fleet
             if active:
                 air, phase, pending = False, '', []
-                heading_map = re.search(r'(?<![0-9])[1-7]-[1-6](?:-[1-3])?(?![0-9])',
+                heading_map = re.search(MAP_HEADING,
                                         unicodedata.normalize('NFKC',visible_text(node)))
                 if heading_map:
                     current_map = guide_map(heading_map.group(), maps)
@@ -439,7 +443,7 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
             continue
         text = unicodedata.normalize('NFKC', visible_text(node)).strip()
         if node.tag in {'h3', 'h4', 'h5', 'h6'}:
-            heading_maps = re.findall(r'(?<![0-9])[1-7]-[1-6](?:-[1-3])?(?![0-9])', text)
+            heading_maps = re.findall(MAP_HEADING, text)
             if heading_maps:
                 flush_images()
                 current_areas = list(dict.fromkeys(guide_map(m,maps) for m in heading_maps))

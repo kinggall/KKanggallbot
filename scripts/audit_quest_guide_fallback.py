@@ -67,7 +67,10 @@ def audit(root=ROOT):
             reply,pictures=guide_lookup.build_preview(area.replace('-',''),root)
             if not pictures:failures.append(code+': dead general-map reference '+area)
         core=text.split('\n\n[임무·공략 메모]',1)[0]
-        if prior['status'] in {'ready','ready_images','ready_text','text_only'}:
+        if code in guide_lookup.GENERAL_ONLY_QUESTS:
+            if images or refs!=maps or '등록된 임무 공략이 없습니다.' not in text:
+                failures.append(code+': reviewed general-only policy failed')
+        elif prior['status'] in {'ready','ready_images','ready_text','text_only'}:
             if (core,images)!=old.build_preview(code,root):failures.append(code+': native guide changed')
             else:unchanged+=1
         elif prior['status']=='partial':
@@ -104,18 +107,20 @@ def audit(root=ROOT):
             commands=' / '.join('!공략 '+q for q in row['general_queries']) or '!임무 '+row['code']
             lines.append('| '+' | '.join([row['code'],row['title'].replace('|','/'),refs,commands])+' |')
         lines.append('')
-    for label,status in [('검토 보류 유지','review'),('해역 누락 2개 — 요청대로 처리 완료','partial')]:
+    for label,status in [('기존 보류 — 일반해역 안내로 처리 완료','review'),('해역 누락 2개 — 요청대로 처리 완료','partial')]:
         lines.extend(['## '+label,'','| 번호 | 기존 사유 | 일반해역 참고 |','|---|---|---|'])
         for row in rows:
             if row['prior_status']==status:
                 reason=previous[row['code']]['reason'].replace('|','/').replace('\n',' ')
                 if row['code']=='B101':reason='사진 없이 4-5/6-2 코멘트 공략으로 처리. 원문의 1기 수치·사진은 전송하지 않음'
                 if row['code']=='B103':reason='2-3 공략 유지, 5-1은 !공략 51로 안내'
+                if row['code'] in guide_lookup.GENERAL_ONLY_QUESTS:reason='1기 공략 제외, 일반해역 안내로 처리 완료'
+                if row['code']=='B80':reason='3~4전은 전투 횟수. 원문 자체는 1기 안내가 있어 !공략 63으로 연결'
                 lines.append('| '+' | '.join([row['code'],reason,' / '.join(row['general_maps'])])+' |')
         lines.append('')
     lines.extend(['## 코멘트 추가 확인 후보','',
-                  '- B59: 원문에 옛 2-5 야전 루트와 장비 오류 설명이 있어 현행 사진·경로 추가 확인이 필요합니다.',
-                  '- 위 후보는 기존 보류 7개와 구분합니다. 코멘트에서는 옛 경로·제공 수치를 현행으로 단정하지 않습니다.',''])
+                  '- B59: 1기 공략으로 확인하여 사진·경로를 제외하고 !공략 25로 안내합니다.',
+                  '- B80: 3~4전은 해역이 아니라 전투 횟수입니다. 원문의 1기 안내에 따라 !공략 63으로 연결합니다.',''])
     lines.extend(['## 출력 예시',''])
     for code in ['B77','B1','B54','B101']:
         row=next(r for r in rows if r['code']==code)
@@ -126,22 +131,24 @@ def audit(root=ROOT):
             'baseline_revision':revision,'unchanged_native_guides':unchanged,
             'comment_blocks':comment_blocks,'handled_quest_codes':['B101','B103'],
             'quests':rows,'failures':failures}
-    pending=[r for r in rows if r['prior_status']=='review']
+    pending=[]
     pending_lines=['# 남은 임무 공략 검토 목록','',
                    'B101은 사진 없는 코멘트 공략, B103의 5-1은 일반해역 참고로 처리했습니다. 아래 두 항목은 미처리 목록에서 제외합니다.','',
-                   '## 기존 보류 7개','', '| 번호 | 제목 | 대상 해역 | 보류 사유 |','|---|---|---|---|']
+                   '기존 보류 7개와 B59는 일반해역 안내로 처리 완료했습니다. 남은 검토보류는 없습니다.',
+                   'B80의 3~4전은 전투 횟수이며, 원문 자체에 1기 자료 안내가 있어 6-3 일반 공략으로 연결합니다.','', '| 번호 | 제목 | 대상 해역 | 보류 사유 |','|---|---|---|---|']
     for row in pending:
         reason=('추출 해역 3-4와 임무 대상 6-3 불일치. 원문 또는 연결 파서 확인 필요'
                 if row['code']=='B80' else '1기 전용 공략으로 현행 사진·편성 연결 보류')
         pending_lines.append('| '+' | '.join([row['code'],row['title'],' / '.join(row['quest_maps']),reason])+' |')
     pending_lines.extend(['','## 코멘트 읽으며 추가한 확인 후보','',
-                          '- **B59**: 옛 2-5 야전 루트·옛 제공 수치와 장비 오류 설명이 있어, 사진·경로의 현행 적용 여부를 추가 확인해야 합니다.',
+                          '- **B59**: 1기 공략 제외 및 !공략 25 안내로 처리 완료했습니다.',
                           '- 코멘트에서는 옛 수치를 현재 값처럼 옮기지 않고 `!공략 25`의 현행 루트·제공을 참고하도록 했습니다.','',
                           '기존 분류 78개 및 일반해역 연결 결과: QUEST_GUIDE_FALLBACK_REVIEW.md',
                           '283개 출격 임무 코멘트 전체: QUEST_GUIDE_COMMENTS_REVIEW.md',''])
     (output/'QUEST_GUIDE_PENDING_REVIEW.md').write_text('\n'.join(pending_lines),encoding='utf-8')
     report['pending_review_codes']=[r['code'] for r in pending]
-    report['additional_comment_review_codes']=['B59']
+    report['additional_comment_review_codes']=[]
+    report['general_only_quest_codes']=sorted(guide_lookup.GENERAL_ONLY_QUESTS)
     (output/'QUEST_GUIDE_FALLBACK_REVIEW.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     (output/'quest_guide_fallback_audit.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(f'Checked {len(rows)} quests; native unchanged {unchanged}; general navigation {sum(bool(r["general_maps"]) for r in rows)}; failures {len(failures)}')
