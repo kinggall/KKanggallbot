@@ -45,6 +45,10 @@ Bw5 + B98'''
         self.assertIn('928', self.catalog.search_keys('하구로'))
         self.assertIn('4-5/5-3/5-5/6-4/6-5 보스 S승 각 1회', self.catalog.reply('B161'))
 
+    def test_guide_source_exposes_missing_port_and_final_gauge(self):
+        self.assertIn('1-6 도달 2회',self.catalog.reply('B191'))
+        self.assertIn('5-4/5-5/5-6-3 보스 S승 각 2회',self.catalog.reply('B216'))
+
     def test_audited_victory_grades_and_flagships(self):
         for code in ('B93', 'B123', 'B142', 'B155', 'B211', 'By13', 'By18'):
             with self.subTest(code=code):

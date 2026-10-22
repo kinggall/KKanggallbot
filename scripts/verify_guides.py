@@ -14,6 +14,7 @@ import guide_lookup
 import quests
 
 LABELS = {'ready':'연결 정상', 'text_only':'본문 공략 연결',
+          'ready_images':'사진 공략 연결(편성 설명은 이미지 참조)', 'ready_text':'사진 없는 편성·경로 공략',
           'no_match':'검색 첫 페이지 일치 없음', 'missing':'수집 기록 없음',
           'incomplete':'수집 미완료/파일 누락', 'review':'연결 검토 필요',
           'partial':'일부 해역 연결 누락', 'metadata_only':'구조 확인·사진 검증 제외'}
@@ -60,12 +61,12 @@ def check(row, cache, metadata_only=False):
         result['maps'] = diagnostics.get('observed_maps', [])
         result['image_count'] = len(images)
         if record.get('text_only'):
-            if row['category']=='sortie':
+            if row['category']=='sortie' and guide_lookup.sortie_maps(row['requirements']):
                 return outcome('review','출격 임무가 본문 전용으로 수집됨')
             return outcome('text_only','제목·출처 확인, 편성 사진 없는 본문 공략')
         if diagnostics.get('unexpected_maps'):
             return outcome('review','임무 조건에 없는 해역: '+'/'.join(diagnostics['unexpected_maps']))
-        if not images:
+        if not images and not diagnostics.get('rendered_maps'):
             return outcome('incomplete' if '수집이 아직 완료' in text else 'review', text.split('\n\n')[-1])
         if not metadata_only:
             for image in record.get('images', []):
@@ -79,14 +80,16 @@ def check(row, cache, metadata_only=False):
         if (lowercase, lower_images) != (text, images):
             return outcome('review','대소문자 조회 결과 불일치')
         for area in result['maps']:
+            detail_diagnostics = {}
             detail, detail_images = guide_lookup.build_preview(code+' '+area.replace('-',''),
-                cache_root=cache, verify_images=not metadata_only)
-            if not detail_images or area not in detail:
+                cache_root=cache, verify_images=not metadata_only, diagnostics=detail_diagnostics)
+            if area not in detail_diagnostics.get('rendered_maps', []) or area not in detail:
                 return outcome('review','해역 상세 조회 실패: '+area)
             result['detail_checks'] += 1
         if diagnostics.get('missing_maps'):
             return outcome('partial','임무 조건 중 연결 누락: '+'/'.join(diagnostics['missing_maps']))
-        return outcome('metadata_only' if metadata_only else 'ready',
+        ready_status = 'ready_images' if diagnostics.get('image_only_maps') else 'ready' if images else 'ready_text'
+        return outcome('metadata_only' if metadata_only else ready_status,
                        '번호·제목·해역·전체/상세 조회 확인' + (' (사진 실재 검증 제외)' if metadata_only else '·사진 파일 확인'))
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
         return outcome('incomplete',type(error).__name__+': '+str(error))
@@ -101,7 +104,7 @@ def markdown(report):
     lines.extend(f'- {label}: {counts[status]}개' for status,label in LABELS.items())
     lines.extend(['', '## 공략 미연결 번호 및 사유', '',
                   '첫 페이지 검색 실패는 사이트 전체에 공략이 없다는 뜻이 아닙니다.', ''])
-    missing = [r for r in report['quests'] if r['status'] not in {'ready','text_only','metadata_only'}]
+    missing = [r for r in report['quests'] if r['status'] not in {'ready','ready_images','ready_text','text_only','metadata_only'}]
     for row in missing:
         lines.append(f'- **{row["code"]}** {row["title"]} — {LABELS[row["status"]]}: {row["reason"]}'.replace('\n',' '))
     if not missing:

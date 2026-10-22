@@ -27,7 +27,7 @@
     "unverified"
   ],
   "count": 652,
-  "unverified": 55,
+  "unverified": 56,
   "provenance": {
     "101": {
       "source_id": 101,
@@ -365,8 +365,33 @@
       "path": "quests.json",
       "source_sha256": "7c0fcae65d8116adad09423024636753d8f22c7095d0f95eb662b07cc43f2ed1",
       "source_requirements_sha256": "6676f5b791ae1ce214ce5ae0043b3c7a38fcdfe0023ea523640f7b393407efb7",
-      "requirements_sha256": "6676f5b791ae1ce214ce5ae0043b3c7a38fcdfe0023ea523640f7b393407efb7",
-      "rewards_sha256": "4e43395021726626d1174700bf5baa78c4f202a89d701c12281886271a96a7d6"
+      "requirements_sha256": "a0a315b0a1f876dbea78d5094b16df472f504e0ba326f484284b992eb5c8ca6d",
+      "rewards_sha256": "4e43395021726626d1174700bf5baa78c4f202a89d701c12281886271a96a7d6",
+      "condition_override": {
+        "code": "B216",
+        "expected_source_requirements_sha256": "6676f5b791ae1ce214ce5ae0043b3c7a38fcdfe0023ea523640f7b393407efb7",
+        "fields": {
+          "sortie": [
+            {
+              "map": [
+                "5-4",
+                "5-5",
+                "5-6Z"
+              ],
+              "boss": true,
+              "result": "S",
+              "times": 2
+            }
+          ]
+        },
+        "unverified": true,
+        "reason": "Task section requires 5-4/5-5/5-6 S twice each; fleet route ends at Z, the third boss.",
+        "evidence": {
+          "url": "https://zekamashi.net/kancolle-kouryaku/suzunami-batubyou/",
+          "html_sha256": "b94463636052c34260abfa023f4f5fc1dd84e0280942e738d01000bff3681fbd",
+          "reviewed": "2026-10-22"
+        }
+      }
     },
     "105": {
       "source_id": 105,
@@ -5427,8 +5452,122 @@
       "path": "verified/quest_997.json",
       "source_sha256": "5b29e9c11354bc064c06427d19d2b83cd32edabd25252da05b1abac482682862",
       "source_requirements_sha256": "2c2cd51d1163973a8e93724fc38fb95f2328ab53e8c5cde37cf64186eede0f04",
-      "requirements_sha256": "2c2cd51d1163973a8e93724fc38fb95f2328ab53e8c5cde37cf64186eede0f04",
-      "rewards_sha256": "535b4d693a77a3f741726512d4e19dfc2d5978f3d69462efb89c1bae1e9fcb2d"
+      "requirements_sha256": "07481ea02dce6ad7bb8f525c9def0a790df7afb5757fcbd481d7583dc58e4ff8",
+      "rewards_sha256": "535b4d693a77a3f741726512d4e19dfc2d5978f3d69462efb89c1bae1e9fcb2d",
+      "condition_override": {
+        "code": "B191",
+        "expected_source_requirements_sha256": "2c2cd51d1163973a8e93724fc38fb95f2328ab53e8c5cde37cf64186eede0f04",
+        "fields": {
+          "list": [
+            {
+              "category": "sortie",
+              "sortie": [
+                {
+                  "map": [
+                    "1-3",
+                    "1-5",
+                    "2-2"
+                  ],
+                  "boss": true,
+                  "result": "S",
+                  "times": 2
+                },
+                {
+                  "map": "1-6",
+                  "result": "clear",
+                  "times": 2
+                }
+              ],
+              "comp": [
+                {
+                  "class_id": 1,
+                  "amount": 3
+                },
+                {
+                  "otherships": true,
+                  "amount": [
+                    0,
+                    3
+                  ]
+                }
+              ]
+            },
+            {
+              "category": "sortie",
+              "sortie": [
+                {
+                  "map": [
+                    "1-3",
+                    "1-5",
+                    "2-2"
+                  ],
+                  "boss": true,
+                  "result": "S",
+                  "times": 2
+                },
+                {
+                  "map": "1-6",
+                  "result": "clear",
+                  "times": 2
+                }
+              ],
+              "comp": [
+                {
+                  "class_id": 2,
+                  "amount": 4
+                },
+                {
+                  "otherships": true,
+                  "amount": [
+                    0,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "category": "sortie",
+              "sortie": [
+                {
+                  "map": [
+                    "1-3",
+                    "1-5",
+                    "2-2"
+                  ],
+                  "boss": true,
+                  "result": "S",
+                  "times": 2
+                },
+                {
+                  "map": "1-6",
+                  "result": "clear",
+                  "times": 2
+                }
+              ],
+              "comp": [
+                {
+                  "class_id": 16,
+                  "amount": 2
+                },
+                {
+                  "otherships": true,
+                  "amount": [
+                    0,
+                    4
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "unverified": true,
+        "reason": "Task section lists 1-3/1-5/1-6/2-2 twice; 1-6 is port arrival, not S victory.",
+        "evidence": {
+          "url": "https://zekamashi.net/kancolle-kouryaku/kaizyouhokyuusen-kakuho/",
+          "html_sha256": "7a048b766b31ffeef672c5b4d36aa82ed4fcbd1281035ec1e4f66b9ad9e7005e",
+          "reviewed": "2026-10-22"
+        }
+      }
     },
     "998": {
       "source_id": 998,
@@ -5919,6 +6058,145 @@
     "B210": "Wikiwiki 1-1/1-2/1-3/1-4 boss S once each"
   },
   "condition_overrides": {
+    "997": {
+      "code": "B191",
+      "expected_source_requirements_sha256": "2c2cd51d1163973a8e93724fc38fb95f2328ab53e8c5cde37cf64186eede0f04",
+      "fields": {
+        "list": [
+          {
+            "category": "sortie",
+            "sortie": [
+              {
+                "map": [
+                  "1-3",
+                  "1-5",
+                  "2-2"
+                ],
+                "boss": true,
+                "result": "S",
+                "times": 2
+              },
+              {
+                "map": "1-6",
+                "result": "clear",
+                "times": 2
+              }
+            ],
+            "comp": [
+              {
+                "class_id": 1,
+                "amount": 3
+              },
+              {
+                "otherships": true,
+                "amount": [
+                  0,
+                  3
+                ]
+              }
+            ]
+          },
+          {
+            "category": "sortie",
+            "sortie": [
+              {
+                "map": [
+                  "1-3",
+                  "1-5",
+                  "2-2"
+                ],
+                "boss": true,
+                "result": "S",
+                "times": 2
+              },
+              {
+                "map": "1-6",
+                "result": "clear",
+                "times": 2
+              }
+            ],
+            "comp": [
+              {
+                "class_id": 2,
+                "amount": 4
+              },
+              {
+                "otherships": true,
+                "amount": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          },
+          {
+            "category": "sortie",
+            "sortie": [
+              {
+                "map": [
+                  "1-3",
+                  "1-5",
+                  "2-2"
+                ],
+                "boss": true,
+                "result": "S",
+                "times": 2
+              },
+              {
+                "map": "1-6",
+                "result": "clear",
+                "times": 2
+              }
+            ],
+            "comp": [
+              {
+                "class_id": 16,
+                "amount": 2
+              },
+              {
+                "otherships": true,
+                "amount": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "unverified": true,
+      "reason": "Task section lists 1-3/1-5/1-6/2-2 twice; 1-6 is port arrival, not S victory.",
+      "evidence": {
+        "url": "https://zekamashi.net/kancolle-kouryaku/kaizyouhokyuusen-kakuho/",
+        "html_sha256": "7a048b766b31ffeef672c5b4d36aa82ed4fcbd1281035ec1e4f66b9ad9e7005e",
+        "reviewed": "2026-10-22"
+      }
+    },
+    "1047": {
+      "code": "B216",
+      "expected_source_requirements_sha256": "6676f5b791ae1ce214ce5ae0043b3c7a38fcdfe0023ea523640f7b393407efb7",
+      "fields": {
+        "sortie": [
+          {
+            "map": [
+              "5-4",
+              "5-5",
+              "5-6Z"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 2
+          }
+        ]
+      },
+      "unverified": true,
+      "reason": "Task section requires 5-4/5-5/5-6 S twice each; fleet route ends at Z, the third boss.",
+      "evidence": {
+        "url": "https://zekamashi.net/kancolle-kouryaku/suzunami-batubyou/",
+        "html_sha256": "b94463636052c34260abfa023f4f5fc1dd84e0280942e738d01000bff3681fbd",
+        "reviewed": "2026-10-22"
+      }
+    },
     "928": {
       "code": "By5",
       "expected_source_requirements_sha256": "42a4998faf58847e7cb96dcefa3d26f695a831c8c6ed837de71a1ae3168d4e4e",

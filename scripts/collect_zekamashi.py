@@ -21,6 +21,49 @@ BASE = 'https://zekamashi.net/'
 IMAGE_CDN_HOSTS = {'i0.wp.com', 'i1.wp.com', 'i2.wp.com'}
 
 
+def canonical_article_url(url):
+    return re.sub(r'/comment-page-\d+/?$', '/', url.split('#')[0])
+
+
+def select_candidates(candidates, quest, root=ROOT):
+    grouped = {}
+    for url,title in candidates.items():
+        grouped.setdefault(canonical_article_url(url),title)
+    path = root/'data/guide_links.json'
+    links = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+    selected = links.get(quest['wiki_id'])
+    if selected and normalized(selected['name_jp']) == normalized(quest['name_jp']):
+        url = selected['url']
+        if url in grouped:
+            return {url:grouped[url]}
+    return grouped
+
+
+def has_map_condition(value):
+    if isinstance(value,dict):
+        return 'map' in value or any(has_map_condition(v) for v in value.values())
+    return isinstance(value,list) and any(has_map_condition(v) for v in value)
+
+
+def extract_quest_article(html, url, quest):
+    if obsolete_article(html):
+        raise ValueError('Outdated Phase 1 guide; do not use for current maps')
+    if quest['category']=='sortie':
+        try:
+            blocks,images=extract_article(html,url,quest['name_jp'])
+            return blocks,images,False
+        except ValueError:
+            if has_map_condition(quest['requirements']):
+                raise
+    body=select_article(html)
+    titles=[node.text() for node in Document(html).root.walk() if node.tag=='h1']
+    if not any(normalized(quest['name_jp']) in normalized(t) for t in titles):
+        raise ValueError('Article title does not match the quest; manual review required')
+    blocks=[{'tag':n.tag,'text':visible_text(n)} for n in visible_walk(body)
+            if n.tag in {'h2','h3','p','li'} and visible_text(n).strip()]
+    return blocks,[],True
+
+
 def image_source_url(url):
     """Identify only WordPress CDN images belonging to this site's uploads."""
     parsed = urlparse(url)
@@ -118,10 +161,22 @@ def select_article(html):
 
 def fleet_section_heading(text):
     text = unicodedata.normalize('NFKC', text).strip()
-    return bool(re.fullmatch(r'編成例(?:\s*[({【].*[)}】])?', text))
+    return bool(re.fullmatch(r'編成例(?:[0-9一二三四五]+)?(?:\s*[({【].*[)}】])?', text))
+
+
+def obsolete_article(html):
+    root = Document(html).root
+    titles = [unicodedata.normalize('NFKC',node.text()) for node in root.walk() if node.tag=='h1']
+    if any(re.search(r'【(?:第)?一期】',title) for title in titles):
+        return True
+    body = select_article(html)
+    lead = '\n'.join(visible_text(node) for node in visible_walk(body) if node.tag=='p')[:2500]
+    return bool(re.search(r'記事の編成例は一期の内容|二期内容に対応できていません',lead))
 
 
 def extract_article(html, url, expected_title):
+    if obsolete_article(html):
+        raise ValueError('Outdated Phase 1 guide; do not use for current maps')
     body = select_article(html)
     root = Document(html).root
     h1_titles = [node.text().strip() for node in root.walk() if node.tag == 'h1']
@@ -205,11 +260,12 @@ def main():
     parser.add_argument('--new', action='store_true', help='Collect reviewed new wiki quests only (including non-sortie text guides)')
     parser.add_argument('--dry-run', action='store_true', help='List targets without network access')
     parser.add_argument('--skip-audit', action='store_true', help='Skip the automatic offline audit after collection')
+    parser.add_argument('--repair', action='store_true', help='Reparse cached articles and resolve reviewed links; only download missing pages/images')
     args = parser.parse_args()
     if args.interval < 10:
         parser.error('Use an interval of at least 10 seconds')
     quests = apply_updates(json.loads((ROOT / 'data/quests.json').read_text(encoding='utf-8')), ROOT)['quests']
-    targets = [q for q in quests.values() if (q.get('category') == 'sortie' or (args.new and q.get('source_row')))
+    targets = [q for q in quests.values() if (q.get('category') == 'sortie' or ((args.new or args.repair) and q.get('source_row')))
                and not q.get('unavailable') and q.get('frequency') in
                {'onetime', 'daily', 'weekly', 'monthly', 'quarterly', 'annual'}]
     if args.new:
@@ -239,7 +295,8 @@ def main():
         folder = args.output / re.sub(r'[^A-Za-z0-9_-]', '_', code)
         manifest = folder / 'manifest.json'
         old_record = json.loads(manifest.read_text(encoding='utf-8')) if manifest.exists() else {}
-        if old_record.get('schema_version') == 2 and old_record.get('status') in {'downloaded', 'review_required', 'no_match_on_first_page'}:
+        if old_record.get('schema_version') == 2 and (old_record.get('status') == 'no_match_on_first_page' or
+                (not args.repair and old_record.get('status') in {'downloaded', 'review_required'})):
             print(f'{code}: already collected', flush=True)
             continue
         folder.mkdir(parents=True, exist_ok=True)
@@ -252,7 +309,7 @@ def main():
             write_json(manifest, record)
             continue
         search_path = folder / 'search.html'
-        if old_record.get('schema_version') == 2 and old_record.get('status') == 'in_progress' and search_path.exists():
+        if old_record.get('schema_version') == 2 and (args.repair or old_record.get('status') == 'in_progress') and search_path.exists():
             search_html = search_path.read_text(encoding='utf-8')
         else:
             search_html = fetcher.get(BASE + '?' + urlencode({'s': title})).text
@@ -263,6 +320,7 @@ def main():
                 href = urljoin(BASE, node.attrs.get('href', ''))
                 if urlparse(href).hostname == 'zekamashi.net' and '/kancolle-kouryaku/' in href and not urlparse(href).query:
                     candidates[href.split('#')[0]] = node.text().strip()
+        candidates = select_candidates(candidates, quest)
         record['candidates'] = candidates
         if len(candidates) != 1:
             record['status'] = 'no_match_on_first_page' if not candidates else 'review_required'
@@ -271,22 +329,14 @@ def main():
             continue
         url = next(iter(candidates))
         page_path = folder / 'article.html'
-        if page_path.exists() and old_record.get('schema_version') == 2:
+        if page_path.exists() and old_record.get('schema_version') == 2 and canonical_article_url(old_record.get('url','')) == url:
             html = page_path.read_text(encoding='utf-8')
         else:
             html = fetcher.get(url).text
             page_path.write_text(html, encoding='utf-8')
         try:
-            if quest['category'] == 'sortie':
-                blocks, images = extract_article(html, url, title)
-            else:
-                body = select_article(html)
-                titles = [n.text() for n in Document(html).root.walk() if n.tag == 'h1']
-                if not any(normalized(title) in normalized(t) for t in titles):
-                    raise ValueError('Article title does not match the quest; manual review required')
-                blocks = [{'tag':n.tag, 'text':visible_text(n)} for n in visible_walk(body)
-                          if n.tag in {'h2','h3','p','li'} and visible_text(n).strip()]
-                images = []  # No fleet images assumed for exercise/factory quests.
+            blocks, images, text_only = extract_quest_article(html,url,quest)
+            if text_only:
                 record['text_only'] = True
         except ValueError as error:
             record.update(status='review_required', review_reason=str(error), url=url)

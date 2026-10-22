@@ -1,10 +1,46 @@
 import unittest
 
-from guide_lookup import find_route, find_random_fleet, translate_route, guide_map, sortie_maps, map_fleet_sections, group_shared_fleets
-from scripts.collect_zekamashi import extract_article, fleet_section_heading
+from guide_lookup import find_route, find_random_fleet, translate_route, guide_map, sortie_maps, missing_required_maps, map_fleet_sections, group_shared_fleets
+from scripts.collect_zekamashi import extract_article, fleet_section_heading, obsolete_article, select_candidates
 
 
 class GuideTranslationTests(unittest.TestCase):
+    def test_any_map_options_are_not_missing_required_maps(self):
+        req={'category':'sortie','sortie':[{'map':['4-1','4-2','4-3'],'any':True}]}
+        self.assertEqual(missing_required_maps(req,{'4-2'}),set())
+        req['sortie'][0]['any']=False
+        self.assertEqual(missing_required_maps(req,{'4-2'}),{'4-1','4-3'})
+        alternative={'category':'or','list':[req,{'category':'sortie','sortie':[{'map':'5-1'}]}]}
+        self.assertEqual(missing_required_maps(alternative,{'5-1'}),set())
+    def test_comment_pages_are_not_distinct_articles(self):
+        choices={'https://zekamashi.net/kancolle-kouryaku/test/':'任務',
+                 'https://zekamashi.net/kancolle-kouryaku/test/comment-page-2/':'任務 編成例'}
+        selected=select_candidates(choices,{'wiki_id':'TEST','name_jp':'任務'})
+        self.assertEqual(list(selected),['https://zekamashi.net/kancolle-kouryaku/test/'])
+
+    def test_reviewed_year_and_variant_links(self):
+        q={'wiki_id':'2610 F1','name_jp':'【期間限定】Halloweenの南瓜、食べりゅ?'}
+        candidates={f'https://zekamashi.net/kancolle-kouryaku/{slug}/':q['name_jp']
+                    for slug in ('2026pumpkin-7','2025pumpkin-w1')}
+        self.assertEqual(list(select_candidates(candidates,q)),[
+            'https://zekamashi.net/kancolle-kouryaku/2026pumpkin-7/'])
+
+    def test_obsolete_guides_are_not_republished(self):
+        self.assertTrue(obsolete_article('<h1>【一期】任務</h1><div class="entry-content"></div>'))
+        self.assertTrue(obsolete_article('<h1>任務</h1><div class="entry-content"><p>※記事の編成例は一期の内容です。</p></div>'))
+        self.assertFalse(obsolete_article('<h1>任務</h1><div class="entry-content"><p>一期画像は削除し二期編成に更新</p></div>'))
+
+    def test_shared_map_notes_and_missing_colon(self):
+        sections=map_fleet_sections('空母2重巡3駆逐1 ※任務条件\n4-1:【CFDGJ】(J:ボス)\n4-3【CFHN】(N:ボス)')
+        self.assertEqual([r[0] for r in sections],['4-1','4-3'])
+        self.assertNotIn('※',sections[0][1])
+        sections=map_fleet_sections('軽空2駆逐4\n1-3:【CFJ】(J:ボス)\n1-4:ボス固定')
+        self.assertIn('보스 도달 고정',sections[1][1])
+
+    def test_photo_only_shared_fleet_does_not_invent_route(self):
+        sections=map_fleet_sections('空母2軽巡1駆逐2水母1\n2-2:【CEK】(K:ボス)\n2-3:低確率(5%程度)で逸れあり')
+        self.assertEqual([a for a,_ in sections],['2-2','2-3'])
+        self.assertIn('경로 랜덤',sections[1][1])
     def test_old_article_prose_fleet_and_named_fleet(self):
         summary = find_random_fleet('今回は軽空2軽巡1水母1駆逐2の編成としています。※ボス固定不可能')
         self.assertIn('경항모2 경순1 수모1 구축2', summary)

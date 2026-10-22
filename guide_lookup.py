@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import quests
-from scripts.collect_zekamashi import Document, fleet_section_heading, image_identity, normalized, select_article, visible_text, visible_walk
+from scripts.collect_zekamashi import Document, fleet_section_heading, image_identity, normalized, obsolete_article, select_article, visible_text, visible_walk
 
 ROOT = Path(__file__).resolve().parent
 USAGE = '사용법: !공략 [임무번호] [해역(선택)]\n예: !공략 By10 / !공략 By10 55'
@@ -106,6 +106,7 @@ def find_route(text):
     # Articles can place fleet counts and the route on separate HTML lines.
     # Capture only the route and battle types, not following quest notes.
     text = re.sub(r'\s+', ' ', text).strip()
+    text = re.sub(r'(?<=[A-Z])\s+or\s+(?=[A-Z(])','/',text)
     starter = (r'(?:' + FLEET_TYPES + r'(?:系|級)?(?=\s*(?:\d|[+(]|を\d))'
                r'|Gambier Bay(?: Mk\.II)?|Fletcher|秋津洲|羽黒|足柄|神風)')
     match = re.search(starter + r'[^。※]*?。?\s*' + NODE_ROUTE, text)
@@ -129,7 +130,7 @@ def find_route(text):
 def find_random_fleet(text):
     """A fleet-only lead paragraph is valid even without a fixed node route."""
     text = unicodedata.normalize('NFKC', text).strip()
-    pattern = r'(' + FLEET_TYPES + r'(?:\([^)]*\))?\s*\d+\s*)+'
+    pattern = r'(' + FLEET_TYPES + r'(?:\([^)]*\))?\s*\d+(?:\((?:高速[+]?統一|低速統一)\))?\s*)+'
     match = re.match(r'^' + pattern, text)
     if not match and not text.startswith('Gambier Bay'):
         # Older articles embed a complete fleet in prose rather than using
@@ -191,12 +192,30 @@ def sortie_maps(value):
     return list(dict.fromkeys(found))
 
 
+def missing_required_maps(requirements, observed):
+    """Do not require every option of an any-map / alternative quest."""
+    if not isinstance(requirements,dict):
+        return set()
+    branches = requirements.get('list', [])
+    if branches and requirements.get('category') in {'and','or','then'}:
+        missing = [missing_required_maps(branch,observed) for branch in branches]
+        return min(missing,key=len) if requirements['category']=='or' else set().union(*missing)
+    missing=set()
+    for rule in requirements.get('sortie', []):
+        areas=sortie_maps({'map':rule.get('map',[])})
+        matched={area for area in areas if any(area==actual or
+                 (area.count('-')==1 and actual.startswith(area+'-')) for actual in observed)}
+        if not (rule.get('any') and matched):
+            missing.update(set(areas)-matched)
+    return missing
+
+
 def map_fleet_sections(text):
     """Split shared fleet paragraphs with explicit per-map route notes."""
-    labels = list(re.finditer(r'(?<![0-9])([1-7]-[1-6](?:-[1-3])?)\s*:', text))
+    labels = list(re.finditer(r'(?<![0-9])([1-7]-[1-6](?:-[1-3])?)\s*(?::|(?=【))', text))
     if not labels:
         return []
-    fleet = text[:labels[0].start()].strip().rstrip('・● \r\n')
+    fleet = text[:labels[0].start()].split('※')[0].strip().rstrip('・● \r\n')
     if not re.match(r'^' + FLEET_TYPES + r'(?:\([^)]*\))?\s*\d', fleet):
         return []
     sections = []
@@ -208,12 +227,14 @@ def map_fleet_sections(text):
             summary = translate_route(route)
         else:
             count = re.search(r'道中\s*(\d+)戦', note)
-            if not count and 'ランダム' not in note and '固定不可' not in note:
-                continue
             summary = translate_route(fleet) + '\n'
             summary += f'도중 {count[1]}전' if count else '고정 경로 표기 없음'
-            if 'ランダム' in note or '固定不可' in note:
+            if 'ボス固定' in note and 'ボス固定不可' not in note:
+                summary += ' / 보스 도달 고정'
+            elif any(word in note for word in ('ランダム','固定不可','固定を行わない','逸れ','ボス率')):
                 summary += ' / 경로 랜덤'
+            elif '到達しやすい' in note:
+                summary += ' / 보스 도달률을 높이는 편성'
         sections.append((label[1], summary))
     return sections
 
@@ -223,7 +244,7 @@ def group_shared_fleets(entries):
     groups = []
     for heading, summary, images in entries:
         fleet, separator, route = summary.partition('\n')
-        key = (tuple(images), fleet) if separator else None
+        key = (tuple(images), fleet) if separator and images else None
         group = next((item for item in groups if key and item['key'] == key
                       and heading not in item['headings']), None)
         if group is None:
@@ -293,8 +314,10 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
     html = (folder / 'article.html').read_text(encoding='utf-8')
     if not article_matches(html, record, quest):
         return header + '\n\n저장된 공략의 원문 제목·출처를 확인 중입니다.', []
+    if obsolete_article(html):
+        return header + '\n\n현재 해역에 대응하지 않는 구공략이라 연결을 보류했습니다.', []
     if record.get('text_only'):
-        return (header + '\n\n편성·경로 공략이 없는 연습/공창 임무입니다.\n'
+        return (header + '\n\n편성·경로를 별도로 정리하지 않은 본문 공략입니다.\n'
                 + f'임무 조건: !임무 {code}\n공략 원문: {record["url"]}'), []
 
     known = {}
@@ -308,13 +331,23 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
     if target_map:
         target_map = guide_map(target_map, maps)
     current_map = maps[0] if len(maps) == 1 else None
+    current_areas = [current_map] if current_map else []
     active, air = False, False
     variants = []
     phase = ''
     pending = []
+    def flush_images():
+        nonlocal pending
+        if pending and current_areas and not air:
+            for area in current_areas:
+                variants.append({'map':area,'phase':phase,'summary':'편성은 이미지 참조\n경로 요약 미확인',
+                                 'pictures':list(pending),'image_only':True})
+        pending = []
     for node in visible_walk(body):
         if node.tag == 'h2':
             is_fleet = fleet_section_heading(visible_text(node))
+            if active:
+                flush_images()
             if active and not is_fleet:
                 break
             active = is_fleet
@@ -324,23 +357,29 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
                                         unicodedata.normalize('NFKC',visible_text(node)))
                 if heading_map:
                     current_map = guide_map(heading_map.group(), maps)
+                    current_areas = [current_map]
             continue
         if not active:
             continue
         text = unicodedata.normalize('NFKC', visible_text(node)).strip()
         if node.tag in {'h3', 'h4', 'h5', 'h6'}:
-            match = re.search(r'(?<![0-9])[1-7]-[1-6](?:-[1-3])?(?![0-9])', text)
-            if match:
-                current_map, air = guide_map(match.group(), maps), False
+            heading_maps = re.findall(r'(?<![0-9])[1-7]-[1-6](?:-[1-3])?(?![0-9])', text)
+            if heading_maps:
+                flush_images()
+                current_areas = list(dict.fromkeys(guide_map(m,maps) for m in heading_maps))
+                current_map, air = current_areas[0], False
                 phase = ''
                 pending = []
             if '基地航空隊' in text:
+                flush_images()
                 air = True
         phase_label = node.tag in {'h3', 'h4', 'h5', 'h6'} or (
             node.tag == 'p' and re.match(r'^[●※\s]*ゲージ破壊(?:前|後)', text))
         if phase_label:
             before, after = 'ゲージ破壊前' in text, 'ゲージ破壊後' in text
             if before != after:
+                if node.tag != 'p':
+                    flush_images()
                 phase = '게이지 파괴 전' if before else '게이지 파괴 후'
                 air = False
                 if node.tag != 'p':
@@ -352,8 +391,22 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
             if path and not air and path not in pending:
                 pending.append(path)
         if node.tag == 'p' and not air:
+            labelled = re.match(r'^([1-7]-[1-6](?:-[1-3])?):\s*(.+)',text)
+            if labelled:
+                route = find_route(labelled[2])
+                lead = translate_route(route) if route else find_random_fleet(labelled[2])
+                if lead:
+                    variants.append({'map':guide_map(labelled[1],maps),'phase':phase,
+                                     'summary':lead,'pictures':list(pending)})
+                    pending=[]
+                    continue
+            if re.match(r'^[1-7]-[1-6]',text) and re.search(r'兼用|共通',text):
+                shared = re.findall(r'[1-7]-[1-6](?:-[1-3])?',text)
+                if shared:
+                    current_areas = list(dict.fromkeys(guide_map(m,maps) for m in shared))
+                    current_map = current_areas[0]
             sections = map_fleet_sections(text)
-            if sections and pending:
+            if sections and (pending or not any(v['map'] in {a for a,_ in sections} for v in variants)):
                 for area, summary in sections:
                     variants.append({'map': guide_map(area, maps), 'phase': phase,
                                      'summary': summary, 'pictures': list(pending)})
@@ -362,20 +415,23 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
             match = find_route(text)
             summary = translate_route(match) if match else find_random_fleet(text)
             if summary and current_map:
-                if not pending:
+                if not pending and any(v['map'] in current_areas for v in variants):
                     continue
-                variants.append({'map': current_map, 'phase': phase,
-                                 'summary': summary, 'pictures': list(pending)})
+                for area in current_areas:
+                    variants.append({'map': area, 'phase': phase,
+                                     'summary': summary, 'pictures': list(pending)})
                 pending = []
+    flush_images()
     summaries, pictures, selected = [], [], set()
     observed = set(variant['map'] for variant in variants)
     def covers(expected, actual):
         return expected == actual or (expected.count('-') == 1 and actual.startswith(expected+'-'))
     unexpected = {area for area in observed if not any(covers(m,area) for m in maps)} if maps else set()
-    missing = {area for area in maps if not any(covers(area,m) for m in observed)}
+    missing = missing_required_maps(quest.get('requirements', {}), observed)
     if diagnostics is not None:
         diagnostics.update(expected_maps=maps, observed_maps=sorted(observed),
-                           unexpected_maps=sorted(unexpected), missing_maps=sorted(missing))
+                           unexpected_maps=sorted(unexpected), missing_maps=sorted(missing),
+                           image_only_maps=sorted({v['map'] for v in variants if v.get('image_only')}))
     if unexpected:
         return header + '\n\n저장된 공략의 해역이 임무 조건과 달라 확인 중입니다.', []
     for variant in variants:
@@ -403,7 +459,9 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
         for path in variant['pictures']:
             if path not in pictures:
                 pictures.append(path)
-    if not summaries or not pictures:
+    if diagnostics is not None:
+        diagnostics['rendered_maps'] = sorted({v['map'] for v in variants if not target_map or v['map']==target_map}) if summaries else []
+    if not summaries:
         return header + '\n\n저장된 공략의 편성·해역 연결을 확인 중입니다.', []
     result = header + '\n\n' + '\n\n'.join(group_shared_fleets(summaries))
     if missing and not target_map:

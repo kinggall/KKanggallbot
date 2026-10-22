@@ -172,6 +172,16 @@ class NewQuestTests(unittest.TestCase):
         for row in self.update['quests']:
             self.assertIn(row['name_jp'], output.getvalue())
 
+    def test_repair_scope_includes_factory_and_exercise(self):
+        output=io.StringIO()
+        with patch('sys.argv',['collector','--repair','--dry-run']), \
+                patch.object(collect_zekamashi,'Fetcher',side_effect=AssertionError('No network')), \
+                redirect_stdout(output):
+            collect_zekamashi.main()
+        self.assertIn('Targets: 286',output.getvalue())
+        self.assertIn('2610 F1:',output.getvalue())
+        self.assertIn('2610 C1:',output.getvalue())
+
     def test_guide_compact_and_spaced_codes_use_same_cache(self):
         for row in self.update['quests']:
             code = row['wiki_id']
@@ -205,7 +215,7 @@ class NewQuestTests(unittest.TestCase):
                   'code':'2610 F1','name_jp':next(r['name_jp'] for r in self.update['quests'] if r['wiki_id']=='2610 F1'),
                   'url':'https://zekamashi.net/kancolle-kouryaku/test/'}
         with patch.object(guide_lookup.quests, 'catalog', return_value=self.catalog), \
-                patch.object(Path, 'read_text', lambda p,*a,**k: json.dumps(record) if p.name=='manifest.json' else '<h1>'+record['name_jp']+'</h1>'):
+                patch.object(Path, 'read_text', lambda p,*a,**k: json.dumps(record) if p.name=='manifest.json' else '<h1>'+record['name_jp']+'</h1><div class="entry-content">本文</div>'):
             text, pictures = guide_lookup.build_preview('2610F1')
             self.assertEqual(pictures, [])
             self.assertIn('!임무 2610 F1', text)
