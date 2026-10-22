@@ -1,9 +1,34 @@
 import unittest
 
-from guide_lookup import find_route, translate_route, guide_map, sortie_maps, map_fleet_sections, group_shared_fleets
+from guide_lookup import find_route, find_random_fleet, translate_route, guide_map, sortie_maps, map_fleet_sections, group_shared_fleets
+from scripts.collect_zekamashi import extract_article, fleet_section_heading
 
 
 class GuideTranslationTests(unittest.TestCase):
+    def test_old_article_prose_fleet_and_named_fleet(self):
+        summary = find_random_fleet('今回は軽空2軽巡1水母1駆逐2の編成としています。※ボス固定不可能')
+        self.assertIn('경항모2 경순1 수모1 구축2', summary)
+        self.assertIn('경로 랜덤',summary)
+        self.assertIsNone(find_random_fleet('自由枠に軽空母2採用'))
+        self.assertIn('갬비어 베이',find_random_fleet('Gambier Bay Mk.II(旗艦)Fletcher空母2軽巡1駆逐1\n※ボス固定不可'))
+        self.assertIn('갬비어 베이',translate_route(find_route('Gambier Bay Mk.II(旗艦)Fletcher空母2水母1軽巡1【BDHK】(K:ボス)')))
+
+    def test_submarine_tender_shared_fleet_and_port_node(self):
+        sections=map_fleet_sections('潜母(旗艦)1潜水2軽空母2水母1\n1-2:固定不可。ランダムで逸れます。\n2-1:【CEDH】(H:ボス)')
+        self.assertEqual([s[0] for s in sections],['1-2','2-1'])
+        self.assertEqual(guide_map('7-4O'),'7-4')
+
+    def test_multiple_qualified_fleet_sections_no_reward_images(self):
+        self.assertTrue(fleet_section_heading('編成例（羽黒神風駆逐４）'))
+        self.assertFalse(fleet_section_heading('任務情報'))
+        document=('<h1>試験任務</h1><div class="entry-content">'
+                  '<h2>編成例（第一案）</h2><p><img src="/one.jpg"></p><p>駆逐6【AB】</p>'
+                  '<h2>編成例（第二案）</h2><p><img src="/two.jpg"></p><p>軽巡1駆逐5【AC】</p>'
+                  '<h2>まとめ</h2><img src="/reward.jpg"></div>')
+        blocks,images=extract_article(document,'https://zekamashi.net/kancolle-kouryaku/test/','試験任務')
+        self.assertEqual(images,['https://zekamashi.net/one.jpg','https://zekamashi.net/two.jpg'])
+        self.assertEqual(len([b for b in blocks if '【' in b['text']]),2)
+
     def test_group_only_identical_fleets_and_images(self):
         entries = [('1-3', '경항모2 구축4\n【CFJ】', ['shared.jpg']),
                    ('1-4', '경항모2 구축4\n도중 2전 / 경로 랜덤', ['shared.jpg'])]

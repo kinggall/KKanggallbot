@@ -143,8 +143,10 @@ class NewQuestTests(unittest.TestCase):
     def test_actual_guide_webhook_with_cached_fleet(self):
         import bot
         record = {'status':'downloaded','schema_version':2,
+                  'code':'2610 B1', 'name_jp':self.update['quests'][0]['name_jp'],
+                  'url':'https://zekamashi.net/kancolle-kouryaku/test/',
                   'images':[{'url':'https://zekamashi.net/wp-content/uploads/fleet.jpg','file':'fleet.jpg'}]}
-        document = ('<div class="entry-content"><h2>編成例</h2><h3>1-3</h3>'
+        document = ('<h1>'+record['name_jp']+'</h1><div class="entry-content"><h2>編成例</h2><h3>1-3</h3>'
                     '<p><img src="https://zekamashi.net/wp-content/uploads/fleet.jpg"></p>'
                     '<p>軽空2駆逐4【CFJ】(C:通常 J:ボス)</p></div>')
         with patch.object(guide_lookup.quests, 'catalog', return_value=self.catalog), \
@@ -184,8 +186,10 @@ class NewQuestTests(unittest.TestCase):
 
     def test_new_sortie_guide_with_saved_image(self):
         record = {'status':'downloaded','schema_version':2,
+                  'code':'2610 B1', 'name_jp':self.update['quests'][0]['name_jp'],
+                  'url':'https://zekamashi.net/kancolle-kouryaku/test/',
                   'images':[{'url':'https://zekamashi.net/wp-content/uploads/fleet.jpg','file':'fleet.jpg'}]}
-        html = ('<article><div class="entry-content"><h2>編成例</h2><h3>１－３</h3>'
+        html = ('<h1>'+record['name_jp']+'</h1><article><div class="entry-content"><h2>編成例</h2><h3>１－３</h3>'
                 '<p><img src="https://zekamashi.net/wp-content/uploads/fleet.jpg"></p>'
                 '<p>軽空2駆逐4【CFJ】(C:通常 F:通常 J:ボス)</p></div></article>')
         with patch.object(guide_lookup.quests, 'catalog', return_value=self.catalog), \
@@ -198,9 +202,10 @@ class NewQuestTests(unittest.TestCase):
 
     def test_non_sortie_collected_guide_is_text_only(self):
         record = {'status':'downloaded','schema_version':2,'text_only':True,
+                  'code':'2610 F1','name_jp':next(r['name_jp'] for r in self.update['quests'] if r['wiki_id']=='2610 F1'),
                   'url':'https://zekamashi.net/kancolle-kouryaku/test/'}
         with patch.object(guide_lookup.quests, 'catalog', return_value=self.catalog), \
-                patch.object(Path, 'read_text', return_value=json.dumps(record)):
+                patch.object(Path, 'read_text', lambda p,*a,**k: json.dumps(record) if p.name=='manifest.json' else '<h1>'+record['name_jp']+'</h1>'):
             text, pictures = guide_lookup.build_preview('2610F1')
             self.assertEqual(pictures, [])
             self.assertIn('!임무 2610 F1', text)

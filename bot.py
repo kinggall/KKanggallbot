@@ -1534,8 +1534,15 @@ def webhook():
                 )
                 response.raise_for_status()
                 print(f'[공략 미리보기] 명령={message}, 이미지={len(pictures)}')
-            except (OSError, ValueError, KeyError, requests.RequestException) as error:
+            except (OSError, ValueError, KeyError, TypeError, AttributeError, requests.RequestException) as error:
                 print(f'[공략 미리보기 실패] 명령={message}, 오류={error}')
+                try:
+                    requests.post(IRIS_REPLY_URL,
+                                  json={'type':'text','room':str(chat_id),
+                                        'data':'공략 자료를 확인하지 못했습니다. 잠시 후 다시 시도해주세요.'},
+                                  timeout=10).raise_for_status()
+                except requests.RequestException as reply_error:
+                    print(f'[공략 오류 안내 실패] {reply_error}')
 
         IMAGE_SEND_EXECUTOR.submit(send_guide_preview)
         return jsonify({'ok': True})

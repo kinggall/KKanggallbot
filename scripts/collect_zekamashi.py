@@ -116,6 +116,11 @@ def select_article(html):
     raise ValueError('Article body not recognized; manual review required')
 
 
+def fleet_section_heading(text):
+    text = unicodedata.normalize('NFKC', text).strip()
+    return bool(re.fullmatch(r'編成例(?:\s*[({【].*[)}】])?', text))
+
+
 def extract_article(html, url, expected_title):
     body = select_article(html)
     root = Document(html).root
@@ -124,7 +129,7 @@ def extract_article(html, url, expected_title):
         raise ValueError('Article title does not match the quest; manual review required')
 
     heading = next((node for node in visible_walk(body)
-                    if node.tag == 'h2' and normalized(visible_text(node)) == normalized('編成例')), None)
+                    if node.tag == 'h2' and fleet_section_heading(visible_text(node))), None)
     if heading is None:
         raise ValueError('編成例 section not found; manual review required')
     section_nodes = []
@@ -133,7 +138,7 @@ def extract_article(html, url, expected_title):
         raise ValueError('編成例 section structure not recognized; manual review required')
     start = parent.children.index(heading) + 1
     for sibling in parent.children[start:]:
-        if isinstance(sibling, Node) and sibling.tag == 'h2':
+        if isinstance(sibling, Node) and sibling.tag == 'h2' and not fleet_section_heading(visible_text(sibling)):
             break
         section_nodes.append(sibling)
 
@@ -199,6 +204,7 @@ def main():
     parser.add_argument('--interval', type=float, default=10)
     parser.add_argument('--new', action='store_true', help='Collect reviewed new wiki quests only (including non-sortie text guides)')
     parser.add_argument('--dry-run', action='store_true', help='List targets without network access')
+    parser.add_argument('--skip-audit', action='store_true', help='Skip the automatic offline audit after collection')
     args = parser.parse_args()
     if args.interval < 10:
         parser.error('Use an interval of at least 10 seconds')
@@ -303,6 +309,9 @@ def main():
         record['status'] = 'downloaded'
         write_json(manifest, record)
         print(f'{code}: downloaded {len(images)} article images', flush=True)
+    if not args.skip_audit:
+        from scripts.verify_guides import run_audit
+        run_audit(args.output, ROOT/'guide_cache/guide_audit', export=True)
 
 
 if __name__ == '__main__':
