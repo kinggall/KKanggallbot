@@ -202,7 +202,9 @@ class NewQuestTests(unittest.TestCase):
                     compact = guide_lookup.build_preview(code.replace(' ', ''))
                     self.assertEqual(spaced, compact)
                     self.assertTrue(spaced[0].startswith(code + ':'))
-                    self.assertIn('아직 수집된 공략이 없습니다.', spaced[0])
+                    expected=('아직 수집된 임무 공략이 없습니다.' if row['category']=='sortie'
+                              else '아직 수집된 공략이 없습니다.')
+                    self.assertIn(expected, spaced[0])
 
     def test_new_sortie_guide_with_saved_image(self):
         record = {'status':'downloaded','schema_version':2,

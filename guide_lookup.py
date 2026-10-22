@@ -283,6 +283,59 @@ def article_matches(html, record, quest):
     return any(normalized(quest['name_jp']) in normalized(title) for title in titles)
 
 
+def general_map_navigation(quest,root=ROOT,*,areas=None,target_map=None,diagnostics=None):
+    """Offer local general guides, never a substitute fleet for quest rules."""
+    if quest.get('category')!='sortie':return []
+    expected=sortie_maps(quest.get('requirements',{}))
+    selected=list(dict.fromkeys(areas if areas is not None else expected))
+    code=quest['wiki_id']
+    if not expected:
+        def has_map(value):
+            if isinstance(value,dict):return any((k=='map' and bool(v)) or has_map(v) for k,v in value.items())
+            if isinstance(value,list):return any(has_map(v) for v in value)
+            return False
+        reason=('등록된 일반해역으로 연결할 수 없는 임무입니다.' if has_map(quest.get('requirements',{}))
+                else '고정된 대상 해역이 없는 임무입니다.')
+        return [reason,f'임무 조건: !임무 {code}']
+    if target_map:
+        target=guide_map(target_map,expected)
+        if not target:return ['해당 해역은 임무 대상 해역이 아닙니다.',f'임무 조건: !임무 {code}']
+        selected=[m for m in selected if m==target or m.startswith(target+'-')
+                  or (m.count('-')==1 and target.startswith(m+'-'))]
+        if not selected:return ['해당 해역은 임무 대상 해역이 아닙니다.',f'임무 조건: !임무 {code}']
+        # If the quest names a whole map, do not guess a gauge from the request.
+    from map_guides import parse_map_query,preview as map_preview
+    available=[];unavailable=[]
+    for area in selected:
+        parsed=parse_map_query(area)
+        if not parsed:unavailable.append(area);continue
+        try:text,pictures=map_preview(area,root=root)
+        except (OSError,ValueError,KeyError,TypeError):
+            unavailable.append(area);continue
+        if pictures:available.append(area)
+        else:unavailable.append(area)
+    if diagnostics is not None:
+        diagnostics.update(fallback_maps=available,
+                           fallback_queries=[m.replace('-','') for m in available],
+                           fallback_unavailable_maps=unavailable)
+    lines=[]
+    if available:
+        lines=['일반해역 공략을 참고해주세요.','해당해역: '+' / '.join(available),
+               '예: !공략 '+available[0].replace('-',''),
+               f'※ 임무 조건에 맞춰 편성을 조정하세요: !임무 {code}']
+    if unavailable:
+        lines.append('일반해역 공략 연결 확인 중: '+' / '.join(unavailable))
+    return lines
+
+
+def missing_quest_guide(quest,reason,root=ROOT,*,target_map=None,diagnostics=None):
+    if diagnostics is not None:diagnostics['fallback_reason']=reason
+    text=f'{quest["wiki_id"]}: {quest["name_ko"]}\n\n'+reason
+    navigation=general_map_navigation(quest,root,target_map=target_map,diagnostics=diagnostics)
+    from quest_guide_comments import block
+    return text+('\n'+'\n'.join(navigation) if navigation else '')+block(quest,root,area=target_map,allow_source=False),[]
+
+
 def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diagnostics=None):
     """Return text and local fleet images; never fetch from the network."""
     args = query.strip().split()
@@ -303,33 +356,51 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
     if key is None:
         return f"'{args[0]}' 임무를 찾지 못했습니다.\n{USAGE}", []
     quest = catalog.items[key]
+    def unavailable(reason):
+        return missing_quest_guide(quest,reason,root,target_map=target_map,diagnostics=diagnostics)
     code = quest['wiki_id']
     header = f"{code}: {quest['name_ko']}"
     folder = (Path(cache_root) if cache_root else Path(root) / 'guide_cache' / 'zekamashi') / re.sub(r'[^A-Za-z0-9_-]', '_', code)
     try:
         record = json.loads((folder / 'manifest.json').read_text(encoding='utf-8'))
     except FileNotFoundError:
-        return header + '\n\n아직 수집된 공략이 없습니다.', []
+        return unavailable('아직 수집된 임무 공략이 없습니다.' if quest.get('category')=='sortie'
+                           else '아직 수집된 공략이 없습니다.')
     if not record_matches(record, quest):
-        return header + '\n\n저장된 공략의 임무 번호·제목을 확인 중입니다.', []
+        return unavailable('저장된 공략의 임무 번호·제목을 확인 중입니다.')
     if record.get('status') == 'no_match_on_first_page':
-        return header + '\n\n등록된 공략이 없습니다.', []
+        return unavailable('등록된 임무 공략이 없습니다.')
     if record.get('status') != 'downloaded' or record.get('schema_version') != 2:
-        return header + '\n\n공략 수집 중이거나 확인이 필요한 자료입니다.', []
-    html = (folder / 'article.html').read_text(encoding='utf-8')
+        return unavailable('공략 수집 중이거나 확인이 필요한 자료입니다.')
+    try:html = (folder / 'article.html').read_text(encoding='utf-8')
+    except FileNotFoundError:return unavailable('저장된 공략의 본문 자료를 확인 중입니다.')
     if not article_matches(html, record, quest):
-        return header + '\n\n저장된 공략의 원문 제목·출처를 확인 중입니다.', []
+        return unavailable('저장된 공략의 원문 제목·출처를 확인 중입니다.')
+    from quest_guide_comments import block,reviewed_text_only
+    if reviewed_text_only(quest,root,html):
+        maps=sortie_maps(quest.get('requirements',{}))
+        chosen=guide_map(target_map,maps) if target_map else None
+        if chosen and chosen not in maps:return unavailable('해당 해역은 임무 대상 해역이 아닙니다.')
+        selected=[chosen] if chosen else maps
+        text=header+'\n\n사진 없이 코멘트로 정리한 공략입니다. 원문은 1기 자료이므로 옛 사진·수치는 현행 예시로 보내지 않습니다.'
+        for area in selected:text+='\n\n'+area+block(quest,root,area=area,source_html=html)
+        navigation=general_map_navigation(quest,root,areas=selected,diagnostics=diagnostics)
+        if navigation:text+='\n\n'+'\n'.join(navigation)
+        if diagnostics is not None:
+            diagnostics.update(observed_maps=selected,rendered_maps=selected,missing_maps=[],
+                               expected_maps=maps,commentary_only=True)
+        return text,[]
     if obsolete_article(html):
-        return header + '\n\n현재 해역에 대응하지 않는 구공략이라 연결을 보류했습니다.', []
+        return unavailable('현재 해역에 대응하지 않는 구공략이라 연결을 보류했습니다.')
     if record.get('text_only'):
         return (header + '\n\n편성·경로를 별도로 정리하지 않은 본문 공략입니다.\n'
-                + f'임무 조건: !임무 {code}\n공략 원문: {record["url"]}'), []
+                + f'임무 조건: !임무 {code}\n공략 원문: {record["url"]}'+block(quest,root,source_html=html)), []
 
     known = {}
     for image in record.get('images', []):
         path = (folder / image['file']).resolve()
         if path.parent != folder.resolve() or (verify_images and not path.is_file()):
-            return header + '\n\n편성 이미지 수집이 아직 완료되지 않았습니다.', []
+            return unavailable('편성 이미지 수집이 아직 완료되지 않았습니다.')
         known[image_identity(image['url'])] = path
     body = select_article(html)
     maps = sortie_maps(quest.get('requirements', {}))
@@ -438,7 +509,7 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
                            unexpected_maps=sorted(unexpected), missing_maps=sorted(missing),
                            image_only_maps=sorted({v['map'] for v in variants if v.get('image_only')}))
     if unexpected:
-        return header + '\n\n저장된 공략의 해역이 임무 조건과 달라 확인 중입니다.', []
+        return unavailable('저장된 공략의 해역이 임무 조건과 달라 확인 중입니다.')
     for variant in variants:
         area, label = variant['map'], variant['phase']
         if target_map and area != target_map:
@@ -467,8 +538,18 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
     if diagnostics is not None:
         diagnostics['rendered_maps'] = sorted({v['map'] for v in variants if not target_map or v['map']==target_map}) if summaries else []
     if not summaries:
-        return header + '\n\n저장된 공략의 편성·해역 연결을 확인 중입니다.', []
+        from quest_guide_comments import general_only_maps
+        if target_map and target_map in general_only_maps(quest,root,html):
+            return unavailable(target_map+'은 2기 전용 편성이 없어 일반해역 공략으로 안내합니다.')
+        return unavailable('저장된 공략의 편성·해역 연결을 확인 중입니다.')
     result = header + '\n\n' + '\n\n'.join(group_shared_fleets(summaries))
     if missing and not target_map:
-        result += '\n\n※ ' + '/'.join(sorted(missing)) + ' 공략 연결은 확인 중입니다.'
-    return result, pictures
+        from quest_guide_comments import general_only_maps
+        handled=set(general_only_maps(quest,root,html))&missing
+        pending=missing-handled
+        if pending:result += '\n\n※ ' + '/'.join(sorted(pending)) + ' 공략 연결은 확인 중입니다.'
+        if handled:result += '\n\n※ '+'/'.join(sorted(handled))+'은 2기 전용 편성이 없어 일반해역 공략으로 안내합니다.'
+        if diagnostics is not None:diagnostics.update(handled_general_maps=sorted(handled),unresolved_missing_maps=sorted(pending))
+        navigation=general_map_navigation(quest,root,areas=sorted(missing),diagnostics=diagnostics)
+        if navigation:result+='\n'+'\n'.join(navigation)
+    return result+block(quest,root,area=target_map,source_html=html), pictures
