@@ -1,4 +1,4 @@
-"""Private Drive data snapshots. Code continues to travel through Git.
+"""Private Drive individual-file sync. Code continues to travel through Git.
 
 PC: bootstrap once, then watch. Cloud: pull, edit, push.
 Credentials are read from local token.json or the three proxy secret bindings.
@@ -13,7 +13,7 @@ import subprocess
 import tempfile
 import time
 import uuid
-import zipfile
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
@@ -112,13 +112,13 @@ class Drive:
         fid = response[0]['id']
         return fid, self.call('GET', API + '/' + fid, params={'alt': 'media'}).json()
 
-    def upload(self, path, name, existing=None):
+    def upload(self, path, name, existing=None, parent=None):
         url = 'https://www.googleapis.com/upload/drive/v3/files'
         metadata = {'name': name}
         if existing:
             url += '/' + existing
         else:
-            metadata['parents'] = [self.folder]
+            metadata['parents'] = [parent or self.folder]
         location = self.call('PATCH' if existing else 'POST', url,
                              params={'uploadType': 'resumable'}, json=metadata,
                              headers={'X-Upload-Content-Type': 'application/octet-stream'}).headers['Location']
@@ -130,6 +130,25 @@ class Drive:
         with path.open('rb') as f:
             return self.call('PUT', location, data=f,
                              headers={'Content-Type': 'application/octet-stream'}).json()['id']
+
+    def children(self, parent):
+        result, page = [], None
+        while True:
+            params = {'q': f"'{parent}' in parents and trashed=false",
+                      'fields': 'nextPageToken,files(id,name,mimeType,size,md5Checksum)',
+                      'pageSize': 1000}
+            if page:
+                params['pageToken'] = page
+            data = self.call('GET', API, params=params).json()
+            result.extend(data.get('files', []))
+            page = data.get('nextPageToken')
+            if not page:
+                return result
+
+    def create_folder(self, name, parent):
+        return self.call('POST', API, json={'name': name, 'parents': [parent],
+                         'mimeType': 'application/vnd.google-apps.folder'},
+                         params={'fields': 'id'}).json()['id']
 
 
 def read_state(path):
@@ -143,101 +162,216 @@ def write_json(path, obj):
     temp.replace(path)
 
 
-def push(drive, root, state_path, includes, bootstrap=False):
-    fid, remote = drive.head()
-    state = read_state(state_path)
-    if bootstrap and remote:
-        raise RuntimeError('Drive already initialized. Use pull; bootstrap cannot overwrite it.')
-    if not bootstrap and (not remote or state.get('revision') != remote['revision']):
-        raise RuntimeError('Pull the latest cloud snapshot before pushing.')
-    files = inventory(root, includes)
-    if not files:
-        raise RuntimeError('No data files found; nothing uploaded')
-    if remote and files == remote['files']:
-        print('No data changes.', flush=True)
-        return
-    revision = uuid.uuid4().hex
+def md5(path):
+    h = hashlib.md5()
+    with path.open('rb') as f:
+        for block in iter(lambda: f.read(1024 * 1024), b''):
+            h.update(block)
+    return h.hexdigest()
+
+
+def tree(drive, includes):
+    """List only selected data subtrees, never the whole user's Drive."""
+    folders = {'': drive.folder}
+    files = {}
+    for include in includes:
+        parent, parts = drive.folder, []
+        for part in safe_relative(include).parts:
+            parts.append(part)
+            path = '/'.join(parts)
+            if path in folders:
+                parent = folders[path]
+                continue
+            matches = [f for f in drive.children(parent) if f['name'] == part]
+            if len(matches) != 1 or matches[0]['mimeType'] != 'application/vnd.google-apps.folder':
+                raise RuntimeError('Missing or duplicate data folder: ' + path)
+            parent = folders[path] = matches[0]['id']
+        pending = [(include, parent)]
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            while pending:
+                results = list(pool.map(lambda item: (item[0], drive.children(item[1])), pending))
+                pending = []
+                for prefix, children in results:
+                    for item in children:
+                        path = prefix + '/' + item['name']
+                        if not allowed(path):
+                            continue
+                        if item['mimeType'] == 'application/vnd.google-apps.folder':
+                            # Browser uploads can leave duplicate folders. Traverse
+                            # both; accept duplicate files only if their content agrees.
+                            folders.setdefault(path, item['id'])
+                            pending.append((path, item['id']))
+                        else:
+                            prior = files.get(path)
+                            if prior and (not item.get('md5Checksum') or
+                                          prior.get('md5Checksum') != item['md5Checksum'] or
+                                          prior.get('size') != item.get('size')):
+                                raise RuntimeError('Different duplicate data files: ' + path)
+                            if prior:
+                                continue
+                            files[path] = item
+    return files, folders
+
+
+def publish_index(drive, head_id, head, state_path):
     with tempfile.TemporaryDirectory() as tmp:
-        archive = Path(tmp) / 'data.zip'
-        with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as z:
-            for name, checksum in files.items():
-                path = root / name
-                z.write(path, name)
-                if digest(path) != checksum:
-                    raise RuntimeError('A file changed during upload preparation; retry after collection stops')
-        archive_id = drive.upload(archive, 'kakaobot-data-' + revision + '.zip')
-        # Refuse to publish if another writer advanced the cloud head during upload.
-        _, latest = drive.head()
-        if (latest or {}).get('revision') != (remote or {}).get('revision'):
-            raise RuntimeError('Cloud changed during upload; snapshot retained but not published')
-        head = {'revision': revision, 'files': files, 'includes': includes,
-                'archive_id': archive_id, 'archive_sha256': digest(archive)}
         doc = Path(tmp) / 'head.json'
         write_json(doc, head)
-        drive.upload(doc, HEAD_NAME, fid)
+        drive.upload(doc, HEAD_NAME, head_id)
     write_json(state_path, head)
-    print(f'Published {len(files)} files. Revision {revision}', flush=True)
+
+
+def adopt(drive, root, state_path, includes):
+    """Verify browser-uploaded files, then retire ZIP references without deletion."""
+    head_id, previous = drive.head()
+    local = inventory(root, includes)
+    if not local:
+        raise RuntimeError('No local reference data to verify')
+    remote, folders = tree(drive, includes)
+    indexed = {}
+    for i, (name, checksum) in enumerate(local.items(), 1):
+        item = remote.get(name)
+        if not item or item.get('md5Checksum') != md5(root / name):
+            raise RuntimeError('Missing or different uploaded file: ' + name)
+        indexed[name] = {'id': item['id'], 'sha256': checksum,
+                         'md5': item['md5Checksum'], 'bytes': int(item['size'])}
+        if i % 200 == 0:
+            print(f'Verified {i}/{len(local)} individual files', flush=True)
+    _, latest = drive.head()
+    if (latest or {}).get('revision') != (previous or {}).get('revision'):
+        raise RuntimeError('Drive index changed during verification')
+    head = {'schema': 2, 'revision': uuid.uuid4().hex, 'files': indexed,
+            'includes': includes, 'folders': folders}
+    # Keep the previous index locally for rollback, but never depend on its ZIP.
+    if previous:
+        write_json(state_path.parent / 'before-individual-files.json', previous)
+    publish_index(drive, head_id, head, state_path)
+    print(f'Individual-file mode enabled: {len(indexed)} verified files. ZIP no longer required.', flush=True)
+
+
+def checksum(entry):
+    return entry.get('sha256') if isinstance(entry, dict) else entry
+
+
+def push(drive, root, state_path, includes, bootstrap=False):
+    head_id, remote = drive.head()
+    state = read_state(state_path)
+    if bootstrap and remote:
+        raise RuntimeError('Drive already initialized. Use adopt-files for existing folders.')
+    if not bootstrap and (not remote or remote.get('schema') != 2 or
+                          state.get('revision') != remote['revision']):
+        raise RuntimeError('Pull the latest individual-file index before pushing.')
+    files = inventory(root, includes)
+    if not files:
+        raise RuntimeError('No data files found')
+    indexed = dict((remote or {}).get('files', {}))
+    folders = dict((remote or {}).get('folders', {'': drive.folder}))
+    changed = [n for n, h in files.items() if checksum(indexed.get(n)) != h]
+    if not changed:
+        print('No data changes. Uploaded 0 files.', flush=True)
+        return
+    for i, name in enumerate(changed, 1):
+        path = root / name
+        prior = indexed.get(name)
+        if prior:
+            metadata = drive.call('GET', API + '/' + prior['id'],
+                                  params={'fields': 'md5Checksum'}).json()
+            if metadata.get('md5Checksum') != prior['md5']:
+                # Recover an upload that finished before a prior process could
+                # publish its index. Never replace different external content.
+                current_md5 = md5(path)
+                if metadata.get('md5Checksum') != current_md5:
+                    raise RuntimeError('File was edited directly in Drive: ' + name)
+                indexed[name] = {'id': prior['id'], 'sha256': files[name],
+                                 'md5': current_md5, 'bytes': path.stat().st_size}
+                print(f'Verified prior upload {i}/{len(changed)}: {name}', flush=True)
+                continue
+        parent, parts = drive.folder, []
+        for part in PurePosixPath(name).parts[:-1]:
+            parts.append(part)
+            key = '/'.join(parts)
+            if key not in folders:
+                matches = [f for f in drive.children(parent) if f['name'] == part]
+                if len(matches) > 1 or (matches and matches[0]['mimeType'] != 'application/vnd.google-apps.folder'):
+                    raise RuntimeError('Duplicate or non-folder parent: ' + key)
+                folders[key] = matches[0]['id'] if matches else drive.create_folder(part, parent)
+            parent = folders[key]
+        if not prior and any(f['name'] == path.name for f in drive.children(parent)):
+            raise RuntimeError('Unindexed Drive file already exists; review before overwriting: ' + name)
+        fid = drive.upload(path, path.name, prior['id'] if prior else None, parent=parent)
+        if digest(path) != files[name]:
+            raise RuntimeError('Local file changed during transfer: ' + name)
+        indexed[name] = {'id': fid, 'sha256': files[name], 'md5': md5(path), 'bytes': path.stat().st_size}
+        print(f'Uploaded {i}/{len(changed)}: {name}', flush=True)
+    _, latest = drive.head()
+    if (latest or {}).get('revision') != (remote or {}).get('revision'):
+        raise RuntimeError('Another publisher changed the index; review before continuing')
+    head = {'schema': 2, 'revision': uuid.uuid4().hex, 'files': indexed,
+            'includes': includes, 'folders': folders}
+    publish_index(drive, head_id, head, state_path)
+    print(f'Published {len(changed)} changed files. No ZIP created.', flush=True)
 
 
 def pull(drive, root, state_path):
     _, remote = drive.head()
     if not remote:
-        print('Waiting for initial PC bootstrap.', flush=True)
+        print('Waiting for initial data index.', flush=True)
         return
+    if remote.get('schema') != 2:
+        raise RuntimeError('ZIP index found. Run adopt-files in the cloud before starting file sync.')
     state = read_state(state_path)
-    if state.get('revision') == remote['revision']:
-        print('Already current.', flush=True)
-        return
-    files = remote['files']
-    for name in files:
+    changed = []
+    observed = {}
+    for name, item in remote['files'].items():
         if not allowed(name):
-            raise RuntimeError('Snapshot contains an excluded path')
+            raise RuntimeError('Excluded file in index')
         path = root / name
         if not path.resolve().is_relative_to(root.resolve()):
             raise RuntimeError('Destination escapes sync root')
-        if path.exists() and digest(path) not in {files[name], state.get('files', {}).get(name)}:
-            raise RuntimeError(f'Local edit conflicts with cloud: {name}. Preserve/review it first.')
-    with tempfile.TemporaryDirectory() as tmp:
-        archive = Path(tmp) / 'data.zip'
-        response = drive.call('GET', API + '/' + remote['archive_id'],
-                              params={'alt': 'media'}, stream=True)
-        with response, archive.open('wb') as f:
-            for block in response.iter_content(1024 * 1024):
-                f.write(block)
-        if digest(archive) != remote['archive_sha256']:
-            raise RuntimeError('Snapshot checksum mismatch')
-        with zipfile.ZipFile(archive) as z:
-            if len(z.namelist()) != len(files) or set(z.namelist()) != set(files):
-                raise RuntimeError('Archive inventory mismatch')
-            staged = Path(tmp) / 'staged'
-            for name, checksum in files.items():
-                dest = staged / name
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                with z.open(name) as source, dest.open('wb') as out:
-                    shutil.copyfileobj(source, out)
-                if digest(dest) != checksum:
-                    raise RuntimeError('File checksum mismatch')
-            for name in files:
-                dest = root / name
-                if dest.exists() and digest(dest) == files[name]:
-                    continue
-                if dest.exists():
-                    backup = state_path.parent / 'backups' / remote['revision'] / name
-                    backup.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(dest, backup)
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                # Same-filesystem atomic replacement; readers never see half a file.
-                pending = dest.with_name(dest.name + '.drive-sync-tmp')
-                shutil.copy2(staged / name, pending)
-                pending.replace(dest)
-    # Remote removal does not delete local files in this first version.
+        actual = digest(path) if path.exists() else None
+        if actual == item['sha256']:
+            continue
+        prior = checksum(state.get('files', {}).get(name))
+        if actual is not None and actual != prior:
+            raise RuntimeError('Local edit conflicts with cloud: ' + name)
+        changed.append(name)
+        observed[name] = actual
+    with tempfile.TemporaryDirectory() as temp:
+        staged = Path(temp)
+        for i, name in enumerate(changed, 1):
+            item = remote['files'][name]
+            target = staged / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            response = drive.call('GET', API + '/' + item['id'], params={'alt': 'media'}, stream=True)
+            with response, target.open('wb') as f:
+                for block in response.iter_content(1024 * 1024):
+                    f.write(block)
+            if digest(target) != item['sha256']:
+                raise RuntimeError('File checksum mismatch: ' + name)
+            print(f'Downloaded {i}/{len(changed)}: {name}', flush=True)
+        # Verify every changed file before replacing any existing file.
+        for name in changed:
+            dest = root / name
+            actual = digest(dest) if dest.exists() else None
+            if actual != observed[name]:
+                raise RuntimeError('Local file changed during download: ' + name)
+        for name in changed:
+            dest = root / name
+            if dest.exists():
+                backup = state_path.parent / 'backups' / remote['revision'] / name
+                backup.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(dest, backup)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            pending = dest.with_name(dest.name + '.drive-sync-tmp')
+            shutil.copy2(staged / name, pending)
+            pending.replace(dest)
     write_json(state_path, remote)
-    print(f'Received {len(files)} files. Revision {remote["revision"]}', flush=True)
+    print(f'Synced {len(changed)} changed files. ZIP downloads: 0.', flush=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['plan', 'bootstrap', 'pull', 'push', 'watch'])
+    parser.add_argument('action', choices=['plan', 'bootstrap', 'adopt-files', 'pull', 'push', 'watch'])
     parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument('--folder', default=os.environ.get('GOOGLE_DRIVE_FOLDER_ID',
                                                         '14ShSbg3jMRQtm2ffpkYq2sEI8rd-e6-i'))
@@ -255,7 +389,9 @@ def main():
         return
     state = root / '.drive-sync' / 'state.json'
     drive = Drive(args.folder, args.token_file)
-    if args.action in {'bootstrap', 'push'}:
+    if args.action == 'adopt-files':
+        adopt(drive, root, state, includes)
+    elif args.action in {'bootstrap', 'push'}:
         push(drive, root, state, includes, args.action == 'bootstrap')
     elif args.action == 'pull':
         pull(drive, root, state)
