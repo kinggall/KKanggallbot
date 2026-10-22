@@ -14,6 +14,7 @@ import re
 import unicodedata
 
 import equipment_lookup
+from quest_updates import apply_updates
 
 USAGE = "사용법: !임무 [번호/키워드]\n예: !임무 B44 / 반격 / 6구 / 찐빵"
 UNVERIFIED = "※ 조건 등을 검증중인 임무입니다."
@@ -110,7 +111,7 @@ class UnsupportedCondition(ValueError):
 class QuestCatalog:
     def __init__(self, root):
         root = Path(root)
-        self.data = json.loads((root / "data/quests.json").read_text(encoding="utf-8"))
+        self.data = apply_updates(json.loads((root / "data/quests.json").read_text(encoding="utf-8")), root)
         if self.data.get("schema") != 1:
             raise ValueError("임무 자료 형식 오류")
         self.items, self.codes = self.data["quests"], self.data["codes"]
@@ -309,6 +310,8 @@ class QuestCatalog:
             name = FEATURES.get(item_id, f"기능 개방 #{item_id}")
         elif kind == "senka":
             name = "전과"
+        elif kind == "named":
+            name = row['name']
         elif kind == "equipgroup":
             if item_id not in EQUIP_GROUPS:
                 raise UnsupportedCondition("장비 그룹 정보 없음")
@@ -417,7 +420,7 @@ class QuestCatalog:
 
     def detail(self, key):
         row = self.items[key]
-        tags = FREQUENCY[row["frequency"]] + ("/종료" if row.get("unavailable") else "")
+        tags = ('기간한정/' if row.get('limited') else '') + FREQUENCY[row["frequency"]] + ("/종료" if row.get("unavailable") else "")
         lines = [f"{row['wiki_id']}: {clean(row['name_ko'])} ({tags})", "", "[임무 내용]"]
         if row["frequency"] in ("special1", "special2"):
             lines.append("· 출현: 날짜 끝자리 " + ("3/7/0" if row["frequency"] == "special1" else "2/8"))
@@ -428,7 +431,7 @@ class QuestCatalog:
                 # their common ships and maps in the compact display.
                 req = deepcopy(req["list"][0])
                 req["comp"][2]["family_id"] = [23, 38]
-            requirements = self.requirements(req)
+            requirements = row.get('requirements_ko') or self.requirements(req)
         except (UnsupportedCondition, KeyError):
             requirements = [clean(row["description"]) or "상세 조건 미등록"]
         lines.extend("· " + text for text in requirements or [clean(row["description"]) or "상세 조건 미등록"])

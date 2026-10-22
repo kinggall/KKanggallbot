@@ -8,6 +8,10 @@ C:\KakaoBot\.venv\Scripts\python.exe C:\KakaoBot\KKanggallbot\scripts\collect_ze
 ```
 
 먼저 일부만 확인하려면 끝에 `--codes B141 B142 B143 B144 B145`를 붙인다.
+검토된 신규 임무 12개만 수집하려면 `--new`를 붙인다.
+`--new --dry-run`은 인터넷에 접속하지 않고 대상만 출력한다.
+신규 연습·공창 임무는 본문 텍스트만 수집하고 사진을 가정하지 않는다.
+상세 범위와 임무 반영 기록은 `NEW_QUEST_COLLECTION.md`를 참고한다.
 기본 저장 위치는 `C:\KakaoBot\KKanggallbot\guide_cache\zekamashi`이다. 이 폴더는
 `.gitignore`로 제외하므로 GitHub에 올리지 않는다. 재실행하면 완료한 임무와
 다운로드한 이미지는 건너뛴다. 중단하려면 Ctrl+C를 누른다.

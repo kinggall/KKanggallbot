@@ -1,0 +1,1269 @@
+{
+  "schema": 1,
+  "source": {
+    "url": "https://wikiwiki.jp/kancolle/任務/フロントページ#New",
+    "html_sha256": "66cbb97924422a70186ad619a8b82e9c38b34d52f29a59ba837bf76cb9ec9908",
+    "reviewed_date": "2026-10-22",
+    "identity_policy": "wiki: keys are local identities, NOT invented game API IDs"
+  },
+  "quests": [
+    {
+      "wiki_id": "2610 B1",
+      "name_jp": "【期間限定任務】14年目実りの秋、南瓜始め！",
+      "name_ko": "【기간한정임무】14년째 결실의 가을, 호박 시작!",
+      "category": "sortie",
+      "frequency": "onetime",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [],
+      "requirements": {
+        "category": "sortie",
+        "comp": [
+          {
+            "ship_id": [
+              124,
+              44,
+              45,
+              15,
+              93,
+              95,
+              415,
+              634,
+              635
+            ],
+            "amount": 3
+          }
+        ],
+        "sortie": [
+          {
+            "map": [
+              "1-3",
+              "1-4",
+              "2-1"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 2
+          }
+        ]
+      },
+      "requirements_ko": [
+        "스즈야/무라사메/유다치/아케보노/오보로/아사시오/노와키/진게이/쵸게이 중 3 이상(기함 포함) + 자유 0~3",
+        "1-3/1-4/2-1 보스 S승 각 2회"
+      ],
+      "rewards": {
+        "resources": [
+          370,
+          370,
+          0,
+          0
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 8
+              },
+              {
+                "category": "named",
+                "name": "고속수복재",
+                "amount": 6
+              },
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 1
+              }
+            ]
+          },
+          {
+            "category": "named",
+            "name": "호박",
+            "amount": 1
+          }
+        ]
+      },
+      "description": "스즈야/무라사메/유다치/아케보노/오보로/아사시오/노와키/진게이/쵸게이 중 3 이상(기함 포함) + 자유 0~3 / 1-3/1-4/2-1 보스 S승 각 2회",
+      "source_row": [
+        "2610 B1",
+        "【期間限定任務】14年目実りの秋、南瓜始め！",
+        "「鈴谷」「村雨」「夕立」「曙」「朧」「朝潮」「野分」「迅鯨」「長鯨」の旗艦及び僚艦2隻以上を伴う艦隊で製油所地帯沿岸、南西諸島防衛線、南西諸島近海に反復出撃！これらの敵を一掃せよ！ ※ 旗艦 と随伴2隻に(「 鈴谷 」「 村雨 」「 夕立 」「 曙 」「 朧 」「 朝潮 」「 野分 」「 迅鯨 」「 長鯨 」)+自由枠3隻とし ・(1-3) 製油所地帯沿岸 ・(1-4) 南西諸島防衛線 ・(2-1) 南西諸島近海 を各2回 S勝利 で達成。 ※任務進捗変化 50%(1/3)→80%(2/3)→達成(3/3) (同一海域2回達成を1単位として)",
+        "370",
+        "370",
+        "0",
+        "0",
+        "選択報酬 ・開発資材 x8 ・ 高速修復材 x6 ・ 勲章 x1 確定報酬 ・ 南瓜 x1",
+        "期間限定 【 検証中 】 () 及び () 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "4b8d5ee9b21a9962e7db7a1a808408d3e430e80d31cc73be615f011bb6f6b4de",
+      "prerequisite_incomplete": true
+    },
+    {
+      "wiki_id": "2610 B2",
+      "name_jp": "【期間限定任務】特務護衛戦隊、抜錨せよ！",
+      "name_ko": "【기간한정임무】특무호위전대, 발묘하라!",
+      "category": "sortie",
+      "frequency": "weekly",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "2610 B1"
+      ],
+      "requirements": {
+        "category": "sortie",
+        "comp": [
+          {
+            "ship_id": [
+              540,
+              921,
+              922,
+              995,
+              634,
+              635,
+              953,
+              44,
+              671,
+              528,
+              484,
+              993
+            ],
+            "amount": 3
+          }
+        ],
+        "sortie": [
+          {
+            "map": [
+              "1-2",
+              "1-5",
+              "2-2",
+              "2-3"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 1
+          }
+        ]
+      },
+      "requirements_ko": [
+        "쓰시마/우쿠루/이나기/오오토마리/진게이/쵸게이/아사히/무라사메/마키나미/하야나미/하마나미/카시 중 3 이상 + 자유 0~3",
+        "1-2/1-5/2-2/2-3 보스 S승 각 1회"
+      ],
+      "rewards": {
+        "resources": [
+          580,
+          580,
+          0,
+          0
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "마미야",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 20
+              },
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 2
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "마미야",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "신형항공병장자재",
+                "amount": 2
+              }
+            ]
+          }
+        ]
+      },
+      "description": "쓰시마/우쿠루/이나기/오오토마리/진게이/쵸게이/아사히/무라사메/마키나미/하야나미/하마나미/카시 중 3 이상 + 자유 0~3 / 1-2/1-5/2-2/2-3 보스 S승 각 1회",
+      "source_row": [
+        "2610 B2",
+        "【期間限定任務】特務護衛戦隊、抜錨せよ！",
+        "「対馬」「鵜来」「稲木」「大泊」「迅鯨」「長鯨」「朝日」「村雨」「巻波」「早波」「浜波」「樫」3隻以上を含む護衛艦隊で南西諸島沖、鎮守府近海、バシー海峡、東部オリョール海に展開、制海権を確立せよ！ ※(「 対馬 」「 鵜来 」「 稲木 」「 大泊 」「 迅鯨 」「 長鯨 」「 朝日 」「 村雨 」「 巻波 」「 早波 」「 浜波 」「 樫 」)から3隻+自由枠3隻とし ・(1-2) 南西諸島沖 ・(1-5) 鎮守府近海 ・(2-2) バシー海峡 ・(2-3) 東部オリョール海 を各1回 S勝利 で達成。 ※任務進捗変化 50%(2/4)→80%(3/4)→達成(4/4)",
+        "580",
+        "580",
+        "0",
+        "0",
+        "選択報酬1 ・ 給糧艦 「 間宮 」x2 ・開発資材 x20 ・ 勲章 x2 選択報酬2 ・ 給糧艦 「 間宮 」x2 ・ 南瓜 x2 ・ 新型航空兵装資材 x2",
+        "期間限定 ウィークリー 【 検証中 】 (2610B1)【期間限定任務】14年目実りの秋、南瓜始め！ 及び () 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "8bea390419e6c7e2f9c638d375ec9dc2fe2d6a1bfd3f42f9553fd8753c493d6c",
+      "prerequisite_incomplete": true
+    },
+    {
+      "wiki_id": "2610 B3",
+      "name_jp": "【期間限定任務】USS Trick or Treat！",
+      "name_ko": "【기간한정임무】USS Trick or Treat!",
+      "category": "sortie",
+      "frequency": "onetime",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "2610 C1"
+      ],
+      "requirements": {
+        "category": "sortie",
+        "comp": [
+          {
+            "ship_id": [
+              1005,
+              923,
+              544,
+              896,
+              562,
+              942,
+              932
+            ],
+            "amount": 3
+          }
+        ],
+        "sortie": [
+          {
+            "map": [
+              "2-1",
+              "2-5",
+              "3-1"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 2
+          }
+        ]
+      },
+      "requirements_ko": [
+        "미니애폴리스/터스컬루사/갬비어 베이/브루클린/존스턴/리처드 P. 리어리/인디애나 중 3 이상 + 자유 0~3",
+        "2-1/2-5/3-1 보스 S승 각 2회"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          800,
+          800
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "SK 레이더",
+                "amount": 4
+              },
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 2
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 3
+              },
+              {
+                "category": "named",
+                "name": "설계도",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "해외함 최신기술",
+                "amount": 3
+              }
+            ]
+          }
+        ]
+      },
+      "description": "미니애폴리스/터스컬루사/갬비어 베이/브루클린/존스턴/리처드 P. 리어리/인디애나 중 3 이상 + 자유 0~3 / 2-1/2-5/3-1 보스 S승 각 2회",
+      "source_row": [
+        "2610 B3",
+        "【期間限定任務】USS Trick or Treat！",
+        "「Minneapolis」「Tuscaloosa」「Gambier Bay」「Brooklyn」「Johnston」「Richard P.Leary」「Indiana」の3隻以上を含むUSS Fleetで南西諸島近海、沖ノ島沖、モーレイ海に反復！Trick or Treat！ ※(「 Minneapolis 」「 Tuscaloosa 」「 Gambier Bay 」「 Brooklyn 」「 Johnston 」「 Richard P.Leary 」「 Indiana 」)から3隻+自由枠3隻とし ・(2-1) 南西諸島近海 ・(2-5) 沖ノ島沖 ・(3-1) モーレイ海 を各2回 S勝利 で達成。 ※任務進捗変化 50%(1/3)→80%(2/3)→達成(3/3) (同一海域2回達成を1単位として)",
+        "0",
+        "0",
+        "800",
+        "800",
+        "選択報酬1 ・ 南瓜 x2 ・ SKレーダー x4 ・ 勲章 x2 選択報酬2 ・ 南瓜 x3 ・ 改装設計図 x1 ・ 海外艦最新技術 x3",
+        "期間限定 【 検証中 】 (2610C1)Halloween艦隊 実りの秋、最新演習！ 及び () 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "d22ce2f5cea25b76b1aff0a9e16ac95055cddd6d1ebb690613c9bcfdc3b2c30f",
+      "prerequisite_incomplete": true
+    },
+    {
+      "wiki_id": "2610 B4",
+      "name_jp": "【期間限定任務】西方南瓜祭り! Buono!",
+      "name_ko": "【기간한정임무】서방 호박 축제! Buono!",
+      "category": "sortie",
+      "frequency": "monthly",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "2610 B2",
+        "2610 B3"
+      ],
+      "requirements": {
+        "category": "sortie",
+        "comp": [
+          {
+            "ship_id": [
+              442,
+              535,
+              575,
+              614,
+              443,
+              653,
+              519,
+              636,
+              881,
+              124,
+              44,
+              93,
+              15
+            ],
+            "amount": 3
+          }
+        ],
+        "sortie": [
+          {
+            "map": [
+              "4-2",
+              "4-3",
+              "4-4"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 1
+          }
+        ]
+      },
+      "requirements_ko": [
+        "로마/루이지 토렐리/마에스트랄레/그레칼레/리베치오/시로코/저비스/이47/이201/스즈야/무라사메/오보로/아케보노 중 3 이상(기함 포함) + 자유 0~3",
+        "4-2/4-3/4-4 보스 S승 각 1회"
+      ],
+      "rewards": {
+        "resources": [
+          880,
+          880,
+          0,
+          880
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 8
+              },
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "해외함 최신기술",
+                "amount": 1
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "Ro.44 수상전투기",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "공창자원",
+                "amount": 3
+              }
+            ]
+          }
+        ]
+      },
+      "description": "로마/루이지 토렐리/마에스트랄레/그레칼레/리베치오/시로코/저비스/이47/이201/스즈야/무라사메/오보로/아케보노 중 3 이상(기함 포함) + 자유 0~3 / 4-2/4-3/4-4 보스 S승 각 1회",
+      "source_row": [
+        "2610 B4",
+        "【期間限定任務】西方南瓜祭り! Buono!",
+        "「Roma」「Luigi Torelli」「Maestrale・Grecale・Libeccio・Scirocco」「Jervis」「伊47」「伊201」「鈴谷」「村雨」「朧」「曙」旗艦含む3隻以上で、カレー洋海域、リランカ島、カスガダマ島を制圧せよ！ ※ 旗艦 と随伴2隻に(「 Roma 」「 Luigi Torelli 」「 Maestrale 」「 Grecale 」「 Libeccio 」「 Scirocco 」「 Jervis 」「 伊47 」「 伊201 」「 鈴谷 」「 村雨 」「 朧 」「 曙 」)+自由枠3隻とし ・(4-2) カレー洋海域 ・(4-3) リランカ島 ・(4-4) カスガダマ島 を各1回 S勝利 で達成。 ※任務進捗変化 50%(1/3)→80%(2/3)→達成(3/3)",
+        "880",
+        "880",
+        "0",
+        "880",
+        "選択報酬1 ・開発資材 x8 ・ 勲章 x1 ・ 海外艦最新技術 x1 選択報酬2 ・ Ro.44水上戦闘機 x2 ・ 南瓜 x2 ・ 工廠資源 x3",
+        "期間限定 マンスリー 【 検証中 】 (2610B2)【期間限定任務】特務護衛戦隊、抜錨せよ！ 及び (2610B3)【期間限定任務】USS Trick or Treat！ 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "a069e048021fa88edfb97c6ca171818fb717669d429626de12d8f2f6b4ff0059",
+      "prerequisite_incomplete": false
+    },
+    {
+      "wiki_id": "2610 B5",
+      "name_jp": "【限定拡張作戦】Halloween、おかわり開始！",
+      "name_ko": "【한정확장작전】Halloween, 추가 시작!",
+      "category": "sortie",
+      "frequency": "onetime",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "2610 F1"
+      ],
+      "requirements": {
+        "category": "sortie",
+        "comp": [
+          {
+            "ship_id": [
+              124,
+              15,
+              93,
+              993,
+              953,
+              634,
+              635,
+              451,
+              562,
+              942
+            ],
+            "amount": 4
+          }
+        ],
+        "sortie": [
+          {
+            "map": [
+              "1-1",
+              "1-3"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 4
+          }
+        ]
+      },
+      "requirements_ko": [
+        "스즈야/아케보노/오보로/카시/아사히/진게이/쵸게이/미즈호/존스턴/리처드 P. 리어리 중 4 이상(기함 포함) + 자유 0~2",
+        "1-1/1-3 보스 S승 각 4회"
+      ],
+      "rewards": {
+        "resources": [
+          300,
+          300,
+          0,
+          0
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 16
+              },
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "장비 운용 슬롯",
+                "amount": 2
+              }
+            ]
+          },
+          {
+            "category": "named",
+            "name": "호박",
+            "amount": 1
+          }
+        ]
+      },
+      "description": "스즈야/아케보노/오보로/카시/아사히/진게이/쵸게이/미즈호/존스턴/리처드 P. 리어리 중 4 이상(기함 포함) + 자유 0~2 / 1-1/1-3 보스 S승 각 4회",
+      "source_row": [
+        "2610 B5",
+        "【限定拡張作戦】Halloween、おかわり開始！",
+        "「鈴谷」「曙」「朧」「樫」「朝日」「迅鯨」「長鯨」「瑞穂」「Johnston」「Richard P.Leary」を旗艦含め計4隻以上の艦隊で、鎮守府正面海域及び製油所地帯沿岸を徹底的に哨戒！完っ璧に制圧せよっ！ ※ 旗艦 と随伴3隻に(「 鈴谷 」「 曙 」「 朧 」「 樫 」「 朝日 」「 迅鯨 」「 長鯨 」「 瑞穂 」「 Johnston 」「 Richard P.Leary 」)+自由枠2隻とし ・(1-1) 鎮守府正面海域 ・(1-3) 製油所地帯沿岸 を各4回 S勝利 で達成。 ※任務進捗変化 どちらかの海域を4回S勝利で50％点灯、合計7回S勝利で80％点灯",
+        "300",
+        "300",
+        "0",
+        "0",
+        "選択報酬 ・開発資材 x16 ・ 南瓜 x1 ・ 装備運用枠 +2 装備分 確定報酬 ・ 南瓜 x1",
+        "期間限定 【 検証中 】 (2610F1)【期間限定】Halloweenの南瓜、食べりゅ? 及び () 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "21ea6121ff53e98a7258b30629c668cb8df869514bf84894a4ee2f002d03695a",
+      "prerequisite_incomplete": true
+    },
+    {
+      "wiki_id": "2610 B6",
+      "name_jp": "【限定拡張作戦】Halloween海上護衛隊出撃！",
+      "name_ko": "【한정확장작전】Halloween 해상호위대 출격!",
+      "category": "sortie",
+      "frequency": "weekly",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "2610 B3",
+        "2610 B5"
+      ],
+      "requirements": {
+        "category": "sortie",
+        "comp": [
+          {
+            "ship_id": [
+              540,
+              993,
+              95,
+              671,
+              484,
+              114,
+              921,
+              922,
+              904,
+              637,
+              898,
+              638
+            ],
+            "amount": 4
+          }
+        ],
+        "sortie": [
+          {
+            "map": [
+              "1-2",
+              "1-4",
+              "1-5"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 1
+          }
+        ]
+      },
+      "requirements_ko": [
+        "쓰시마/카시/아사시오/마키나미/하마나미/아부쿠마/우쿠루/이나기/노미/제4호 해방함/제22호 해방함/제30호 해방함 중 4 이상 + 자유 0~2",
+        "1-2/1-4/1-5 보스 S승 각 1회"
+      ],
+      "rewards": {
+        "resources": [
+          480,
+          0,
+          480,
+          0
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 16
+              },
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 1
+              }
+            ]
+          },
+          {
+            "category": "named",
+            "name": "호박",
+            "amount": 1
+          }
+        ]
+      },
+      "description": "쓰시마/카시/아사시오/마키나미/하마나미/아부쿠마/우쿠루/이나기/노미/제4호 해방함/제22호 해방함/제30호 해방함 중 4 이상 + 자유 0~2 / 1-2/1-4/1-5 보스 S승 각 1회",
+      "source_row": [
+        "2610 B6",
+        "【限定拡張作戦】Halloween海上護衛隊出撃！",
+        "「対馬」「樫」「朝潮」「巻波」「浜波」「阿武隈」「鵜来」「稲木」「能美」または丁型海防艦、計4隻以上の海上護衛隊で、鎮守府近海、南西諸島沖、南西諸島防衛線の制海権を確保せよ！Trick or Treat！ ※(「 対馬 」「 樫 」「 朝潮 」「 巻波 」「 浜波 」「 阿武隈 」「 鵜来 」「 稲木 」「 能美 」「 第四号海防艦 」「 第二十二号海防艦 」「 第三〇号海防艦 」)から4隻+自由枠2隻とし ・(1-2) 南西諸島沖 ・(1-4) 南西諸島防衛線 ・(1-5) 鎮守府近海 を各1回 S勝利 で達成。 ※任務進捗変化 50%(1/3)→80%(2/3)→達成(3/3)",
+        "480",
+        "0",
+        "480",
+        "0",
+        "選択報酬 ・開発資材 x16 ・ 南瓜 x1 ・ 勲章 x1 確定報酬 ・ 南瓜 x1",
+        "期間限定 ウィークリー 【 検証中 】 (2610B3)【期間限定任務】USS Trick or Treat！ 及び (2610B5)【限定拡張作戦】Halloween、おかわり開始！ 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "b1c744742c2470bd4b5d155632afc6c37f51710edd965155dcb15dfbb3033f4a",
+      "prerequisite_incomplete": false
+    },
+    {
+      "wiki_id": "2610 B7",
+      "name_jp": "【限定拡張作戦】Halloween狼隊、夜の襲撃！",
+      "name_ko": "【한정확장작전】Halloween 늑대대, 밤의 습격!",
+      "category": "sortie",
+      "frequency": "monthly",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "2610 B6"
+      ],
+      "requirements": {
+        "category": "sortie",
+        "comp": [
+          {
+            "ship_id": [
+              93,
+              45,
+              415,
+              528,
+              943,
+              639,
+              923,
+              932
+            ],
+            "amount": 3
+          }
+        ],
+        "sortie": [
+          {
+            "map": [
+              "2-1",
+              "2-2"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 2
+          }
+        ]
+      },
+      "requirements_ko": [
+        "오보로/유다치/노와키/하야나미/쿠마노마루/진게이 개1/터스컬루사/인디애나 중 3 이상(기함 포함) + 자유 0~3",
+        "2-1/2-2 보스 S승 각 2회"
+      ],
+      "rewards": {
+        "resources": [
+          480,
+          0,
+          0,
+          480
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "마미야",
+                "amount": 2
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 3
+              },
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 36
+              }
+            ]
+          }
+        ]
+      },
+      "description": "오보로/유다치/노와키/하야나미/쿠마노마루/진게이 개1/터스컬루사/인디애나 중 3 이상(기함 포함) + 자유 0~3 / 2-1/2-2 보스 S승 각 2회",
+      "source_row": [
+        "2610 B7",
+        "【限定拡張作戦】Halloween狼隊、夜の襲撃！",
+        "「朧」「夕立」「野分」「早波」「熊野丸」「迅鯨改」「Tuscaloosa」「Indiana」を旗艦及び僚艦2隻以上配備の艦隊で、南西諸島近海・バシー海峡に遊弋する敵に反復襲撃！敵艦隊を完膚無きまで食い破れ！ ※ 旗艦 と随伴2隻に(「 朧 」「 夕立 」「 野分 」「 早波 」「 熊野丸 」「 迅鯨改 」「 Tuscaloosa 」「 Indiana 」)+自由枠3隻とし ・(2-1) 南西諸島近海 ・(2-2) バシー海峡 を各2回 S勝利 で達成。 ※任務進捗変化 50%(2/4)→80%(3/4)→達成(4/4)",
+        "480",
+        "0",
+        "0",
+        "480",
+        "選択報酬1 ・ 南瓜 x1 ・ 給糧艦 「 間宮 」x2 選択報酬2 ・ 勲章 x3 ・ 南瓜 x2 ・開発資材 x36",
+        "期間限定 マンスリー 【 検証中 】 (2610B6)【限定拡張作戦】Halloween海上護衛隊出撃！ 及び () 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "9b3da24d4ef4c691dfe79cf15e94a1eb36e3bfe2d75499545ee73eee61caae00",
+      "prerequisite_incomplete": true
+    },
+    {
+      "wiki_id": "2610 B8",
+      "name_jp": "【限定拡張作戦】南瓜祭り2026、北方作戦！",
+      "name_ko": "【한정확장작전】호박 축제 2026, 북방작전!",
+      "category": "sortie",
+      "frequency": "onetime",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "2610 B2",
+        "2610 B3"
+      ],
+      "requirements": {
+        "category": "sortie",
+        "comp": [
+          {
+            "ship_id": [
+              1005,
+              923,
+              544,
+              562,
+              124,
+              114,
+              15,
+              93,
+              410,
+              993
+            ],
+            "amount": 3
+          }
+        ],
+        "sortie": [
+          {
+            "map": [
+              "3-2",
+              "3-4",
+              "3-5"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 1
+          }
+        ]
+      },
+      "requirements_ko": [
+        "미니애폴리스/터스컬루사/갬비어 베이/존스턴/스즈야/아부쿠마/아케보노/오보로/키요시모/카시 중 3 이상(기함 포함) + 자유 0~3",
+        "3-2/3-4/3-5 보스 S승 각 1회"
+      ],
+      "rewards": {
+        "resources": [
+          2026,
+          1031,
+          0,
+          0
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "개수자재",
+                "amount": 9
+              },
+              {
+                "category": "named",
+                "name": "시제 슈스이",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "공창자원",
+                "amount": 3
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "전투상보",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 3
+              },
+              {
+                "category": "named",
+                "name": "설계도",
+                "amount": 1
+              }
+            ]
+          }
+        ]
+      },
+      "description": "미니애폴리스/터스컬루사/갬비어 베이/존스턴/스즈야/아부쿠마/아케보노/오보로/키요시모/카시 중 3 이상(기함 포함) + 자유 0~3 / 3-2/3-4/3-5 보스 S승 각 1회",
+      "source_row": [
+        "2610 B8",
+        "【限定拡張作戦】南瓜祭り2026、北方作戦！",
+        "「Minneapolis」「Tuscaloosa」「Gambier Bay」「Johnston」「鈴谷」「阿武隈」「曙」「朧」「清霜」「樫」旗艦含む3隻以上の特務艦隊でキス島沖、北方AL海域、北方海域全域を制圧せよ！ ※ 旗艦 と随伴2隻に(「 Minneapolis 」「 Tuscaloosa 」「 Gambier Bay 」「 Johnston 」「 鈴谷 」「 阿武隈 」「 曙 」「 朧 」「 清霜 」「 樫 」)+自由枠3隻とし ・(3-2) キス島沖 ・(3-4) 北方海域全域 ・(3-5) 北方AL海域 を各1回 S勝利 で達成。 ※任務進捗変化 50%(1/3)→80%(2/3)→達成(3/3)",
+        "2026",
+        "1031",
+        "0",
+        "0",
+        "選択報酬1 ・ 改修資材 x9 ・ 試製 秋水 x1 ・ 工廠資源 x3 選択報酬2 ・ 戦闘詳報 x1 ・ 南瓜 x3 ・ 改装設計図 x1",
+        "期間限定 【 検証中 】 (2610B2)【期間限定任務】特務護衛戦隊、抜錨せよ！ 及び (2610B3)【期間限定任務】USS Trick or Treat！ 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "c9201a147b94fb6b1ceabb4a8401b3c36a2b3261ad04368b50c24f1a2f0b901a",
+      "prerequisite_incomplete": false
+    },
+    {
+      "wiki_id": "2610 C1",
+      "name_jp": "Halloween艦隊 実りの秋、最新演習！",
+      "name_ko": "Halloween 함대, 결실의 가을 최신 연습!",
+      "category": "exercise",
+      "frequency": "weekly",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "2610 B1"
+      ],
+      "requirements": {
+        "category": "exercise",
+        "comp": [
+          {
+            "ship_id": [
+              124,
+              114,
+              93,
+              15,
+              44,
+              45,
+              415,
+              95,
+              528,
+              484,
+              881,
+              519,
+              1005,
+              562
+            ],
+            "amount": 4
+          }
+        ],
+        "result": "A",
+        "times": 5,
+        "daily": true
+      },
+      "requirements_ko": [
+        "스즈야/아부쿠마/오보로/아케보노/무라사메/유다치/노와키/아사시오/하야나미/하마나미/이201/저비스/미니애폴리스/존스턴 중 4 이상 + 자유 0~2",
+        "오늘 중 연습 A승 이상 5회"
+      ],
+      "rewards": {
+        "resources": [
+          500,
+          500,
+          0,
+          0
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "마미야",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "고속건조재",
+                "amount": 6
+              },
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 1
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "연료",
+                "amount": 4300
+              },
+              {
+                "category": "named",
+                "name": "보키",
+                "amount": 2800
+              }
+            ]
+          }
+        ]
+      },
+      "description": "스즈야/아부쿠마/오보로/아케보노/무라사메/유다치/노와키/아사시오/하야나미/하마나미/이201/저비스/미니애폴리스/존스턴 중 4 이상 + 자유 0~2 / 오늘 중 연습 A승 이상 5회",
+      "source_row": [
+        "2610 C1",
+        "Halloween艦隊 実りの秋、最新演習！",
+        "「鈴谷」「阿武隈」「朧」「曙」「村雨」「夕立」「野分」「朝潮」「早波」「浜波」「伊201」「Jervis」「Minneapolis」「Johnston」4隻以上を含む強襲艦隊で、本日中に演習で【A判定】以上を5回達成せよ！ ※任務進捗変化 50%(3/5)→80%(4/5)→達成(5/5)",
+        "500",
+        "500",
+        "0",
+        "0",
+        "選択報酬1 ・ 給糧艦 「 間宮 」x1 ・高速建造材 x6 ・ 勲章 x1 選択報酬2 ・ 南瓜 x1 ・燃料 x4300 ・ボーキサイト x2800",
+        "期間限定 ウィークリー 【 検証中 】 (2610B1)【期間限定任務】14年目実りの秋、南瓜始め！ 及び () 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "fce7ed6e3d77173fc759706c525797ea69a8cd613ba8d2da88ab32861192618f",
+      "prerequisite_incomplete": true
+    },
+    {
+      "wiki_id": "2610 F1",
+      "name_jp": "【期間限定】Halloweenの南瓜、食べりゅ?",
+      "name_ko": "【기간한정】Halloween의 호박, 먹을래?",
+      "category": "factory",
+      "frequency": "monthly",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "2610 B1"
+      ],
+      "requirements": {
+        "category": "equipexchange"
+      },
+      "requirements_ko": [
+        "폐기: 소구경주포/중구경포/수상정찰기 각 9개",
+        "준비·소모: 99식 함폭 x10 / 97식 함공 x10 / 가구코인 x1031"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          880,
+          0
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 14
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "보키",
+                "amount": 2026
+              },
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 3
+              },
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 2
+              }
+            ]
+          }
+        ]
+      },
+      "description": "폐기: 소구경주포/중구경포/수상정찰기 각 9개 / 준비·소모: 99식 함폭 x10 / 97식 함공 x10 / 가구코인 x1031",
+      "source_row": [
+        "2610 F1",
+        "【期間限定】Halloweenの南瓜、食べりゅ?",
+        "「小口径主砲」「中口径主砲」「水上偵察機」×各9を破棄、「九九式艦爆」「九七式艦攻」×各10、家具コイン×1031を準備せよ！（任務達成後、準備した装備・家具コインは消費します） ※任務進捗変化",
+        "0",
+        "0",
+        "880",
+        "0",
+        "選択報酬1 ・ 勲章 x2 ・ 南瓜 x1 ・開発資材 x14 選択報酬2 ・ボーキサイト x2026 ・ 勲章 x3 ・ 南瓜 x2",
+        "期間限定 マンスリー 【 検証中 】 (2610B1)【期間限定任務】14年目実りの秋、南瓜始め！ 及び () 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "02129823625cf6318bc3ea13b195cf528dc94efd28ab186114b7e75462842668",
+      "prerequisite_incomplete": true
+    },
+    {
+      "wiki_id": "2610 F2",
+      "name_jp": "【限定拡張作戦】対潜装備の整理整頓！2026",
+      "name_ko": "【한정확장작전】대잠장비 정리정돈! 2026",
+      "category": "factory",
+      "frequency": "onetime",
+      "limited": true,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "2610 B8"
+      ],
+      "requirements": {
+        "category": "equipexchange"
+      },
+      "requirements_ko": [
+        "폐기: 94식 폭뢰투사기 x12 / 95식 폭뢰 x8 / 93식 수중청음기 x6",
+        "준비·소모: 호박 x2 / 3식 폭뢰투사기 x5 / 개발자재 x30"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          360,
+          0,
+          180
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 45
+              },
+              {
+                "category": "named",
+                "name": "호박",
+                "amount": 4
+              },
+              {
+                "category": "named",
+                "name": "3식 수중탐신의",
+                "amount": 10
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "장비 운용 슬롯",
+                "amount": 15
+              },
+              {
+                "category": "named",
+                "name": "Type124 ASDIC",
+                "amount": 1,
+                "stars": 3
+              },
+              {
+                "category": "named",
+                "name": "해외함 최신기술",
+                "amount": 3
+              }
+            ]
+          }
+        ]
+      },
+      "description": "폐기: 94식 폭뢰투사기 x12 / 95식 폭뢰 x8 / 93식 수중청음기 x6 / 준비·소모: 호박 x2 / 3식 폭뢰투사기 x5 / 개발자재 x30",
+      "source_row": [
+        "2610 F2",
+        "【限定拡張作戦】対潜装備の整理整頓！2026",
+        "「九四式爆雷投射器」×12、「九五式爆雷」×8、「九三式水中聴音機」×6を廃棄。さらに「南瓜」×2、「三式爆雷投射器」×5、開発資材×30を準備せよ！(準備した装備・資材等は消費します) ※任務進捗変化",
+        "0",
+        "360",
+        "0",
+        "180",
+        "選択報酬1 ・開発資材 x45 ・ 南瓜 x4 ・ 三式水中探信儀 x10 選択報酬2 ・ 装備運用枠 +15 装備分 ・ Type124 ASDIC ★+3 x1 ・ 海外艦最新技術 x3",
+        "期間限定 【 検証中 】 (2610B8)【限定拡張作戦】南瓜祭り2026、北方作戦！ 及び () 達成後",
+        "2026 10/14 ~ 20** **/**"
+      ],
+      "source_sha256": "510c9dcf0e6eae0fc8a37f0c4de5d5e176185d7ef528f9a78c3b165a2a36708d",
+      "prerequisite_incomplete": true
+    },
+    {
+      "wiki_id": "B218",
+      "name_jp": "再編二十駆「天霧」「狭霧」南方へ展開せよ！",
+      "name_ko": "재편 제20구축대 「아마기리」「사기리」 남방으로 전개하라!",
+      "category": "sortie",
+      "frequency": "onetime",
+      "limited": false,
+      "release_date": "2026-10-14",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_codes": [
+        "Bd5"
+      ],
+      "requirements": {
+        "category": "sortie",
+        "comp": [
+          {
+            "ship_id": [
+              903,
+              908
+            ],
+            "amount": 1
+          },
+          {
+            "ship_id": 902,
+            "amount": 1
+          }
+        ],
+        "sortie": [
+          {
+            "map": [
+              "5-1",
+              "5-3",
+              "5-4",
+              "5-6-3"
+            ],
+            "boss": true,
+            "result": "S",
+            "times": 1
+          }
+        ]
+      },
+      "requirements_ko": [
+        "아마기리 개2/개2정 중 1 + 사기리 개2 + 자유 0~4",
+        "5-1/5-3/5-4/5-6-3 보스 S승 각 1회"
+      ],
+      "rewards": {
+        "resources": [
+          2026,
+          1941,
+          0,
+          0
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "공창자원",
+                "amount": 3
+              },
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 28
+              },
+              {
+                "category": "named",
+                "name": "3식 수중탐신의",
+                "amount": 3
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "신형병장자재",
+                "amount": 3
+              },
+              {
+                "category": "named",
+                "name": "12.7cm 연장포 B형 개2",
+                "amount": 1,
+                "stars": 10
+              },
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 3
+              }
+            ]
+          }
+        ]
+      },
+      "description": "아마기리 개2/개2정 중 1 + 사기리 개2 + 자유 0~4 / 5-1/5-3/5-4/5-6-3 보스 S승 각 1회",
+      "source_row": [
+        "B218",
+        "再編二十駆「天霧」「狭霧」南方へ展開せよ！",
+        "改装特型駆逐艦「天霧改二/丁」「狭霧改二」を含む艦隊で南方に展開！南方海域前面、サブ島沖海域、サーモン海域、ラバウル方面海域深部に出撃！敵艦隊主力と交戦、これを撃滅せよ！再編二十駆、抜錨！ ※「 天霧改二 / 丁 」「 狭霧改二 」を含み自由枠4隻の艦隊で ・(5-1) 南方海域前面 ・(5-3) サブ島沖海域 ・(5-4) サーモン海域 ・(5-6-3/Z) ラバウル方面海域深部 を各1回 S勝利 で達成。 ※任務進捗変化 50%(2/4)→80%(3/4)→達成(4/4)",
+        "2026",
+        "1941",
+        "0",
+        "0",
+        "選択報酬1 ・ 工廠資源 x3 ・開発資材 x28 ・ 三式水中探信儀 x3 選択報酬2 ・ 新型兵装資材 x3 ・ 12.7cm連装砲B型改二 ★max x1 ・ 勲章 x3",
+        "【 検証中 】 (Bd5)敵補給艦を3隻撃沈せよ！ 及び () 達成後",
+        "2026 10/14"
+      ],
+      "source_sha256": "831ccf6597c55838191d9b4366005c943d91b7b83ffb33c92750d30806386349",
+      "prerequisite_incomplete": true
+    }
+  ]
+}

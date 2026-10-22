@@ -232,6 +232,8 @@ def group_shared_fleets(entries):
 def build_preview(query, root=ROOT):
     """Return text and local fleet images; never fetch from the network."""
     args = query.strip().split()
+    if len(args) >= 2 and re.fullmatch(r'\d{4}', args[0]) and re.fullmatch(r'[A-Za-z]+\d+', args[1]):
+        args = [args[0] + args[1], *args[2:]]
     if len(args) not in (1, 2):
         return USAGE, []
     target_map = None
@@ -255,6 +257,9 @@ def build_preview(query, root=ROOT):
         return header + '\n\n등록된 공략이 없습니다.', []
     if record.get('status') != 'downloaded' or record.get('schema_version') != 2:
         return header + '\n\n공략 수집 중이거나 확인이 필요한 자료입니다.', []
+    if record.get('text_only'):
+        return (header + '\n\n편성·경로 공략이 없는 연습/공창 임무입니다.\n'
+                + f'임무 조건: !임무 {code}\n공략 원문: {record["url"]}'), []
 
     known = {}
     for image in record.get('images', []):

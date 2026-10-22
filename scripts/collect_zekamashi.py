@@ -5,6 +5,7 @@ import json
 import re
 import time
 import unicodedata
+import sys
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
@@ -14,6 +15,8 @@ from urllib.robotparser import RobotFileParser
 import requests
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from quest_updates import apply_updates
 BASE = 'https://zekamashi.net/'
 IMAGE_CDN_HOSTS = {'i0.wp.com', 'i1.wp.com', 'i2.wp.com'}
 
@@ -194,20 +197,29 @@ def main():
     parser.add_argument('--output', type=Path, default=ROOT / 'guide_cache' / 'zekamashi')
     parser.add_argument('--codes', nargs='*', help='Optional subset, e.g. B141 B142')
     parser.add_argument('--interval', type=float, default=10)
+    parser.add_argument('--new', action='store_true', help='Collect reviewed new wiki quests only (including non-sortie text guides)')
+    parser.add_argument('--dry-run', action='store_true', help='List targets without network access')
     args = parser.parse_args()
     if args.interval < 10:
         parser.error('Use an interval of at least 10 seconds')
-    quests = json.loads((ROOT / 'data/quests.json').read_text(encoding='utf-8'))['quests']
-    targets = [q for q in quests.values() if q.get('category') == 'sortie'
+    quests = apply_updates(json.loads((ROOT / 'data/quests.json').read_text(encoding='utf-8')), ROOT)['quests']
+    targets = [q for q in quests.values() if (q.get('category') == 'sortie' or (args.new and q.get('source_row')))
                and not q.get('unavailable') and q.get('frequency') in
                {'onetime', 'daily', 'weekly', 'monthly', 'quarterly', 'annual'}]
+    if args.new:
+        targets = [q for q in targets if q.get('source_row')]
     if args.codes:
-        requested = {c.upper() for c in args.codes}
-        targets = [q for q in targets if q['wiki_id'].upper() in requested]
-        missing = requested - {q['wiki_id'].upper() for q in targets}
+        requested = {c.replace(' ', '').upper() for c in args.codes}
+        targets = [q for q in targets if q['wiki_id'].replace(' ', '').upper() in requested]
+        missing = requested - {q['wiki_id'].replace(' ', '').upper() for q in targets}
         if missing:
             parser.error('Not in collection scope: ' + ', '.join(sorted(missing)))
     targets.sort(key=lambda q: (q['frequency'], q['wiki_id']))
+    if args.dry_run:
+        for quest in targets:
+            print(f'{quest["wiki_id"]}: {quest["name_jp"]}', flush=True)
+        print(f'Targets: {len(targets)} (no network requests)', flush=True)
+        return
     fetcher = Fetcher(args.interval)
     args.output.mkdir(parents=True, exist_ok=True)
     print(f'Targets: {len(targets)}; output: {args.output}', flush=True)
@@ -259,7 +271,17 @@ def main():
             html = fetcher.get(url).text
             page_path.write_text(html, encoding='utf-8')
         try:
-            blocks, images = extract_article(html, url, title)
+            if quest['category'] == 'sortie':
+                blocks, images = extract_article(html, url, title)
+            else:
+                body = select_article(html)
+                titles = [n.text() for n in Document(html).root.walk() if n.tag == 'h1']
+                if not any(normalized(title) in normalized(t) for t in titles):
+                    raise ValueError('Article title does not match the quest; manual review required')
+                blocks = [{'tag':n.tag, 'text':visible_text(n)} for n in visible_walk(body)
+                          if n.tag in {'h2','h3','p','li'} and visible_text(n).strip()]
+                images = []  # No fleet images assumed for exercise/factory quests.
+                record['text_only'] = True
         except ValueError as error:
             record.update(status='review_required', review_reason=str(error), url=url)
             write_json(manifest, record)
