@@ -21,7 +21,7 @@ SPECS = {
  '2610 B4': ('【期間限定任務】西方南瓜祭り! Buono!', '【기간한정임무】서방 호박 축제! Buono!', 'Roma/Luigi Torelli/Maestrale/Grecale/Libeccio/Scirocco/Jervis/伊47/伊201/鈴谷/村雨/朧/曙', 3, True),
  '2610 B5': ('【限定拡張作戦】Halloween、おかわり開始！', '【한정확장작전】Halloween, 추가 시작!', '鈴谷/曙/朧/樫/朝日/迅鯨/長鯨/瑞穂/Johnston/Richard P.Leary', 4, True),
  '2610 B6': ('【限定拡張作戦】Halloween海上護衛隊出撃！', '【한정확장작전】Halloween 해상호위대 출격!', '対馬/樫/朝潮/巻波/浜波/阿武隈/鵜来/稲木/能美/第四号海防艦/第二十二号海防艦/第三〇号海防艦', 4, False),
- '2610 B7': ('【限定拡張作戦】Halloween狼隊、夜の襲撃！', '【한정확장작전】Halloween 늑대대, 밤의 습격!', '朧/夕立/野分/早波/熊野丸/迅鯨改/Tuscaloosa/Indiana', 3, True),
+ '2610 B7': ('【限定拡張作戦】Halloween狼隊、夜の襲撃！', '【한정확장작전】할로윈 늑대부대, 밤의 습격!', '朧/夕立/野分/早波/熊野丸/迅鯨改/Tuscaloosa/Indiana', 3, True),
  '2610 B8': ('【限定拡張作戦】南瓜祭り2026、北方作戦！', '【한정확장작전】호박 축제 2026, 북방작전!', 'Minneapolis/Tuscaloosa/Gambier Bay/Johnston/鈴谷/阿武隈/曙/朧/清霜/樫', 3, True),
  '2610 C1': ('Halloween艦隊 実りの秋、最新演習！', 'Halloween 함대, 결실의 가을 최신 연습!', '鈴谷/阿武隈/朧/曙/村雨/夕立/野分/朝潮/早波/浜波/伊201/Jervis/Minneapolis/Johnston', 4, False),
  '2610 F1': ('【期間限定】Halloweenの南瓜、食べりゅ?', '【기간한정】Halloween의 호박, 먹을래?', '', 0, False),
