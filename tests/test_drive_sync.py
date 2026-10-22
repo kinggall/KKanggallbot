@@ -4,6 +4,7 @@ import hashlib
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import Mock
 
 SPEC = importlib.util.spec_from_file_location('drive_sync', Path(__file__).resolve().parents[1] / 'scripts/sync_drive_data.py')
 sync = importlib.util.module_from_spec(SPEC)
@@ -68,6 +69,18 @@ class FakeDrive:
 
 
 class SyncTests(unittest.TestCase):
+    def test_small_upload_uses_one_request_and_verifies_server_checksum(self):
+        with tempfile.TemporaryDirectory() as temp:
+            p=Path(temp)/'guide.txt';p.write_bytes(b'small file')
+            d=sync.Drive.__new__(sync.Drive);d.folder='root'
+            d.call=Mock(return_value=Response({'id':'file','md5Checksum':hashlib.md5(p.read_bytes()).hexdigest()}))
+            self.assertEqual(d.upload(p,p.name),'file')
+            d.call.assert_called_once()
+            self.assertEqual(d.call.call_args.kwargs['params']['uploadType'],'multipart')
+            self.assertIn(b'small file',d.call.call_args.kwargs['data'])
+            d.call=Mock(return_value=Response({'id':'file','md5Checksum':'wrong'}))
+            with self.assertRaisesRegex(RuntimeError,'checksum mismatch'):d.upload(p,p.name)
+
     def test_new_file_upload_before_index_failure_is_reused(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);(root/'pictures').mkdir()

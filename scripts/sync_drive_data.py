@@ -6,6 +6,7 @@ Credentials are read from local token.json or the three proxy secret bindings.
 import argparse
 import hashlib
 import json
+import mimetypes
 import os
 from pathlib import Path, PurePosixPath
 import shutil
@@ -99,7 +100,15 @@ class Drive:
             self.deadline = time.monotonic() + max(1, token.get('expires_in', 3600) - 120)
         response = self.session.request(method, url, timeout=180, **kwargs)
         if not response.ok:
-            raise RuntimeError(f'Drive request failed: HTTP {response.status_code}')
+            reasons=[]
+            try:
+                for item in response.json().get('error',{}).get('errors',[]):
+                    reason=item.get('reason','')
+                    if reason and reason.replace('_','').isalnum():reasons.append(reason)
+            except (ValueError,AttributeError,TypeError):
+                pass
+            detail=' ('+', '.join(reasons)+')' if reasons else ''
+            raise RuntimeError(f'Drive request failed: HTTP {response.status_code}'+detail)
         return response
 
     def head(self):
@@ -120,6 +129,22 @@ class Drive:
             url += '/' + existing
         else:
             metadata['parents'] = [parent or self.folder]
+        if path.stat().st_size<=5*1024*1024:
+            # Ordinary guide files need only one request. Avoid a separate
+            # resumable-session handshake for small HTML/JSON/image payloads.
+            boundary='kakaobot_'+uuid.uuid4().hex
+            content=path.read_bytes()
+            mime=mimetypes.guess_type(name)[0] or 'application/octet-stream'
+            body=(f'--{boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'.encode()
+                  +json.dumps(metadata,ensure_ascii=False).encode()+b'\r\n'
+                  +f'--{boundary}\r\nContent-Type: {mime}\r\n\r\n'.encode()
+                  +content+f'\r\n--{boundary}--\r\n'.encode())
+            result=self.call('PATCH' if existing else 'POST',url,
+                             params={'uploadType':'multipart','fields':'id,md5Checksum'},
+                             data=body,headers={'Content-Type':f'multipart/related; boundary={boundary}'}).json()
+            if result.get('md5Checksum') and result['md5Checksum']!=hashlib.md5(content).hexdigest():
+                raise RuntimeError('Drive upload checksum mismatch')
+            return result['id']
         location = self.call('PATCH' if existing else 'POST', url,
                              params={'uploadType': 'resumable'}, json=metadata,
                              headers={'X-Upload-Content-Type': 'application/octet-stream'}).headers['Location']
