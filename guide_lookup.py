@@ -11,6 +11,13 @@ from scripts.collect_zekamashi import Document, fleet_section_heading, image_ide
 ROOT = Path(__file__).resolve().parent
 from map_guides import USAGE
 TERMS = {
+    'が編成しやすいと思います':' 편성을 권장합니다', '固定可能':'경로 고정 가능', '時雨':'시구레 ',
+    '大和改二重':'야마토 개2중 ', '長門改二':'나가토 개2 ', '陸奥改二':'무츠 개2 ',
+    '黒潮改二':'쿠로시오 개2 ', '親潮改二':'오야시오 개2 ', '早潮改二':'하야시오 개2 ',
+    '時雨改三':'시구레 개3 ', '天津風改二':'아마츠카제 개2 ', '稲木改二':'이나기 개2 ',
+    '秋津洲改':'아키츠시마 개 ', '白露':'시라츠유 ', '有明':'아리아케 ',
+    'Johnston':'존스턴 ', '高速建造材':'고속건조재', '揚陸':'양륙',
+    '低確率で逸れあり':'낮은 확률로 이탈', '低確率で':'낮은 확률로 ',
     '高速+統一': '고속+통일', '高速統一': '고속통일', '低速統一': '저속통일',
     '高速': '고속', '低速': '저속', '最速': '최속',
     '巡洋艦': '순양함', '潜水空母': '잠수항모', '潜水艦': '잠수', '潜母': '잠수항모',
@@ -54,12 +61,14 @@ FLEET_TYPES = (
     r'高戦|低戦|正空|軽空|空母|水母|航巡|航戦|潜水|潜母|雷巡|補給)'
 )
 NODE_ROUTE = r'【(?=[^】]*[A-Z])[A-Z0-9\s()→⇒←↔/・,.\-~?]+】'
+NAMED_FLEET = r'(?:大和改二重|長門改二|陸奥改二|黒潮改二|親潮改二|早潮改二|時雨改三|天津風改二|稲木改二|秋津洲改|白露|有明|Johnston|Fletcher|羽黒|足柄|神風|Gambier Bay(?: Mk\.II)?)'
 MAP_HEADING = r'(?<![0-9])[1-7]-[1-6](?:-[1-3])?(?![0-9]|\s*戦)'
 GENERAL_ONLY_QUESTS = {'B39', 'B50', 'B54', 'B59', 'B62', 'B80', 'B81', 'B104'}
 
 
 def translate_route(text):
     text = unicodedata.normalize('NFKC', text)
+    text = re.sub('('+NAMED_FLEET+r')(\(旗艦\))?1(?!\d)',lambda m:m[1]+(m[2] or ''),text)
     text = text.replace('高戦', '고속전함').replace('低戦', '저속전함')
     # Keep numeric constraints while removing redundant prose around a fleet.
     text = re.sub(r'が(\d+)隻以下', r' 합계 \1척 이하', text)
@@ -98,12 +107,14 @@ def translate_route(text):
     text = re.sub(r'[、。]\s*(?=【)', '', text)
     text = re.sub(
         r'(\d)(?=(?:정규항모|장갑항모|경항모|항모|전함|항전|항순|중순|경순|뇌순|구축|해방|'
-        r'잠수항모|잠수|수모|상륙함|보급|순양함|자유|아키츠시마|하구로|아시가라|카미카제))',
+        r'잠수항모|잠수|수모|상륙함|양륙|보급|순양함|자유|아키츠시마|하구로|아시가라|카미카제))',
         r'\1 ', text,
     )
     text = re.sub(r'([A-Z])보스', r'\1:보스', text)
     text = re.sub(r'(?<!\s)【', ' 【', text)
-    return text
+    text = re.sub(r'\(기함\)\s*', '(기함) ', text)
+    text = re.sub(r'\s*/\s*', '/', text)
+    return re.sub(r'\s+', ' ', text).strip()
 
 
 def find_route(text):
@@ -113,7 +124,8 @@ def find_route(text):
     text = re.sub(r'(?<=[A-Z])\s+or\s+(?=[A-Z(])','/',text)
     starter = (r'(?:' + FLEET_TYPES + r'(?:系|級)?(?=\s*(?:\d|[+(]|を\d))'
                r'|Gambier Bay(?: Mk\.II)?|Fletcher|秋津洲|羽黒|足柄|神風)')
-    match = re.search(starter + r'[^。※]*?。?\s*' + NODE_ROUTE, text)
+    named = re.match(NAMED_FLEET + r'[^。※]*?' + NODE_ROUTE, text)
+    match = named or re.search(starter + r'[^。※]*?。?\s*' + NODE_ROUTE, text)
     if not match:
         return None
     end = match.end()
@@ -134,7 +146,7 @@ def find_route(text):
 def find_random_fleet(text):
     """A fleet-only lead paragraph is valid even without a fixed node route."""
     text = unicodedata.normalize('NFKC', text).strip()
-    pattern = r'(' + FLEET_TYPES + r'(?:\([^)]*\))?\s*\d+(?:\((?:高速[+]?統一|低速統一)\))?\s*)+'
+    pattern = r'((?:' + FLEET_TYPES + r'(?:系|級)?(?:\([^)]*\))?\s*\d+|' + NAMED_FLEET + r'(?:\(旗艦\))?\d?)(?:\((?:高速[+]?統一|低速統一)\))?[/\s]*)+'
     match = re.match(r'^' + pattern, text)
     if not match and not text.startswith('Gambier Bay'):
         # Older articles embed a complete fleet in prose rather than using
@@ -220,7 +232,7 @@ def map_fleet_sections(text):
     if not labels:
         return []
     fleet = text[:labels[0].start()].split('※')[0].strip().rstrip('・● \r\n')
-    if not re.match(r'^' + FLEET_TYPES + r'(?:\([^)]*\))?\s*\d', fleet):
+    if not (re.match(r'^' + FLEET_TYPES + r'(?:\([^)]*\))?\s*\d', fleet) or re.match(NAMED_FLEET,fleet)):
         return []
     sections = []
     for index, label in enumerate(labels):
@@ -230,7 +242,7 @@ def map_fleet_sections(text):
         if route:
             summary = translate_route(route)
         else:
-            count = re.search(r'道中\s*(\d+)戦', note)
+            count = re.search(r'道中\s*(\d+(?:[-~]\d+)?)戦', note)
             summary = translate_route(fleet) + '\n'
             summary += f'도중 {count[1]}전' if count else '고정 경로 표기 없음'
             if 'ボス固定' in note and 'ボス固定不可' not in note:
@@ -239,6 +251,8 @@ def map_fleet_sections(text):
                 summary += ' / 경로 랜덤'
             elif '到達しやすい' in note:
                 summary += ' / 보스 도달률을 높이는 편성'
+            if '低確率で逸れあり' in note:summary += ' / 낮은 확률로 이탈'
+            elif re.search(r'低確率で\d+戦',note):summary += ' / '+translate_route(re.search(r'低確率で\d+戦',note)[0])
         sections.append((label[1], summary))
     return sections
 
@@ -546,6 +560,9 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
         if target_map and target_map in general_only_maps(quest,root,html):
             return unavailable(target_map+'은 2기 전용 편성이 없어 일반해역 공략으로 안내합니다.')
         return unavailable('저장된 공략의 편성·해역 연결을 확인 중입니다.')
+    if code in {'Bw1','Bw4'}:
+        areas=list(dict.fromkeys(heading.split(' [')[0] for heading,_,_ in summaries))
+        return header+'\n\n'+' / '.join(areas)+block(quest,root,area=target_map,source_html=html),pictures
     result = header + '\n\n' + '\n\n'.join(group_shared_fleets(summaries))
     if missing and not target_map:
         from quest_guide_comments import general_only_maps

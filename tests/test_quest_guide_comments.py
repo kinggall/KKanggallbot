@@ -10,6 +10,25 @@ import quest_guide_comments as comments
 
 
 class QuestGuideCommentTests(unittest.TestCase):
+    def test_named_fleet_prefix_is_not_dropped(self):
+        source='黒潮改二早潮改二長門改二陸奥改二秋津洲改航巡1【ADCFN】(N:ボス)'
+        result=guide_lookup.translate_route(guide_lookup.find_route(source))
+        for name in ['쿠로시오 개2','하야시오 개2','나가토 개2','무츠 개2','아키츠시마 개']:
+            self.assertIn(name,result)
+        self.assertNotIn('改',result)
+
+    def test_named_shared_fleet_keeps_distinct_routes(self):
+        source='稲木改二(旗艦)空母2軽巡1海防1水母1\n1-4:道中2-3戦のランダム(低確率で3戦)\n2-2:【CEFHK】(E:通常 K:ボス)\n2-3:道中ランダム 低確率で逸れあり'
+        result=dict(guide_lookup.map_fleet_sections(source))
+        self.assertIn('이나기 개2',result['1-4'])
+        self.assertNotIn('CEFHK',result['1-4'])
+        self.assertIn('CEFHK',result['2-2'])
+        self.assertIn('낮은 확률로 이탈',result['2-3'])
+
+    def test_landing_and_resource_translation(self):
+        self.assertEqual(guide_lookup.translate_route('海防2揚陸2'),'해방2 양륙2')
+        self.assertEqual(guide_lookup.translate_route('高速建造材'),'고속건조재')
+
     def test_battle_counts_are_not_map_headings(self):
         import re
         for heading in ['3-4戦ランダム', '３－４戦ランダム', '3-4 戦']:
