@@ -124,8 +124,13 @@ def audit(output):
                         row['warnings'].append('No fleet image: '+variant['source_heading'])
             overview,images=map_guides.preview(area,cache_root=output)
             if not images and '편성' not in overview and '【' not in overview:row['status']='review_required'
-            for route in record['routes'] if len(record['routes'])>1 else []:
-                text,pictures=map_guides.preview(area+' 루트'+str(route['number']),cache_root=output)
+            tree=map_guides.gauge_routes(record) if area in map_guides.MULTI_GAUGES else {}
+            queries=[area+' 루트'+str(r['number']) for r in record['routes']] if len(record['routes'])>1 else [area+' 상세']
+            if tree:
+                queries=[area.replace('-','')+str(gauge)+' 루트'+str(r['number'])
+                         for gauge,routes in tree.items() for r in routes]
+            for query in queries:
+                text,pictures=map_guides.preview(query,cache_root=output)
                 if '해당 루트가 없습니다' in text or '완료되지 않았습니다' in text or not pictures:
                     row['status']='review_required'
             row['overview_images']=len(images)

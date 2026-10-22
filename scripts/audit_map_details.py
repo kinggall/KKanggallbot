@@ -29,8 +29,20 @@ def audit(root=ROOT):
         query_count+=2
         markdown.extend(['',f'## {area} 전체 조회','```text','!공략 '+area,overview,'```'])
         variants=0;detail_queries=[]
-        for route in record['routes']:
-            query=area+' 루트'+str(route['number']) if len(record['routes'])>1 else area+' 상세'
+        jobs=[(area,route,len(record['routes'])>1) for route in record['routes']]
+        tree=map_guides.gauge_routes(record) if area in map_guides.MULTI_GAUGES else {}
+        if tree:
+            jobs=[]
+            for gauge,routes in tree.items():
+                code=area.replace('-','')+str(gauge)
+                text,images=map_guides.preview(code,root);query_count+=2
+                if not images:failures.append(code+': missing gauge overview pictures')
+                if map_guides.preview(code,root)!=map_guides.preview(area+'-'+str(gauge),root):
+                    failures.append(code+': dashed gauge lookup mismatch')
+                markdown.extend(['',f'### !공략 {code} — 게이지 개요','```text',text,'```'])
+                jobs.extend((code,route,True) for route in routes)
+        for code,route,numbered in jobs:
+            query=code+' 루트'+str(route['number']) if numbered else code+' 상세'
             text,images=map_guides.preview(query,root);query_count+=1;detail_queries.append(query)
             if not images or any(not p.is_file() for p in images):failures.append(query+': missing detail pictures')
             if re.search('[\u3040-\u30ff\u4e00-\u9fff]',text):failures.append(query+': Japanese in output')

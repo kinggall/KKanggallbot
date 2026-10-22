@@ -286,8 +286,8 @@ def article_matches(html, record, quest):
 def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diagnostics=None):
     """Return text and local fleet images; never fetch from the network."""
     args = query.strip().split()
-    from map_guides import parse_area,preview as map_preview
-    if args and parse_area(args[0]):
+    from map_guides import parse_map_query,preview as map_preview
+    if args and parse_map_query(args[0]):
         return map_preview(query,root=root)
     if len(args) >= 2 and re.fullmatch(r'\d{4}', args[0]) and re.fullmatch(r'[A-Za-z]+\d+', args[1]):
         args = [args[0] + args[1], *args[2:]]

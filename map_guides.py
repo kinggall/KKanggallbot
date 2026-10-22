@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parent
 AREA_COUNTS = {1:6, 2:5, 3:5, 4:5, 5:6, 6:5, 7:5}
 AREAS = tuple(f'{a}-{n}' for a,count in AREA_COUNTS.items() for n in range(1,count+1))
+MULTI_GAUGES = {'5-6':3,'7-2':2,'7-3':2,'7-5':3}
 USAGE = '사용법: !공략 [임무번호/해역]\n예: !공략 By10 / !공략 By10 65\n     !공략 55 / !공략 55 중앙'
 
 
@@ -19,6 +20,33 @@ def parse_area(value):
     match = re.fullmatch(r'([1-7])-?([1-6])',value)
     area = f'{match[1]}-{match[2]}' if match else None
     return area if area in AREAS else None
+
+
+def parse_map_query(value):
+    """Keep collector map parsing separate from optional gauge selectors."""
+    value=unicodedata.normalize('NFKC',value).strip()
+    area=parse_area(value)
+    if area:return area,None
+    match=re.fullmatch(r'([1-7])-?([1-6])-?([1-9])',value)
+    if match:
+        area=f'{match[1]}-{match[2]}'
+        if area in MULTI_GAUGES:return area,int(match[3])
+    return None
+
+
+def gauge_routes(record):
+    """Build gauge-local route numbers without rewriting cached manifests."""
+    tree={}
+    for route in record['routes']:
+        partitions={}
+        for variant in route['variants']:
+            match=re.fullmatch(r'(\d+)게이지',variant.get('phase',''))
+            if match:partitions.setdefault(int(match[1]),[]).append(variant)
+        for gauge,variants in partitions.items():
+            items=tree.setdefault(gauge,[])
+            label=re.sub(r'^\d+게이지(?:\s*·\s*)?','',route['label']).strip() or '기본'
+            items.append(dict(route,number=len(items)+1,label=label,variants=variants))
+    return dict(sorted(tree.items()))
 
 
 def hidden(tag):
@@ -228,18 +256,45 @@ def translated_branch_notes(notes):
 
 def preview(query,root=ROOT,*,cache_root=None):
     from guide_lookup import NODE_ROUTE
-    parts=query.split();area=parse_area(parts[0]) if parts else None
-    if not area or len(parts)>2:return USAGE,[]
+    parts=query.split();target=parse_map_query(parts[0]) if parts else None
+    if not target or len(parts)>2:return USAGE,[]
+    area,gauge=target
     folder=(Path(cache_root) if cache_root else Path(root)/'guide_cache/zekamashi_maps')/area
     path=folder/'manifest.json'
     if not path.exists():return f'{area} 해역 공략\n\n아직 수집된 일반해역 공략이 없습니다.',[]
     record=json.loads(path.read_text(encoding='utf-8'))
     if record.get('area')!=area or record.get('status')!='downloaded':
         return f'{area} 해역 공략\n\n공략 수집 또는 구조 확인 중입니다.',[]
-    routes=record['routes'];selected=routes
+    tree=gauge_routes(record) if area in MULTI_GAUGES else {}
+    if area in MULTI_GAUGES and not tree:
+        return f'{area} 해역 공략\n\n게이지별 공략 구조 확인 중입니다.',[]
+    if tree and gauge is None:
+        compact=area.replace('-','')
+        if len(parts)>1:
+            return f'{area} 해역 공략\n\n게이지를 먼저 선택해주세요.\n예: !공략 {compact}1 루트1',[]
+        lines=[f'{area} 해역 공략'];pictures=[]
+        for stage,routes in tree.items():
+            lines.append(f'[{stage}게이지]')
+            for route in routes:
+                variant=route['variants'][0]
+                summary=variant['summary'];match=re.search(NODE_ROUTE,summary)
+                if match:summary=summary[:match.start()].strip()+'\n'+summary[match.start():]
+                label=' · '+route['label'] if route['label']!='기본' else ''
+                lines.append(f'루트{route["number"]}{label}: '+summary)
+                for name in variant['images']:
+                    p=folder/name
+                    if p.parent.resolve()!=folder.resolve() or not p.is_file():
+                        return f'{area} 해역 공략\n\n공략 이미지 수집이 완료되지 않았습니다.',[]
+                    if p not in pictures:pictures.append(p)
+            lines.append(f'상세공략: !공략 {compact}{stage} 루트1')
+        return '\n\n'.join(lines),pictures
+    if gauge is not None and gauge not in tree:
+        return f'{area} 해역 공략\n\n등록된 게이지: '+ ' / '.join(str(n) for n in tree)+f'\n예: !공략 {area.replace("-","")}1',[]
+    routes=tree[gauge] if gauge is not None else record['routes'];selected=routes
     multiple=len(routes)>1
+    numbered=multiple or gauge is not None
     detailed=len(parts)==2
-    if not multiple and detailed and parts[1]!='상세':
+    if not numbered and detailed and parts[1]!='상세':
         return '',[]
     if detailed and parts[1]!='상세':
         selector=parts[1].lower();number=re.fullmatch(r'(?:루트|route)?(\d+)',selector)
@@ -252,12 +307,12 @@ def preview(query,root=ROOT,*,cache_root=None):
         selected=[r for r in routes if (number and r['number']==int(number[1])) or
                   (not number and selector in aliases.get(r['label'],{r['label']}))]
         if not selected:return f'{area} 해역 공략\n\n해당 루트가 없습니다.\n'+ '\n'.join(f'· 루트{r["number"]}: {r["label"]}' for r in routes)+'\n'+USAGE,[]
-    lines=[f'{area} 해역 공략'];pictures=[]
+    lines=[f'{area} 해역 공략'+(f' [{gauge}게이지]' if gauge is not None else '')];pictures=[]
     for route in selected:
         variants=route['variants'] if detailed or not multiple else route['variants'][:1]
         for variant in variants:
-            heading=(f'루트{route["number"]}'+(' · '+route['label'] if route['label']!='기본' else '')) if multiple else ''
-            if (len(parts)==2 or not multiple) and variant['phase'] and variant['phase'] not in heading:
+            heading=(f'루트{route["number"]}'+(' · '+route['label'] if route['label']!='기본' else '')) if numbered else ''
+            if (len(parts)==2 or not multiple) and variant['phase'] and variant['phase'] not in heading and not re.fullmatch(r'\d+게이지',variant['phase']):
                 heading+=(' ' if heading else '')+'['+variant['phase']+']'
             elif len(variants)>1:
                 source=variant.get('source_heading','')
@@ -279,6 +334,7 @@ def preview(query,root=ROOT,*,cache_root=None):
                 if p.parent.resolve()!=folder.resolve() or not p.is_file():
                     return f'{area} 해역 공략\n\n공략 이미지 수집이 완료되지 않았습니다.',[]
                 if p not in pictures:pictures.append(p)
-    if multiple and len(parts)==1:lines.append(f'루트 선택: !공략 {area.replace("-","")} 루트1')
+    code=area.replace('-','')+(str(gauge) if gauge is not None else '')
+    if numbered and not detailed:lines.append(f'상세공략: !공략 {code} 루트1' if gauge is not None else f'루트 선택: !공략 {code} 루트1')
     elif not multiple and not detailed:lines.append(f'상세공략: !공략 {area.replace("-","")} 상세')
     return '\n\n'.join(lines),pictures
