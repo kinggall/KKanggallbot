@@ -76,7 +76,7 @@ def audit(output):
         if row['status']=='downloaded':
             overview,images=map_guides.preview(area,cache_root=output)
             if not images and '편성' not in overview and '【' not in overview:row['status']='review_required'
-            for route in record['routes']:
+            for route in record['routes'] if len(record['routes'])>1 else []:
                 text,pictures=map_guides.preview(area+' 루트'+str(route['number']),cache_root=output)
                 if '해당 루트가 없습니다' in text or '완료되지 않았습니다' in text:
                     row['status']='review_required'

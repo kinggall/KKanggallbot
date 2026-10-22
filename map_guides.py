@@ -125,6 +125,22 @@ def extract(html,area,url):
     return {'schema':1,'area':area,'title_jp':title,'url':url,'routes':groups}
 
 
+def translated_branch_notes(notes):
+    """Translate explicit branch probabilities without inferring fixed routing."""
+    output=[]
+    for raw in notes:
+        text=unicodedata.normalize('NFKC',raw)
+        probabilities=list(re.finditer(r'([A-Z])側に\s*(\d+(?:\.\d+)?)%\s*(で逸れあり)?',text))
+        if probabilities:
+            parts=[f'{m[1]} '+('이탈' if m[3] else '진입')+f' {m[2]}%' for m in probabilities]
+            line='※ '+' / '.join(parts)
+            if line not in output:output.append(line)
+        elif '低確率で逸れあり' in text:
+            if '※ 낮은 확률로 이탈할 수 있습니다.' not in output:
+                output.append('※ 낮은 확률로 이탈할 수 있습니다.')
+    return output
+
+
 def preview(query,root=ROOT,*,cache_root=None):
     from guide_lookup import NODE_ROUTE
     parts=query.split();area=parse_area(parts[0]) if parts else None
@@ -136,6 +152,9 @@ def preview(query,root=ROOT,*,cache_root=None):
     if record.get('area')!=area or record.get('status')!='downloaded':
         return f'{area} 해역 공략\n\n공략 수집 또는 구조 확인 중입니다.',[]
     routes=record['routes'];selected=routes
+    multiple=len(routes)>1
+    if not multiple and len(parts)==2:
+        return '',[]
     if len(parts)==2:
         selector=parts[1].lower();number=re.fullmatch(r'(?:루트|route)?(\d+)',selector)
         aliases={'중앙(하단)':{'중앙','중앙하단','중하단','중하','중앙(하단)'},
@@ -146,14 +165,17 @@ def preview(query,root=ROOT,*,cache_root=None):
         if not selected:return f'{area} 해역 공략\n\n해당 루트가 없습니다.\n'+ '\n'.join(f'· 루트{r["number"]}: {r["label"]}' for r in routes)+'\n'+USAGE,[]
     lines=[f'{area} 해역 공략'];pictures=[]
     for route in selected:
-        variants=route['variants'] if len(parts)==2 else route['variants'][:1]
+        variants=route['variants'] if len(parts)==2 or not multiple else route['variants'][:1]
         for variant in variants:
-            heading=f'루트{route["number"]} · {route["label"]}'
-            if len(parts)==2 and variant['phase']:heading+=' ['+variant['phase']+']'
+            heading=f'루트{route["number"]} · {route["label"]}' if multiple else ''
+            if (len(parts)==2 or not multiple) and variant['phase']:
+                heading+=(' ' if heading else '')+'['+variant['phase']+']'
             summary=variant['summary'] or '편성은 이미지 참조 / 경로 요약 미확인'
             match=re.search(NODE_ROUTE,summary)
             if match:summary=summary[:match.start()].strip()+'\n'+summary[match.start():]
-            lines.append(heading+'\n'+summary)
+            notes=translated_branch_notes(variant.get('notes_jp',[]))
+            lines.append((heading+'\n' if heading else '')+summary+
+                         ('\n'+'\n'.join(notes) if notes else ''))
             entries=list(variant['images'])
             if len(parts)==2:entries+=variant.get('airbase_images',[])
             for name in entries:
@@ -161,6 +183,5 @@ def preview(query,root=ROOT,*,cache_root=None):
                 if p.parent.resolve()!=folder.resolve() or not p.is_file():
                     return f'{area} 해역 공략\n\n공략 이미지 수집이 완료되지 않았습니다.',[]
                 if p not in pictures:pictures.append(p)
-    if len(parts)==1:lines.append(f'루트 선택: !공략 {area.replace("-","")} 루트1')
-    lines.append('원문: '+record['url'])
+    if multiple and len(parts)==1:lines.append(f'루트 선택: !공략 {area.replace("-","")} 루트1')
     return '\n\n'.join(lines),pictures

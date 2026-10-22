@@ -1520,6 +1520,8 @@ def webhook():
         def send_guide_preview():
             try:
                 text, pictures = guide_lookup.build_preview(message[len('!공략'):])
+                if not text and not pictures:
+                    return
                 for start in range(0, len(pictures), 10):
                     payload = [base64.b64encode(path.read_bytes()).decode('ascii')
                                for path in pictures[start:start + 10]]
