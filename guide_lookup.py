@@ -9,7 +9,7 @@ import quests
 from scripts.collect_zekamashi import Document, fleet_section_heading, image_identity, normalized, obsolete_article, select_article, visible_text, visible_walk
 
 ROOT = Path(__file__).resolve().parent
-USAGE = '사용법: !공략 [임무번호] [해역(선택)]\n예: !공략 By10 / !공략 By10 55'
+USAGE = '사용법: !공략 [임무번호/해역] [해역/루트(선택)]\n예: !공략 By10 / !공략 By10 55 / !공략 55 중앙'
 TERMS = {
     '高速+統一': '고속+통일', '高速統一': '고속통일', '低速統一': '저속통일',
     '高速': '고속', '低速': '저속', '最速': '최속',
@@ -284,6 +284,9 @@ def article_matches(html, record, quest):
 def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diagnostics=None):
     """Return text and local fleet images; never fetch from the network."""
     args = query.strip().split()
+    from map_guides import parse_area,preview as map_preview
+    if args and parse_area(args[0]):
+        return map_preview(query,root=root)
     if len(args) >= 2 and re.fullmatch(r'\d{4}', args[0]) and re.fullmatch(r'[A-Za-z]+\d+', args[1]):
         args = [args[0] + args[1], *args[2:]]
     if len(args) not in (1, 2):
