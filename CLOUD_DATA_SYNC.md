@@ -4,6 +4,8 @@ Drive의 `KaKaobot` 폴더 아래에서 폴더 구조와 개별 파일을 그대
 
 ## 관리 대상
 
+PC 루트의 `KakaoBot_사용방법.txt`도 개별 파일로 동기화합니다. 재부팅 후 실행 순서는 이 파일에 있습니다.
+
 자료는 `KKanggallbot/guide_cache`, `pictures`, `KKanggallbot/data` 안의 Git 미추적 파일입니다. 코드는 기존 GitHub 감시 프로그램이 30초마다 갱신하며, 이중 덮어쓰기를 막기 위해 Git 추적 파일은 Drive 동기화에서 제외합니다. Drive에 사용자가 업로드한 코드 사본은 현재 실행 코드의 배포 경로가 아닙니다.
 
 `/workspace`는 PC의 `C:\KakaoBot`에 대응합니다. 인증·가상환경·로그·Iris 빌드 폴더와 실행 상태는 동기화하지 않습니다. 현재 봇 운영은 계속 집 PC에서 합니다.

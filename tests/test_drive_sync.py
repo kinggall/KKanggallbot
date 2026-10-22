@@ -68,6 +68,18 @@ class FakeDrive:
 
 
 class SyncTests(unittest.TestCase):
+    def test_root_instruction_file_roundtrip_and_tree(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);pc=root/'pc';cloud=root/'cloud';pc.mkdir()
+            name='KakaoBot_사용방법.txt'
+            (pc/name).write_text('재부팅 후 실행 순서',encoding='utf-8')
+            d=FakeDrive()
+            sync.push(d,pc,pc/'.drive-sync/state.json',[name],True)
+            files,_=sync.tree(d,[name])
+            self.assertEqual(set(files),{name})
+            sync.pull(d,cloud,cloud/'.drive-sync/state.json')
+            self.assertEqual((cloud/name).read_text(encoding='utf-8'),'재부팅 후 실행 순서')
+
     def test_roundtrip_conflict_backup_and_stale_push(self):
         with tempfile.TemporaryDirectory() as temp:
             pc, cloud = Path(temp) / 'pc', Path(temp) / 'cloud'

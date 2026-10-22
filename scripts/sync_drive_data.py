@@ -17,7 +17,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
-DEFAULT_INCLUDES = ['KKanggallbot/guide_cache', 'pictures', 'KKanggallbot/data']
+DEFAULT_INCLUDES = ['KKanggallbot/guide_cache', 'pictures', 'KKanggallbot/data',
+                    'KakaoBot_사용방법.txt']
 BLOCKED_PARTS = {'.git', '.venv', 'venv', '__pycache__', '.drive-sync', 'logs',
                  'node_modules', '.aws', '.ssh', '.codex'}
 BLOCKED_NAMES = {'token.json', 'credentials.json', 'client_secret.json'}
@@ -176,16 +177,24 @@ def tree(drive, includes):
     files = {}
     for include in includes:
         parent, parts = drive.folder, []
-        for part in safe_relative(include).parts:
+        include_parts = safe_relative(include).parts
+        is_file = False
+        for index, part in enumerate(include_parts):
             parts.append(part)
             path = '/'.join(parts)
             if path in folders:
                 parent = folders[path]
                 continue
             matches = [f for f in drive.children(parent) if f['name'] == part]
+            if len(matches) == 1 and index == len(include_parts) - 1 and matches[0]['mimeType'] != 'application/vnd.google-apps.folder':
+                files[path] = matches[0]
+                is_file = True
+                break
             if len(matches) != 1 or matches[0]['mimeType'] != 'application/vnd.google-apps.folder':
                 raise RuntimeError('Missing or duplicate data folder: ' + path)
             parent = folders[path] = matches[0]['id']
+        if is_file:
+            continue
         pending = [(include, parent)]
         with ThreadPoolExecutor(max_workers=8) as pool:
             while pending:
