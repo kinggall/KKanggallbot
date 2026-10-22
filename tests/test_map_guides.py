@@ -27,6 +27,54 @@ HTML='''<h1>5-5 サーモン海域北方</h1><div class="entry-content">
 
 
 class MapGuideTests(unittest.TestCase):
+    def test_heading_fleet_and_bare_route_do_not_lose_battleships(self):
+        html='<h1>5-3 攻略</h1><div class="post-content"><h2>編成例(初攻略) 重巡級5軽巡1</h2><p>編成とルート 【DGIOKEQ】(I:夜戦 K:夜戦 Q:ボス)</p><h2>編成例(初攻略) 低戦1重巡1雷巡1軽巡1駆逐2</h2><p>編成とルート 【DGIOKEQ】(Q:ボス)</p><h2>支援艦隊</h2><h3>具体的な支援編成例</h3><p>駆逐2戦艦3空母1</p></div>'
+        record=map_guides.extract(html,'5-3','https://zekamashi.net/kancolle-kouryaku/5-3/')
+        variants=[v for r in record['routes'] for v in r['variants']]
+        self.assertEqual(len(variants),2)
+        self.assertTrue(variants[0]['summary'].startswith('중순급5 경순1'))
+        self.assertTrue(variants[1]['summary'].startswith('저속전함1 중순1'))
+        self.assertTrue(guide_lookup.translate_route(guide_lookup.find_route('高戦2航巡2駆逐2【AB】')).startswith('고속전함2 항순2'))
+
+    def test_gauge_numbers_are_visible_and_not_merged(self):
+        html='<h1>7-3 攻略</h1><div class="post-content"><h2>編成例(1ゲージ目)</h2><p>重巡1駆逐3【AB】</p><h2>編成例(2ゲージ目)</h2><p>重巡1駆逐3【AB】</p></div>'
+        record=map_guides.extract(html,'7-3','url')
+        self.assertEqual([r['label'] for r in record['routes']],['1게이지','2게이지'])
+        self.assertEqual(map_guides.phase_label('第二ゲージ 編成例'),'2게이지')
+
+    def test_first_clear_examples_are_not_confused_with_airbase_examples(self):
+        html='<h1>6-5 攻略</h1><div class="post-content"><h2>編成例(下ルート)</h2><p>戦艦2軽巡1駆逐3【BFIJM】</p><img src="/wp-content/uploads/fleet.jpg"><h3>基地航空隊</h3><h4>初めて攻略する際の例(仮置)</h4><img src="/wp-content/uploads/base.jpg"><h2>初攻略にあたって</h2><h3>初攻略での編成案</h3><p>戦艦2軽巡1駆逐3【BFIJM】</p><img src="/wp-content/uploads/first.jpg"></div>'
+        record=map_guides.extract(html,'6-5','https://zekamashi.net/kancolle-kouryaku/6-5/')
+        self.assertEqual(len(record['routes']),1)
+        variants=record['routes'][0]['variants']
+        self.assertEqual(len(variants),2)
+        self.assertTrue(variants[0]['airbase_images'][0].endswith('base.jpg'))
+        self.assertEqual(len(variants[0]['images']),1)
+        self.assertTrue(variants[1]['images'][0].endswith('first.jpg'))
+
+    def test_mixed_lower_upper_route_has_its_own_label(self):
+        self.assertEqual(map_guides.route_label('編成例(下上ルート)'),'하단→상단')
+
+    def test_offline_reparse_keeps_files_and_marks_missing_images_pending(self):
+        from scripts.collect_map_guides import reparse
+        with tempfile.TemporaryDirectory() as tmp:
+            folder=Path(tmp)/'1-1';folder.mkdir()
+            html='<h1>1-1 攻略</h1><div class="post-content"><h2>編成例</h2><p>駆逐4【AC】</p><img src="/wp-content/uploads/a.jpg"></div>'
+            (folder/'article.html').write_text(html)
+            (folder/'a.jpg').write_bytes(b'image')
+            (folder/'unused.jpg').write_bytes(b'keep')
+            old={'area':'1-1','url':'https://zekamashi.net/kancolle-kouryaku/1-1/',
+                 'status':'downloaded','collected_at':'saved',
+                 'images':[{'url':'https://zekamashi.net/wp-content/uploads/a.jpg','file':'a.jpg','bytes':5}]}
+            path=folder/'manifest.json';path.write_text(json.dumps(old))
+            with patch('requests.Session.request',side_effect=AssertionError('No network')):
+                self.assertEqual(reparse(['1-1'],Path(tmp)),[])
+                self.assertEqual(json.loads(path.read_text())['collected_at'],'saved')
+                self.assertEqual((folder/'unused.jpg').read_bytes(),b'keep')
+                (folder/'article.html').write_text(html.replace('a.jpg','missing.jpg'))
+                self.assertEqual(reparse(['1-1'],Path(tmp)),['1-1'])
+                self.assertEqual(json.loads(path.read_text())['status'],'needs_collection')
+
     def test_reviewed_source_correction_is_bound_to_exact_html(self):
         html='<h1>1-2 攻略</h1><div class="entry-content"><h2>編成例(周回)</h2><p>軽巡1駆逐4【AE】</p></div>'
         with tempfile.TemporaryDirectory() as temp:
@@ -70,6 +118,13 @@ class MapGuideTests(unittest.TestCase):
         self.assertEqual(variant['images'],['https://zekamashi.net/wp-content/uploads/fleet.jpg'])
         self.assertEqual(variant['reference_image_urls'],['https://zekamashi.net/wp-content/uploads/battle.jpg'])
 
+    def test_details_without_any_attributes_are_closed_and_excluded(self):
+        html='<h1>3-5 攻略</h1><article class="post-content"><h2>編成例(下ルート)</h2><p>軽巡1駆逐5【FGK】</p><img src="/wp-content/uploads/current.jpg"><details><summary>旧編成</summary><img src="/wp-content/uploads/old.jpg"><p>水母1駆逐5【BCFGK】</p></details></article>'
+        record=map_guides.extract(html,'3-5','https://zekamashi.net/kancolle-kouryaku/3-5/')
+        variant=record['routes'][0]['variants'][0]
+        self.assertEqual(variant['images'],['https://zekamashi.net/wp-content/uploads/current.jpg'])
+        self.assertFalse(any('水母1' in n for n in variant['notes_jp']))
+
     def test_alternative_node_paths_and_boss_probability_are_preserved(self):
         html='<h1>1-3 攻略</h1><div class="entry-content"><h2>編成例(初攻略)</h2><p>軽巡2駆逐4【CFJ】(J:ボス) 【A(DB)EFJ】(E:通常 F:通常 J:ボス) ルート条件 駆逐4以上</p></div>'
         record=map_guides.extract(html,'1-3','https://zekamashi.net/kancolle-kouryaku/1-3/')
@@ -84,6 +139,11 @@ class MapGuideTests(unittest.TestCase):
         for value in ['B55','2610Bm1','By10','722','5-7','18','イ26']:
             self.assertIsNone(map_guides.parse_area(value))
         self.assertEqual(len(map_guides.AREAS),37)
+
+    def test_semi_lower_is_not_merged_with_lower(self):
+        html='<h1>3-5 攻略</h1><div class="entry-content"><h2>編成例(下ルート)</h2><p>軽巡1駆逐5【FGK】</p><h2>編成例(準下ルート)</h2><p>軽巡2水母4【BCFGK】</p><h2>編成例(上ルート)</h2><p>空母3航巡1潜水2【BDHK】</p></div>'
+        record=map_guides.extract(html,'3-5','https://zekamashi.net/kancolle-kouryaku/3-5/')
+        self.assertEqual([r['label'] for r in record['routes']],['하단','준하단','상단'])
 
     def test_visible_examples_group_phases_and_exclude_unrelated_images(self):
         record=map_guides.extract(HTML,'5-5','https://zekamashi.net/kancolle-kouryaku/5-5/')
@@ -160,6 +220,16 @@ class MapGuideTests(unittest.TestCase):
         self.assertEqual(map_guides.translated_branch_notes(['C側に65.5%。B側に34.5%で逸れあり']),
                          ['※ C 진입 65.5% / B 이탈 34.5%'])
         self.assertEqual(map_guides.translated_branch_notes(['制空値70/索敵30']),[])
+
+    def test_explicit_routing_equipment_speed_and_search_requirements(self):
+        self.assertEqual(map_guides.translated_branch_notes(['ルート条件 5隻, 駆逐4以上, 高速統一 陣形選択 単縦陣']),['※ 고속통일'])
+        self.assertEqual(map_guides.translated_branch_notes(['ルート条件 軽巡1駆逐5, 電探を1つ以上装備 陣形選択 単縦陣']),['※ 전탐 1개 이상'])
+        text='ルート条件 ※要索敵。33式分岐点係数1で索敵34以上必要。 ※要 高速統一 。戦艦0 陣形選択 単縦陣'
+        self.assertEqual(map_guides.translated_branch_notes([text]),['※ 고속통일 / 색적 34 이상(33식·계수1)'])
+        text='ルート条件 ※要索敵。索敵値33式分岐点係数4で40以上必要。陣形選択 単縦陣'
+        self.assertEqual(map_guides.translated_branch_notes([text]),['※ 색적 40 이상(33식·계수4)'])
+        self.assertEqual(map_guides.translated_branch_notes(['※G→Fの確率が35% Hマスはランダムで経由']),['※ G→F 확률 35% / H 랜덤 경유'])
+        self.assertEqual(map_guides.translated_branch_notes(['コメント 高速統一も可能。電探を1つ以上装備']),[])
 
     def test_collector_resumes_and_keeps_raw_source(self):
         from scripts.collect_map_guides import collect,audit

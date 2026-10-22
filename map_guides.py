@@ -23,7 +23,7 @@ def parse_area(value):
 
 def hidden(tag):
     for node in [tag,*tag.parents]:
-        if not getattr(node,'attrs',None):
+        if getattr(node,'attrs',None) is None:
             continue
         if any(str(c).startswith('blogcard') for c in node.get('class',[])):
             return True
@@ -39,6 +39,10 @@ def hidden(tag):
 def route_label(title):
     text=unicodedata.normalize('NFKC',title)
     if re.search(r'中央.*?下|中下',text):return '중앙(하단)'
+    if '下上ルート' in text:return '하단→상단'
+    if '上中ルート' in text:return '상단→중앙'
+    if '準下' in text:return '준하단'
+    if '準上' in text:return '준상단'
     if '中央' in text:return '중앙'
     if re.search(r'上(?:側|回り)?ルート|上ルート|上側',text):return '상단'
     if re.search(r'下(?:側|回り)?ルート|下ルート|下側',text):return '하단'
@@ -48,6 +52,10 @@ def route_label(title):
 
 
 def phase_label(title):
+    gauge=re.search(r'第?([1-9一二三四五六七八九])ゲージ',unicodedata.normalize('NFKC',title))
+    if gauge:
+        number=str('一二三四五六七八九'.index(gauge[1])+1) if gauge[1] in '一二三四五六七八九' else gauge[1]
+        return number+'게이지'
     if 'ゲージ破壊前' in title:return '게이지 파괴 전'
     if 'ゲージ破壊後' in title:return '게이지 파괴 후'
     if '削り' in title:return '게이지 공략 중'
@@ -81,7 +89,9 @@ def extract(html,area,url):
             if current and ('資料' in text or '条件について' in text):
                 reference=True;airbase=False
                 continue
-            is_example='編成例' in text and not re.search(r'旧編成|過去|一期',context)
+            is_example=bool(('編成例' in text or ('基地航空隊' not in context and
+                            re.search(r'初攻略での編成案|初めて攻略する際の例',text)))
+                            and not re.search(r'旧編成|過去|一期|支援',context))
             if is_example:
                 current={'source_heading':context,'label':route_label(context),
                          'phase':phase_label(context),'summary':'','notes_jp':[],
@@ -119,7 +129,14 @@ def extract(html,area,url):
             current.setdefault(key,[])
             if text and text not in current[key]:current[key].append(text)
             if not airbase and not reference and not current['summary']:
-                route=find_route(text)
+                # Some articles give the fleet only in the section heading,
+                # then start their table with a bare node chain.
+                heading_fleet=re.search(FLEET_TYPES+r'(?:級)?\s*\d.*',current['source_heading'].rsplit(' / ',1)[-1])
+                candidate=text
+                if re.match(r'^(?:編成とルート\s*)?【',text) and heading_fleet:
+                    fleet=heading_fleet.group().split('【',1)[0].strip()
+                    candidate=fleet+' '+re.sub(r'^編成とルート\s*','',text)
+                route=find_route(candidate)
                 summary=translate_route(route) if route else find_random_fleet(text)
                 if route:
                     from guide_lookup import NODE_ROUTE
@@ -144,9 +161,18 @@ def extract(html,area,url):
     groups=[]
     for example in examples:
         label=example['label']
+        if re.fullmatch(r'\d+게이지',example['phase']):
+            label=example['phase']+(' · '+label if label else '')
         node_route=re.search(r'【[^】]+】',example['summary'])
-        key=label or (node_route.group() if node_route else None)
+        # Different paths within one gauge still require separate choices.
+        key=((label,node_route.group() if node_route else None)
+             if label and '게이지' in label else label or (node_route.group() if node_route else None))
         existing=next((g for g in groups if key and g.get('_key')==key),None)
+        if existing is None and not label and node_route:
+            existing=next((g for g in groups if any(
+                re.search(r'【[^】]+】',v['summary']) and
+                re.search(r'【[^】]+】',v['summary']).group()==node_route.group()
+                for v in g['variants'])),None)
         if existing is None:
             existing={'number':len(groups)+1,'label':label or '기본','variants':[],'_key':key}
             groups.append(existing)
@@ -168,6 +194,14 @@ def translated_branch_notes(notes):
         elif '低確率で逸れあり' in text:
             if '※ 낮은 확률로 이탈할 수 있습니다.' not in output:
                 output.append('※ 낮은 확률로 이탈할 수 있습니다.')
+        if 'ボス前ランダム' in text and '※ 보스 전 분기 랜덤' not in output:
+            output.append('※ 보스 전 분기 랜덤')
+        branch=re.search(r'([A-Z])[→⇒]([A-Z])の確率が\s*(\d+(?:\.\d+)?)%',text)
+        if branch:
+            line=f'※ {branch[1]}→{branch[2]} 확률 {branch[3]}%'
+            random_node=re.search(r'([A-Z])マスはランダムで経由',text)
+            if random_node:line+=f' / {random_node[1]} 랜덤 경유'
+            if line not in output:output.append(line)
         boss_rate=re.search(r'ボス率\s*(\d+(?:\.\d+)?)%程度',text)
         if boss_rate:
             line=f'※ 보스 도달률 약 {boss_rate[1]}%'
@@ -175,6 +209,20 @@ def translated_branch_notes(notes):
         elif re.search(r'ルート固定していない|ルート固定不可|固定なしの例',text):
             if '※ 경로가 고정되지 않은 편성입니다.' not in output:
                 output.append('※ 경로가 고정되지 않은 편성입니다.')
+        conditions=re.search(r'ルート条件\s*(.*?)(?=陣形選択|制空値|コメント|$)',text)
+        if conditions:
+            rule=re.sub(r'\s+','',conditions[1])
+            requirements=[]
+            speed=re.search(r'(?:^|[、,。※])(?:要)?(高速\+?統一)(?=[、,。※]|$)',rule)
+            if speed:requirements.append('고속+통일' if '+' in speed[1] else '고속통일')
+            radar=re.search(r'電探を(\d+)つ以上装備',rule)
+            if radar:requirements.append(f'전탐 {radar[1]}개 이상')
+            search=re.search(r'分岐点係数(\d+)で(?:索敵(?:値)?)?(\d+(?:\.\d+)?)以上',rule)
+            if search:requirements.append(f'색적 {search[2]} 이상(33식·계수{search[1]})')
+            elif '要索敵' in rule:requirements.append('색적 필요')
+            if requirements:
+                line='※ '+' / '.join(requirements)
+                if line not in output:output.append(line)
     return output
 
 
@@ -197,6 +245,9 @@ def preview(query,root=ROOT,*,cache_root=None):
         aliases={'중앙(하단)':{'중앙','중앙하단','중하단','중하','중앙(하단)'},
                  '중앙':{'중앙','중단'},'상단':{'상단','위','위쪽','상'},
                  '하단':{'하단','아래','아래쪽','하'},'우측':{'우측','오른쪽'},'좌측':{'좌측','왼쪽'}}
+        aliases.update({'준하단':{'준하단','준하'},'준상단':{'준상단','준상'}})
+        aliases.update({'하단→상단':{'하단→상단','하상','하단상단'},
+                        '상단→중앙':{'상단→중앙','상중','상단중앙'}})
         selected=[r for r in routes if (number and r['number']==int(number[1])) or
                   (not number and selector in aliases.get(r['label'],{r['label']}))]
         if not selected:return f'{area} 해역 공략\n\n해당 루트가 없습니다.\n'+ '\n'.join(f'· 루트{r["number"]}: {r["label"]}' for r in routes)+'\n'+USAGE,[]
@@ -214,7 +265,13 @@ def preview(query,root=ROOT,*,cache_root=None):
             summary=variant['summary'] or '편성은 이미지 참조 / 경로 요약 미확인'
             match=re.search(NODE_ROUTE,summary)
             if match:summary=summary[:match.start()].strip()+'\n'+summary[match.start():]
-            notes=translated_branch_notes(variant.get('notes_jp',[]))
+            notes=translated_branch_notes([variant.get('source_heading',''),*variant.get('notes_jp',[])])
+            compact=[]
+            for note in notes:
+                bits=[part for part in note.removeprefix('※ ').split(' / ')
+                      if not (part in {'고속통일','고속+통일'} and part in summary)]
+                if bits:compact.append('※ '+' / '.join(bits))
+            notes=compact
             lines.append((heading+'\n' if heading else '')+summary+
                          ('\n'+'\n'.join(notes) if notes else ''))
             entries=list(variant['images'])

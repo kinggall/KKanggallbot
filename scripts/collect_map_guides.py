@@ -12,7 +12,44 @@ from urllib.robotparser import RobotFileParser
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 import map_guides
-from scripts.collect_zekamashi import BASE,Fetcher,image_source_url,write_json
+from scripts.collect_zekamashi import BASE,Fetcher,image_source_url,image_identity,write_json
+
+
+def reparse(areas,output):
+    """Rebuild manifests from saved HTML without making network requests.
+
+    Keep unused image files intact. If parsing finds an uncollected image,
+    keep the old data and mark it pending for a normal resumed collection.
+    """
+    pending=[]
+    for area in areas:
+        folder=output/area;manifest=folder/'manifest.json';article=folder/'article.html'
+        if not manifest.exists() or not article.exists():continue
+        old=json.loads(manifest.read_text(encoding='utf-8'))
+        if old.get('status')!='downloaded':continue
+        record=map_guides.extract(article.read_text(encoding='utf-8'),area,old['url'])
+        images={image_identity(e['url']):e for e in old.get('images',[])}
+        used={};missing=[]
+        for route in record['routes']:
+            for variant in route['variants']:
+                for key in ['images','airbase_images']:
+                    local=[]
+                    for url in variant[key]:
+                        entry=images.get(image_identity(url))
+                        if not entry or not (folder/entry['file']).is_file():
+                            missing.append(url);continue
+                        local.append(entry['file']);used[entry['file']]=entry
+                    variant[key]=local
+        if missing:
+            pending.append(area)
+            old.update(status='needs_collection',reason='New parser found additional images')
+            write_json(manifest,old)
+            print(f'{area}: needs {len(set(missing))} additional images; marked pending',flush=True)
+            continue
+        record.update(status='downloaded',collected_at=old.get('collected_at'),images=list(used.values()))
+        write_json(manifest,record)
+        print(f'{area}: reparsed saved HTML; {len(record["routes"])} routes',flush=True)
+    return pending
 
 
 def collect(areas,output,interval=10):
@@ -78,11 +115,18 @@ def audit(output):
         record=json.loads(path.read_text(encoding='utf-8'))
         row={'area':area,'status':record.get('status'),'route_count':len(record.get('routes',[]))}
         if row['status']=='downloaded':
+            row['warnings']=[]
+            for route in record['routes']:
+                for variant in route['variants']:
+                    if not variant.get('summary'):
+                        row['warnings'].append('Fleet summary unconfirmed: '+variant['source_heading'])
+                    if not variant.get('images'):
+                        row['warnings'].append('No fleet image: '+variant['source_heading'])
             overview,images=map_guides.preview(area,cache_root=output)
             if not images and '편성' not in overview and '【' not in overview:row['status']='review_required'
             for route in record['routes'] if len(record['routes'])>1 else []:
                 text,pictures=map_guides.preview(area+' 루트'+str(route['number']),cache_root=output)
-                if '해당 루트가 없습니다' in text or '완료되지 않았습니다' in text:
+                if '해당 루트가 없습니다' in text or '완료되지 않았습니다' in text or not pictures:
                     row['status']='review_required'
             row['overview_images']=len(images)
         report.append(row)
@@ -98,12 +142,18 @@ def main():
     p.add_argument('--interval',type=float,default=10)
     p.add_argument('--dry-run',action='store_true')
     p.add_argument('--audit-only',action='store_true')
+    p.add_argument('--reparse-only',action='store_true',help='Rebuild saved manifests offline; keep image files')
     args=p.parse_args();areas=[map_guides.parse_area(s) for s in args.maps]
     if not all(areas):p.error('Unknown map')
     areas=list(dict.fromkeys(areas))
     if args.dry_run:
         print('\n'.join(BASE+'kancolle-kouryaku/'+s+'/' for s in areas));return
     if args.audit_only:audit(args.output);return
+    if args.reparse_only:
+        pending=reparse(areas,args.output)
+        audit(args.output)
+        if pending:raise ValueError('Additional images require collection: '+', '.join(pending))
+        return
     collect(areas,args.output,args.interval)
     audit(args.output)
 

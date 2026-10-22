@@ -8,6 +8,8 @@
 /workspace/.venvs/kkanggallbot/bin/python scripts/collect_map_guides.py
 # 인터넷 없이 연결 검사
 /workspace/.venvs/kkanggallbot/bin/python scripts/collect_map_guides.py --audit-only
+# 파서 수정 후 저장 본문만 다시 해석 (사이트 요청 없음)
+/workspace/.venvs/kkanggallbot/bin/python scripts/collect_map_guides.py --reparse-only
 ```
 
 Windows에서도 동일 스크립트를 기존 venv로 실행할 수 있습니다. 다른 제카마시 수집기를 동시에 실행하지 않습니다. 요청 간격은 최소 10초이며 robots.txt의 더 긴 Crawl-delay를 반영합니다. robots 금지·401·403·429·서버 오류에서는 중단하며 우회하지 않습니다. 정해진 주소의 404는 미수집으로 기록합니다. 도메인 접근 제한이 있으면 환경 허용 사이트 설정부터 추가해야 합니다.
