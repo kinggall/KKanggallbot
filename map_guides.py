@@ -185,7 +185,7 @@ def preview(query,root=ROOT,*,cache_root=None):
                 heading+=(' ' if heading else '')+'['+variant['phase']+']'
             elif not multiple and len(variants)>1:
                 source=variant.get('source_heading','')
-                purpose='주회 편성' if '周回' in source else '초기 공략' if '初攻略' in source else '편성 '+str(variants.index(variant)+1)
+                purpose='반복 출격' if '周回' in source else '최초 공략' if '初攻略' in source else '편성 '+str(variants.index(variant)+1)
                 heading='['+purpose+']'
             summary=variant['summary'] or '편성은 이미지 참조 / 경로 요약 미확인'
             match=re.search(NODE_ROUTE,summary)
