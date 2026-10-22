@@ -38,6 +38,39 @@ class NewQuestTests(unittest.TestCase):
                 self.assertIn(quests.UNVERIFIED, text)
                 self.assertLess(len(text), 4000)
 
+    def test_new_list_only_titles_and_numbers(self):
+        text = self.catalog.new_quests_reply()
+        self.assertIn('2026-10-14 점검 신규 임무 (12개)', text)
+        for row in self.update['quests']:
+            self.assertIn(f'· {row["wiki_id"]}: {row["name_ko"]}', text)
+        self.assertIn('상세 내용: !임무 [번호]', text)
+        self.assertNotIn('[보상]', text)
+        self.assertNotIn('[임무 내용]', text)
+
+    def test_new_list_changes_to_latest_maintenance(self):
+        from copy import deepcopy
+        future = deepcopy(self.update['quests'][0])
+        future.update(release_date='2026-11-01', wiki_id='2611 B1', name_ko='다음 점검 임무')
+        with patch.object(self.catalog, 'items', {**self.catalog.items, 'future':future}):
+            text = self.catalog.new_quests_reply()
+            self.assertIn('2026-11-01 점검 신규 임무 (1개)', text)
+            self.assertIn('2611 B1', text)
+            self.assertNotIn('2610 B1', text)
+        with patch.object(self.catalog, 'items', {}):
+            self.assertEqual(self.catalog.new_quests_reply(), '등록된 신규 임무가 없습니다.')
+
+    def test_new_list_webhook_and_help(self):
+        import bot
+        self.assertIn('!신규임무', bot.COMMANDS['!도움말'])
+        with patch.object(bot.requests, 'get', side_effect=AssertionError('No GET')), \
+                patch.object(bot.requests, 'post') as post:
+            response = bot.app.test_client().post('/webhook', json={
+                'msg':'!신규임무','json':{'chat_id':'new-list-room'}})
+            self.assertEqual(response.status_code, 200)
+            post.assert_called_once()
+            self.assertEqual(post.call_args.kwargs['json'], {
+                'type':'text','room':'new-list-room','data':self.catalog.new_quests_reply()})
+
     def test_alias_search_includes_new_conditions(self):
         for query, expected in [('뽀이',{'2610 B1','2610 B7','2610 C1'}),
                                 ('베이',{'2610 B3','2610 B8'}),

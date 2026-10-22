@@ -1431,6 +1431,7 @@ COMMANDS = {
         "!레시피 [함선명] [연/탄/강/보]\n"
         "!개수 [장비명/2번함]\n"
         "!원정 [번호]\n"
+        "!신규임무\n"
         "!임무 [번호/키워드]"
     ),
 
@@ -1670,9 +1671,10 @@ def webhook():
         print(f"[개수 검색] 상태 코드={response.status_code}")
         return jsonify({"ok": True})
 
-    if message == "!임무" or message.startswith("!임무 "):
+    if message == "!신규임무" or message == "!임무" or message.startswith("!임무 "):
         try:
-            reply = quests.catalog().reply(message[len("!임무"):])
+            reply = (quests.catalog().new_quests_reply() if message == "!신규임무"
+                     else quests.catalog().reply(message[len("!임무"):]))
         except (OSError, ValueError, KeyError, TypeError) as error:
             print(f"[임무 조회 실패] {error}")
             reply = "임무 데이터를 불러오지 못했습니다."

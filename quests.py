@@ -495,6 +495,22 @@ class QuestCatalog:
         found.sort(key=lambda k: natural_code(self.items[k]["wiki_id"]))
         return found
 
+    def new_quests_reply(self):
+        rows = [row for row in self.items.values()
+                if row.get('source_row') and re.fullmatch(r'\d{4}-\d{2}-\d{2}', row.get('release_date', ''))]
+        if not rows:
+            return '등록된 신규 임무가 없습니다.'
+        latest = max(row['release_date'] for row in rows)
+        rows = [row for row in rows if row['release_date'] == latest and not row.get('unavailable')]
+        if not rows:
+            return '등록된 신규 임무가 없습니다.'
+        rows.sort(key=lambda row: natural_code(row['wiki_id']))
+        lines = [f'{latest} 점검 신규 임무 ({len(rows)}개)']
+        lines.extend(f'· {row["wiki_id"]}: {clean(row["name_ko"])}' for row in rows)
+        lines.extend(['', '상세 내용: !임무 [번호]',
+                      '예: !임무 ' + rows[0]['wiki_id'].replace(' ', '')])
+        return '\n'.join(lines)
+
     def reply(self, query):
         query = query.strip()
         if not query:
