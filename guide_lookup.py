@@ -262,7 +262,7 @@ def group_shared_fleets(entries):
     groups = []
     for heading, summary, images in entries:
         fleet, separator, route = summary.partition('\n')
-        key = (tuple(images), fleet) if separator and images else None
+        key = (tuple(images), fleet) if images and (separator or fleet=='편성은 이미지 참조') else None
         group = next((item for item in groups if key and item['key'] == key
                       and heading not in item['headings']), None)
         if group is None:
@@ -276,6 +276,8 @@ def group_shared_fleets(entries):
         headings = group['headings']
         if len(headings) == 1:
             rendered.append(f'{headings[0]}: {group["summary"]}')
+        elif not any(group['routes']):
+            rendered.append('/'.join(headings) + ': ' + group['fleet'])
         else:
             rendered.append('/'.join(headings) + ': ' + group['fleet'] + '\n' +
                             '\n'.join(f'{area}: {route}' for area, route in
@@ -445,7 +447,7 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
         nonlocal pending
         if pending and current_areas and not air:
             for area in current_areas:
-                variants.append({'map':area,'phase':phase,'summary':'편성은 이미지 참조\n경로 요약 미확인',
+                variants.append({'map':area,'phase':phase,'summary':'편성은 이미지 참조',
                                  'pictures':list(pending),'image_only':True})
         pending = []
     for node in visible_walk(body):

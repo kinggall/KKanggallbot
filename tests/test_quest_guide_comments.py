@@ -10,6 +10,12 @@ import quest_guide_comments as comments
 
 
 class QuestGuideCommentTests(unittest.TestCase):
+    def test_image_only_shared_fleets_use_one_line(self):
+        entries=[(area,'편성은 이미지 참조',[Path('shared.jpg')]) for area in ['1-4','2-3']]
+        self.assertEqual(guide_lookup.group_shared_fleets(entries),['1-4/2-3: 편성은 이미지 참조'])
+        entries[1]=('2-3','편성은 이미지 참조',[Path('different.jpg')])
+        self.assertEqual(len(guide_lookup.group_shared_fleets(entries)),2)
+
     def test_named_fleet_prefix_is_not_dropped(self):
         source='黒潮改二早潮改二長門改二陸奥改二秋津洲改航巡1【ADCFN】(N:ボス)'
         result=guide_lookup.translate_route(guide_lookup.find_route(source))
