@@ -106,7 +106,7 @@ class MapGuideTests(unittest.TestCase):
             self.assertTrue(changed['routes'][0]['variants'][0]['summary'].startswith('경순1 구축4'))
 
     def test_usage_text_and_unknown_quest_match_requested_format(self):
-        self.assertEqual(map_guides.USAGE,'사용법: !공략 [임무번호/해역]\n예: !공략 By10 / !공략 By10 65\n     !공략 55 / !공략 55 중앙')
+        self.assertEqual(map_guides.USAGE,'사용법: !공략 [해역/임무번호/키워드]\n예: !공략 아호작전 / !공략 수상반격\n     !공략 By10 65 / !공략 55 중앙')
         text,pictures=guide_lookup.build_preview('ㅇ')
         self.assertEqual(text,"'ㅇ' 임무를 찾지 못했습니다.\n"+map_guides.USAGE)
         self.assertEqual(pictures,[])

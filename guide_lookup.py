@@ -360,17 +360,28 @@ def build_preview(query, root=ROOT, *, cache_root=None, verify_images=True, diag
         return map_preview(query,root=root)
     if len(args) >= 2 and re.fullmatch(r'\d{4}', args[0]) and re.fullmatch(r'[A-Za-z]+\d+', args[1]):
         args = [args[0] + args[1], *args[2:]]
-    if len(args) not in (1, 2):
+    if not args:
         return USAGE, []
-    target_map = None
-    if len(args) == 2:
-        target_map = guide_map(args[1])
-        if not target_map:
-            return USAGE, []
     catalog = quests.catalog()
-    key = catalog.by_code.get(args[0].casefold())
+    query_text=' '.join(args)
+    key=catalog.by_code.get(query_text.casefold())
+    target_map = None
+    if key is None and len(args)>1 and guide_map(args[-1]):
+        target_map=guide_map(args[-1])
+        query_text=' '.join(args[:-1])
+        key=catalog.by_code.get(query_text.casefold())
     if key is None:
-        return f"'{args[0]}' 임무를 찾지 못했습니다.\n{USAGE}", []
+        if not quests.normalized(query_text):return USAGE,[]
+        found=[k for k in catalog.search_keys(query_text) if catalog.items[k].get('category')=='sortie']
+        if len(found)==1:key=found[0]
+        elif not found:return f"'{query_text}' 임무를 찾지 못했습니다.\n{USAGE}", []
+        else:
+            lines=[f"'{query_text}' 검색 결과 {len(found)}개. 임무 번호를 입력해주세요."]
+            lines.extend(f'· {quests.clean(catalog.items[k]["name_ko"])} ({catalog.items[k]["wiki_id"]})' for k in found[:30])
+            if len(found)>30:lines.append('앞의 30개만 표시합니다. 함선명이나 임무명으로 검색 범위를 좁혀주세요.')
+            suffix=' '+args[-1] if target_map else ''
+            lines.append('번호 검색 예: !공략 '+catalog.items[found[0]]['wiki_id']+suffix)
+            return '\n'.join(lines),[]
     quest = catalog.items[key]
     def unavailable(reason):
         return missing_quest_guide(quest,reason,root,target_map=target_map,diagnostics=diagnostics)

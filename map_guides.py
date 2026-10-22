@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent
 AREA_COUNTS = {1:6, 2:5, 3:5, 4:5, 5:6, 6:5, 7:5}
 AREAS = tuple(f'{a}-{n}' for a,count in AREA_COUNTS.items() for n in range(1,count+1))
 MULTI_GAUGES = {'5-6':3,'7-2':2,'7-3':2,'7-5':3}
-USAGE = '사용법: !공략 [임무번호/해역]\n예: !공략 By10 / !공략 By10 65\n     !공략 55 / !공략 55 중앙'
+USAGE = '사용법: !공략 [해역/임무번호/키워드]\n예: !공략 아호작전 / !공략 수상반격\n     !공략 By10 65 / !공략 55 중앙'
 
 
 def parse_area(value):
