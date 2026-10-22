@@ -4,7 +4,9 @@
     "url": "https://wikiwiki.jp/kancolle/任務/フロントページ#New",
     "html_sha256": "66cbb97924422a70186ad619a8b82e9c38b34d52f29a59ba837bf76cb9ec9908",
     "reviewed_date": "2026-10-22",
-    "identity_policy": "wiki: keys are local identities, NOT invented game API IDs"
+    "identity_policy": "wiki: keys are local identities, NOT invented game API IDs",
+    "code_policy": "EO canonical codes; original wiki codes retained only as source_wiki_id, not search aliases",
+    "code_reference": "ElectronicObserverEN/Data@79a2c818924060dcb3b18dbdb043b855bcc04694:Data/Quests.json"
   },
   "quests": [
     {
@@ -102,10 +104,15 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "4b8d5ee9b21a9962e7db7a1a808408d3e430e80d31cc73be615f011bb6f6b4de",
-      "prerequisite_incomplete": true
+      "prerequisite_incomplete": true,
+      "source_wiki_id": "2610 B1",
+      "game_api_id": 984,
+      "aliases": [
+        "2610B1"
+      ]
     },
     {
-      "wiki_id": "2610 B2",
+      "wiki_id": "2610 Bw1",
       "name_jp": "【期間限定任務】特務護衛戦隊、抜錨せよ！",
       "name_ko": "【기간한정임무】특무호위전대, 발묘하라!",
       "category": "sortie",
@@ -219,10 +226,15 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "8bea390419e6c7e2f9c638d375ec9dc2fe2d6a1bfd3f42f9553fd8753c493d6c",
-      "prerequisite_incomplete": true
+      "prerequisite_incomplete": true,
+      "source_wiki_id": "2610 B2",
+      "game_api_id": 985,
+      "aliases": [
+        "2610Bw1"
+      ]
     },
     {
-      "wiki_id": "2610 B3",
+      "wiki_id": "2610 B2",
       "name_jp": "【期間限定任務】USS Trick or Treat！",
       "name_ko": "【기간한정임무】USS Trick or Treat!",
       "category": "sortie",
@@ -233,7 +245,7 @@
       "unverified": true,
       "prereqs_unverified": true,
       "prerequisite_codes": [
-        "2610 C1"
+        "2610 Cw1"
       ],
       "requirements": {
         "category": "sortie",
@@ -330,10 +342,15 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "d22ce2f5cea25b76b1aff0a9e16ac95055cddd6d1ebb690613c9bcfdc3b2c30f",
-      "prerequisite_incomplete": true
+      "prerequisite_incomplete": true,
+      "source_wiki_id": "2610 B3",
+      "game_api_id": 986,
+      "aliases": [
+        "2610B2"
+      ]
     },
     {
-      "wiki_id": "2610 B4",
+      "wiki_id": "2610 Bm1",
       "name_jp": "【期間限定任務】西方南瓜祭り! Buono!",
       "name_ko": "【기간한정임무】서방 호박 축제! Buono!",
       "category": "sortie",
@@ -344,8 +361,8 @@
       "unverified": true,
       "prereqs_unverified": true,
       "prerequisite_codes": [
-        "2610 B2",
-        "2610 B3"
+        "2610 Bw1",
+        "2610 B2"
       ],
       "requirements": {
         "category": "sortie",
@@ -448,10 +465,15 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "a069e048021fa88edfb97c6ca171818fb717669d429626de12d8f2f6b4ff0059",
-      "prerequisite_incomplete": false
+      "prerequisite_incomplete": false,
+      "source_wiki_id": "2610 B4",
+      "game_api_id": 987,
+      "aliases": [
+        "2610Bm1"
+      ]
     },
     {
-      "wiki_id": "2610 B5",
+      "wiki_id": "2610 B3",
       "name_jp": "【限定拡張作戦】Halloween、おかわり開始！",
       "name_ko": "【한정확장작전】Halloween, 추가 시작!",
       "category": "sortie",
@@ -462,7 +484,7 @@
       "unverified": true,
       "prereqs_unverified": true,
       "prerequisite_codes": [
-        "2610 F1"
+        "2610 Fm1"
       ],
       "requirements": {
         "category": "sortie",
@@ -547,10 +569,15 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "21ea6121ff53e98a7258b30629c668cb8df869514bf84894a4ee2f002d03695a",
-      "prerequisite_incomplete": true
+      "prerequisite_incomplete": true,
+      "source_wiki_id": "2610 B5",
+      "game_api_id": 1038,
+      "aliases": [
+        "2610B3"
+      ]
     },
     {
-      "wiki_id": "2610 B6",
+      "wiki_id": "2610 Bw2",
       "name_jp": "【限定拡張作戦】Halloween海上護衛隊出撃！",
       "name_ko": "【한정확장작전】Halloween 해상호위대 출격!",
       "category": "sortie",
@@ -561,8 +588,8 @@
       "unverified": true,
       "prereqs_unverified": true,
       "prerequisite_codes": [
-        "2610 B3",
-        "2610 B5"
+        "2610 B2",
+        "2610 B3"
       ],
       "requirements": {
         "category": "sortie",
@@ -650,10 +677,15 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "b1c744742c2470bd4b5d155632afc6c37f51710edd965155dcb15dfbb3033f4a",
-      "prerequisite_incomplete": false
+      "prerequisite_incomplete": false,
+      "source_wiki_id": "2610 B6",
+      "game_api_id": 1039,
+      "aliases": [
+        "2610Bw2"
+      ]
     },
     {
-      "wiki_id": "2610 B7",
+      "wiki_id": "2610 Bm2",
       "name_jp": "【限定拡張作戦】Halloween狼隊、夜の襲撃！",
       "name_ko": "【한정확장작전】Halloween 늑대대, 밤의 습격!",
       "category": "sortie",
@@ -664,7 +696,7 @@
       "unverified": true,
       "prereqs_unverified": true,
       "prerequisite_codes": [
-        "2610 B6"
+        "2610 Bw2"
       ],
       "requirements": {
         "category": "sortie",
@@ -756,10 +788,15 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "9b3da24d4ef4c691dfe79cf15e94a1eb36e3bfe2d75499545ee73eee61caae00",
-      "prerequisite_incomplete": true
+      "prerequisite_incomplete": true,
+      "source_wiki_id": "2610 B7",
+      "game_api_id": 1040,
+      "aliases": [
+        "2610Bm2"
+      ]
     },
     {
-      "wiki_id": "2610 B8",
+      "wiki_id": "2610 B4",
       "name_jp": "【限定拡張作戦】南瓜祭り2026、北方作戦！",
       "name_ko": "【한정확장작전】호박 축제 2026, 북방작전!",
       "category": "sortie",
@@ -770,8 +807,8 @@
       "unverified": true,
       "prereqs_unverified": true,
       "prerequisite_codes": [
-        "2610 B2",
-        "2610 B3"
+        "2610 Bw1",
+        "2610 B2"
       ],
       "requirements": {
         "category": "sortie",
@@ -871,10 +908,15 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "c9201a147b94fb6b1ceabb4a8401b3c36a2b3261ad04368b50c24f1a2f0b901a",
-      "prerequisite_incomplete": false
+      "prerequisite_incomplete": false,
+      "source_wiki_id": "2610 B8",
+      "game_api_id": 1002,
+      "aliases": [
+        "2610B4"
+      ]
     },
     {
-      "wiki_id": "2610 C1",
+      "wiki_id": "2610 Cw1",
       "name_jp": "Halloween艦隊 実りの秋、最新演習！",
       "name_ko": "Halloween 함대, 결실의 가을 최신 연습!",
       "category": "exercise",
@@ -980,10 +1022,15 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "fce7ed6e3d77173fc759706c525797ea69a8cd613ba8d2da88ab32861192618f",
-      "prerequisite_incomplete": true
+      "prerequisite_incomplete": true,
+      "source_wiki_id": "2610 C1",
+      "game_api_id": 359,
+      "aliases": [
+        "2610Cw1"
+      ]
     },
     {
-      "wiki_id": "2610 F1",
+      "wiki_id": "2610 Fm1",
       "name_jp": "【期間限定】Halloweenの南瓜、食べりゅ?",
       "name_ko": "【기간한정】Halloween의 호박, 먹을래?",
       "category": "factory",
@@ -1065,10 +1112,15 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "02129823625cf6318bc3ea13b195cf528dc94efd28ab186114b7e75462842668",
-      "prerequisite_incomplete": true
+      "prerequisite_incomplete": true,
+      "source_wiki_id": "2610 F1",
+      "game_api_id": 1119,
+      "aliases": [
+        "2610Fm1"
+      ]
     },
     {
-      "wiki_id": "2610 F2",
+      "wiki_id": "2610 F1",
       "name_jp": "【限定拡張作戦】対潜装備の整理整頓！2026",
       "name_ko": "【한정확장작전】대잠장비 정리정돈! 2026",
       "category": "factory",
@@ -1079,7 +1131,7 @@
       "unverified": true,
       "prereqs_unverified": true,
       "prerequisite_codes": [
-        "2610 B8"
+        "2610 B4"
       ],
       "requirements": {
         "category": "equipexchange"
@@ -1151,7 +1203,12 @@
         "2026 10/14 ~ 20** **/**"
       ],
       "source_sha256": "510c9dcf0e6eae0fc8a37f0c4de5d5e176185d7ef528f9a78c3b165a2a36708d",
-      "prerequisite_incomplete": true
+      "prerequisite_incomplete": true,
+      "source_wiki_id": "2610 F2",
+      "game_api_id": 1171,
+      "aliases": [
+        "2610F1"
+      ]
     },
     {
       "wiki_id": "B218",

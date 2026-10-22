@@ -19,7 +19,7 @@ class GuideTranslationTests(unittest.TestCase):
         self.assertEqual(list(selected),['https://zekamashi.net/kancolle-kouryaku/test/'])
 
     def test_reviewed_year_and_variant_links(self):
-        q={'wiki_id':'2610 F1','name_jp':'【期間限定】Halloweenの南瓜、食べりゅ?'}
+        q={'wiki_id':'2610 Fm1','name_jp':'【期間限定】Halloweenの南瓜、食べりゅ?'}
         candidates={f'https://zekamashi.net/kancolle-kouryaku/{slug}/':q['name_jp']
                     for slug in ('2026pumpkin-7','2025pumpkin-w1')}
         self.assertEqual(list(select_candidates(candidates,q)),[

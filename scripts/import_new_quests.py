@@ -150,9 +150,10 @@ def extract(html, root=ROOT):
                        'rewards':{'resources':[int(v) for v in raw[3:7]],'other':rewards(cells[7])},
                        'description':' / '.join(lines), 'source_row':raw,'source_sha256':digest,
                        'prerequisite_incomplete':'()' in raw[8]})
-    return {'schema':1,'source':{'url':'https://wikiwiki.jp/kancolle/任務/フロントページ#New',
+    from quest_updates import canonicalize_october
+    return canonicalize_october({'schema':1,'source':{'url':'https://wikiwiki.jp/kancolle/任務/フロントページ#New',
             'html_sha256':hashlib.sha256(html.encode()).hexdigest(),'reviewed_date':'2026-10-22',
-            'identity_policy':'wiki: keys are local identities, NOT invented game API IDs'},'quests':result}
+            'identity_policy':'wiki: keys are local identities, NOT invented game API IDs'},'quests':result})
 
 
 def main():

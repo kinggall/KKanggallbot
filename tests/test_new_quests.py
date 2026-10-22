@@ -72,9 +72,9 @@ class NewQuestTests(unittest.TestCase):
                 'type':'text','room':'new-list-room','data':self.catalog.new_quests_reply()})
 
     def test_alias_search_includes_new_conditions(self):
-        for query, expected in [('뽀이',{'2610 B1','2610 B7','2610 C1'}),
-                                ('베이',{'2610 B3','2610 B8'}),
-                                ('카시',{'2610 B2','2610 B5','2610 B6','2610 B8'})]:
+        for query, expected in [('뽀이',{'2610 B1','2610 Bm2','2610 Cw1'}),
+                                ('베이',{'2610 B2','2610 B4'}),
+                                ('카시',{'2610 Bw1','2610 B3','2610 Bw2','2610 B4'})]:
             found = {self.catalog.items[k]['wiki_id'] for k in self.catalog.search_keys(query)}
             self.assertTrue(expected <= found)
 
@@ -82,21 +82,21 @@ class NewQuestTests(unittest.TestCase):
         text = self.catalog.reply('2610B1')
         self.assertIn('중 3 이상(기함 포함)', text)
         self.assertIn('1-3/1-4/2-1 보스 S승 각 2회', text)
-        text = self.catalog.reply('2610B5')
+        text = self.catalog.reply('2610B3')
         self.assertIn('중 4 이상(기함 포함)', text)
         self.assertIn('1-1/1-3 보스 S승 각 4회', text)
-        self.assertIn('진게이 개1', self.catalog.reply('2610B7'))
+        self.assertIn('진게이 개1', self.catalog.reply('2610Bm2'))
         self.assertIn('5-1/5-3/5-4/5-6-3 보스 S승 각 1회', self.catalog.reply('B218'))
         self.assertIn('아마기리 개2/개2정 중 1 + 사기리 개2', self.catalog.reply('B218'))
 
     def test_frequencies_consumables_and_reward_choices(self):
-        for code in ('2610B2','2610B6','2610C1'):
+        for code in ('2610Bw1','2610Bw2','2610Cw1'):
             self.assertIn('(기간한정/주간)', self.catalog.reply(code))
-        for code in ('2610B4','2610B7','2610F1'):
+        for code in ('2610Bm1','2610Bm2','2610Fm1'):
             self.assertIn('(기간한정/월간)', self.catalog.reply(code))
-        self.assertIn('오늘 중 연습 A승 이상 5회', self.catalog.reply('2610C1'))
-        self.assertIn('가구코인 x1031', self.catalog.reply('2610F1'))
-        text = self.catalog.reply('2610F2')
+        self.assertIn('오늘 중 연습 A승 이상 5회', self.catalog.reply('2610Cw1'))
+        self.assertIn('가구코인 x1031', self.catalog.reply('2610Fm1'))
+        text = self.catalog.reply('2610F1')
         self.assertIn('호박 x2 / 3식 폭뢰투사기 x5 / 개발자재 x30', text)
         self.assertIn('장비 운용 슬롯 x15 / Type124 ASDIC ★3 / 해외함 최신기술 x3', text)
         self.assertIn('12.7cm 연장포 B형 개2 ★10', self.catalog.reply('B218'))
@@ -105,8 +105,8 @@ class NewQuestTests(unittest.TestCase):
         b1 = self.catalog.items[self.catalog.by_code['2610b1']]
         self.assertEqual(b1['prereqs'], [])
         self.assertTrue(b1['prerequisite_incomplete'])
-        self.assertIn('2610 B2 / 2610 C1 / 2610 F1', self.catalog.reply('2610B1'))
-        self.assertIn('2610 B2 + 2610 B3', self.catalog.reply('2610B4'))
+        self.assertIn('2610 Bw1 / 2610 Cw1 / 2610 Fm1', self.catalog.reply('2610B1'))
+        self.assertIn('2610 Bw1 + 2610 B2', self.catalog.reply('2610Bm1'))
         self.assertIn('B218', self.catalog.reply('Bd5').split('[후속임무]')[1])
         for row in self.update['quests']:
             key = self.catalog.by_code[row['wiki_id'].replace(' ', '').lower()]
@@ -116,7 +116,17 @@ class NewQuestTests(unittest.TestCase):
     def test_overlay_idempotent_and_no_fake_api_ids(self):
         data = self.catalog.data
         self.assertEqual(apply_updates(data, ROOT), data)
-        self.assertTrue(self.catalog.by_code['2610b1'].startswith('wiki:'))
+        self.assertEqual(self.catalog.by_code['2610b1'], '984')
+
+    def test_eo_canonical_codes_have_no_conflicting_old_aliases(self):
+        expected = {'2610b1':'984', '2610bw1':'985', '2610b2':'986',
+                    '2610bm1':'987', '2610b3':'1038', '2610bw2':'1039',
+                    '2610bm2':'1040', '2610b4':'1002', '2610cw1':'359',
+                    '2610fm1':'1119', '2610f1':'1171'}
+        for code, api_id in expected.items():
+            self.assertEqual(self.catalog.by_code[code], api_id)
+        for removed in ['2610b5', '2610b6', '2610b7', '2610b8', '2610c1', '2610f2']:
+            self.assertNotIn(removed, self.catalog.by_code)
 
     def test_import_reproduces_reviewed_rows_and_rejects_changes(self):
         document = '<table>' + ''.join('<tr>' + ''.join(
@@ -179,8 +189,8 @@ class NewQuestTests(unittest.TestCase):
                 redirect_stdout(output):
             collect_zekamashi.main()
         self.assertIn('Targets: 286',output.getvalue())
-        self.assertIn('2610 F1:',output.getvalue())
-        self.assertIn('2610 C1:',output.getvalue())
+        self.assertIn('2610 Fm1:',output.getvalue())
+        self.assertIn('2610 Cw1:',output.getvalue())
 
     def test_guide_compact_and_spaced_codes_use_same_cache(self):
         for row in self.update['quests']:
@@ -212,11 +222,11 @@ class NewQuestTests(unittest.TestCase):
 
     def test_non_sortie_collected_guide_is_text_only(self):
         record = {'status':'downloaded','schema_version':2,'text_only':True,
-                  'code':'2610 F1','name_jp':next(r['name_jp'] for r in self.update['quests'] if r['wiki_id']=='2610 F1'),
+                  'code':'2610 Fm1','name_jp':next(r['name_jp'] for r in self.update['quests'] if r['wiki_id']=='2610 Fm1'),
                   'url':'https://zekamashi.net/kancolle-kouryaku/test/'}
         with patch.object(guide_lookup.quests, 'catalog', return_value=self.catalog), \
                 patch.object(Path, 'read_text', lambda p,*a,**k: json.dumps(record) if p.name=='manifest.json' else '<h1>'+record['name_jp']+'</h1><div class="entry-content">本文</div>'):
-            text, pictures = guide_lookup.build_preview('2610F1')
+            text, pictures = guide_lookup.build_preview('2610Fm1')
             self.assertEqual(pictures, [])
-            self.assertIn('!임무 2610 F1', text)
+            self.assertIn('!임무 2610 Fm1', text)
             self.assertIn(record['url'], text)
