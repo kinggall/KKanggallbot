@@ -53,14 +53,16 @@ class GaugeGuideTests(unittest.TestCase):
             self.assertIn('등록된 게이지',guide_lookup.build_preview('564',root=root)[0])
             self.assertIn('해당 루트가 없습니다',guide_lookup.build_preview('562 루트3',root=root)[0])
 
-    def test_single_route_inside_gauge_still_accepts_route1(self):
+    def test_single_route_inside_gauge_uses_detail_without_route_number(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);record=self.record(root)
             record['routes']=[record['routes'][0]]
             (root/'guide_cache/zekamashi_maps/5-6/manifest.json').write_text(json.dumps(record))
-            text,pictures=guide_lookup.build_preview('561 루트1',root=root)
-            self.assertIn('루트1',text);self.assertEqual(len(pictures),1)
-            self.assertNotIn('[1게이지]\n루트1 [1게이지]',text)
+            text,pictures=guide_lookup.build_preview('561 상세',root=root)
+            self.assertNotIn('루트1',text);self.assertEqual(len(pictures),1)
+            self.assertIn('!공략 561 상세',guide_lookup.build_preview('561',root=root)[0])
+            self.assertIn('!공략 561 상세',guide_lookup.build_preview('56',root=root)[0])
+            self.assertEqual(guide_lookup.build_preview('561 루트1',root=root),('',[]))
 
 
 if __name__=='__main__':unittest.main()

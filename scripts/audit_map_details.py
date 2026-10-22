@@ -40,7 +40,7 @@ def audit(root=ROOT):
                 if map_guides.preview(code,root)!=map_guides.preview(area+'-'+str(gauge),root):
                     failures.append(code+': dashed gauge lookup mismatch')
                 markdown.extend(['',f'### !공략 {code} — 게이지 개요','```text',text,'```'])
-                jobs.extend((code,route,True) for route in routes)
+                jobs.extend((code,route,len(routes)>1) for route in routes)
         for code,route,numbered in jobs:
             query=code+' 루트'+str(route['number']) if numbered else code+' 상세'
             text,images=map_guides.preview(query,root);query_count+=1;detail_queries.append(query)

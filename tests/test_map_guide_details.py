@@ -56,11 +56,11 @@ class MapGuideDetailTests(unittest.TestCase):
 
     def test_boss_label_omitted_only_for_boss_and_parity_cutoff(self):
         entries=[{'node':'H','name':'홋포방','superiority':381,'supremacy':762,'parity':170}]
-        self.assertEqual(details.air_lines(entries,{'K'}),['· H(홋포방) 제공: 우세 381 / 확보 762 / 균형 170'])
+        self.assertEqual(details.air_lines(entries,{'K'}),['· H(홋포방) 제공: 균형 170 / 우세 381 / 확보 762'])
         entries=[{'node':'D','superiority':35,'supremacy':69,'parity':99},
                  {'node':'K','superiority':100,'supremacy':200,'parity':100}]
         lines=details.air_lines(entries,{'K'})
-        self.assertEqual(lines,['· 제공: 우세 100 / 확보 200 / 균형 100'])
+        self.assertEqual(lines,['· 제공: 균형 100 / 우세 100 / 확보 200'])
 
     def test_en_route_peak_and_boss_baseline_are_both_preserved(self):
         lines=details.air_lines([{'node':'C','superiority':252,'supremacy':504,'parity':113},

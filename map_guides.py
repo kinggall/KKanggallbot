@@ -114,6 +114,11 @@ def extract(html,area,url):
             if current and '基地航空隊' in text:
                 airbase=True;reference=False
                 continue
+            if current and airbase and '初めて攻略する際の例' in text and '仮置' in text:
+                # Preserve the provisional beginner base in reference data,
+                # not among the base images sent with the current fleet.
+                reference=True;airbase=False
+                continue
             if current and ('資料' in text or '条件について' in text):
                 reference=True;airbase=False
                 continue
@@ -271,7 +276,8 @@ def preview(query,root=ROOT,*,cache_root=None):
     if tree and gauge is None:
         compact=area.replace('-','')
         if len(parts)>1:
-            return f'{area} 해역 공략\n\n게이지를 먼저 선택해주세요.\n예: !공략 {compact}1 루트1',[]
+            first=next(iter(tree));selector='루트1' if len(tree[first])>1 else '상세'
+            return f'{area} 해역 공략\n\n게이지를 먼저 선택해주세요.\n예: !공략 {compact}{first} {selector}',[]
         lines=[f'{area} 해역 공략'];pictures=[]
         for stage,routes in tree.items():
             lines.append(f'[{stage}게이지]')
@@ -280,19 +286,20 @@ def preview(query,root=ROOT,*,cache_root=None):
                 summary=variant['summary'];match=re.search(NODE_ROUTE,summary)
                 if match:summary=summary[:match.start()].strip()+'\n'+summary[match.start():]
                 label=' · '+route['label'] if route['label']!='기본' else ''
-                lines.append(f'루트{route["number"]}{label}: '+summary)
+                lines.append((f'루트{route["number"]}{label}: ' if len(routes)>1 else '')+summary)
                 for name in variant['images']:
                     p=folder/name
                     if p.parent.resolve()!=folder.resolve() or not p.is_file():
                         return f'{area} 해역 공략\n\n공략 이미지 수집이 완료되지 않았습니다.',[]
                     if p not in pictures:pictures.append(p)
-            lines.append(f'상세공략: !공략 {compact}{stage} 루트1')
+            selector='루트1' if len(routes)>1 else '상세'
+            lines.append(f'상세공략: !공략 {compact}{stage} {selector}')
         return '\n\n'.join(lines),pictures
     if gauge is not None and gauge not in tree:
         return f'{area} 해역 공략\n\n등록된 게이지: '+ ' / '.join(str(n) for n in tree)+f'\n예: !공략 {area.replace("-","")}1',[]
     routes=tree[gauge] if gauge is not None else record['routes'];selected=routes
     multiple=len(routes)>1
-    numbered=multiple or gauge is not None
+    numbered=multiple
     detailed=len(parts)==2
     if not numbered and detailed and parts[1]!='상세':
         return '',[]
@@ -333,8 +340,10 @@ def preview(query,root=ROOT,*,cache_root=None):
                 p=folder/name
                 if p.parent.resolve()!=folder.resolve() or not p.is_file():
                     return f'{area} 해역 공략\n\n공략 이미지 수집이 완료되지 않았습니다.',[]
-                if p not in pictures:pictures.append(p)
+                # Keep fleet/base pairs together even when two examples share
+                # the same airbase image (notably the lower route at 6-5).
+                if detailed or p not in pictures:pictures.append(p)
     code=area.replace('-','')+(str(gauge) if gauge is not None else '')
     if numbered and not detailed:lines.append(f'상세공략: !공략 {code} 루트1' if gauge is not None else f'루트 선택: !공략 {code} 루트1')
-    elif not multiple and not detailed:lines.append(f'상세공략: !공략 {area.replace("-","")} 상세')
+    elif not multiple and not detailed:lines.append(f'상세공략: !공략 {code} 상세')
     return '\n\n'.join(lines),pictures

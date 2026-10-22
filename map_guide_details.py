@@ -112,7 +112,7 @@ def air_lines(entries,bosses):
                         and 'superiority' not in e)
         for entry in selected:
             tiers=[]
-            for key,label in [('superiority','우세'),('supremacy','확보'),('parity','균형')]:
+            for key,label in [('parity','균형'),('superiority','우세'),('supremacy','확보')]:
                 value=entry.get(key)
                 if value and (key!='parity' or value>=100):tiers.append(f'{label} {value}')
             if not tiers:continue

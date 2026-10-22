@@ -43,14 +43,30 @@ class MapGuideTests(unittest.TestCase):
         self.assertEqual(map_guides.phase_label('第二ゲージ 編成例'),'2게이지')
 
     def test_first_clear_examples_are_not_confused_with_airbase_examples(self):
-        html='<h1>6-5 攻略</h1><div class="post-content"><h2>編成例(下ルート)</h2><p>戦艦2軽巡1駆逐3【BFIJM】</p><img src="/wp-content/uploads/fleet.jpg"><h3>基地航空隊</h3><h4>初めて攻略する際の例(仮置)</h4><img src="/wp-content/uploads/base.jpg"><h2>初攻略にあたって</h2><h3>初攻略での編成案</h3><p>戦艦2軽巡1駆逐3【BFIJM】</p><img src="/wp-content/uploads/first.jpg"></div>'
+        html='<h1>6-5 攻略</h1><div class="post-content"><h2>編成例(下ルート)</h2><p>戦艦2軽巡1駆逐3【BFIJM】</p><img src="/wp-content/uploads/fleet.jpg"><h3>基地航空隊</h3><img src="/wp-content/uploads/current.jpg"><h4>初めて攻略する際の例(仮置)</h4><img src="/wp-content/uploads/base.jpg"><h2>初攻略にあたって</h2><h3>初攻略での編成案</h3><p>戦艦2軽巡1駆逐3【BFIJM】</p><img src="/wp-content/uploads/first.jpg"></div>'
         record=map_guides.extract(html,'6-5','https://zekamashi.net/kancolle-kouryaku/6-5/')
         self.assertEqual(len(record['routes']),1)
         variants=record['routes'][0]['variants']
         self.assertEqual(len(variants),2)
-        self.assertTrue(variants[0]['airbase_images'][0].endswith('base.jpg'))
+        self.assertEqual(variants[0]['airbase_images'],['https://zekamashi.net/wp-content/uploads/current.jpg'])
+        self.assertTrue(variants[0]['reference_image_urls'][0].endswith('base.jpg'))
         self.assertEqual(len(variants[0]['images']),1)
         self.assertTrue(variants[1]['images'][0].endswith('first.jpg'))
+
+    def test_shared_airbase_is_sent_again_for_each_fleet_pair(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);folder=root/'guide_cache/zekamashi_maps/6-5';folder.mkdir(parents=True)
+            variants=[]
+            for number,base in [(1,'same.jpg'),(2,'same.jpg'),(3,'third.jpg')]:
+                fleet=f'fleet{number}.jpg'
+                for name in [fleet,base]:(folder/name).write_bytes(b'image')
+                variants.append({'phase':'','source_heading':str(number),'summary':'戦艦2 【BFIJM】',
+                                 'images':[fleet],'airbase_images':[base],'notes_jp':[]})
+            record={'area':'6-5','status':'downloaded','routes':[{'number':1,'label':'하단','variants':variants}]}
+            (folder/'manifest.json').write_text(json.dumps(record))
+            text,images=guide_lookup.build_preview('65 상세',root=root)
+            self.assertEqual([p.name for p in images],['fleet1.jpg','same.jpg','fleet2.jpg','same.jpg','fleet3.jpg','third.jpg'])
+            self.assertEqual(len(guide_lookup.build_preview('65',root=root)[1]),3)
 
     def test_mixed_lower_upper_route_has_its_own_label(self):
         self.assertEqual(map_guides.route_label('編成例(下上ルート)'),'하단→상단')

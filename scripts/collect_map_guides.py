@@ -127,7 +127,7 @@ def audit(output):
             tree=map_guides.gauge_routes(record) if area in map_guides.MULTI_GAUGES else {}
             queries=[area+' 루트'+str(r['number']) for r in record['routes']] if len(record['routes'])>1 else [area+' 상세']
             if tree:
-                queries=[area.replace('-','')+str(gauge)+' 루트'+str(r['number'])
+                queries=[area.replace('-','')+str(gauge)+(' 루트'+str(r['number']) if len(routes)>1 else ' 상세')
                          for gauge,routes in tree.items() for r in routes]
             for query in queries:
                 text,pictures=map_guides.preview(query,cache_root=output)
