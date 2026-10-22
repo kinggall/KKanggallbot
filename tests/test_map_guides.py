@@ -53,6 +53,31 @@ class MapGuideTests(unittest.TestCase):
         self.assertEqual(len(record['routes']),1)
         self.assertEqual(len(record['routes'][0]['variants']),2)
 
+    def test_fleet_subheadings_keep_alternative_images_and_routes_separate(self):
+        html='<h1>1-3 攻略</h1><div class="entry-content"><h2>編成例(周回編成案)</h2><h3>軽空2駆逐4</h3><p><img src="/wp-content/uploads/one.jpg"></p><p>軽空2駆逐4【CFJ】</p><h3>軽空2水母1(3隻)</h3><p><img src="/wp-content/uploads/two.jpg"></p><p>軽空2水母1(3隻)【AEFHJ】</p></div>'
+        record=map_guides.extract(html,'1-3','https://zekamashi.net/kancolle-kouryaku/1-3/')
+        self.assertEqual(len(record['routes']),2)
+        one,two=[r['variants'][0] for r in record['routes']]
+        self.assertEqual(len(one['images']),1)
+        self.assertTrue(one['images'][0].endswith('one.jpg'))
+        self.assertTrue(two['images'][0].endswith('two.jpg'))
+        self.assertIn('(3척)',two['summary'])
+
+    def test_reference_images_and_related_article_cards_are_not_fleet_images(self):
+        html='<h1>1-5 攻略</h1><div class="entry-content"><h2>編成例</h2><p>駆逐4【ADFGJ】</p><img src="/wp-content/uploads/fleet.jpg"><a class="blogcard__link"><img src="/wp-content/uploads/thumbnail.jpg"></a><h3>対潜条件について(資料)</h3><img src="/wp-content/uploads/battle.jpg"></div>'
+        record=map_guides.extract(html,'1-5','https://zekamashi.net/kancolle-kouryaku/1-5/')
+        variant=record['routes'][0]['variants'][0]
+        self.assertEqual(variant['images'],['https://zekamashi.net/wp-content/uploads/fleet.jpg'])
+        self.assertEqual(variant['reference_image_urls'],['https://zekamashi.net/wp-content/uploads/battle.jpg'])
+
+    def test_alternative_node_paths_and_boss_probability_are_preserved(self):
+        html='<h1>1-3 攻略</h1><div class="entry-content"><h2>編成例(初攻略)</h2><p>軽巡2駆逐4【CFJ】(J:ボス) 【A(DB)EFJ】(E:通常 F:通常 J:ボス) ルート条件 駆逐4以上</p></div>'
+        record=map_guides.extract(html,'1-3','https://zekamashi.net/kancolle-kouryaku/1-3/')
+        summary=record['routes'][0]['variants'][0]['summary']
+        self.assertIn('【CFJ】',summary)
+        self.assertIn('【A(DB)EFJ】',summary)
+        self.assertEqual(map_guides.translated_branch_notes(['固定なしの例(駆逐2でボス率94%程度)']),['※ 보스 도달률 약 94%'])
+
     def test_codes_do_not_overlap_quest_codes(self):
         for value in ['55','5-5','１－１']:
             self.assertIsNotNone(map_guides.parse_area(value))

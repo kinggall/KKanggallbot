@@ -63,6 +63,7 @@ def translate_route(text):
     text = re.sub(r'(\d+)隻以上', r'\1척 이상', text)
     text = re.sub(r'(\d+)隻以下', r'\1척 이하', text)
     text = re.sub(r'(\d+)隻に装備', r'\1척에 장착', text)
+    text = re.sub(r'(\d+)隻', r'\1척', text)
     text = re.sub(r'を(\d+)隻を採用', r'\1척', text)
     for phrase in ('のような編成で', 'の編成で', 'とすることで', 'を採用することで',
                    'という形にして', '以上の編成で', '以上の条件であれば'):

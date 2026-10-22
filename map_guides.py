@@ -25,6 +25,8 @@ def hidden(tag):
     for node in [tag,*tag.parents]:
         if not getattr(node,'attrs',None):
             continue
+        if any(str(c).startswith('blogcard') for c in node.get('class',[])):
+            return True
         style = re.sub(r'\s+','',node.get('style','')).lower()
         if (node.has_attr('hidden') or node.get('aria-hidden')=='true'
                 or (node.name=='details' and not node.has_attr('open'))
@@ -56,7 +58,7 @@ def phase_label(title):
 def extract(html,area,url):
     """Keep visible fleet examples, raw notes, and distinct base-air images."""
     from scripts.collect_zekamashi import image_identity, image_source_url
-    from guide_lookup import find_route,find_random_fleet,translate_route
+    from guide_lookup import FLEET_TYPES,find_route,find_random_fleet,translate_route
     soup=BeautifulSoup(html,'html.parser')
     body=soup.select_one('.entry-content, .post-content, .entry__body, .post_content, .entry__content')
     h1=soup.find('h1')
@@ -66,7 +68,7 @@ def extract(html,area,url):
         raise ValueError('Area title/body does not match requested map: '+area)
     if '一期' in title:
         raise ValueError('Outdated Phase 1 article')
-    examples=[];current=None;hierarchy={};airbase=False;active_level=0
+    examples=[];current=None;hierarchy={};airbase=False;reference=False;active_level=0
     for tag in body.find_all(['h2','h3','h4','h5','p','li','img','table']):
         if hidden(tag):continue
         if tag.name.startswith('h') and tag.name[1:].isdigit():
@@ -74,26 +76,31 @@ def extract(html,area,url):
             hierarchy={k:v for k,v in hierarchy.items() if k<level};hierarchy[level]=text
             context=' / '.join(hierarchy.values())
             if current and '基地航空隊' in text:
-                airbase=True
+                airbase=True;reference=False
+                continue
+            if current and ('資料' in text or '条件について' in text):
+                reference=True;airbase=False
                 continue
             is_example='編成例' in text and not re.search(r'旧編成|過去|一期',context)
             if is_example:
                 current={'source_heading':context,'label':route_label(context),
                          'phase':phase_label(context),'summary':'','notes_jp':[],
                          'images':[],'airbase_images':[],'airbase_notes_jp':[]}
-                examples.append(current);active_level=level;airbase=False
+                examples.append(current);active_level=level;airbase=False;reference=False
             elif current:
+                fleet_heading=bool(re.match(r'^'+FLEET_TYPES+r'\s*\d',unicodedata.normalize('NFKC',text)))
                 if level<=active_level:
-                    current=None;airbase=False
+                    current=None;airbase=False;reference=False
                 elif '基地航空隊' in text:
                     airbase=True
-                elif route_label(text) or phase_label(text):
+                elif route_label(text) or phase_label(text) or fleet_heading:
                     if current['summary'] or current['images']:
                         current={'source_heading':context,'label':route_label(context),
                                  'phase':phase_label(context),'summary':'','notes_jp':[],
                                  'images':[],'airbase_images':[],'airbase_notes_jp':[]}
                         examples.append(current)
-                    airbase=False
+                    airbase=False;reference=False
+                    if fleet_heading:current['fleet_heading']=text
             continue
         if not current:continue
         if tag.name=='img':
@@ -101,17 +108,27 @@ def extract(html,area,url):
             src=href if re.search(r'\.(png|jpe?g|webp)(?:\?|$)',href,re.I) else urljoin(url,tag.get('data-src') or tag.get('src',''))
             src=image_source_url(src)
             if urlparse(src).hostname!='zekamashi.net' or '/wp-content/uploads/' not in src:continue
-            key='airbase_images' if airbase else 'images'
+            key='reference_image_urls' if reference else 'airbase_images' if airbase else 'images'
+            current.setdefault(key,[])
             if not any(image_identity(x)==image_identity(src) for x in current[key]):current[key].append(src)
         elif tag.name in {'p','li','table'}:
             # Lists inside a paragraph/table are still preserved as raw notes;
             # keep a unique entry to avoid repeating the same source text.
             text=unicodedata.normalize('NFKC',tag.get_text(' ',strip=True))
-            key='airbase_notes_jp' if airbase else 'notes_jp'
+            key='reference_notes_jp' if reference else 'airbase_notes_jp' if airbase else 'notes_jp'
+            current.setdefault(key,[])
             if text and text not in current[key]:current[key].append(text)
-            if not airbase and not current['summary']:
+            if not airbase and not reference and not current['summary']:
                 route=find_route(text)
                 summary=translate_route(route) if route else find_random_fleet(text)
+                if route:
+                    from guide_lookup import NODE_ROUTE
+                    route_matches=list(re.finditer(NODE_ROUTE,text.split('ルート条件')[0]))
+                    fleet=route.split('【',1)[0]
+                    for extra in route_matches[1:]:
+                        extra_route=find_route(fleet+text[extra.start():])
+                        if extra_route:
+                            summary+='\n'+translate_route(extra_route[len(fleet):]).strip()
                 if summary:current['summary']=summary
     examples=[e for e in examples if e['summary'] or e['images']]
     if not examples:raise ValueError('No visible fleet examples found; manual review required')
@@ -151,6 +168,13 @@ def translated_branch_notes(notes):
         elif '低確率で逸れあり' in text:
             if '※ 낮은 확률로 이탈할 수 있습니다.' not in output:
                 output.append('※ 낮은 확률로 이탈할 수 있습니다.')
+        boss_rate=re.search(r'ボス率\s*(\d+(?:\.\d+)?)%程度',text)
+        if boss_rate:
+            line=f'※ 보스 도달률 약 {boss_rate[1]}%'
+            if line not in output:output.append(line)
+        elif re.search(r'ルート固定していない|ルート固定不可|固定なしの例',text):
+            if '※ 경로가 고정되지 않은 편성입니다.' not in output:
+                output.append('※ 경로가 고정되지 않은 편성입니다.')
     return output
 
 
@@ -180,13 +204,13 @@ def preview(query,root=ROOT,*,cache_root=None):
     for route in selected:
         variants=route['variants'] if len(parts)==2 or not multiple else route['variants'][:1]
         for variant in variants:
-            heading=f'루트{route["number"]} · {route["label"]}' if multiple else ''
+            heading=(f'루트{route["number"]}'+(' · '+route['label'] if route['label']!='기본' else '')) if multiple else ''
             if (len(parts)==2 or not multiple) and variant['phase']:
                 heading+=(' ' if heading else '')+'['+variant['phase']+']'
-            elif not multiple and len(variants)>1:
+            elif len(variants)>1:
                 source=variant.get('source_heading','')
                 purpose='반복 출격' if '周回' in source else '최초 공략' if '初攻略' in source else '편성 '+str(variants.index(variant)+1)
-                heading='['+purpose+']'
+                heading+=(' ' if heading else '')+'['+purpose+']'
             summary=variant['summary'] or '편성은 이미지 참조 / 경로 요약 미확인'
             match=re.search(NODE_ROUTE,summary)
             if match:summary=summary[:match.start()].strip()+'\n'+summary[match.start():]
