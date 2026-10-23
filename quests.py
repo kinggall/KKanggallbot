@@ -510,6 +510,10 @@ class QuestCatalog:
         lines.extend(f'· {row["wiki_id"]}: {clean(row["name_ko"])}' for row in rows)
         lines.extend(['', '상세 내용: !임무 [번호]',
                       '예: !임무 ' + rows[0]['wiki_id'].replace(' ', '')])
+        sortie = next((row for row in rows if row.get('category') == 'sortie'), None)
+        if sortie:
+            lines.extend(['공략 보기: !공략 [번호]',
+                          '예: !공략 ' + sortie['wiki_id'].replace(' ', '')])
         return '\n'.join(lines)
 
     def reply(self, query):

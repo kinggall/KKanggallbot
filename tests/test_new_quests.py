@@ -44,8 +44,16 @@ class NewQuestTests(unittest.TestCase):
         for row in self.update['quests']:
             self.assertIn(f'· {row["wiki_id"]}: {row["name_ko"]}', text)
         self.assertIn('상세 내용: !임무 [번호]', text)
+        self.assertIn('공략 보기: !공략 [번호]\n예: !공략 2610B1', text)
         self.assertNotIn('[보상]', text)
         self.assertNotIn('[임무 내용]', text)
+
+    def test_no_guide_example_when_new_quests_are_not_sortie(self):
+        from copy import deepcopy
+        row = deepcopy(self.update['quests'][0])
+        row.update(category='exercise', wiki_id='C1')
+        with patch.object(self.catalog, 'items', {'exercise': row}):
+            self.assertNotIn('!공략', self.catalog.new_quests_reply())
 
     def test_new_list_changes_to_latest_maintenance(self):
         from copy import deepcopy
