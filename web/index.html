@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="칸코레 임무를 번호, 제목, 함선명과 별명으로 검색하세요. 깡갤봇 진수부 안내 데스크.">
+  <meta name="color-scheme" content="light"><title>깡갤봇 · 진수부 안내 데스크</title>
+  <link rel="stylesheet" href="style.css"><script defer src="app.js"></script>
+</head>
+<body>
+<header class="top"><a class="brand" href="./"><span class="brand-icon" aria-hidden="true">⚓</span><span>깡갤봇<small>KANCOLLE FIELD NOTES</small></span></a><a class="github" href="https://github.com/kinggall/KKanggallbot" target="_blank" rel="noopener noreferrer">GitHub ↗</a></header>
+<main>
+  <section class="hero"><div class="hero-copy"><p class="eyebrow">YOUR NEXT SORTIE STARTS HERE</p><h1>다음 출격을 위한<br><span>작은 진수부.</span></h1><p class="intro">찾고, 준비하고, 출격하세요.<br>채팅에서 만나던 깡갤봇의 임무 정보를 웹에서도.</p><div class="hero-tags"><span>임무 조건</span><span>보상 · 선행임무</span><span>원문 공략 연결</span></div></div><div class="hero-chart" aria-hidden="true"><div class="chart-grid"></div><div class="radar-circle one"></div><div class="radar-circle two"></div><div class="chart-route"></div><span class="point p1">A</span><span class="point p2">C</span><span class="point p3">F</span><span class="point p4">BOSS</span><div class="chart-note">FLEET OPERATIONS<br><strong>준비는 가볍게, 출격은 든든하게.</strong></div></div></section>
+  <section class="desk" aria-labelledby="search-title"><div class="section-heading"><div><p class="eyebrow">QUEST FINDER</p><h2 id="search-title">어떤 임무를 찾고 있나요?</h2></div><span id="catalog-count" class="count">자료 불러오는 중</span></div>
+  <form id="search-form" role="search"><label class="sr-only" for="query">임무 번호, 제목, 함선명 또는 별명</label><div class="search-box"><span aria-hidden="true">⌕</span><input id="query" type="search" placeholder="번호 · 임무명 · 함선명 · 별명 검색" autocomplete="off" maxlength="120"><button id="search-button" type="submit" disabled>검색 <span aria-hidden="true">→</span></button></div></form>
+  <div class="examples"><span>이렇게 찾아보세요</span><button data-query="아호작전">아호작전</button><button data-query="수상반격">수상반격</button><button data-query="뽀이">뽀이</button><button data-query="6구">6구</button></div>
+  <div class="filters" aria-label="임무 필터"><button class="active" data-filter="new" aria-pressed="true">신규 임무</button><button data-filter="all" aria-pressed="false">전체</button><button data-filter="sortie" aria-pressed="false">출격</button><button data-filter="weekly" aria-pressed="false">주간</button><button data-filter="monthly" aria-pressed="false">월간</button><button data-filter="quarterly" aria-pressed="false">계간</button><button data-filter="annual" aria-pressed="false">연간</button></div>
+  <div class="workspace"><section class="results-panel"><div class="results-heading"><h3 id="results-title">최근 추가된 임무</h3><span id="result-count"></span></div><p id="status" role="status" aria-live="polite">임무 데이터를 불러오고 있어요.</p><div id="results"></div><button id="more" class="more" hidden>더 보기</button></section><article id="detail" class="detail-panel" aria-labelledby="detail-title"><p class="eyebrow">MISSION BRIEFING</p><h2 id="detail-title">오늘은 어떤 출격을 할까요?</h2><p class="empty-description">왼쪽 목록에서 임무를 선택하면<br>조건과 보상, 다음 임무를 확인할 수 있어요.</p><div class="empty-anchor" aria-hidden="true">⚓</div><p class="small-note">공략 사진과 본문은 재게시하지 않습니다.<br>공략은 원문 사이트에서 확인하세요.</p></article></div>
+  </section>
+  <section class="notice"><span aria-hidden="true">ⓘ</span><p><strong>진수부 안내 데스크 · 첫 번째 버전</strong><br>현재는 임무 검색과 원문 공략 연결을 제공합니다. 함선·장비 도감은 추후 연결할 예정입니다. 임무 조건은 자료 갱신 및 검증에 따라 달라질 수 있습니다.</p></section>
+</main>
+<footer><div><strong>깡갤봇</strong><p>함께 준비하는 다음 출격.</p></div><nav aria-label="출처"><a href="https://github.com/kinggall/KKanggallbot" target="_blank" rel="noopener noreferrer">소스 코드 ↗</a><a href="THIRD_PARTY_NOTICES.md">데이터 출처</a><a href="LICENSE">GPL-3.0</a><a href="https://kinggall.tistory.com/" target="_blank" rel="noopener noreferrer">진수부 공지 ↗</a></nav><p class="disclaimer">비공식 팬 도구입니다. 게임 및 자료의 권리는 각 권리자에게 있습니다. 검색 시 원문 사이트에 자동 요청하지 않습니다.</p></footer>
+</body></html>
