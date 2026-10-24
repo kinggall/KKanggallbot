@@ -23,6 +23,7 @@ import kanlog_drops
 import expeditions
 import quests
 import experience
+import senka
 import guide_lookup
 
 app = Flask(__name__)
@@ -1420,7 +1421,7 @@ COMMANDS = {
     "!도움말": (
         "사용 가능한 명령어:\n"
         "!공지 !통합공략 !반복퀘 !멘테 !이벤트\n"
-        "!전과 [5/20/100/500]\n"
+        "!전과 [5/20/100/500/임무/해역]\n"
         "!드랍 [해역/함선명]\n"
         "!한정드랍\n"
         "!칸무스 [함선명]\n"
@@ -1578,8 +1579,14 @@ def webhook():
 
     if message.startswith("!전과"):
         arguments = message.split()
-        if len(arguments) != 2 or arguments[0] != "!전과" or arguments[1] not in SENKA_RANKS:
-            reply = "사용법: !전과 5 / !전과 20 / !전과 100 / !전과 500"
+        if len(arguments) == 2 and arguments[0] == "!전과" and arguments[1] in {'임무','해역'}:
+            try:
+                reply = senka.quest_reply() if arguments[1] == '임무' else senka.map_reply()
+            except (OSError, ValueError, KeyError, TypeError) as error:
+                print(f"[전과 자료 조회 실패] {error}")
+                reply = "전과 자료를 불러오지 못했습니다."
+        elif len(arguments) != 2 or arguments[0] != "!전과" or arguments[1] not in SENKA_RANKS:
+            reply = senka.USAGE
         else:
             try:
                 reply = format_senka_ranking(arguments[1])

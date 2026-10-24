@@ -1,5 +1,9 @@
 # Third-party notices
 
+## Boss ranking-point reference
+
+`data/senka_boss.json` records factual boss admiral-experience values from already collected Zekamashi regular-map pages (`https://zekamashi.net/kancolle-kouryaku/1-1/` through the registered regular maps). Each entry retains its source URL and HTML hash, not article text or images. Conversion: https://zekamashi.net/kancolle-kouryaku/senka-500/ ; explicit S-rank check for 7-1: https://zekamashi.net/kancolle-kouryaku/senka-7-1/ . A-rank coefficients are documented in SENKA_DATA.md. Attribution does not replace upstream permissions. The command makes no website requests.
+
 ## Ship experience table
 
 `data/ship_experience.json` extracts only `ShipExp` (Lv1–188) from ElectronicObserverEN/ElectronicObserver revision `8b66df3ffeb79ddef0d092693cf0d257ee96c1a7`, `ElectronicObserver/Utility/Data/ExpTable.cs`: https://github.com/ElectronicObserverEN/ElectronicObserver/blob/8b66df3ffeb79ddef0d092693cf0d257ee96c1a7/ElectronicObserver/Utility/Data/ExpTable.cs . The source hash and revision are retained with the data. The MIT notice below applies. Admiral experience is not used. `experience.py` is the bot's offline difference calculator; it does not extrapolate beyond the source table.
