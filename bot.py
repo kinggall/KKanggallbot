@@ -22,6 +22,7 @@ import remodel_materials
 import kanlog_drops
 import expeditions
 import quests
+import experience
 import guide_lookup
 
 app = Flask(__name__)
@@ -1425,6 +1426,7 @@ COMMANDS = {
         "!칸무스 [함선명]\n"
         "!슬롯 [함선명]\n"
         "!초기장비 [함선명]\n"
+        "!경험치 [현재레벨] [목표레벨]\n"
         "!피트 [함선명]\n"
         "!장비 [장비명]\n"
         "!개발 [장비명]\n"
@@ -1694,6 +1696,17 @@ def webhook():
             timeout=10,
         )
         print(f"[임무 검색] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!경험치" or message.startswith("!경험치 "):
+        try:
+            reply = experience.reply(message[len("!경험치"):])
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            print(f"[경험치 계산 실패] {error}")
+            reply = "경험치 데이터를 불러오지 못했습니다."
+        requests.post(IRIS_REPLY_URL,
+                      json={"type": "text", "room": str(chat_id), "data": reply},
+                      timeout=10)
         return jsonify({"ok": True})
 
     if message == "!원정" or message.startswith("!원정 "):

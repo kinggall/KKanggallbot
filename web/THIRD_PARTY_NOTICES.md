@@ -1,5 +1,9 @@
 # Third-party notices
 
+## Ship experience table
+
+`data/ship_experience.json` extracts only `ShipExp` (Lv1–188) from ElectronicObserverEN/ElectronicObserver revision `8b66df3ffeb79ddef0d092693cf0d257ee96c1a7`, `ElectronicObserver/Utility/Data/ExpTable.cs`: https://github.com/ElectronicObserverEN/ElectronicObserver/blob/8b66df3ffeb79ddef0d092693cf0d257ee96c1a7/ElectronicObserver/Utility/Data/ExpTable.cs . The source hash and revision are retained with the data. The MIT notice below applies. Admiral experience is not used. `experience.py` is the bot's offline difference calculator; it does not extrapolate beyond the source table.
+
 ## TsunKit quest facts and EO quest translations
 
 - Quest facts: planetarian/TsunKitQuests, https://github.com/planetarian/TsunKitQuests at `6d7d05924815b9b44ad45bfb963533155983be65`. Its README credits the earlier kcwikizh quest data and requests that upstream edits be submitted through the quest tracker.
