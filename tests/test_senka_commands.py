@@ -7,21 +7,27 @@ import senka
 class SenkaCommandTests(unittest.TestCase):
     def test_all_current_quest_rewards_choices_and_totals(self):
         text=senka.quest_reply()
-        for code in ['Bq2','Bq7','Bq8','Bq10','Bq11','Bq12','Bq13','By9','By10','B170']:
+        for code in ['Bq2','Bq7','Bq8','Bq10','Bq11','Bq12','Bq13','By9','By10']:
             self.assertEqual(text.count('('+code+')'),1)
-        self.assertIn('확정 전과 합계: 2,050',text)
-        self.assertIn('확정 전과 합계: 1,080',text)
-        self.assertIn('(B170) - 800 (선택)',text)
+        self.assertIn('확정 전과 합계: 2,050점',text)
+        self.assertIn('확정 전과 합계: 1,080점',text)
+        self.assertIn('(By9) - 480점',text)
+        self.assertTrue(text.startswith('[계간]\n'))
+        self.assertNotIn('B170',text)
+        self.assertNotIn('[단발]',text)
+        self.assertNotIn('전과 임무',text)
+        self.assertNotIn('상세:',text)
+        self.assertNotIn('※',text)
         self.assertNotIn('2501',text)
         self.assertLess(len(text),2000)
         self.assertEqual(senka.rewards({'choices':[{'category':'senka','amount':800}]}),[(800,True)])
 
     def test_boss_points_and_gauge_coverage(self):
         text=senka.map_reply()
-        self.assertIn('7-1 - S 1.176 / A 0.9408',text)
-        self.assertIn('1-1 - S 0.014 / A 0.0112',text)
-        self.assertIn('7-2-1 - S 0.252 / A 0.2016',text)
-        self.assertIn('7-2-2 - S 1.652 / A 1.3216',text)
+        self.assertIn('7-1 - S 1.17 / A 0.94',text)
+        self.assertIn('1-1 - S 0.01 / A 0.01',text)
+        self.assertIn('7-2-1 - S 0.25 / A 0.20',text)
+        self.assertIn('7-2-2 - S 1.65 / A 1.32',text)
         self.assertIn('1-6 - 보스 전투 없음',text)
         for stage in range(1,4):self.assertIn(f'5-6-{stage} - 미확인',text)
         data=json.loads((Path(senka.ROOT)/'data/senka_boss.json').read_text())
@@ -32,8 +38,9 @@ class SenkaCommandTests(unittest.TestCase):
             self.assertIn('· '+row['area']+' - ',text)
             self.assertTrue(row['source'].startswith('https://zekamashi.net/'))
             self.assertEqual(len(row['source_sha256']),64)
-        self.assertEqual(senka.points(100000),'70')
-        self.assertEqual(senka.points(0),'0')
+        self.assertEqual(senka.points(100000),'70.00')
+        self.assertEqual(senka.points(0),'0.00')
+        self.assertEqual(senka.points(1740),'1.21')
         self.assertEqual(senka.points(1680+3*140),'1.47')
         self.assertLess(len(text),2500)
 

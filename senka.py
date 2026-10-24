@@ -1,6 +1,6 @@
 """Offline quest rewards and boss-only regular-map ranking points."""
 from collections import defaultdict
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 import json
 from pathlib import Path
 
@@ -25,22 +25,23 @@ def quest_reply():
         if row.get('unavailable'):continue
         points=rewards(row.get('rewards',{}))
         if points:groups[row['frequency']].append((row,points))
-    lines=['전과 임무']
-    for frequency in ['daily','weekly','monthly','quarterly','annual','onetime','special1','special2','unknown']:
+    lines=[]
+    for frequency in ['quarterly','annual']:
         items=groups.get(frequency,[])
         if not items:continue
-        lines.extend(['','['+quests.FREQUENCY.get(frequency,frequency)+']'])
+        if lines:lines.append('')
+        lines.append('['+quests.FREQUENCY.get(frequency,frequency)+']')
         guaranteed=0
         for row,points in sorted(items,key=lambda p:quests.natural_code(p[0]['wiki_id'])):
-            amounts=' / '.join(f'{amount:,}'+(' (선택)' if optional else '') for amount,optional in points)
+            amounts=' / '.join(f'{amount:,}점'+(' (선택)' if optional else '') for amount,optional in points)
             lines.append(f'· {row["name_ko"]} ({row["wiki_id"]}) - {amounts}')
             guaranteed+=sum(amount for amount,optional in points if not optional)
-        if len(items)>1 and guaranteed:lines.append(f'확정 전과 합계: {guaranteed:,}')
-    lines.extend(['','※ (선택)은 다른 보상 대신 전과를 선택할 때만 획득합니다.','상세: !임무 [번호] / 공략: !공략 [번호]'])
+        if len(items)>1 and guaranteed:lines.append(f'확정 전과 합계: {guaranteed:,}점')
     return '\n'.join(lines)
 
 def points(experience):
-    return format(Decimal(experience)*Decimal(7)/Decimal(10000),'.4f').rstrip('0').rstrip('.') or '0'
+    value=Decimal(experience)*Decimal(7)/Decimal(10000)
+    return format(value.quantize(Decimal('0.01'),rounding=ROUND_DOWN),'.2f')
 
 def map_reply(root=ROOT):
     data=json.loads((Path(root)/'data/senka_boss.json').read_text(encoding='utf-8'))
