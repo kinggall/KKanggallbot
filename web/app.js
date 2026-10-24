@@ -2,6 +2,21 @@
 const $ = id => document.getElementById(id);
 const normalize = value => String(value).normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 let data, rows = [], byId, byCode, activeFilter = 'new', current = [], shown = 30, selected;
+const pageNames = new Set(['notice', 'quests', 'maps', 'catalog', 'maintenance', 'links']);
+function closeMenu() { document.querySelector('.side-nav').classList.remove('is-open'); $('menu-toggle').setAttribute('aria-expanded', 'false'); }
+function showPage(page) {
+  if (!pageNames.has(page)) page = 'quests';
+  document.querySelectorAll('[data-view]').forEach(section => { section.hidden = section.dataset.view !== page; });
+  document.querySelectorAll('[data-page]').forEach(link => { if (link.dataset.page === page) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
+  const labels = { notice: '공지', quests: '임무', maps: '해역 공략', catalog: '도감', maintenance: '점검', links: '외부 사이트' };
+  document.title = `${labels[page]} · 깡갤봇`;
+  closeMenu();
+}
+function renderRoute() {
+  const params = new URLSearchParams(location.hash.slice(1)), code = params.get('quest');
+  if (code) { showPage('quests'); if (byCode && byCode.has(normalize(code))) openQuest(byCode.get(normalize(code)), false); }
+  else showPage(params.get('page') || 'quests');
+}
 function element(tag, text, className) { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; if (className) node.className = className; return node; }
 function setFilter(value) { activeFilter = value; document.querySelectorAll('[data-filter]').forEach(b => { const on = b.dataset.filter === value; b.classList.toggle('active', on); b.setAttribute('aria-pressed', String(on)); }); }
 function search() {
@@ -25,7 +40,7 @@ function search() {
     selected = undefined;
     const heading = element('h2', current.length ? '임무를 선택해주세요.' : '다른 검색어로 찾아볼까요?'); heading.id = 'detail-title';
     $('detail').replaceChildren(element('p', 'MISSION BRIEFING', 'eyebrow'), heading, element('p', '목록에서 임무를 선택하면 조건·보상과 원문 공략 링크를 확인할 수 있어요.', 'empty-description'));
-    history.replaceState(null, '', location.pathname + location.search);
+    if (new URLSearchParams(location.hash.slice(1)).has('quest')) history.replaceState(null, '', location.pathname + location.search);
   }
 }
 function renderList() {
@@ -43,6 +58,7 @@ function externalLink(text, url) {
   const link = element('a', text); link.href = parsed.href; link.target = '_blank'; link.rel = 'noopener noreferrer'; return link;
 }
 function openQuest(row, scroll) {
+  showPage('quests');
   selected = row.id; renderList();
   const panel = $('detail'); panel.replaceChildren(element('p', `${row.code} · ${row.frequencyLabel}${row.ended ? ' · 종료' : ''}`, 'eyebrow'), element('h2', row.title)); panel.querySelector('h2').id = 'detail-title';
   panel.append(element('pre', row.detail.split('\n').slice(1).join('\n').trim(), 'detail-text'));
@@ -64,18 +80,26 @@ $('search-form').addEventListener('submit', e => { e.preventDefault(); search();
 document.querySelectorAll('[data-query]').forEach(b => b.addEventListener('click', () => { $('query').value = b.dataset.query; setFilter('all'); search(); }));
 document.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', () => { setFilter(b.dataset.filter); search(); }));
 $('more').addEventListener('click', () => { shown += 30; renderList(); });
-window.addEventListener('hashchange', () => {
-  if (!byCode) return;
-  const code = new URLSearchParams(location.hash.slice(1)).get('quest');
-  if (code && byCode.has(normalize(code))) openQuest(byCode.get(normalize(code)), true);
-});
+window.addEventListener('hashchange', renderRoute);
+$('menu-toggle').addEventListener('click', () => { const open = $('menu-toggle').getAttribute('aria-expanded') !== 'true'; document.querySelector('.side-nav').classList.toggle('is-open', open); $('menu-toggle').setAttribute('aria-expanded', String(open)); });
+document.querySelectorAll('[data-page]').forEach(link => link.addEventListener('click', closeMenu));
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && $('menu-toggle').getAttribute('aria-expanded') === 'true') { closeMenu(); $('menu-toggle').focus(); } });
+document.addEventListener('click', event => { if (!event.target.closest('.side-nav') && !event.target.closest('#menu-toggle')) closeMenu(); });
+for (const [world, name, count] of [[1, '진수부 해역', 6], [2, '남서제도 해역', 5], [3, '북방 해역', 5], [4, '서방 해역', 5], [5, '남방 해역', 6], [6, '중부 해역', 5], [7, '남서 해역', 5]]) {
+  const region = element('section', undefined, 'map-region'), grid = element('div', undefined, 'map-grid'); region.append(element('h2', name));
+  for (let number = 1; number <= count; number++) { const area = `${world}-${number}`, link = externalLink('', `https://zekamashi.net/kancolle-kouryaku/${area}/`); link.className = 'map-link'; link.append(element('span', area), element('small', '원문 공략 ↗')); grid.append(link); }
+  region.append(grid); $('map-directory').append(region);
+}
+renderRoute();
 fetch('data/quests.json').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(result => {
   if (result.schema !== 1 || !Array.isArray(result.quests)) throw new Error('Invalid data schema');
   data = result; rows = data.quests; byId = new Map(rows.map(r => [r.id, r])); byCode = new Map();
   rows.forEach(r => [r.code, ...r.aliases].forEach(code => byCode.set(normalize(code), r)));
   data.latestRelease = rows.filter(r => r.isNew && !r.ended).map(r => r.releaseDate).sort().at(-1);
+  $('maintenance-data-date').textContent = data.latestRelease ? `현재 등록된 최신 임무: ${data.latestRelease} 점검 추가분` : '등록된 최신 임무의 점검 기준일이 없습니다.';
   $('catalog-count').textContent = `임무 ${rows.filter(r => !r.ended).length}개 수록`;
   const code = new URLSearchParams(location.hash.slice(1)).get('quest');
   $('search-button').disabled = false; search();
   if (code && byCode.has(normalize(code))) openQuest(byCode.get(normalize(code)), false);
+  else renderRoute();
 }).catch(() => { $('status').textContent = '자료를 불러오지 못했어요. 새로고침해 주세요. 로컬 확인 시에는 HTTP 서버로 열어주세요.'; $('catalog-count').textContent = '불러오기 실패'; });

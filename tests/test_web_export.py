@@ -28,7 +28,7 @@ class PublicWebExportTests(unittest.TestCase):
             self.assertEqual(actual,set(self.catalog.search_keys(query)),query)
 
     def test_public_directory_has_no_cache_or_credentials(self):
-        allowed={'index.html','style.css','app.js','_headers','data/quests.json','LICENSE','THIRD_PARTY_NOTICES.md'}
+        allowed={'index.html','style.css','navigation.css','app.js','_headers','data/quests.json','LICENSE','THIRD_PARTY_NOTICES.md'}
         self.assertEqual({p.relative_to(ROOT/'web').as_posix() for p in (ROOT/'web').rglob('*') if p.is_file()},allowed)
         for row in self.data['quests']:
             if row['guideUrl']:
