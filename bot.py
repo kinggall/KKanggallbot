@@ -1451,7 +1451,7 @@ COMMANDS = {
     ),
 
     "!공지": (
-        "https://kinggall.tistory.com/"
+        "https://kgbot.pages.dev/"
     ),
 
     "!통합공략": (
