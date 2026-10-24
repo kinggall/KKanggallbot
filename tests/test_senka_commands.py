@@ -69,4 +69,5 @@ class SenkaCommandTests(unittest.TestCase):
                 self.assertEqual(client.post('/webhook',json={'msg':'!전과 '+rank,'room':'r'}).status_code,200)
                 ranking.assert_called_once_with(rank)
                 self.assertEqual(post.call_args.kwargs['json']['data'],'ranking')
-        self.assertIn('!전과 [5/20/100/500/임무/해역]',bot.COMMANDS['!도움말'])
+        self.assertEqual(senka.USAGE,'사용법: !전과 [5/20/100/500]\n!전과 임무 / !전과 해역')
+        self.assertIn('!전과 [등수/임무/해역]',bot.COMMANDS['!도움말'])

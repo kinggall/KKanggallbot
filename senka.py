@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent
-USAGE='사용법: !전과 [5/20/100/500/임무/해역]'
+USAGE='사용법: !전과 [5/20/100/500]\n!전과 임무 / !전과 해역'
 
 def rewards(value,optional=False):
     """Keep choice rewards distinct from guaranteed points."""
