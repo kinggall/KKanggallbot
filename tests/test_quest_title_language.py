@@ -3,6 +3,15 @@ import quests
 import guide_lookup
 
 class QuestTitleLanguageTests(unittest.TestCase):
+    def test_kure_is_not_truncated_in_title_search_or_guide(self):
+        catalog=quests.catalog()
+        row=catalog.items[catalog.by_code['b161']]
+        self.assertIn('구레의 유키카제',row['name_ko'])
+        self.assertIn('구레의 유키카제',catalog.reply('B161').splitlines()[0])
+        self.assertIn(catalog.by_code['b161'],catalog.search_keys('구레'))
+        self.assertIn('구레의 유키카제',catalog.reply('단양'))
+        self.assertIn('구레의 유키카제',guide_lookup.build_preview('B161')[0].splitlines()[0])
+
     def test_reviewed_titles_are_translated(self):
         catalog=quests.catalog()
         expected={'B213':'하야나미 개2','F138':'함재형 개2','B133':'콩고 개2병',
