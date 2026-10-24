@@ -40,7 +40,5 @@ def reply(query):
     if per_run is not None:
         runs=(needed+per_run-1)//per_run
         text+=f'\n· 판당 경험치: {per_run:,}\n· 필요 횟수: {runs:,}회'
-    text+='\n※ 현재 레벨에 막 도달한 시점 기준입니다.'
-    if per_run is not None:text+='\n※ 판당 경험치는 해당 함선의 실제 획득량 기준입니다.'
     if current<100<=target:text+='\n※ Lv100 이상은 결혼(가)이 필요합니다.'
     return text
