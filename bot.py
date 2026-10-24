@@ -43,6 +43,7 @@ SHIP_ALIASES_URL = "https://raw.githubusercontent.com/kinggall/KKanggallbot/main
 SENKA_PAGE_URL = "https://senka.su/en"
 SENKA_CACHE_SECONDS = 300
 SENKA_RANKS = {"5", "20", "100", "500"}
+SENKA_RANK_ALIASES = {"연합": "5", "1군": "20", "2군": "100", "3군": "500"}
 SENKA_SERVER_NAMES = {
     1: "Yokosuka", 2: "Kure", 3: "Sasebo", 4: "Maizuru", 5: "Ominato",
     6: "Truk", 7: "Lingga", 8: "Rabaul", 9: "Shortland", 10: "Buin",
@@ -1579,6 +1580,8 @@ def webhook():
 
     if message.startswith("!전과"):
         arguments = message.split()
+        if len(arguments) == 2 and arguments[0] == "!전과":
+            arguments[1] = SENKA_RANK_ALIASES.get(arguments[1], arguments[1])
         if len(arguments) == 2 and arguments[0] == "!전과" and arguments[1] in {'임무','해역'}:
             try:
                 reply = senka.quest_reply() if arguments[1] == '임무' else senka.map_reply()

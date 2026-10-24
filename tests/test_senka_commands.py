@@ -64,9 +64,9 @@ class SenkaCommandTests(unittest.TestCase):
             with patch.object(bot.requests,'post') as post,patch.object(bot,'format_senka_ranking',side_effect=AssertionError('Not a ranking query')):
                 self.assertEqual(client.post('/webhook',json={'msg':('!전과 '+query).strip(),'json':{'chat_id':'senka-room'}}).status_code,200)
                 post.assert_called_once_with(bot.IRIS_REPLY_URL,json={'type':'text','room':'senka-room','data':expected},timeout=10)
-        for rank in ['5','20','100','500']:
+        for query,rank in [('5','5'),('20','20'),('100','100'),('500','500'),('연합','5'),('1군','20'),('2군','100'),('3군','500')]:
             with patch.object(bot.requests,'post') as post,patch.object(bot,'format_senka_ranking',return_value='ranking') as ranking:
-                self.assertEqual(client.post('/webhook',json={'msg':'!전과 '+rank,'room':'r'}).status_code,200)
+                self.assertEqual(client.post('/webhook',json={'msg':'!전과 '+query,'room':'r'}).status_code,200)
                 ranking.assert_called_once_with(rank)
                 self.assertEqual(post.call_args.kwargs['json']['data'],'ranking')
         self.assertEqual(senka.USAGE,'사용법: !전과 [5/20/100/500]\n!전과 임무 / !전과 해역')
