@@ -14,7 +14,7 @@ class ExperienceTests(unittest.TestCase):
 
     def test_input_validation_and_baseline_notice(self):
         help_text=experience.usage(188)
-        for query in ['', '99','1 2 3','0 99','1 189','-1 99','1.5 99','1 1e2','1 99999999','Lv1 Lv99','1/99','하나 99']:
+        for query in ['', '99','1 2 3 4','0 99','1 189','-1 99','1.5 99','1 1e2','1 99999999','Lv1 Lv99','1/99','하나 99']:
             self.assertEqual(experience.reply(query),help_text,query)
         self.assertIn('목표 레벨은 현재 레벨 이상',experience.reply('99 1'))
         self.assertIn('막 도달한 시점',experience.reply('  1   99  '))
@@ -22,6 +22,15 @@ class ExperienceTests(unittest.TestCase):
         self.assertIn('결혼(가)',experience.reply('99 100'))
         self.assertIn('결혼(가)',experience.reply('1 188'))
         self.assertNotIn('결혼',experience.reply('100 188'))
+
+    def test_optional_per_run_rounds_up_without_float(self):
+        for query,expected in [('80 99 1500','412'),('1 2 25','4'),('1 2 30','4'),('1 2 1000','1'),('99 99 1500','0'),('99 100 1500','0'),('1 188 1','20,200,000')]:
+            self.assertIn('· 필요 횟수: '+expected+'회',experience.reply(query),query)
+        self.assertIn('· 판당 경험치: 1,500',experience.reply('80 99 1500'))
+        self.assertIn('결혼(가)',experience.reply('99 100 1500'))
+        self.assertNotIn('필요 횟수',experience.reply('80 99'))
+        for value in ['0','-1','1.5','1e3','1,500','abc','9'*19]:
+            self.assertIn('판당 경험치는 1 이상의 정수',experience.reply('80 99 '+value))
 
     def test_whole_table_and_all_interval_additivity(self):
         rows=json.loads((Path(experience.ROOT)/'data/ship_experience.json').read_text())['levels']
@@ -33,9 +42,9 @@ class ExperienceTests(unittest.TestCase):
 
     def test_webhook_and_help(self):
         import bot
-        self.assertIn('!경험치 [현재레벨] [목표레벨]',bot.COMMANDS['!도움말'])
+        self.assertIn('!경험치 [현재레벨] [목표레벨] [판당경험치(선택)]',bot.COMMANDS['!도움말'])
         client=bot.app.test_client()
-        for query in ['!경험치 1 99','!경험치','!경험치 99 1','!경험치 99 100']:
+        for query in ['!경험치 1 99','!경험치','!경험치 99 1','!경험치 99 100','!경험치 80 99 1500','!경험치 80 99 0']:
             with patch.object(bot.requests,'post') as post:
                 response=client.post('/webhook',json={'msg':query,'room':'fallback','json':{'chat_id':'experience-room'}})
                 self.assertEqual(response.status_code,200)
