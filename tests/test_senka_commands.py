@@ -44,6 +44,19 @@ class SenkaCommandTests(unittest.TestCase):
         self.assertEqual(senka.points(1680+3*140),'1.47')
         self.assertLess(len(text),2500)
 
+    def test_monthly_eo_rewards_precede_boss_values(self):
+        text=senka.map_reply()
+        self.assertTrue(text.startswith('[EO 클리어 전과 · 월간]\n'))
+        eo,boss=text.split('해역별 보스 전과 (S/A)',1)
+        for area,score in [('1-5',75),('1-6',75),('2-5',100),('3-5',150),('4-5',180),('5-5',200),('5-6',225),('6-5',250),('7-5',170)]:
+            self.assertIn(f'· {area} - {score}점',eo)
+        self.assertIn('EO 전과 합계: 1,425점',eo)
+        self.assertIn('1-6 - 보스 전투 없음',boss)
+        self.assertIn('5-6-1 - 미확인',boss)
+        data=json.loads((Path(senka.ROOT)/'data/senka_boss.json').read_text())
+        self.assertEqual(len({r['area'] for r in data['eo_rewards']}),9)
+        self.assertEqual(sum(r['points'] for r in data['eo_rewards']),1425)
+
     def test_new_webhooks_are_offline_and_ranking_is_preserved(self):
         import bot
         client=bot.app.test_client()

@@ -46,7 +46,10 @@ def points(experience):
 def map_reply(root=ROOT):
     data=json.loads((Path(root)/'data/senka_boss.json').read_text(encoding='utf-8'))
     if data.get('schema')!=1:raise ValueError('Unknown boss points schema')
-    lines=['해역별 보스 전과 (S/A)']
+    eo=data['eo_rewards']
+    lines=['[EO 클리어 전과 · 월간]']
+    lines.extend(f'· {row["area"]} - {row["points"]:,}점' for row in eo)
+    lines.extend([f'EO 전과 합계: {sum(row["points"] for row in eo):,}점','','해역별 보스 전과 (S/A)'])
     for row in data['maps']:
         area=row['area'];experience=row['admiral_exp_s']
         if row['status']=='no_boss':
@@ -55,5 +58,5 @@ def map_reply(root=ROOT):
         else:
             a_exp=experience*4//5
             lines.append(f'· {area} - S {points(experience)} / A {points(a_exp)}')
-    lines.extend(['','※ 보스 전투 1회 기준. 도중·EO 클리어 보너스·임무 전과는 제외합니다.'])
+    lines.extend(['','※ S/A 수치는 보스 전투 1회 기준. 도중·EO 보너스·임무 전과는 제외합니다.'])
     return '\n'.join(lines)
