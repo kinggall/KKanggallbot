@@ -4,7 +4,7 @@
 
 - 저장소: `kinggall/KKanggallbot`, 브랜치 `main`
 - Framework preset: `None`
-- Build command: 비워 둠 (완성된 정적 파일을 커밋)
+- Build command: `python3 scripts/build_pages.py`
 - Build output directory: `web`
 - Root directory: 기본값, 환경변수: 없음
 
@@ -24,9 +24,17 @@
 
 ## 자료 갱신
 
-프로젝트 가상환경에서 `python scripts/build_web.py`를 실행하고 생성된 `web/data/quests.json`을 확인한 뒤 코드와 함께 커밋/푸시합니다. **봇 자료만 수정해도 웹 JSON이 저절로 재생성되지는 않습니다.** Push 이후 Pages 자동 배포는 Cloudflare 연결 상태에 따릅니다.
+Cloudflare Pages → `kgbot` 프로젝트 → Settings → Builds & deployments의 Build command를 **`python3 scripts/build_pages.py`** 로 변경하세요. Build output directory는 `web` 그대로입니다. GitHub 변경만으로 기존 Cloudflare 프로젝트 설정이 바뀌지는 않습니다. 저장 후 최신 커밋으로 재배포하세요.
 
-수집 캐시가 있는 환경에서 생성하면 확인된 원문 링크가 포함됩니다. 캐시 없는 환경에서 재생성하면 임무별 원문 링크가 빠질 수 있으므로 기존 링크 개수를 대조하세요. `scripts/build_web.py`는 네트워크 요청을 하지 않으며 지정한 JSON 필드와 LICENSE/출처 문서만 공개 폴더로 내보냅니다.
+이후 검토한 임무 JSON·번역·별명을 `main`에 푸시하면 Cloudflare가 매번 공개 JSON을 생성합니다. JSON 키 중복, 번호 충돌, 임무/공략 링크 동일성, 누락된 참조, JS 문법, 공개 파일 허용 목록, 인증정보로 의심되는 내용을 검사하고 웹 회귀 테스트도 통과해야 빌드가 성공합니다. 실패한 빌드는 공개하지 않고 이전 성공 배포를 유지합니다. 수집 원문을 직접 반영하는 구조는 아닙니다. 의미상 오역이나 게임 조건의 정확성까지 모두 자동 판단하지는 못합니다.
+
+공개 공략 URL은 **`data/web_guide_links.json`** 에 분리했습니다. 기존 공개 링크 197개를 이전하고 내부 ID·임무 번호·일본어 제목을 대조합니다. 비공개 `guide_cache`, Google Drive, 비밀키, 사진, HTML은 빌드에 필요하지 않습니다. URL 추가/삭제는 검토 후 이 파일과 `expected_link_count`를 함께 수정해 푸시합니다. 파일 누락·동일성 불일치 시 빈 목록으로 대체하지 않고 빌드를 중단합니다.
+
+`.github/workflows/web-check.yml`은 푸시/PR 때 같은 빌드 스크립트를 실행합니다. GitHub Actions는 읽기 권한만 가지며 자동 재커밋·푸시를 하지 않습니다. Cloudflare 빌드 자체가 동일한 검사를 하므로 Actions 완료를 기다리지 않고 빌드가 시작되어도 검사를 건너뛰지 않습니다. 추가 pip 패키지나 API 토큰은 필요하지 않습니다(Python 3.12 / Node.js 환경 기준).
+
+로컬에서는 `python scripts/build_pages.py`로 같은 생성·검사를 실행할 수 있습니다. 웹 JSON은 기존 호환을 위해 계속 커밋할 수 있지만, Cloudflare는 푸시 때 원본 데이터에서 재생성하므로 수동 생성을 잊어도 오래된 JSON을 그대로 배포하지 않습니다. 웹 UI에서 GitHub 데이터를 바꾸거나 수집기를 실행하는 기능은 아닙니다.
+
+커밋된 웹 스냅샷에 있던 임무 ID가 새 원본에서 사라져도 빌드를 중단합니다. 종료 임무는 보통 삭제 대신 종료 표시로 보존합니다. 의도적인 삭제라면 데이터와 링크를 검토하고 웹 스냅샷도 명시적으로 함께 갱신해야 합니다. 빌드 성공은 데이터 형식·연결 검증을 뜻하며 내용의 완전한 수동 검증을 대신하지 않습니다.
 
 ## 로컬 확인
 
