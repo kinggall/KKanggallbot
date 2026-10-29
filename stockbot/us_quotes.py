@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .stock_quotes import QuoteError, number, integer, KST
+from .aliases import US_NAMES
 
 PATH = '/uapi/overseas-price/v1/quotations/price-detail'
 EXCHANGE_NAMES = {'NAS': '나스닥', 'NYS': '뉴욕', 'AMS': '아멕스'}
@@ -75,7 +76,8 @@ def format_us(output, symbol, when):
     delta = f'{change:+,.4f}'.rstrip('0').rstrip('.') + ' USD' if change is not None else '—'
     pct = f'{arrow}{abs(percent):.2f}%' if percent is not None else '등락률 미확인'
     volume, turnover = number(output.get('tvol')), number(output.get('tamt'))
-    lines = [f'{color} {symbol} 주가 {color}',
+    label = f'{US_NAMES[symbol]} ({symbol})' if symbol in US_NAMES else symbol
+    lines = [f'{color} {label} 주가 {color}',
              f'✔️ 현재가: {price:,.4f}'.rstrip('0').rstrip('.') + f' USD ({pct})',
              '✔️ 전일대비: ' + delta,
              '✔️ 거래량: ' + (integer(volume) + '주' if volume is not None and volume >= 0 else '—'),

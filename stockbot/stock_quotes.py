@@ -20,10 +20,11 @@ import time
 import unicodedata
 
 import requests
+from .aliases import lookup as stock_alias, us_symbol
 
 KST = timezone(timedelta(hours=9))
 LOG = logging.getLogger(__name__)
-USAGE = '사용법: !주가 종목명 또는 국내 코드 / 미국 티커\n예: !주가 두산에너빌리티 / !주가 DRAM'
+USAGE = '종목명·티커로 입력해 주세요.\n예: !주가 삼성전자 / !주가 애플 / !주가 DRAM'
 
 
 def domestic_session(when):
@@ -136,6 +137,7 @@ class StockService:
         self.us_loader = us_loader or self._load_us
         self.lock = threading.RLock()
         self.codes = {}; self.codes_loaded_at = None; self.quotes = {}; self.client = None
+        self.code_names = {}
 
     def _modules(self):
         if not (self.code_dir / 'domino_kis.py').is_file():
@@ -188,10 +190,13 @@ class StockService:
         if self.codes_loaded_at is None or self.monotonic() - self.codes_loaded_at >= 86400:
             data = self.codes_loader()
             valid = {}
+            names = {}
             for name, ticker in data.items():
                 if isinstance(ticker, str) and re.fullmatch(r'(?:KRX|KOSDAQ):[A-Z0-9]{6}', ticker):
                     valid.setdefault(normalize(name), set()).add(ticker.split(':')[1])
+                    names.setdefault(ticker.split(':')[1], str(name))
             self.codes = valid; self.codes_loaded_at = self.monotonic()
+            self.code_names = names
         return self.codes
 
     def reply(self, arguments):
@@ -200,9 +205,12 @@ class StockService:
             return USAGE
         with self.lock:
             try:
-                if re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-][A-Za-z])?', keyword):
+                alias = stock_alias(keyword)
+                if alias and alias[0] == 'US':
+                    keyword = alias[1]
+                if re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', keyword):
                     from .us_quotes import format_us
-                    symbol = keyword.upper()
+                    symbol = us_symbol(keyword)
                     key = 'US:' + symbol
                     now = self.monotonic()
                     cached = self.quotes.get(key)
@@ -213,17 +221,26 @@ class StockService:
                         self.quotes.pop(next(iter(self.quotes)))
                     self.quotes[key] = (now, result)
                     return result
-                if re.fullmatch('[A-Z0-9]{6}', keyword.upper()):
+                if alias and alias[0] == 'KR':
+                    code, name = alias[1], alias[2]
+                elif re.fullmatch('[A-Z0-9]{6}', keyword.upper()):
                     keyword = keyword.upper()
                     code, name = keyword, keyword
                 else:
-                    catalog = self._catalog(); found = catalog.get(normalize(keyword), set())
-                    if len(found) != 1:
-                        options = [(n, c) for n, codes in catalog.items() if normalize(keyword) in n for c in sorted(codes)]
-                        if options:
-                            return '정확한 종목명 또는 6자리 코드를 입력해 주세요.\n' + '\n'.join(n + ' (' + c + ')' for n, c in options[:5])
-                        return '일치하는 국내 종목을 찾지 못했습니다. 정확한 종목명 또는 6자리 코드를 입력해 주세요.'
-                    code, name = next(iter(found)), keyword
+                    catalog = self._catalog()
+                    query = normalize(keyword)
+                    found = catalog.get(query, set())
+                    if not found:
+                        found = {c for n, codes in catalog.items() if n.startswith(query) for c in codes}
+                    if not found:
+                        found = {c for n, codes in catalog.items() if query in n for c in codes}
+                    if not found:
+                        return '일치하는 종목을 찾지 못했습니다.\n종목명·티커로 입력해 주세요.'
+                    if len(found) > 1:
+                        return ('여러 종목이 검색됐습니다.\n종목명·티커로 입력해 주세요.\n\n' +
+                                '\n'.join('· ' + self.code_names[c] + ' (' + c + ')' for c in sorted(found)[:5]))
+                    code = next(iter(found))
+                    name = self.code_names[code]
                 now = self.monotonic(); cached = self.quotes.get(code)
                 if cached and now - cached[0] < 5:
                     return format_quote(cached[1])
