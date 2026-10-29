@@ -8,22 +8,23 @@ from . import stock_quotes
 from .portfolio import PortfolioService
 
 SERVICE = stock_quotes.StockService()
-PORTFOLIO = PortfolioService(quote_loader=SERVICE.details)
+PORTFOLIO = PortfolioService(quote_loader=SERVICE.details, symbol_names=SERVICE.names_for_ticker)
 EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix='stock-reply')
 PENDING = threading.BoundedSemaphore(8)
 INVESTMENT_HELP = (
     "[주갤봇 사용법]" + "\u200b" * 4000 + "\n\n"
     "💡 명령어 앞에 느낌표(!)를 붙여주세요.\n"
-    "💡 국내·미국 종목명, 티커, 등록된 별명으로 검색할 수 있어요.\n\n"
+    "💡 국내·미국 종목명, 티커, 등록된 별명으로 검색할 수 있어요.\n"
+    "💡 보유 · 평가 및 실현 · 손익 종목은 정달봄의 실제 거래 기록입니다.\n\n"
     "━━━━ 주가 · 시세 ━━━━\n"
     "!주가 [종목명/티커]\n"
     "예: !주가 삼전 / !주가 애플 / !주가 DRAM\n\n"
     "━━━━ 보유 · 평가 ━━━━\n"
     "!보유 — 보유종목 목록\n"
-    "!평단 [종목명/티커] — 평단·수익률·현재가·전일대비\n\n"
+    "!평단 [종목명/티커] — 평균 매입가\n\n"
     "━━━━ 실현 · 손익 ━━━━\n"
     "!실현 — 실현 종목 목록\n"
-    "!실현 [종목명] — 실현 수익률\n\n"
+    "!실현 [종목명/티커] — 실현 수익률\n\n"
     "━━━━━━━━━━━━━━\n"
     "💡 자산 정보는 Domino의 최근 갱신 자료를 기준으로 표시합니다."
 )
@@ -32,8 +33,8 @@ INVESTMENT_HELP = (
 def handle(message, chat_id, reply_url):
     """Route investment commands without registering them in the main help list."""
     match = re.fullmatch(r'!주가(?:\s+(.*))?', message)
-    investment_help = message.strip() in ('!투자', '!주갤')
-    private = re.fullmatch(r'!(보유|평단|수익률|실현)(?:\s+(.*))?', message)
+    investment_help = message.strip() == '!주갤'
+    private = re.fullmatch(r'!(보유|평단|실현)(?:\s+(.*))?', message)
     if not match and not investment_help and not private:
         return None
     if chat_id is None or str(chat_id) == '':

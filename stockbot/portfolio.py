@@ -63,13 +63,14 @@ def display(value, suffix=''):
 
 
 class PortfolioService:
-    def __init__(self, loader=load_snapshot, monotonic=time.monotonic, name_loader=None, quote_loader=None):
+    def __init__(self, loader=load_snapshot, monotonic=time.monotonic, name_loader=None, quote_loader=None, symbol_names=None):
         self.loader, self.monotonic = loader, monotonic
         self.lock = threading.Lock()
         self.cached = None
         self.loaded_at = 0
         self.name_loader = name_loader if name_loader is not None else USSecurityNames()
         self.quote_loader = quote_loader
+        self.symbol_names = symbol_names
 
     def position_text(self, rows, data):
         blocks = []
@@ -139,9 +140,9 @@ class PortfolioService:
             return data
 
     def reply(self, command, keyword=''):
-        if command == '수익률':
-            command = '평단'
-        if command in ('평단', '수익률') and not keyword.strip():
+        if command not in ('보유', '평단', '실현'):
+            return '지원하지 않는 자산 명령어입니다.'
+        if command == '평단' and not keyword.strip():
             return '사용법: !평단 [종목명/티커]'
         try:
             data = self.snapshot()
@@ -154,6 +155,13 @@ class PortfolioService:
                     targets = {normalize(n) for n in name_targets(keyword)}
                     if alias:
                         targets.update((normalize(alias[1]), normalize(alias[2])))
+                    targets.update(normalize(r['name']) for r in data['holdings']
+                                   if normalize(r.get('ticker', '')).split(':')[-1] == key)
+                    if self.symbol_names:
+                        try:
+                            targets.update(normalize(n) for n in self.symbol_names(keyword))
+                        except Exception:
+                            pass
                     exact = [r for r in rows if normalize(r['name']) in targets or normalize(r.get('ticker', '')).split(':')[-1] in targets]
                 matches = exact or [r for r in rows if key in normalize(r['name'])]
                 names = sorted({r['name'] for r in matches})

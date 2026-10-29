@@ -9,10 +9,10 @@ from .stock_quotes import StockService
 def main():
     failed = False
     service = StockService()
-    portfolio = PortfolioService(quote_loader=service.details)
+    portfolio = PortfolioService(quote_loader=service.details, symbol_names=service.names_for_ticker)
     try:
         data = portfolio.snapshot()
-        for command in ('보유', '평단', '수익률', '실현'):
+        for command in ('보유', '평단', '실현'):
             rows = data['realized' if command == '실현' else 'holdings']
             arguments = '' if command in ('보유', '실현') else rows[0]['name'] if rows else ''
             reply = portfolio.reply(command, arguments)

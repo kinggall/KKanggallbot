@@ -17,7 +17,7 @@ class StockCommandTests(unittest.TestCase):
 
     def test_investment_help_uses_its_own_menu_without_quote_lookup(self):
         with patch.object(stock_commands, 'EXECUTOR', Inline()), patch.object(stock_commands.SERVICE, 'reply') as reply, patch.object(stock_commands.requests, 'post') as post:
-            result = stock_commands.handle('!투자', 'investment-room', 'http://local/reply')
+            result = stock_commands.handle('!주갤', 'investment-room', 'http://local/reply')
         self.assertEqual(result[1], 200)
         self.assertEqual(post.call_args.kwargs['json']['room'], 'investment-room')
         self.assertEqual(post.call_args.kwargs['json']['data'], stock_commands.INVESTMENT_HELP)
@@ -25,7 +25,7 @@ class StockCommandTests(unittest.TestCase):
 
     def test_help_alias_is_identical_and_never_loads_private_data(self):
         import bot
-        for command in ('!투자', '!주갤'):
+        for command in ('!주갤',):
             with self.subTest(command=command), patch.object(stock_commands, 'EXECUTOR', Inline()), patch.object(stock_commands.SERVICE, 'reply') as quote, patch.object(stock_commands.PORTFOLIO, 'reply') as portfolio, patch.object(stock_commands.requests, 'post') as post:
                 response = bot.app.test_client().post('/webhook', json={'msg':command, 'room':'help-room'})
                 self.assertEqual(response.status_code, 200)
@@ -41,6 +41,15 @@ class StockCommandTests(unittest.TestCase):
         for command in ('!주가', '!보유', '!평단', '!실현'):
             self.assertIn(command, text)
         self.assertNotIn('!수익률', text)
+        self.assertNotIn('!투자', text)
+        self.assertIn('!실현 [종목명/티커]', text)
+        self.assertIn('보유 · 평가 및 실현 · 손익 종목은 정달봄의 실제 거래 기록입니다.', text)
+
+    def test_removed_commands_do_not_query_or_send(self):
+        with patch.object(stock_commands.SERVICE,'reply') as quote, patch.object(stock_commands.PORTFOLIO,'reply') as portfolio, patch.object(stock_commands.requests,'post') as post:
+            for command in ('!투자', '!수익률', '!수익률 삼성전자'):
+                self.assertIsNone(stock_commands.handle(command,'room','http://local/reply'))
+        quote.assert_not_called(); portfolio.assert_not_called(); post.assert_not_called()
 
     def test_null_iris_metadata_uses_top_level_room(self):
         import bot

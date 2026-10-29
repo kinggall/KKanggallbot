@@ -228,6 +228,19 @@ class StockService:
             self.code_names = names
         return self.codes
 
+    def names_for_ticker(self, ticker):
+        """Resolve public ticker names for snapshots that omit realized tickers."""
+        symbol = str(ticker).strip().upper()
+        if re.fullmatch(r'[A-Z]{1,6}(?:[.\-/][A-Z])?', symbol):
+            from .aliases import US_NAMES
+            name = US_NAMES.get(us_symbol(symbol))
+            return [symbol, name] if name else [symbol]
+        if re.fullmatch(r'[A-Z0-9]{6}', symbol):
+            with self.lock:
+                catalog = self._catalog()
+                return [name for name, codes in catalog.items() if symbol in codes]
+        return []
+
     def reply(self, arguments):
         keyword = str(arguments).strip()
         if not keyword or len(keyword) > 80 or any(ord(c) < 32 for c in keyword):

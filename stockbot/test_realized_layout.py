@@ -4,6 +4,14 @@ from stockbot.portfolio import PortfolioService, arrow_percent
 
 
 class RealizedLayoutTests(unittest.TestCase):
+    def test_ticker_resolves_realized_name_even_when_realized_row_has_no_ticker(self):
+        data=self.snapshot()
+        service=PortfolioService(lambda:data,symbol_names=lambda ticker:['가상회사'] if ticker=='000001' else [])
+        self.assertIn('가상회사: ▼14.34%',service.reply('실현','000001'))
+        data['holdings']=[dict(name='가상회사',ticker='NASDAQ:FAKE')]
+        service=PortfolioService(lambda:data)
+        self.assertIn('가상회사: ▼14.34%',service.reply('실현','FAKE'))
+
     def snapshot(self):
         return dict(schema_version=1, generated_at='2026-10-29T11:00:00Z', holdings=[],
                     realized=[dict(name='가상회사',return_pct='-14.343', last_trade_date='2026-10-28',

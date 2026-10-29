@@ -16,6 +16,14 @@ def overseas(symbol):
 
 
 class StockAliasTests(unittest.TestCase):
+    def test_ticker_names_do_not_fetch_quotes(self):
+        quote=Mock()
+        service=StockService(codes_loader=lambda:{'가상회사':'KRX:000001'},quote_loader=quote)
+        self.assertEqual(service.names_for_ticker('000001'),['가상회사'])
+        self.assertIn('애플',service.names_for_ticker('AAPL'))
+        self.assertEqual(service.names_for_ticker('없는 이름'),[])
+        quote.assert_not_called()
+
     def test_domestic_aliases_resolve_without_listing_lookup(self):
         for alias, code, name in [('삼전','005930','삼성전자'), ('두에빌','034020','두산에너빌리티'),
                                   ('현차','005380','현대차'), ('현대차','005380','현대차'),
