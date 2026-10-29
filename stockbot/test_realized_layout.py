@@ -1,9 +1,17 @@
 import unittest
 
-from stockbot.portfolio import PortfolioService, arrow_percent
+from stockbot.portfolio import PortfolioService, arrow_percent, trade_date_text
 
 
 class RealizedLayoutTests(unittest.TestCase):
+    def test_yearless_trade_dates_use_explicit_2026_ledger_year(self):
+        for raw, expected in [('03.27.','2026-03-27'),('03.19.','2026-03-19'),
+                              ('3. 7.','2026-03-07'),('03/19','2026-03-19'),
+                              ('2025-03-19','2025-03-19'),('02.30.','미확인'),(None,'미확인')]:
+            with self.subTest(raw=raw):
+                self.assertEqual(trade_date_text(raw),expected)
+        data=self.snapshot();data['realized'][0]['last_trade_date']='03.27.'
+        self.assertIn('최종 거래일 : 2026-03-27',PortfolioService(lambda:data).reply('실현','가상회사'))
     def test_us_realized_krw_profit_is_not_classified_as_korean_listing(self):
         from unittest.mock import Mock
         data=self.snapshot()

@@ -14,6 +14,19 @@ from .aliases import lookup, name_targets, US_NAMES
 from .unlisted import UNLISTED_NAMES
 
 FILE_ID = '1xclx9sD8c1Bh4mnrleGaJDToAsZG5UU6'
+TRADE_LEDGER_YEAR = 2026
+
+
+def trade_date_text(value):
+    """Yearless app trade dates belong to the explicitly selected 2026 ledger."""
+    text = str(value or '').strip()
+    match = re.fullmatch(r'(\d{1,2})\s*[.\-/]\s*(\d{1,2})\s*\.?', text)
+    if match:
+        try:
+            return datetime(TRADE_LEDGER_YEAR, int(match[1]), int(match[2])).date().isoformat()
+        except ValueError:
+            return '미확인'
+    return date_text(value)
 
 
 def date_text(value):
@@ -224,7 +237,7 @@ class PortfolioService:
                 if index:
                     lines.append('')
                 lines.append('· ' + label + ': ' + value)
-                lines.extend(['', '최종 거래일 : ' + date_text(row.get('last_trade_date'))])
+                lines.extend(['', '최종 거래일 : ' + trade_date_text(row.get('last_trade_date'))])
             if not rows:
                 lines.append('')
             lines.append('갱신 일자: ' + date_text(data['generated_at']))
