@@ -5,6 +5,7 @@ import threading
 import time
 
 import requests
+from .us_catalog import english_name
 
 URL = 'https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt'
 KNOWN_NAMES = {'VOO': 'Vanguard S&P 500 ETF'}
@@ -21,6 +22,9 @@ class USSecurityNames:
         self.lock = threading.Lock()
 
     def __call__(self, symbol):
+        catalog_name = english_name(symbol)
+        if catalog_name:
+            return catalog_name
         with self.lock:
             now = self.monotonic()
             if now >= self.next_refresh:

@@ -22,6 +22,9 @@ STOCKS = (
     ('US', 'MSFT', '마이크로소프트', ('마이크로소프트', '마소')),
     ('US', 'AMZN', '아마존', ('아마존',)),
     ('US', 'META', '메타', ('메타', '메타플랫폼스', '페이스북')),
+    ('US', 'SPCX', '스페이스X', ('스페이스엑스', '스엑', 'SpaceX')),
+    ('US', 'SKHY', 'SK하이닉스 ADR', ('하닉ADR', '하이닉스ADR', '하이닉스(ADR)', 'SK하이닉스(ADR)')),
+    ('US', 'MU', '마이크론 테크놀로지', ('Micron',)),
 )
 ALIASES = {}
 US_NAMES = {}
@@ -147,6 +150,8 @@ def preferred_bases(value):
 
 def us_symbol(value):
     symbol = value.upper()
+    if re.fullmatch(r'[A-Z]{1,6}[./][A-Z]', symbol):
+        return symbol.replace('.', '/')
     # KIS US quote master uses slashes for Berkshire share classes.
     if re.fullmatch(r'BRK[.\-/][AB]', symbol):
         return symbol[:3] + '/' + symbol[-1]

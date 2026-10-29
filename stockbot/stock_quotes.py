@@ -22,6 +22,7 @@ import unicodedata
 import requests
 from .aliases import lookup as stock_alias, us_symbol, name_targets, preferred_bases
 from .etf_brands import brand_query, match_etfs
+from .us_catalog import find_names, display_name as us_display_name, get_record, historical_matches
 
 KST = timezone(timedelta(hours=9))
 LOG = logging.getLogger(__name__)
@@ -235,7 +236,11 @@ class StockService:
         if re.fullmatch(r'[A-Z]{1,6}(?:[.\-/][A-Z])?', symbol):
             from .aliases import US_NAMES
             name = US_NAMES.get(us_symbol(symbol))
-            return [symbol, name] if name else [symbol]
+            record = get_record(us_symbol(symbol))
+            names = [symbol] + ([name] if name else [])
+            if record:
+                names.extend((record[1], *record[2]))
+            return names
         if re.fullmatch(r'[A-Z0-9]{6}', symbol):
             with self.lock:
                 catalog = self._catalog()
@@ -250,6 +255,9 @@ class StockService:
                 return alias[1]
             if re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', name):
                 return us_symbol(name)
+            matches = find_names(name, exact_only=True)
+            if len(matches) == 1:
+                return matches[0]
             return ''
         if currency == 'KRW':
             with self.lock:
@@ -265,8 +273,26 @@ class StockService:
             return USAGE
         with self.lock:
             try:
+                if normalize(keyword) == '마이크론':
+                    korean = '하나마이크론 (국내)'
+                    try:
+                        codes = self._catalog().get(normalize('하나마이크론'), set())
+                        if len(codes) == 1:
+                            korean = '하나마이크론 (' + next(iter(codes)) + ' · 국내)'
+                    except Exception:
+                        pass
+                    return ('여러 종목이 검색됐습니다.\n종목명·티커로 입력해 주세요.\n\n'
+                            '· 마이크론 테크놀로지 (MU · 미국)\n· ' + korean)
                 alias = stock_alias(keyword)
                 targets = name_targets(keyword)
+                literal_us_ticker = bool(re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', keyword)
+                                         and get_record(us_symbol(keyword)))
+                if not alias and not targets and not literal_us_ticker:
+                    matches = find_names(keyword, exact_only=True)
+                    if len(matches) > 1:
+                        return self._us_candidate_reply(matches)
+                    if matches:
+                        alias = ('US', matches[0], us_display_name(matches[0]))
                 if not alias and (targets or normalize(keyword).endswith('우')):
                     catalog = self._catalog()
                     query = normalize(keyword)
@@ -304,18 +330,7 @@ class StockService:
                 if alias and alias[0] == 'US':
                     keyword = alias[1]
                 if not (alias and alias[0] == 'KR') and re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', keyword):
-                    from .us_quotes import format_us
-                    symbol = us_symbol(keyword)
-                    key = 'US:' + symbol
-                    now = self.monotonic()
-                    cached = self.quotes.get(key)
-                    if cached and now - cached[0] < 5:
-                        return cached[1]
-                    result = format_us(self.us_loader(symbol), symbol, datetime.now(KST))
-                    if len(self.quotes) >= 128:
-                        self.quotes.pop(next(iter(self.quotes)))
-                    self.quotes[key] = (now, result)
-                    return result
+                    return self._us_reply(us_symbol(keyword))
                 if alias and alias[0] == 'KR':
                     code, name = alias[1], alias[2]
                 elif re.fullmatch('[A-Z0-9]{6}', keyword.upper()):
@@ -330,6 +345,13 @@ class StockService:
                     if not found:
                         found = {c for n, codes in catalog.items() if query in n for c in codes}
                     if not found:
+                        matches = find_names(keyword)
+                        if len(matches) == 1:
+                            return self._us_reply(matches[0])
+                        if matches:
+                            return self._us_candidate_reply(matches)
+                        if historical_matches(keyword):
+                            return '2020년 자료에만 있는 종목명입니다. 현재 종목명·티커를 확인해 주세요.'
                         return '일치하는 종목을 찾지 못했습니다.\n종목명·티커로 입력해 주세요.'
                     if len(found) > 1:
                         return self._candidate_reply(found)
@@ -358,6 +380,24 @@ class StockService:
     def _candidate_reply(self, codes):
         return ('여러 종목이 검색됐습니다.\n종목명·티커로 입력해 주세요.\n\n' +
                 '\n'.join('· ' + self.code_names[c] + ' (' + c + ')' for c in sorted(codes)[:5]))
+
+    def _us_reply(self, symbol):
+        from .us_quotes import format_us
+        symbol = us_symbol(symbol)
+        key = 'US:' + symbol
+        now = self.monotonic()
+        cached = self.quotes.get(key)
+        if cached and now - cached[0] < 5:
+            return cached[1]
+        result = format_us(self.us_loader(symbol), symbol, datetime.now(KST))
+        if len(self.quotes) >= 128:
+            self.quotes.pop(next(iter(self.quotes)))
+        self.quotes[key] = (now, result)
+        return result
+
+    def _us_candidate_reply(self, symbols):
+        return ('여러 종목이 검색됐습니다.\n종목명·티커로 입력해 주세요.\n\n' +
+                '\n'.join('· ' + us_display_name(s) + ' (' + s + ' · 미국)' for s in symbols[:10]))
 
 
 if __name__ == '__main__':

@@ -13,6 +13,7 @@ from .security_names import USSecurityNames, KNOWN_US_SYMBOLS
 from .aliases import lookup, name_targets, US_NAMES
 from .unlisted import UNLISTED_NAMES
 from .etf_brands import match_etfs
+from .us_catalog import find_names, get_record
 
 FILE_ID = '1xclx9sD8c1Bh4mnrleGaJDToAsZG5UU6'
 TRADE_LEDGER_YEAR = 2026
@@ -209,6 +210,9 @@ class PortfolioService:
                     targets = {normalize(n) for n in name_targets(keyword)}
                     if alias:
                         targets.update((normalize(alias[1]), normalize(alias[2])))
+                    for symbol in find_names(keyword, exact_only=True):
+                        record = get_record(symbol)
+                        targets.update(normalize(n) for n in (symbol, record[1], *record[2]))
                     targets.update(normalize(r['name']) for r in data['holdings']
                                    if normalize(r.get('ticker', '')).split(':')[-1] == key)
                     if self.symbol_names:
