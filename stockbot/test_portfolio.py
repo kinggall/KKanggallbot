@@ -20,6 +20,19 @@ def snapshot():
 
 
 class PortfolioTests(unittest.TestCase):
+    def test_simplified_layout_only_shows_requested_values_and_dates(self):
+        data = snapshot()
+        data['quotes_read_at'] = '2026-10-29T16:00:00Z'
+        data['holdings'][0].update(return_pct='-4.92257686628113218442957671', average_at='2026-10-28T22:01:19Z')
+        service = PortfolioService(lambda: data)
+        self.assertEqual(service.reply('평단', '가상회사'), '[평균 매입가]\n· 가상회사: 1,234.5원\n\n갱신 일자: 2026-10-29')
+        self.assertEqual(service.reply('수익률', '가상회사'), '[보유 수익률]\n· 가상회사: -4.92%\n\n갱신 일자: 2026-10-29\n시세 기준: 2026-10-30')
+        self.assertEqual(service.reply('실현', '가상회사'), '[실현 수익률]\n· 가상회사: -2.30%\n\n갱신 일자: 2026-10-29')
+        for command in ('평단', '수익률', '실현'):
+            text = service.reply(command, '가상회사')
+            for hidden in ('가상계좌', '평가손익', '실현손익', '자료 갱신', '보유 수집', '가상기간', '+00:00'):
+                self.assertNotIn(hidden, text)
+
     def test_commands_use_exported_values_and_timestamp(self):
         s = PortfolioService(snapshot)
         self.assertIn('가상회사(000001)', s.reply('보유'))
@@ -29,7 +42,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertIn('미확인', s.reply('수익률', 'FAKE'))
         self.assertIn('!실현 가상회사', s.reply('실현'))
         text = s.reply('실현', '가상회사')
-        for expected in ('-2.3%', '-500원', '가상기간', '2026-10-29T20:00:00+09:00'):
+        for expected in ('-2.30%', '갱신 일자: 2026-10-29'):
             self.assertIn(expected, text)
 
     def test_no_aggregation_of_different_accounts_or_periods(self):

@@ -13,7 +13,7 @@ class HoldingsLayoutTests(unittest.TestCase):
         names = Mock(return_value='Vanguard S&P 500 ETF')
         service = PortfolioService(name_loader=names)
         text = service.holdings_text(rows, '2026-10-29T11:02:09.852221+00:00')
-        self.assertEqual(text, '[보유종목]\n· 삼성전자(005930)\n· VOO(Vanguard S&P 500 ETF)\n\n갱신 일자 : 2026-10-29')
+        self.assertEqual(text, '[보유종목]\n· 삼성전자(005930)\n· VOO(Vanguard S&P 500 ETF)\n\n갱신 일자: 2026-10-29')
         names.assert_called_once_with('VOO')
         for hidden in ('80주', '2주', 'private', 'secret', '보유 수집', '11:02'):
             self.assertNotIn(hidden, text)
@@ -22,7 +22,7 @@ class HoldingsLayoutTests(unittest.TestCase):
         row = dict(name='가상', ticker='KRX:000001', currency='KRW')
         text = PortfolioService().holdings_text([row, dict(row, account='other')], '2026-10-29T16:00:00Z')
         self.assertEqual(text.count('가상(000001)'), 1)
-        self.assertIn('갱신 일자 : 2026-10-30', text)
+        self.assertIn('갱신 일자: 2026-10-30', text)
 
     def test_existing_full_name_does_not_need_network(self):
         names = Mock(side_effect=AssertionError('no external call'))

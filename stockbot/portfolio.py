@@ -5,11 +5,29 @@ from pathlib import Path
 import threading
 import time
 from datetime import datetime
+from decimal import ROUND_HALF_UP, localcontext
 
 from .stock_quotes import normalize, number, KST
 from .security_names import USSecurityNames
 
 FILE_ID = '1xclx9sD8c1Bh4mnrleGaJDToAsZG5UU6'
+
+
+def date_text(value):
+    try:
+        stamp = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
+        return stamp.astimezone(KST).date().isoformat() if stamp.tzinfo else stamp.date().isoformat()
+    except (ValueError, TypeError):
+        return '미확인'
+
+
+def percent_text(value):
+    parsed = number(value)
+    if parsed is None:
+        return '미확인'
+    with localcontext() as context:
+        context.rounding = ROUND_HALF_UP
+        return f'{parsed:.2f}%'
 
 
 def load_snapshot():
@@ -61,12 +79,7 @@ class PortfolioService:
                 lines.append(f'· {row["name"]}({symbol or "코드 미확인"})')
         if not rows:
             lines.append('등록된 자료가 없습니다.')
-        try:
-            stamp = datetime.fromisoformat(generated_at.replace('Z', '+00:00'))
-            date = stamp.astimezone(KST).date().isoformat() if stamp.tzinfo else stamp.date().isoformat()
-        except (ValueError, TypeError):
-            date = '미확인'
-        lines.extend(['', '갱신 일자 : ' + date])
+        lines.extend(['', '갱신 일자: ' + date_text(generated_at)])
         return '\n'.join(lines)
 
     def snapshot(self):
@@ -109,35 +122,19 @@ class PortfolioService:
             for row in rows:
                 currency = row.get('currency', '')
                 unit = '원' if currency == 'KRW' else ' USD' if currency == 'USD' else ' ' + currency
-                account = ' [' + str(row['account']) + ']' if row.get('account') else ''
-                label = row['name'] + account
+                label = row['name']
                 if command == '평단':
                     value = display(row.get('average'), unit)
-                    if row.get('average_at'):
-                        value += ' (기준: ' + str(row['average_at']) + ')'
                 elif command == '수익률':
-                    value = display(row.get('return_pct'), '%')
-                    value += ' / 평가손익 ' + display(row.get('unrealized_profit'), unit)
-                    if row.get('quote_available') is False:
-                        value += ' (시세 미수신)'
+                    value = percent_text(row.get('return_pct'))
                 elif not key:
                     value = '상세: !실현 ' + row['name']
                 else:
-                    period = row.get('period', {})
-                    period = period.get('label', '') if isinstance(period, dict) else ''
-                    value = display(row.get('return_pct'), '%') + ' / 실현손익 ' + display(row.get('realized_profit'), unit)
-                    if period:
-                        value += ' (' + str(period) + ')'
-                    if row.get('display_source'):
-                        value += ' · ' + str(row['display_source'])
+                    value = percent_text(row.get('return_pct'))
                 lines.append('· ' + label + ': ' + value)
-            lines.extend(['', '자료 갱신: ' + data['generated_at']])
-            if command in ('보유', '평단', '수익률'):
-                stamp = data.get('holdings_collected_at')
-                if stamp:
-                    lines.append('보유 수집: ' + str(stamp))
+            lines.extend(['', '갱신 일자: ' + date_text(data['generated_at'])])
             if command == '수익률' and data.get('quotes_read_at'):
-                lines.append('시세 기준: ' + str(data['quotes_read_at']))
+                lines.append('시세 기준: ' + date_text(data['quotes_read_at']))
             return '\n'.join(lines)
         except Exception:
             # Never echo credentials, account identifiers, payload or provider errors.
