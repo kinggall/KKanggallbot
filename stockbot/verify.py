@@ -8,7 +8,8 @@ from .stock_quotes import StockService
 
 def main():
     failed = False
-    portfolio = PortfolioService()
+    service = StockService()
+    portfolio = PortfolioService(quote_loader=service.details)
     try:
         data = portfolio.snapshot()
         for command in ('보유', '평단', '수익률', '실현'):
@@ -21,7 +22,6 @@ def main():
     except Exception as error:
         failed = True
         print('Domino JSON: FAILED (' + type(error).__name__ + ')')
-    service = StockService()
     for symbol in ('005930', 'DRAM', 'AAPL'):
         reply = service.reply(symbol)
         ok = '✔️ 현재가:' in reply

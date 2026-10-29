@@ -9,6 +9,7 @@ from decimal import ROUND_HALF_UP, localcontext
 
 from .stock_quotes import normalize, number, KST
 from .security_names import USSecurityNames
+from .aliases import lookup, name_targets
 
 FILE_ID = '1xclx9sD8c1Bh4mnrleGaJDToAsZG5UU6'
 
@@ -54,12 +55,42 @@ def display(value, suffix=''):
 
 
 class PortfolioService:
-    def __init__(self, loader=load_snapshot, monotonic=time.monotonic, name_loader=None):
+    def __init__(self, loader=load_snapshot, monotonic=time.monotonic, name_loader=None, quote_loader=None):
         self.loader, self.monotonic = loader, monotonic
         self.lock = threading.Lock()
         self.cached = None
         self.loaded_at = 0
         self.name_loader = name_loader if name_loader is not None else USSecurityNames()
+        self.quote_loader = quote_loader
+
+    def position_text(self, rows, data):
+        blocks = []
+        for row in rows:
+            unit = '원' if row.get('currency') == 'KRW' else ' USD' if row.get('currency') == 'USD' else ''
+            live = {}
+            if self.quote_loader and row.get('ticker'):
+                try:
+                    live = self.quote_loader(row['ticker'], row.get('currency'))
+                except Exception:
+                    pass
+            price = live.get('price', row.get('current_price') if row.get('quote_available') is not False else None)
+            change, percent = number(live.get('change')), number(live.get('percent'))
+            daily = '미확인'
+            if change is not None and percent is not None:
+                arrow = '▲' if change > 0 else '▼' if change < 0 else ''
+                sign = '+' if change > 0 else '-' if change < 0 else ''
+                daily = sign + display(abs(change), unit) + ' (' + arrow + percent_text(abs(percent)) + ')'
+            stamp = live.get('fetched_at') or row.get('quote_at') or data.get('quotes_read_at')
+            blocks.append('\n'.join([
+                '[' + row['name'] + ']',
+                '✔️ 평균 매입가: ' + display(row.get('average'), unit),
+                '✔️ 수익률: ' + percent_text(row.get('return_pct')),
+                '✔️ 현재가: ' + display(price, unit),
+                '✔️ 전일대비: ' + daily,
+                '', '갱신 일자: ' + date_text(data['generated_at']),
+                '시세 기준: ' + date_text(stamp),
+            ]))
+        return '\n\n'.join(blocks) if blocks else '등록된 자료가 없습니다.'
 
     def holdings_text(self, rows, generated_at):
         lines, seen = ['[보유종목]'], set()
@@ -98,14 +129,22 @@ class PortfolioService:
             return data
 
     def reply(self, command, keyword=''):
+        if command == '수익률':
+            command = '평단'
         if command in ('평단', '수익률') and not keyword.strip():
-            return f'사용법: !{command} 종목명 또는 미국 티커'
+            return '사용법: !평단 [종목명/티커]'
         try:
             data = self.snapshot()
             rows = data['realized' if command == '실현' else 'holdings']
             key = normalize(keyword)
             if key:
                 exact = [r for r in rows if key in (normalize(r['name']), normalize(r.get('ticker', '')).split(':')[-1])]
+                if not exact:
+                    alias = lookup(keyword)
+                    targets = {normalize(n) for n in name_targets(keyword)}
+                    if alias:
+                        targets.update((normalize(alias[1]), normalize(alias[2])))
+                    exact = [r for r in rows if normalize(r['name']) in targets or normalize(r.get('ticker', '')).split(':')[-1] in targets]
                 matches = exact or [r for r in rows if key in normalize(r['name'])]
                 names = sorted({r['name'] for r in matches})
                 if not matches:
@@ -115,26 +154,19 @@ class PortfolioService:
                 rows = matches
             if command == '보유':
                 return self.holdings_text(rows, data['generated_at'])
-            title = {'보유': '보유종목', '평단': '평균 매입가', '수익률': '보유 수익률', '실현': '실현 수익률'}[command]
-            lines = [f'[{title}]']
+            if command == '평단':
+                return self.position_text(rows, data)
+            lines = ['[실현 수익률]']
             if not rows:
                 lines.append('등록된 자료가 없습니다.')
             for row in rows:
-                currency = row.get('currency', '')
-                unit = '원' if currency == 'KRW' else ' USD' if currency == 'USD' else ' ' + currency
                 label = row['name']
-                if command == '평단':
-                    value = display(row.get('average'), unit)
-                elif command == '수익률':
-                    value = percent_text(row.get('return_pct'))
-                elif not key:
+                if not key:
                     value = '상세: !실현 ' + row['name']
                 else:
                     value = percent_text(row.get('return_pct'))
                 lines.append('· ' + label + ': ' + value)
             lines.extend(['', '갱신 일자: ' + date_text(data['generated_at'])])
-            if command == '수익률' and data.get('quotes_read_at'):
-                lines.append('시세 기준: ' + date_text(data['quotes_read_at']))
             return '\n'.join(lines)
         except Exception:
             # Never echo credentials, account identifiers, payload or provider errors.

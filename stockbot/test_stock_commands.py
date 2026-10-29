@@ -38,8 +38,9 @@ class StockCommandTests(unittest.TestCase):
         self.assertEqual(text.count('\u200b'), 4000)
         for section in ('주가 · 시세', '보유 · 평가', '실현 · 손익'):
             self.assertIn('━━━━ ' + section + ' ━━━━', text)
-        for command in ('!주가', '!보유', '!평단', '!수익률', '!실현'):
+        for command in ('!주가', '!보유', '!평단', '!실현'):
             self.assertIn(command, text)
+        self.assertNotIn('!수익률', text)
 
     def test_null_iris_metadata_uses_top_level_room(self):
         import bot

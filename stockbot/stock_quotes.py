@@ -138,6 +138,35 @@ class StockService:
         self.lock = threading.RLock()
         self.codes = {}; self.codes_loaded_at = None; self.quotes = {}; self.client = None
         self.code_names = {}
+        self.detail_quotes = {}
+
+    def details(self, ticker, currency):
+        """Structured public quote for portfolio display; never parse reply text."""
+        symbol = str(ticker).split(':')[-1].upper()
+        cache_key = (currency, symbol)
+        with self.lock:
+            cached = self.detail_quotes.get(cache_key)
+            if cached and self.monotonic() - cached[0] < 5:
+                return dict(cached[1])
+            when = datetime.now(KST)
+            if currency == 'KRW' and re.fullmatch('[A-Z0-9]{6}', symbol):
+                quote = parse_quote(self.quote_loader(symbol), symbol, symbol, when)
+                result = dict(price=quote.price, change=quote.change, percent=quote.percent, fetched_at=when.isoformat())
+            elif currency == 'USD' and re.fullmatch(r'[A-Z]{1,6}(?:[.\-/][A-Z])?', symbol):
+                from .us_quotes import format_us
+                symbol = us_symbol(symbol)
+                output = self.us_loader(symbol)
+                format_us(output, symbol, when)  # Validate currency, symbol and price.
+                price, previous = number(output.get('last')), number(output.get('base'))
+                change = price - previous if previous is not None and previous > 0 else None
+                result = dict(price=price, change=change, percent=change / previous * 100 if change is not None else None,
+                              fetched_at=when.isoformat())
+            else:
+                raise QuoteError('Unsupported portfolio ticker')
+            if len(self.detail_quotes) >= 128:
+                self.detail_quotes.pop(next(iter(self.detail_quotes)))
+            self.detail_quotes[cache_key] = (self.monotonic(), result)
+            return dict(result)
 
     def _modules(self):
         if not (self.code_dir / 'domino_kis.py').is_file():

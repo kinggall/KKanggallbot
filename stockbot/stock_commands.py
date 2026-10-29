@@ -8,7 +8,7 @@ from . import stock_quotes
 from .portfolio import PortfolioService
 
 SERVICE = stock_quotes.StockService()
-PORTFOLIO = PortfolioService()
+PORTFOLIO = PortfolioService(quote_loader=SERVICE.details)
 EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix='stock-reply')
 PENDING = threading.BoundedSemaphore(8)
 INVESTMENT_HELP = (
@@ -20,8 +20,7 @@ INVESTMENT_HELP = (
     "예: !주가 삼전 / !주가 애플 / !주가 DRAM\n\n"
     "━━━━ 보유 · 평가 ━━━━\n"
     "!보유 — 보유종목 목록\n"
-    "!평단 [종목명/티커] — 평균 매입가\n"
-    "!수익률 [종목명/티커] — 보유 수익률\n\n"
+    "!평단 [종목명/티커] — 평단·수익률·현재가·전일대비\n\n"
     "━━━━ 실현 · 손익 ━━━━\n"
     "!실현 — 실현 종목 목록\n"
     "!실현 [종목명] — 실현 수익률\n\n"
