@@ -1,0 +1,139 @@
+import unittest
+from unittest.mock import Mock, patch
+from datetime import datetime, timedelta
+from dataclasses import dataclass
+
+from stockbot.portfolio import PortfolioService
+from stockbot import stock_commands, stock_quotes, us_quotes
+
+
+def snapshot():
+    return {'schema_version': 1, 'generated_at': '2026-10-29T20:00:00+09:00',
+            'holdings_collected_at': '2026-10-29T19:00:00+09:00',
+            'holdings': [{'name': '가상회사', 'ticker': 'KRX:000001', 'account': '가상계좌',
+                          'currency': 'KRW', 'quantity': '2', 'average': '1234.5',
+                          'unrealized_profit': '100', 'return_pct': '4.05'},
+                         {'name': '가상미국', 'ticker': 'NAS:FAKE', 'currency': 'USD',
+                          'quantity': '0.5', 'average': '10.12', 'return_pct': None}],
+            'realized': [{'name': '가상회사', 'currency': 'KRW', 'realized_profit': '-500',
+                          'return_pct': '-2.3', 'period': {'label': '가상기간'},
+                          'display_source': 'Domino'}]}
+
+
+class PortfolioTests(unittest.TestCase):
+    def test_commands_use_exported_values_and_timestamp(self):
+        s = PortfolioService(snapshot)
+        self.assertIn('2주', s.reply('보유'))
+        self.assertIn('1,234.5원', s.reply('평단', '가상회사'))
+        self.assertIn('10.12 USD', s.reply('평단', 'FAKE'))
+        self.assertIn('4.05%', s.reply('수익률', '가상회사'))
+        self.assertIn('미확인', s.reply('수익률', 'FAKE'))
+        self.assertIn('!실현 가상회사', s.reply('실현'))
+        text = s.reply('실현', '가상회사')
+        for expected in ('-2.3%', '-500원', '가상기간', '2026-10-29T20:00:00+09:00'):
+            self.assertIn(expected, text)
+
+    def test_no_aggregation_of_different_accounts_or_periods(self):
+        data = snapshot()
+        data['holdings'].append(dict(data['holdings'][0], account='다른계좌', average='99'))
+        text = PortfolioService(lambda: data).reply('평단', '가상회사')
+        self.assertIn('1,234.5원', text)
+        self.assertIn('99원', text)
+
+    def test_usage_missing_data_ambiguity_and_errors(self):
+        loader = Mock(side_effect=RuntimeError('secret-token'))
+        s = PortfolioService(loader)
+        self.assertIn('사용법', s.reply('평단'))
+        loader.assert_not_called()
+        self.assertNotIn('secret-token', s.reply('보유'))
+        s = PortfolioService(snapshot)
+        self.assertIn('없습니다', s.reply('평단', '없는회사'))
+        self.assertIn('정확한', s.reply('평단', '가상'))
+
+    def test_cache_expires_and_does_not_serve_stale_on_failure(self):
+        clock = [0]
+        loader = Mock(side_effect=[snapshot(), RuntimeError('private')])
+        s = PortfolioService(loader, lambda: clock[0])
+        s.reply('보유'); clock[0] = 29; s.reply('보유')
+        self.assertEqual(loader.call_count, 1)
+        clock[0] = 31
+        self.assertIn('읽지 못했습니다', s.reply('보유'))
+
+    def test_routing_all_rooms_without_real_chat_send(self):
+        class Inline:
+            def submit(self, fn): fn()
+        for command in ('!보유', '!평단 가상회사', '!수익률 가상회사', '!실현', '!실현 가상회사'):
+            with patch.object(stock_commands, 'EXECUTOR', Inline()), patch.object(stock_commands.PORTFOLIO, 'reply', return_value='fixture') as reply, patch.object(stock_commands.requests, 'post') as post:
+                self.assertEqual(stock_commands.handle(command, 'any-room', 'http://local/reply')[1], 200)
+                self.assertEqual(post.call_args.kwargs['json']['room'], 'any-room')
+                reply.assert_called_once()
+
+
+class QuoteExtensionTests(unittest.TestCase):
+    def test_utf8_drive_plain_text_is_not_decoded_as_latin1(self):
+        import json
+        from stockbot.portfolio import load_snapshot
+        response = Mock()
+        response.content = json.dumps(snapshot(), ensure_ascii=False).encode('utf-8')
+        with patch('scripts.sync_drive_data.Drive') as drive:
+            drive.return_value.call.return_value = response
+            self.assertEqual(load_snapshot()['holdings'][0]['name'], '가상회사')
+
+    def test_domestic_request_is_integrated(self):
+        s = stock_quotes.StockService()
+        kis = Mock(); kis.DOMESTIC = ('path', 'tr')
+        s.client = Mock()
+        with patch.object(s, '_modules', return_value=(kis, None)):
+            s._load_quote('000001')
+        self.assertEqual(s.client.query.call_args.args[1]['FID_COND_MRKT_DIV_CODE'], 'UN')
+
+    def test_session_boundaries_and_weekend(self):
+        base = datetime(2026, 10, 29, tzinfo=stock_quotes.KST)
+        for hour, minute, expected in [(8,0,'NXT 프리'),(8,50,'장외'),(9,0,'정규장'),(15,30,'장외'),(16,0,'NXT 애프터'),(20,0,'장외')]:
+            self.assertIn(expected, stock_quotes.domestic_session(base.replace(hour=hour,minute=minute)))
+        self.assertIn('장외', stock_quotes.domestic_session(base + timedelta(days=2,hours=10)))
+
+    def test_us_ticker_precedes_domestic_partial_search_and_caches(self):
+        output = {'exchange':'AMS','rsym':'DAMSDRAM','last':'20.12','base':'20','tvol':'5','tamt':'100.6'}
+        loader = Mock(return_value=output)
+        catalog = Mock(side_effect=AssertionError('no domestic lookup'))
+        s = stock_quotes.StockService(codes_loader=catalog, us_loader=loader)
+        first = s.reply('DRAM')
+        self.assertIn('20.12 USD', first)
+        self.assertIn('DRAM', first)
+        self.assertEqual(s.reply('dram'), first)
+        loader.assert_called_once_with('DRAM'); catalog.assert_not_called()
+
+    def test_overseas_endpoint_reuses_spec_type_and_validates_symbol(self):
+        @dataclass(frozen=True)
+        class Spec:
+            path: str
+            tr_id: str
+        spec = Spec('/uapi/domestic-stock/v1/quotations/inquire-price','FHKST01010100')
+        converted = us_quotes.overseas_spec(spec)
+        self.assertEqual(converted.path, us_quotes.PATH)
+        self.assertEqual(converted.tr_id, us_quotes.TR_ID)
+        client = Mock()
+        client.query.side_effect = [{}, {}, {'rsym':'DAMSDRAM','last':'20'}]
+        self.assertEqual(us_quotes.load_us(client,spec,'DRAM')['exchange'],'AMS')
+        self.assertEqual([c.args[1]['EXCD'] for c in client.query.call_args_list],['NAS','NYS','AMS'])
+        with self.assertRaises(stock_quotes.QuoteError):
+            us_quotes.overseas_spec('unknown')
+        with self.assertRaises(stock_quotes.QuoteError):
+            us_quotes.format_us({'exchange':'NAS','rsym':'DNASOTHER','last':'1'}, 'DRAM', datetime.now(stock_quotes.KST))
+
+    def test_us_dst_regular_session(self):
+        for when in (datetime(2026,7,1,22,30,tzinfo=stock_quotes.KST), datetime(2026,12,1,23,30,tzinfo=stock_quotes.KST)):
+            self.assertEqual(us_quotes.us_session(when),'정규장')
+            with patch.object(us_quotes, 'ZoneInfo', side_effect=us_quotes.ZoneInfoNotFoundError):
+                self.assertEqual(us_quotes.us_session(when),'정규장')
+
+    def test_missing_us_symbol_on_first_exchange_does_not_prevent_amex(self):
+        domestic = ('/uapi/domestic-stock/v1/quotations/inquire-price', 'FHKST01010100')
+        client = Mock()
+        client.query.side_effect = [ValueError('provider-private'), {}, {'rsym':'DAMSDRAM','last':'20'}]
+        self.assertEqual(us_quotes.load_us(client, domestic, 'DRAM')['exchange'], 'AMS')
+
+
+if __name__ == '__main__':
+    unittest.main()

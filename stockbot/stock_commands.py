@@ -5,18 +5,25 @@ import threading
 
 import requests
 from . import stock_quotes
+from .portfolio import PortfolioService
 
 SERVICE = stock_quotes.StockService()
+PORTFOLIO = PortfolioService()
 EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix='stock-reply')
 PENDING = threading.BoundedSemaphore(8)
-INVESTMENT_HELP = "[주갤봇 사용법]\n\n!주가 종목명\n예: !주가 두산에너빌리티"
+INVESTMENT_HELP = ("[주갤봇 사용법]\n\n!주가 종목명 / 미국 티커\n"
+                   "예: !주가 두산에너빌리티 / !주가 DRAM\n\n"
+                   "!보유 — 보유종목\n!평단 종목명 — 평균 매입가\n"
+                   "!수익률 종목명 — 보유 수익률\n!실현 — 실현 종목 목록\n"
+                   "!실현 종목명 — 실현 수익률")
 
 
 def handle(message, chat_id, reply_url):
     """Route investment commands without registering them in the main help list."""
     match = re.fullmatch(r'!주가(?:\s+(.*))?', message)
     investment_help = message.strip() == '!투자'
-    if not match and not investment_help:
+    private = re.fullmatch(r'!(보유|평단|수익률|실현)(?:\s+(.*))?', message)
+    if not match and not investment_help and not private:
         return None
     if chat_id is None or str(chat_id) == '':
         return {'ok': False, 'error': 'chat_id missing'}, 400
@@ -30,7 +37,9 @@ def handle(message, chat_id, reply_url):
 
     def send():
         try:
-            text = INVESTMENT_HELP if investment_help else SERVICE.reply(match.group(1) or '')
+            text = (INVESTMENT_HELP if investment_help else
+                    PORTFOLIO.reply(private.group(1), private.group(2) or '') if private else
+                    SERVICE.reply(match.group(1) or ''))
             requests.post(reply_url, json={'type': 'text', 'room': str(chat_id), 'data': text}, timeout=10).raise_for_status()
             print('[주가 답변] 전송 완료')
         except Exception as error:

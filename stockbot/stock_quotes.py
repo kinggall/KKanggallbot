@@ -1,4 +1,4 @@
-"""Public domestic stock quotes, independent of the Domino web server.
+"""Public domestic/US stock quotes, independent of the Domino web server.
 
 The existing PC adapter defaults to ~/projects/domino-code; credentials stay in
 C:/domino. KAKAO_STOCK_CODE_DIR and KAKAO_STOCK_DATA_HOME override those paths.
@@ -23,7 +23,21 @@ import requests
 
 KST = timezone(timedelta(hours=9))
 LOG = logging.getLogger(__name__)
-USAGE = '사용법: !주가 종목명 또는 6자리 코드\n예: !주가 두산에너빌리티\n국내 주식·ETF를 조회합니다.'
+USAGE = '사용법: !주가 종목명 또는 국내 코드 / 미국 티커\n예: !주가 두산에너빌리티 / !주가 DRAM'
+
+
+def domestic_session(when):
+    local = when.astimezone(KST)
+    minute = local.hour * 60 + local.minute
+    if local.weekday() >= 5:
+        return '장외 · 최근 시세'
+    if 480 <= minute < 530:
+        return 'NXT 프리'
+    if 540 <= minute < 930:
+        return '정규장'
+    if 960 <= minute < 1200:
+        return 'NXT 애프터'
+    return '장외 · 최근 시세'
 
 
 class QuoteError(ValueError):
@@ -98,19 +112,20 @@ def format_quote(quote):
     arrow = '▲' if direction > 0 else '▼' if direction < 0 else ''
     percent = f'{arrow}{abs(quote.percent):.2f}%' if quote.percent is not None else '등락률 미확인'
     change = ('+' if direction > 0 else '-' if direction < 0 else '') + integer(abs(direction)) + '원' if quote.change is not None else '—'
-    status = {'OPEN': '장중', 'CLOSE': '장외 · 최근 시세'}.get(quote.market_status, '최근 조회 시세')
+    status = '장외 · 최근 시세' if quote.market_status == 'CLOSE' else domestic_session(quote.fetched_at)
     return (f'{color} {quote.name} 주가 {color}\n'
             f'✔️ 현재가: {integer(quote.price)}원 ({percent})\n'
             f'✔️ 전일대비: {change}\n'
             f'✔️ 거래량: {integer(quote.volume) + "주" if quote.volume is not None else "—"}\n'
             f'✔️ 거래대금: {turnover_text(quote.turnover)}\n'
             f'🕒 {quote.fetched_at.astimezone(KST):%m.%d. %H:%M:%S} 조회 · {status}\n'
-            '출처: 한국투자증권')
+            '출처: 한국투자증권 · 통합\n※ 시간대 기준이며 휴장·종목별 거래 여부는 다를 수 있습니다.')
 
 
 class StockService:
     def __init__(self, cache_dir=None, code_dir=None, data_home=None,
-                 codes_loader=None, quote_loader=None, basic_loader=None, monotonic=time.monotonic):
+                 codes_loader=None, quote_loader=None, basic_loader=None, monotonic=time.monotonic,
+                 us_loader=None):
         self.code_dir = Path(code_dir or os.environ.get('KAKAO_STOCK_CODE_DIR') or Path.home() / 'projects' / 'domino-code')
         self.data_home = Path(data_home or os.environ.get('KAKAO_STOCK_DATA_HOME') or 'C:/domino')
         self.cache_dir = Path(cache_dir or os.environ.get('LOCALAPPDATA') or os.environ.get('XDG_CACHE_HOME') or Path.home() / '.cache') / 'KKanggallbot-stocks'
@@ -118,6 +133,7 @@ class StockService:
         self.quote_loader = quote_loader or self._load_quote
         self.basic_loader = basic_loader or self._load_basic
         self.monotonic = monotonic
+        self.us_loader = us_loader or self._load_us
         self.lock = threading.RLock()
         self.codes = {}; self.codes_loaded_at = None; self.quotes = {}; self.client = None
 
@@ -159,7 +175,14 @@ class StockService:
         kis, _ = self._modules()
         if self.client is None:
             self.client = kis.Client(self.data_home)
-        return self.client.query(kis.DOMESTIC, {'FID_COND_MRKT_DIV_CODE': 'J', 'FID_INPUT_ISCD': code})
+        return self.client.query(kis.DOMESTIC, {'FID_COND_MRKT_DIV_CODE': 'UN', 'FID_INPUT_ISCD': code})
+
+    def _load_us(self, symbol):
+        from .us_quotes import load_us
+        kis, _ = self._modules()
+        if self.client is None:
+            self.client = kis.Client(self.data_home)
+        return load_us(self.client, kis.DOMESTIC, symbol)
 
     def _catalog(self):
         if self.codes_loaded_at is None or self.monotonic() - self.codes_loaded_at >= 86400:
@@ -177,7 +200,21 @@ class StockService:
             return USAGE
         with self.lock:
             try:
-                if re.fullmatch('[0-9]{6}', keyword):
+                if re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-][A-Za-z])?', keyword):
+                    from .us_quotes import format_us
+                    symbol = keyword.upper()
+                    key = 'US:' + symbol
+                    now = self.monotonic()
+                    cached = self.quotes.get(key)
+                    if cached and now - cached[0] < 5:
+                        return cached[1]
+                    result = format_us(self.us_loader(symbol), symbol, datetime.now(KST))
+                    if len(self.quotes) >= 128:
+                        self.quotes.pop(next(iter(self.quotes)))
+                    self.quotes[key] = (now, result)
+                    return result
+                if re.fullmatch('[A-Z0-9]{6}', keyword.upper()):
+                    keyword = keyword.upper()
                     code, name = keyword, keyword
                 else:
                     catalog = self._catalog(); found = catalog.get(normalize(keyword), set())
@@ -197,7 +234,7 @@ class StockService:
                     pass
                 if basic.get('stockName'):
                     name = str(basic['stockName'])
-                quote = parse_quote(self.quote_loader(code), code, name, datetime.now(KST), basic.get('marketStatus', ''))
+                quote = parse_quote(self.quote_loader(code), code, name, datetime.now(KST))
                 if len(self.quotes) >= 128:
                     self.quotes.pop(next(iter(self.quotes)))
                 self.quotes[code] = (self.monotonic(), quote)

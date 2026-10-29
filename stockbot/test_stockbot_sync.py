@@ -3,7 +3,12 @@ import subprocess
 import tempfile
 from pathlib import Path
 import unittest
-from test_drive_sync import FakeDrive, sync
+import importlib.util
+
+_spec = importlib.util.spec_from_file_location('stockbot_drive_test_support', Path(__file__).resolve().parents[1] / 'tests/test_drive_sync.py')
+_support = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_support)
+FakeDrive, sync = _support.FakeDrive, _support.sync
 
 class StockbotSyncTests(unittest.TestCase):
     def setUp(self):

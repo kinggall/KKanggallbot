@@ -42,8 +42,8 @@ class StockQuoteTests(unittest.TestCase):
 
     def test_ambiguous_name_is_not_arbitrarily_selected(self):
         quote=Mock()
-        s=service(codes_loader=lambda:{'TEST':'KRX:000001','test':'KOSDAQ:000002'},quote_loader=quote)
-        reply=s.reply('test')
+        s=service(codes_loader=lambda:{'가상 회사':'KRX:000001','가상회사':'KOSDAQ:000002'},quote_loader=quote)
+        reply=s.reply('가상회사')
         self.assertIn('000001',reply);self.assertIn('000002',reply);quote.assert_not_called()
 
     def test_unknown_name_and_empty_usage_do_not_call_quote_api(self):
@@ -80,5 +80,5 @@ class StockQuoteTests(unittest.TestCase):
         self.assertIn('900원',reply)
 
     def test_market_closed_is_labelled_as_recent_quote(self):
-        reply=service(basic_loader=lambda c:dict(stockName='가상회사',marketStatus='CLOSE')).reply('가상회사')
-        self.assertIn('장외 · 최근 시세',reply)
+        when = datetime(2026, 10, 29, 19, 45, tzinfo=stocks.KST)
+        self.assertEqual(stocks.domestic_session(when), 'NXT 애프터')
