@@ -20,7 +20,7 @@ import time
 import unicodedata
 
 import requests
-from .aliases import lookup as stock_alias, us_symbol
+from .aliases import lookup as stock_alias, us_symbol, name_targets, preferred_bases
 
 KST = timezone(timedelta(hours=9))
 LOG = logging.getLogger(__name__)
@@ -206,9 +206,33 @@ class StockService:
         with self.lock:
             try:
                 alias = stock_alias(keyword)
+                targets = name_targets(keyword)
+                if not alias and (targets or normalize(keyword).endswith('우')):
+                    catalog = self._catalog()
+                    query = normalize(keyword)
+                    found = set(catalog.get(query, set()))
+                    recognized = bool(targets)
+                    if targets:
+                        for target in targets:
+                            found.update(catalog.get(normalize(target), set()))
+                    elif not found:
+                        bases = preferred_bases(keyword)
+                        listed_bases = [normalize(base) for base in bases if normalize(base) in catalog]
+                        recognized = bool(listed_bases or stock_alias(query[:-1]) or name_targets(query[:-1]))
+                        for base in listed_bases:
+                            for name, codes in catalog.items():
+                                if name.startswith(base) and re.fullmatch(r'(?:[0-9]+)?우[ab]?', name[len(base):]):
+                                    found.update(codes)
+                    if found or recognized:
+                        if not found:
+                            return '해당 별명에 대응하는 상장 종목이 없습니다.\n종목명·티커로 입력해 주세요.'
+                        if len(found) > 1:
+                            return self._candidate_reply(found)
+                        code = next(iter(found))
+                        alias = ('KR', code, self.code_names[code])
                 if alias and alias[0] == 'US':
                     keyword = alias[1]
-                if re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', keyword):
+                if not (alias and alias[0] == 'KR') and re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', keyword):
                     from .us_quotes import format_us
                     symbol = us_symbol(keyword)
                     key = 'US:' + symbol
@@ -237,8 +261,7 @@ class StockService:
                     if not found:
                         return '일치하는 종목을 찾지 못했습니다.\n종목명·티커로 입력해 주세요.'
                     if len(found) > 1:
-                        return ('여러 종목이 검색됐습니다.\n종목명·티커로 입력해 주세요.\n\n' +
-                                '\n'.join('· ' + self.code_names[c] + ' (' + c + ')' for c in sorted(found)[:5]))
+                        return self._candidate_reply(found)
                     code = next(iter(found))
                     name = self.code_names[code]
                 now = self.monotonic(); cached = self.quotes.get(code)
@@ -260,6 +283,10 @@ class StockService:
                 # Provider exceptions may contain headers/tokens. Never send or log their text.
                 LOG.warning('Stock quote unavailable (%s)', type(error).__name__)
                 return '한투 주가를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요. 연결 설정은 PC에서 확인해 주세요.'
+
+    def _candidate_reply(self, codes):
+        return ('여러 종목이 검색됐습니다.\n종목명·티커로 입력해 주세요.\n\n' +
+                '\n'.join('· ' + self.code_names[c] + ' (' + c + ')' for c in sorted(codes)[:5]))
 
 
 if __name__ == '__main__':
