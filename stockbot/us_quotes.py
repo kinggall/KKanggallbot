@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from .stock_quotes import QuoteError, number, integer, KST
 
 PATH = '/uapi/overseas-price/v1/quotations/price-detail'
+EXCHANGE_NAMES = {'NAS': '나스닥', 'NYS': '뉴욕증권거래소', 'AMS': 'NYSE 아메리칸'}
 
 
 def overseas_spec(endpoint):
@@ -46,14 +47,14 @@ def us_session(when):
         local = utc.astimezone(timezone(timedelta(hours=-4 if start <= utc < end else -5)))
     minute = local.hour * 60 + local.minute
     if local.weekday() >= 5:
-        return '장외 · 최근 시세'
+        return '장외'
     if 240 <= minute < 570:
         return '프리마켓'
     if 570 <= minute < 960:
         return '정규장'
     if 960 <= minute < 1200:
         return '애프터마켓'
-    return '장외 · 최근 시세'
+    return '장외'
 
 
 def format_us(output, symbol, when):
@@ -80,6 +81,5 @@ def format_us(output, symbol, when):
              '✔️ 거래량: ' + (integer(volume) + '주' if volume is not None and volume >= 0 else '—'),
              '✔️ 거래대금: ' + (f'{turnover:,.2f} USD' if turnover is not None and turnover >= 0 else '—'),
              f'🕒 {when.astimezone(KST):%m.%d. %H:%M:%S} 조회 · {us_session(when)}',
-             '출처: 한국투자증권 · 미국 ' + output['exchange'],
-             '※ 시간대 기준입니다. 지연 시세·휴장·장외 시세 제공 여부는 별도 확인이 필요합니다.']
+             '출처: 한국투자증권 · 미국 ' + EXCHANGE_NAMES[output['exchange']]]
     return '\n'.join(lines)

@@ -82,6 +82,20 @@ class PortfolioTests(unittest.TestCase):
 
 
 class QuoteExtensionTests(unittest.TestCase):
+    def test_quote_layout_uses_exchange_names_without_extra_notices(self):
+        when = datetime(2026, 10, 29, 21, tzinfo=stock_quotes.KST)
+        payload = {'stck_shrn_iscd':'000001','stck_prpr':'100'}
+        domestic = stock_quotes.format_quote(stock_quotes.parse_quote(payload, '000001', '가상', when))
+        self.assertIn('조회 · 장외\n출처:', domestic)
+        for exchange, name in us_quotes.EXCHANGE_NAMES.items():
+            output = dict(exchange=exchange, rsym='D'+exchange+'FAKE', curr='USD', last='100')
+            text = us_quotes.format_us(output, 'FAKE', when)
+            self.assertIn('출처: 한국투자증권 · 미국 ' + name, text)
+            self.assertNotIn('※', text)
+            self.assertNotIn('최근 시세', text)
+        self.assertNotIn('※', domestic)
+        self.assertNotIn('최근 시세', domestic)
+
     def test_utf8_drive_plain_text_is_not_decoded_as_latin1(self):
         import json
         from stockbot.portfolio import load_snapshot

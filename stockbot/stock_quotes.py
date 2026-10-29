@@ -30,14 +30,14 @@ def domestic_session(when):
     local = when.astimezone(KST)
     minute = local.hour * 60 + local.minute
     if local.weekday() >= 5:
-        return '장외 · 최근 시세'
+        return '장외'
     if 480 <= minute < 530:
         return 'NXT 프리'
     if 540 <= minute < 930:
         return '정규장'
     if 960 <= minute < 1200:
         return 'NXT 애프터'
-    return '장외 · 최근 시세'
+    return '장외'
 
 
 class QuoteError(ValueError):
@@ -112,14 +112,14 @@ def format_quote(quote):
     arrow = '▲' if direction > 0 else '▼' if direction < 0 else ''
     percent = f'{arrow}{abs(quote.percent):.2f}%' if quote.percent is not None else '등락률 미확인'
     change = ('+' if direction > 0 else '-' if direction < 0 else '') + integer(abs(direction)) + '원' if quote.change is not None else '—'
-    status = '장외 · 최근 시세' if quote.market_status == 'CLOSE' else domestic_session(quote.fetched_at)
+    status = '장외' if quote.market_status == 'CLOSE' else domestic_session(quote.fetched_at)
     return (f'{color} {quote.name} 주가 {color}\n'
             f'✔️ 현재가: {integer(quote.price)}원 ({percent})\n'
             f'✔️ 전일대비: {change}\n'
             f'✔️ 거래량: {integer(quote.volume) + "주" if quote.volume is not None else "—"}\n'
             f'✔️ 거래대금: {turnover_text(quote.turnover)}\n'
             f'🕒 {quote.fetched_at.astimezone(KST):%m.%d. %H:%M:%S} 조회 · {status}\n'
-            '출처: 한국투자증권 · 통합\n※ 시간대 기준이며 휴장·종목별 거래 여부는 다를 수 있습니다.')
+            '출처: 한국투자증권 · 통합')
 
 
 class StockService:
