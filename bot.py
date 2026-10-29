@@ -25,6 +25,7 @@ import quests
 import experience
 import senka
 import guide_lookup
+import stock_commands
 
 app = Flask(__name__)
 
@@ -1523,13 +1524,21 @@ COMMANDS = {
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    data = data if isinstance(data, dict) else {}
 
     message = str(data.get("msg", "")).strip()
     room = data.get("room", "")
-    chat_id = data.get("json", {}).get("chat_id", room)
+    metadata = data.get("json")
+    metadata = metadata if isinstance(metadata, dict) else {}
+    chat_id = metadata.get("chat_id", room)
 
     print(f"[받은 메시지] 방={room}, 내용={message}")
+
+    stock_result = stock_commands.handle(message, chat_id, IRIS_REPLY_URL)
+    if stock_result is not None:
+        body, status = stock_result
+        return jsonify(body), status
 
     if message == '!공략' or message.startswith('!공략 '):
         def send_guide_preview():

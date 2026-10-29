@@ -1,2 +1,6 @@
 # Downloaded guide pages and images stay on this PC.
 /guide_cache/
+
+# Python runtime caches stay local.
+__pycache__/
+*.py[cod]
