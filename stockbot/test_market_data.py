@@ -126,6 +126,23 @@ class MarketTests(unittest.TestCase):
         self.assertEqual(result['us2'].source,'한국투자증권')
         self.assertIsNone(maturity_key('미국 기준금리'))
 
+    def test_actual_kis_tnote_tbond_names_and_shifted_rows(self):
+        rows=[
+            {'hts_kor_isnm':'미국 30년T-BOND','bcdt_code':'Y0201','bond_mnrt_prpr':'5.3200',
+             'bond_mnrt_prdy_vrss':'-0.0500','prdy_vrss_sign':'5','stck_bsop_date':'20261029'},
+            {'hts_kor_isnm':'미국 10년T-NOTE 수익률','bcdt_code':'Y0202','bond_mnrt_prpr':'4.9800',
+             'bond_mnrt_prdy_vrss':'-0.0700','prdy_vrss_sign':'5','stck_bsop_date':'20261029'},
+            {'hts_kor_isnm':'Y0109','bcdt_code':'Y0101','bond_mnrt_prpr':'Y0117',
+             'bond_mnrt_prdy_vrss':'4.2120','prdy_vrss_sign':'국고채 30년','stck_bsop_date':'-0.0090'},
+            {'hts_kor_isnm':'국고채 30년','bcdt_code':'Y0117','bond_mnrt_prpr':'4.2120',
+             'bond_mnrt_prdy_vrss':'-0.0090','prdy_vrss_sign':'5','stck_bsop_date':'20261029'}]
+        result=parse_yields({'output1':rows},datetime(2026,10,30,tzinfo=KST))
+        self.assertEqual(set(result),{'us10','us30','kr30'})
+        self.assertEqual(result['us10'].value,D('4.9800'))
+        self.assertEqual(result['us10'].previous,D('5.0500'))
+        self.assertEqual(result['us30'].previous,D('5.3700'))
+        self.assertNotIn('us2',result);self.assertNotIn('us5',result)
+
     def test_rates_use_only_kis_without_daily_provider_fallback(self):
         self.assertTrue(all(row.provider=='kis_yields' for cmd in ('국채','미국채') for row in GROUPS[cmd]))
         loader=Mock();loader.yields.return_value={}

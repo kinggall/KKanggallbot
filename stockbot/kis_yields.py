@@ -28,7 +28,10 @@ def public_rows(data):
 
 def maturity_key(name):
     normalized=re.sub(r'\s+','',name).upper()
-    match=re.search(r'(?<!\d)0?(2|5|10|30)(?:년|年|YEARS?|Y)(?![A-Z])',normalized)
+    # KIS actually returns "미국 10년T-NOTE 수익률" and "미국 30년T-BOND".
+    # The Latin word boundary belongs only to the English year suffix; applying
+    # it to 년 rejects the valid Korean/English compound name.
+    match=re.search(r'(?<!\d)0?(2|5|10|30)(?:년|年|(?:YEARS?|YRS?|Y)(?![A-Z]))',normalized)
     if not match:return None
     if re.search(r'미국|美國|美국채|US(?:A)?(?:TREASURY|GOV|BOND)|U\.S\.',normalized):prefix='us'
     elif re.search(r'국고채|한국국채|대한민국국채|KOREA.*(?:GOV|BOND|TREASURY)',normalized):prefix='kr'
