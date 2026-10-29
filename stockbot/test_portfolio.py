@@ -28,7 +28,7 @@ class PortfolioTests(unittest.TestCase):
         expected = '[가상회사]\n✔️ 평균 매입가: 1,234.5원\n✔️ 수익률: -4.92%\n✔️ 현재가: 100원\n✔️ 전일대비: +1원 (▲1.01%)\n\n갱신 일자: 2026-10-29\n시세 기준: 2026-10-30'
         self.assertEqual(service.reply('평단', '가상회사'), expected)
         self.assertEqual(service.reply('수익률', '가상회사'), expected)
-        self.assertEqual(service.reply('실현', '가상회사'), '[실현 수익률]\n· 가상회사: -2.30%\n\n갱신 일자: 2026-10-29')
+        self.assertEqual(service.reply('실현', '가상회사'), '[실현 수익률]\n· 가상회사: ▼2.30%\n\n최종 거래일 : 미확인\n갱신 일자: 2026-10-29')
         for command in ('평단', '수익률', '실현'):
             text = service.reply(command, '가상회사')
             for hidden in ('가상계좌', '평가손익', '실현손익', '자료 갱신', '보유 수집', '가상기간', '+00:00'):
@@ -43,7 +43,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertIn('미확인', s.reply('수익률', 'FAKE'))
         self.assertIn('!실현 가상회사', s.reply('실현'))
         text = s.reply('실현', '가상회사')
-        for expected in ('-2.30%', '갱신 일자: 2026-10-29'):
+        for expected in ('▼2.30%', '갱신 일자: 2026-10-29'):
             self.assertIn(expected, text)
 
     def test_no_aggregation_of_different_accounts_or_periods(self):

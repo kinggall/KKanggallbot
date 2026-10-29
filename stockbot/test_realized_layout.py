@@ -1,0 +1,46 @@
+import unittest
+
+from stockbot.portfolio import PortfolioService, arrow_percent
+
+
+class RealizedLayoutTests(unittest.TestCase):
+    def snapshot(self):
+        return dict(schema_version=1, generated_at='2026-10-29T11:00:00Z', holdings=[],
+                    realized=[dict(name='가상회사',return_pct='-14.343', last_trade_date='2026-10-28',
+                                   account='secret',realized_profit='123',currency='KRW')])
+
+    def test_exact_realized_layout(self):
+        service=PortfolioService(self.snapshot)
+        self.assertEqual(service.reply('실현','가상회사'),
+                         '[실현 수익률]\n· 가상회사: ▼14.34%\n\n최종 거래일 : 2026-10-28\n갱신 일자: 2026-10-29')
+
+    def test_invalid_trade_date_is_unknown_not_a_fabricated_date(self):
+        data=self.snapshot();data['realized'][0]['last_trade_date']='2026-00-00'
+        text=PortfolioService(lambda:data).reply('실현','가상회사')
+        self.assertIn('최종 거래일 : 미확인',text)
+        self.assertNotIn('2026-00-00',text)
+
+    def test_arrow_positive_flat_unknown_and_list_stays_navigation(self):
+        for value,expected in [('1.234','▲1.23%'),('0','0.00%'),(None,'미확인')]:
+            self.assertEqual(arrow_percent(value),expected)
+        text=PortfolioService(self.snapshot).reply('실현')
+        self.assertIn('상세: !실현 가상회사',text)
+        self.assertNotIn('최종 거래일',text)
+
+    def test_trade_dates_remain_associated_with_each_record(self):
+        data=self.snapshot()
+        data['realized'].append(dict(data['realized'][0],return_pct='1',last_trade_date='2026-10-27'))
+        text=PortfolioService(lambda:data).reply('실현','가상회사')
+        self.assertIn('▼14.34%\n\n최종 거래일 : 2026-10-28',text)
+        self.assertIn('▲1.00%\n\n최종 거래일 : 2026-10-27',text)
+        self.assertNotIn('secret',text)
+
+    def test_only_confirmed_unlisted_name_is_overridden(self):
+        rows=[dict(name='오아시스',currency='KRW',ticker=''),dict(name='다른회사',currency='KRW',ticker='')]
+        text=PortfolioService().holdings_text(rows,'2026-10-29')
+        self.assertIn('오아시스(비상장)',text)
+        self.assertIn('다른회사(코드 미확인)',text)
+
+
+if __name__=='__main__':
+    unittest.main()

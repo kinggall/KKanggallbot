@@ -10,6 +10,7 @@ from decimal import ROUND_HALF_UP, localcontext
 from .stock_quotes import normalize, number, KST
 from .security_names import USSecurityNames
 from .aliases import lookup, name_targets
+from .unlisted import UNLISTED_NAMES
 
 FILE_ID = '1xclx9sD8c1Bh4mnrleGaJDToAsZG5UU6'
 
@@ -29,6 +30,13 @@ def percent_text(value):
     with localcontext() as context:
         context.rounding = ROUND_HALF_UP
         return f'{parsed:.2f}%'
+
+
+def arrow_percent(value):
+    parsed = number(value)
+    if parsed is None:
+        return '미확인'
+    return ('▲' if parsed > 0 else '▼' if parsed < 0 else '') + percent_text(abs(parsed))
 
 
 def load_snapshot():
@@ -100,7 +108,9 @@ class PortfolioService:
             if identity in seen:
                 continue
             seen.add(identity)
-            if row.get('currency') == 'USD':
+            if normalize(row['name']) in {normalize(name) for name in UNLISTED_NAMES}:
+                lines.append(f'· {row["name"]}(비상장)')
+            elif row.get('currency') == 'USD':
                 symbol = symbol or row['name']
                 name = row['name']
                 if normalize(name) == normalize(symbol):
@@ -159,14 +169,20 @@ class PortfolioService:
             lines = ['[실현 수익률]']
             if not rows:
                 lines.append('등록된 자료가 없습니다.')
-            for row in rows:
+            for index, row in enumerate(rows):
                 label = row['name']
                 if not key:
                     value = '상세: !실현 ' + row['name']
                 else:
-                    value = percent_text(row.get('return_pct'))
+                    value = arrow_percent(row.get('return_pct'))
+                    if index:
+                        lines.append('')
                 lines.append('· ' + label + ': ' + value)
-            lines.extend(['', '갱신 일자: ' + date_text(data['generated_at'])])
+                if key:
+                    lines.extend(['', '최종 거래일 : ' + date_text(row.get('last_trade_date'))])
+            if not key or not rows:
+                lines.append('')
+            lines.append('갱신 일자: ' + date_text(data['generated_at']))
             return '\n'.join(lines)
         except Exception:
             # Never echo credentials, account identifiers, payload or provider errors.
