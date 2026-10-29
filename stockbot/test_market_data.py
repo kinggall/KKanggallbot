@@ -5,12 +5,47 @@ import unittest
 from unittest.mock import Mock, patch
 
 from stockbot.market_data import GROUPS, MarketService, MarketProvider, MarketDataError, Observation, format_line
-from stockbot.night_futures import night_observation, query, BOARD, KISNightFutures, INDEX
+from stockbot.night_futures import night_observation, query, BOARD, KISNightFutures, INDEX, is_kospi200_contract
 from stockbot.stock_quotes import KST
 from stockbot import stock_commands
 
 
 class MarketTests(unittest.TestCase):
+    def test_new_contract_family_requires_public_name_and_excludes_mini(self):
+        self.assertTrue(is_kospi200_contract({'futs_shrn_iscd':'A01612','hts_kor_isnm':'코스피200 F 202612'}))
+        self.assertFalse(is_kospi200_contract({'futs_shrn_iscd':'A05612','hts_kor_isnm':'미니코스피200 F 202612'}))
+        self.assertFalse(is_kospi200_contract({'futs_shrn_iscd':'A05612'}))
+        self.assertFalse(is_kospi200_contract({'futs_shrn_iscd':'A01612','hts_kor_isnm':'코스피200 선물 스프레드'}))
+
+    def test_latest_source_timestamp_only_is_used_for_forex(self):
+        provider=Mock()
+        provider.load.side_effect=[Observation(D(1),D(1),'2026-10-29T20:32:00Z','fixture'),
+                                   Observation(D(2),D(1),'2026-10-29T21:15:59Z','fixture')]
+        text=MarketService(provider).reply('환율')
+        self.assertIn('조회 기준: 2026-10-30. 06:15',text)
+        self.assertNotIn(' ~ ',text)
+        self.assertNotIn('05:32',text)
+
+    def test_crypto_is_actual_usd_not_relabelled_krw_or_usdt(self):
+        self.assertEqual([r.symbol for r in GROUPS['코인']],['BTC-USD','ETH-USD','XRP-USD'])
+        self.assertTrue(all(r.unit==' USD' and r.provider=='yahoo' for r in GROUPS['코인']))
+
+    def test_fred_all_maturities_preserve_date_and_skip_missing_values(self):
+        response=Mock()
+        response.content=b'observation_date,DGS2,DGS5,DGS10,DGS30\n2026-10-28,4,4.1,4.2,4.3\n2026-10-29,4.1,4.2,4.3,4.4\n2026-10-30,.,.,.,.\n'
+        provider=MarketProvider(get=Mock(return_value=response),now=lambda:datetime(2026,10,30,tzinfo=KST))
+        with patch.object(provider,'treasury_xml') as fallback:
+            rows=provider.treasury();fallback.assert_not_called()
+        self.assertEqual(rows['us2'].value,D('4.1'))
+        self.assertEqual(rows['us30'].previous,D('4.3'))
+        self.assertEqual(rows['us10'].as_of,'2026-10-29')
+
+    def test_incomplete_fred_falls_back_without_using_wrong_maturity(self):
+        response=Mock();response.content=b'observation_date,DGS10\n2026-10-29,4.3\n'
+        provider=MarketProvider(get=Mock(return_value=response))
+        with patch.object(provider,'treasury_xml',return_value={'fixture':1}) as fallback:
+            self.assertEqual(provider.treasury(),{'fixture':1});fallback.assert_called_once()
+
     def test_footer_deduplicates_times_rounded_to_same_minute(self):
         provider=Mock()
         provider.load.side_effect=[Observation(D(1),D(1),'2026-10-29T15:28:01Z','fixture'),
@@ -42,7 +77,7 @@ class MarketTests(unittest.TestCase):
         data={'output':{'bstp_nmix_prpr':'100','bstp_nmix_prdy_vrss':'2','prdy_vrss_sign':'5'}}
         with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',return_value=data) as request:
             row=adapter.domestic_index(GROUPS['국내지수'][0])
-        self.assertEqual(row.previous,D(102));self.assertIn('조회 시각',row.source)
+        self.assertEqual(row.previous,D(102));self.assertEqual('한국투자증권',row.source)
         self.assertEqual(request.call_args.args[1],INDEX)
         self.assertEqual(request.call_args.args[2]['FID_INPUT_ISCD'],'0001')
 
@@ -127,7 +162,7 @@ class MarketTests(unittest.TestCase):
     def test_treasury_xml_preserves_yields_and_actual_publication_dates(self):
         props=''.join('<properties><NEW_DATE>'+date+'</NEW_DATE>'+''.join(f'<BC_{y}YEAR>{value}</BC_{y}YEAR>' for y in (2,5,10,30))+'</properties>' for date,value in [('2026-10-28T00:00:00','4.10'),('2026-10-29T00:00:00','4.12')])
         response=Mock();response.content=('<feed>'+props+'</feed>').encode()
-        data=MarketProvider(get=Mock(return_value=response)).treasury()
+        data=MarketProvider(get=Mock(return_value=response)).treasury_xml()
         self.assertEqual(data['us2'].value,D('4.12'));self.assertEqual(data['us30'].previous,D('4.10'))
         self.assertEqual(data['us2'].as_of,'2026-10-29')
 

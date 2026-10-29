@@ -14,6 +14,17 @@ ENDPOINTS={BOARD:'FHPIF05030200',CHART:'FHKIF03020200',INDEX:'FHPUP02100000'}
 HOSTS={'https://openapi.koreainvestment.com:9443','https://openapivts.koreainvestment.com:29443'}
 
 
+def is_kospi200_contract(row):
+    code=str(row.get('futs_shrn_iscd',''))
+    if re.fullmatch(r'101(?:[A-Z0-9]{3}|[A-Z0-9]{5})',code):return True
+    if not re.fullmatch(r'[A-Z0-9]{6,8}',code):return False
+    name=re.sub(r'\s+','',str(row.get('hts_kor_isnm',''))).upper()
+    if any(word in name for word in ('미니','MINI','스프레드','SPREAD','옵션','OPTION')):return False
+    # New code families are accepted only with the public product name,
+    # never because their numeric price resembles the KOSPI200 future.
+    return bool(re.match(r'^(?:코스피200|KOSPI200)(?:선물|F)',name))
+
+
 def query(client,path,params):
     if path not in ENDPOINTS or client.base not in HOSTS:
         raise MarketDataError('Unsupported market endpoint')
@@ -82,7 +93,7 @@ class KISNightFutures:
             raise MarketDataError('Domestic index quote unavailable')
         delta=abs(delta)*(-1 if sign in ('4','5') else 1)
         return checked_observation(value,value-delta,self.now().astimezone(KST).isoformat(),
-                                   '한국투자증권 · 조회 시각')
+                                   '한국투자증권')
 
     def __call__(self):
         client=self.client_instance()
@@ -92,12 +103,16 @@ class KISNightFutures:
         for row in board.get('output',[]):
             code=str(row.get('futs_shrn_iscd',''))
             days=number(row.get('hts_rmnn_dynu'))
-            if re.fullmatch(r'101(?:[A-Z0-9]{3}|[A-Z0-9]{5})',code) and days is not None and days>=0:
+            if is_kospi200_contract(row) and days is not None and days>=0:
                 if days==0 and now.hour>=15:continue
                 contracts.append((days,code))
         if not contracts:
-            public_codes=[str(row.get('futs_shrn_iscd','')) for row in board.get('output',[])]
-            public_codes=[code for code in public_codes if re.fullmatch(r'[A-Z0-9]{6,12}',code)]
+            public_codes=[]
+            for row in board.get('output',[]):
+                code=str(row.get('futs_shrn_iscd',''))
+                if not re.fullmatch(r'[A-Z0-9]{6,12}',code):continue
+                name=re.sub(r'[^가-힣A-Za-z0-9 .()/\-]','',str(row.get('hts_kor_isnm','')))[:48]
+                public_codes.append(code+(' ('+name+')' if name else ''))
             # Public instrument identifiers only; no response bodies/tokens.
             detail=', '.join(public_codes[:8]) or 'none'
             raise MarketDataError('KOSPI200 front contract unavailable; public codes: '+detail)

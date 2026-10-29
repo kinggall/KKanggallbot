@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, localcontext, ROUND_HALF_UP
 import os
+import csv
+import io
 import re
 import threading
 import time
@@ -44,7 +46,7 @@ GROUPS = {
           Instrument('copper','🔩 구리 선물(USD/lb)','HG=F',digits=4)),
  '미국채': tuple(Instrument('us'+str(y),f'🇺🇸 미국채 {y}년',unit='%',digits=3,trim=True,provider='treasury') for y in (2,5,10,30)),
  '국채': tuple(Instrument('kr'+str(y),f'🇰🇷 국고채 {y}년',unit='%',digits=3,trim=True,provider='ecos') for y in (2,5,10,30)),
- '코인': tuple(Instrument('coin'+s,label,'KRW-'+s,unit='원',trim=True,provider='upbit')
+ '코인': tuple(Instrument('coin'+s,label,s+'-USD',unit=' USD',digits=4 if s=='XRP' else 2)
              for s,label in (('BTC','₿ 비트코인'),('ETH','💎 이더리움'),('XRP','🪙 리플'))),
 }
 
@@ -172,6 +174,33 @@ class MarketProvider:
         return result
 
     def treasury(self):
+        # FRED DGS series are official constant-maturity Treasury yields, not
+        # bond futures, ETFs, or a proxy maturity such as Yahoo's ^FVX.
+        try:
+            end=self.now().date()
+            response=self.request('https://fred.stlouisfed.org/graph/fredgraph.csv',
+                                  params={'id':'DGS2,DGS5,DGS10,DGS30',
+                                          'cosd':(end-timedelta(days=21)).isoformat(),
+                                          'coed':end.isoformat()},timeout=(5,12))
+            result={}
+            rows=list(csv.DictReader(io.StringIO(response.content.decode('utf-8-sig'))))
+            for year in (2,5,10,30):
+                samples={}
+                for row in rows:
+                    stamp=row.get('observation_date') or row.get('DATE') or ''
+                    try:date=datetime.strptime(stamp,'%Y-%m-%d').date()
+                    except ValueError:continue
+                    value=number(row.get('DGS'+str(year)))
+                    if date<=end and value is not None:samples[stamp]=value
+                dates=sorted(samples,reverse=True)
+                if len(dates)<2:raise MarketDataError('FRED yield history incomplete')
+                result['us'+str(year)]=checked_observation(samples[dates[0]],samples[dates[1]],dates[0],
+                                                          '미국 연준 FRED · 일별 공시')
+            return result
+        except (requests.RequestException,ValueError,KeyError,TypeError):
+            return self.treasury_xml()
+
+    def treasury_xml(self):
         samples={y:[] for y in (2,5,10,30)}
         current=self.now().replace(day=1)
         previous_month=current-timedelta(days=1)
@@ -283,7 +312,7 @@ class MarketService:
                 label=parsed.astimezone(KST).strftime('%Y-%m-%d. %H:%M') if parsed.tzinfo else parsed.strftime('%Y-%m-%d')
                 stamps.append((parsed.replace(tzinfo=KST).timestamp() if not parsed.tzinfo else parsed.timestamp(),label))
             unique=list(dict.fromkeys(label for timestamp,label in sorted(set(stamps))))
-            basis=unique[0] if len(unique)==1 else unique[0]+' ~ '+unique[-1]
+            basis=unique[-1]
             lines.extend(['','조회 기준: '+basis,'출처: '+' / '.join(dict.fromkeys(v.source for v in values))])
         else:
             lines.extend(['','데이터 연결을 확인해 주세요.'])
