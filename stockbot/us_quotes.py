@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from .stock_quotes import QuoteError, number, integer, KST
 
 PATH = '/uapi/overseas-price/v1/quotations/price-detail'
-EXCHANGE_NAMES = {'NAS': '나스닥', 'NYS': '뉴욕증권거래소', 'AMS': 'NYSE 아메리칸'}
+EXCHANGE_NAMES = {'NAS': '나스닥', 'NYS': '뉴욕', 'AMS': '아멕스'}
 
 
 def overseas_spec(endpoint):

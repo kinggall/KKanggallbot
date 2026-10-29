@@ -83,6 +83,7 @@ class PortfolioTests(unittest.TestCase):
 
 class QuoteExtensionTests(unittest.TestCase):
     def test_quote_layout_uses_exchange_names_without_extra_notices(self):
+        self.assertEqual(us_quotes.EXCHANGE_NAMES, {'NAS':'나스닥', 'NYS':'뉴욕', 'AMS':'아멕스'})
         when = datetime(2026, 10, 29, 21, tzinfo=stock_quotes.KST)
         payload = {'stck_shrn_iscd':'000001','stck_prpr':'100'}
         domestic = stock_quotes.format_quote(stock_quotes.parse_quote(payload, '000001', '가상', when))
