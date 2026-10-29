@@ -1,6 +1,7 @@
 """Read-only KIS futures adapter. A daytime quote is never relabelled night."""
 from datetime import datetime, timedelta
 import re
+import os
 import time
 from urllib.parse import urlencode
 
@@ -14,6 +15,12 @@ ENDPOINTS={BOARD:'FHPIF05030200',CHART:'FHKIF03020200',INDEX:'FHPUP02100000'}
 HOSTS={'https://openapi.koreainvestment.com:9443','https://openapivts.koreainvestment.com:29443'}
 
 
+def contract_month(row):
+    name=str(row.get('hts_kor_isnm',''))
+    match=re.search(r'(?<!\d)(20\d{2}(?:0[1-9]|1[0-2]))(?!\d)',name)
+    return match[1] if match else None
+
+
 def is_kospi200_contract(row, market_class=None):
     code=str(row.get('futs_shrn_iscd',''))
     if re.fullmatch(r'101(?:[A-Z0-9]{3}|[A-Z0-9]{5})',code):return True
@@ -22,7 +29,8 @@ def is_kospi200_contract(row, market_class=None):
     if any(word in name for word in ('미니','MINI','스프레드','SPREAD','옵션','OPTION')):return False
     # Standard-board rows may abbreviate the product name to "F YYYYMM".
     # This abbreviation is not sufficient outside the KI board.
-    if market_class=='KI' and re.fullmatch(r'F20\d{2}(?:0[1-9]|1[0-2])',name):return True
+    if market_class=='KI' and (re.fullmatch(r'F20\d{2}(?:0[1-9]|1[0-2])',name)
+                              or re.fullmatch(r'20\d{2}(?:0[1-9]|1[0-2])\(F\)',name)):return True
     # New code families are accepted only with the public product name,
     # never because their numeric price resembles the KOSPI200 future.
     return bool(re.match(r'^(?:코스피200|KOSPI200)(?:선물|F)',name))
@@ -72,9 +80,14 @@ def night_observation(data,code,now):
 
 
 class KISNightFutures:
-    def __init__(self,stock_service,now=None):
+    def __init__(self,stock_service,now=None,contract=None):
         self.stock_service=stock_service
         self.now=now or (lambda:datetime.now(KST))
+        # Pin the explicitly requested delivery month, but resolve its actual
+        # instrument code from the live standard board, not a guessed code.
+        self.contract=contract or os.environ.get('KAKAO_NIGHT_FUTURES_MONTH','202612')
+        if not re.fullmatch(r'20\d{2}(?:0[1-9]|1[0-2])',self.contract):
+            raise MarketDataError('Invalid night futures delivery month')
 
     def client_instance(self):
         service=self.stock_service
@@ -103,12 +116,14 @@ class KISNightFutures:
         now=self.now().astimezone(KST)
         board=query(client,BOARD,{'FID_COND_MRKT_DIV_CODE':'F','FID_COND_SCR_DIV_CODE':'20503','FID_COND_MRKT_CLS_CODE':'KI'})
         contracts=[]
+        selected=[]
         for row in board.get('output',[]):
             code=str(row.get('futs_shrn_iscd',''))
             days=number(row.get('hts_rmnn_dynu'))
             if is_kospi200_contract(row,'KI') and days is not None and days>=0:
                 if days==0 and now.hour>=15:continue
                 contracts.append((days,code))
+                if contract_month(row)==self.contract:selected.append((days,code))
         if not contracts:
             public_codes=[]
             for row in board.get('output',[]):
@@ -119,7 +134,13 @@ class KISNightFutures:
             # Public instrument identifiers only; no response bodies/tokens.
             detail=', '.join(public_codes[:8]) or 'none'
             raise MarketDataError('KOSPI200 front contract unavailable; public codes: '+detail)
-        code=min(contracts)[1]
+        if selected:
+            code=min(selected)[1]
+        elif now.strftime('%Y%m')<=self.contract:
+            raise MarketDataError('Requested KOSPI200 '+self.contract+'(F) contract unavailable on standard board')
+        else:
+            # After the requested month, roll to a live nearest contract.
+            code=min(contracts)[1]
         cutoff=now if now.hour>=18 or now.hour<6 else now.replace(hour=6,minute=0,second=0,microsecond=0)
         data=query(client,CHART,{'FID_COND_MRKT_DIV_CODE':'F','FID_INPUT_ISCD':code,
                                 'FID_HOUR_CLS_CODE':'60','FID_PW_DATA_INCU_YN':'Y','FID_FAKE_TICK_INCU_YN':'N',

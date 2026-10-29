@@ -90,12 +90,32 @@ class MarketTests(unittest.TestCase):
 
     def test_night_accepts_eight_digit_contract_without_guessing_expiry(self):
         adapter=KISNightFutures(Mock(),now=lambda:datetime(2026,10,30,1,tzinfo=KST))
-        board={'output':[{'futs_shrn_iscd':'101Z1200','hts_rmnn_dynu':'40'}]}
+        board={'output':[{'futs_shrn_iscd':'101Z1200','hts_rmnn_dynu':'40','hts_kor_isnm':'202612(F)'}]}
         chart={'output1':{'futs_shrn_iscd':'101Z1200'},'output2':[
             {'stck_bsop_date':'20261030','stck_cntg_hour':'005900','futs_prpr':'100'}]}
         with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',side_effect=[board,chart]) as request:
             self.assertEqual(adapter().value,D(100))
         self.assertEqual(request.call_args_list[0].args[2]['FID_COND_MRKT_CLS_CODE'],'KI')
+
+    def test_requested_december_contract_is_used_instead_of_nearer_month(self):
+        adapter=KISNightFutures(Mock(),now=lambda:datetime(2026,10,30,8,tzinfo=KST),contract='202612')
+        board={'output':[
+            {'futs_shrn_iscd':'A01611','hts_rmnn_dynu':'10','hts_kor_isnm':'202611(F)'},
+            {'futs_shrn_iscd':'A01612','hts_rmnn_dynu':'40','hts_kor_isnm':'202612(F)'}]}
+        chart={'output1':{'futs_shrn_iscd':'A01612'},'output2':[
+            {'stck_bsop_date':'20261030','stck_cntg_hour':'060000','futs_prpr':'932.10'}]}
+        with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',side_effect=[board,chart]) as request:
+            value=adapter()
+        self.assertEqual(value.value,D('932.10'))
+        self.assertEqual(request.call_args.args[2]['FID_INPUT_ISCD'],'A01612')
+        self.assertEqual(request.call_args.args[2]['FID_INPUT_HOUR_1'],'060000')
+
+    def test_requested_month_missing_does_not_silently_use_another_contract(self):
+        adapter=KISNightFutures(Mock(),now=lambda:datetime(2026,10,30,8,tzinfo=KST),contract='202612')
+        board={'output':[{'futs_shrn_iscd':'A01611','hts_rmnn_dynu':'10','hts_kor_isnm':'202611(F)'}]}
+        with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',return_value=board) as request:
+            with self.assertRaisesRegex(MarketDataError,'202612'):adapter()
+        self.assertEqual(request.call_count,1)
 
     def test_all_requested_groups_and_maturities(self):
         self.assertEqual(set(GROUPS),{'국내지수','미국지수','나선','야선','환율','상품','미국채','국채','코인'})
