@@ -5,7 +5,8 @@ import unittest
 from unittest.mock import Mock, patch
 
 from stockbot.market_data import GROUPS, MarketService, MarketProvider, MarketDataError, Observation, format_line
-from stockbot.night_futures import night_observation, query, BOARD, KISNightFutures, INDEX, is_kospi200_contract
+from stockbot.night_futures import night_observation, query, BOARD, KISNightFutures, INDEX, is_kospi200_contract, select_contract, next_quarter
+from stockbot.kis_yields import parse_yields, maturity_key
 from stockbot.stock_quotes import KST
 from stockbot import stock_commands
 
@@ -13,7 +14,8 @@ from stockbot import stock_commands
 class MarketTests(unittest.TestCase):
     def test_standard_board_abbreviation_is_scoped_and_mini_stays_rejected(self):
         row={'futs_shrn_iscd':'A01612','hts_kor_isnm':'F 202612'}
-        self.assertTrue(is_kospi200_contract(row,'KI'))
+        self.assertTrue(is_kospi200_contract(row,''))
+        self.assertFalse(is_kospi200_contract(row,'KI'))
         self.assertFalse(is_kospi200_contract(row,'MKI'))
         self.assertFalse(is_kospi200_contract(row))
         row['hts_kor_isnm']='미니F 202612'
@@ -95,7 +97,42 @@ class MarketTests(unittest.TestCase):
             {'stck_bsop_date':'20261030','stck_cntg_hour':'005900','futs_prpr':'100'}]}
         with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',side_effect=[board,chart]) as request:
             self.assertEqual(adapter().value,D(100))
-        self.assertEqual(request.call_args_list[0].args[2]['FID_COND_MRKT_CLS_CODE'],'KI')
+        self.assertEqual(request.call_args_list[0].args[2]['FID_COND_MRKT_CLS_CODE'],'')
+
+    def test_quarterly_roll_at_expiry_not_next_calendar_month(self):
+        rows=[{'futs_shrn_iscd':'A01612','hts_kor_isnm':'F 202612','hts_rmnn_dynu':'0'},
+              {'futs_shrn_iscd':'A01703','hts_kor_isnm':'F 202703','hts_rmnn_dynu':'90'},
+              {'futs_shrn_iscd':'A05701','hts_kor_isnm':'미니F 202701','hts_rmnn_dynu':'30'}]
+        before=datetime(2026,12,10,15,44,tzinfo=KST)
+        self.assertEqual(select_contract(rows,before,'202612'),'A01612')
+        self.assertEqual(select_contract(rows,before.replace(minute=45),'202612'),'A01703')
+        self.assertEqual(next_quarter('202612'),'202703')
+        self.assertEqual(next_quarter('202703'),'202706')
+
+    def test_disappeared_expired_contract_rolls_to_next_quarter(self):
+        rows=[{'futs_shrn_iscd':'A01703','hts_kor_isnm':'F 202703','hts_rmnn_dynu':'90'}]
+        self.assertEqual(select_contract(rows,datetime(2026,12,11,8,tzinfo=KST),'202612'),'A01703')
+        with self.assertRaisesRegex(MarketDataError,'Empty standard futures board'):
+            select_contract([],datetime(2026,10,30,tzinfo=KST),'202612')
+
+    def test_kis_interest_parses_only_exact_country_and_tenor(self):
+        rows=[{'hts_kor_isnm':name,'bond_mnrt_prpr':'4.12','bond_mnrt_prdy_vrss':'0.02',
+               'prdy_vrss_sign':'5','stck_bsop_date':'20261030'}
+              for name in ('미국채(2년)','국고채(5년)','일본국채(10년)','미국채 선물 30년')]
+        result=parse_yields({'output1':rows},datetime(2026,10,30,tzinfo=KST))
+        self.assertEqual(set(result),{'us2','kr5'})
+        self.assertEqual(result['us2'].previous,D('4.14'))
+        self.assertEqual(result['us2'].as_of,'2026-10-30')
+        self.assertEqual(result['us2'].source,'한국투자증권')
+        self.assertIsNone(maturity_key('미국 기준금리'))
+
+    def test_rates_use_only_kis_without_daily_provider_fallback(self):
+        self.assertTrue(all(row.provider=='kis_yields' for cmd in ('국채','미국채') for row in GROUPS[cmd]))
+        loader=Mock();loader.yields.return_value={}
+        provider=MarketProvider(night_loader=loader)
+        with patch.object(provider,'ecos') as ecos,patch.object(provider,'treasury') as fred:
+            with self.assertRaisesRegex(MarketDataError,'no daily-rate fallback'):provider.load(GROUPS['미국채'][0])
+            ecos.assert_not_called();fred.assert_not_called()
 
     def test_requested_december_contract_is_used_instead_of_nearer_month(self):
         adapter=KISNightFutures(Mock(),now=lambda:datetime(2026,10,30,8,tzinfo=KST),contract='202612')
@@ -108,7 +145,16 @@ class MarketTests(unittest.TestCase):
             value=adapter()
         self.assertEqual(value.value,D('932.10'))
         self.assertEqual(request.call_args.args[2]['FID_INPUT_ISCD'],'A01612')
-        self.assertEqual(request.call_args.args[2]['FID_INPUT_HOUR_1'],'060000')
+        self.assertEqual(request.call_args.args[2]['FID_INPUT_HOUR_1'],'300000')
+        self.assertEqual(request.call_args.args[2]['FID_INPUT_DATE_1'],'20261029')
+        self.assertEqual(request.call_args.args[2]['FID_COND_MRKT_DIV_CODE'],'CM')
+
+    def test_extended_night_bar_time_and_reference_close_after_session(self):
+        data={'output1':{'futs_shrn_iscd':'A01612','futs_prpr':'932.10','futs_prdy_clpr':'935'},
+              'output2':[{'stck_bsop_date':'20261029','stck_cntg_hour':'300000','futs_prpr':'932.10'}]}
+        value=night_observation(data,'A01612',datetime(2026,10,30,8,tzinfo=KST),night_market=True)
+        self.assertEqual(value.as_of,'2026-10-30T06:00:00+09:00')
+        self.assertEqual(value.previous,D('935'))
 
     def test_requested_month_missing_does_not_silently_use_another_contract(self):
         adapter=KISNightFutures(Mock(),now=lambda:datetime(2026,10,30,8,tzinfo=KST),contract='202612')
