@@ -43,6 +43,8 @@ class StockCommandTests(unittest.TestCase):
         self.assertNotIn('!수익률', text)
         self.assertNotIn('!평단', text)
         self.assertNotIn('!투자', text)
+        self.assertIn('예: !주가 넵튠 / !주가 삼전 / !주가 NVDA', text)
+        self.assertIn('!보유 — 보유 종목 목록', text)
         self.assertIn('!실현 [종목명/티커]', text)
         self.assertIn('보유 · 평가 및 실현 · 손익 종목은 정달봄의 실제 거래 기록입니다.', text)
 
