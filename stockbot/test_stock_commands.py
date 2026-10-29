@@ -38,16 +38,17 @@ class StockCommandTests(unittest.TestCase):
         self.assertEqual(text.count('\u200b'), 4000)
         for section in ('주가 · 시세', '보유 · 평가', '실현 · 손익'):
             self.assertIn('━━━━ ' + section + ' ━━━━', text)
-        for command in ('!주가', '!보유', '!평단', '!실현'):
+        for command in ('!주가', '!보유', '!실현'):
             self.assertIn(command, text)
         self.assertNotIn('!수익률', text)
+        self.assertNotIn('!평단', text)
         self.assertNotIn('!투자', text)
         self.assertIn('!실현 [종목명/티커]', text)
         self.assertIn('보유 · 평가 및 실현 · 손익 종목은 정달봄의 실제 거래 기록입니다.', text)
 
     def test_removed_commands_do_not_query_or_send(self):
         with patch.object(stock_commands.SERVICE,'reply') as quote, patch.object(stock_commands.PORTFOLIO,'reply') as portfolio, patch.object(stock_commands.requests,'post') as post:
-            for command in ('!투자', '!수익률', '!수익률 삼성전자'):
+            for command in ('!투자', '!수익률', '!수익률 삼성전자', '!평단', '!평단 롯데쇼핑'):
                 self.assertIsNone(stock_commands.handle(command,'room','http://local/reply'))
         quote.assert_not_called(); portfolio.assert_not_called(); post.assert_not_called()
 

@@ -26,9 +26,9 @@ class PortfolioTests(unittest.TestCase):
         data['holdings'][0].update(return_pct='-4.92257686628113218442957671', average_at='2026-10-28T22:01:19Z')
         service = PortfolioService(lambda: data, quote_loader=lambda ticker,currency:dict(price='100',change='1',percent='1.01',fetched_at='2026-10-29T16:00:00Z'))
         expected = '[가상회사]\n✔️ 평균 매입가: 1,234.5원\n✔️ 수익률: -4.92%\n✔️ 현재가: 100원\n✔️ 전일대비: +1원 (▲1.01%)\n\n갱신 일자: 2026-10-29\n시세 기준: 2026-10-30'
-        self.assertEqual(service.reply('평단', '가상회사'), expected)
+        self.assertEqual(service.reply('보유', '가상회사'), expected)
         self.assertEqual(service.reply('실현', '가상회사'), '[실현 수익률]\n· 가상회사: ▼2.30%\n\n최종 거래일 : 미확인\n갱신 일자: 2026-10-29')
-        for command in ('평단', '실현'):
+        for command in ('보유', '실현'):
             text = service.reply(command, '가상회사')
             for hidden in ('가상계좌', '평가손익', '실현손익', '자료 갱신', '보유 수집', '가상기간', '+00:00'):
                 self.assertNotIn(hidden, text)
@@ -36,10 +36,10 @@ class PortfolioTests(unittest.TestCase):
     def test_commands_use_exported_values_and_timestamp(self):
         s = PortfolioService(snapshot)
         self.assertIn('가상회사(000001)', s.reply('보유'))
-        self.assertIn('1,234.5원', s.reply('평단', '가상회사'))
-        self.assertIn('10.12 USD', s.reply('평단', 'FAKE'))
-        self.assertIn('4.05%', s.reply('평단', '가상회사'))
-        self.assertIn('미확인', s.reply('평단', 'FAKE'))
+        self.assertIn('1,234.5원', s.reply('보유', '가상회사'))
+        self.assertIn('10.12 USD', s.reply('보유', 'FAKE'))
+        self.assertIn('4.05%', s.reply('보유', '가상회사'))
+        self.assertIn('미확인', s.reply('보유', 'FAKE'))
         self.assertIn('가상회사(000001)', s.reply('실현'))
         text = s.reply('실현', '가상회사')
         for expected in ('▼2.30%', '갱신 일자: 2026-10-29'):
@@ -48,19 +48,19 @@ class PortfolioTests(unittest.TestCase):
     def test_no_aggregation_of_different_accounts_or_periods(self):
         data = snapshot()
         data['holdings'].append(dict(data['holdings'][0], account='다른계좌', average='99'))
-        text = PortfolioService(lambda: data).reply('평단', '가상회사')
+        text = PortfolioService(lambda: data).reply('보유', '가상회사')
         self.assertIn('1,234.5원', text)
         self.assertIn('99원', text)
 
     def test_usage_missing_data_ambiguity_and_errors(self):
         loader = Mock(side_effect=RuntimeError('secret-token'))
         s = PortfolioService(loader)
-        self.assertIn('사용법', s.reply('평단'))
+        self.assertIn('지원하지 않는', s.reply('평단'))
         loader.assert_not_called()
         self.assertNotIn('secret-token', s.reply('보유'))
         s = PortfolioService(snapshot)
-        self.assertIn('없습니다', s.reply('평단', '없는회사'))
-        self.assertIn('정확한', s.reply('평단', '가상'))
+        self.assertIn('없습니다', s.reply('보유', '없는회사'))
+        self.assertIn('정확한', s.reply('보유', '가상'))
 
     def test_cache_expires_and_does_not_serve_stale_on_failure(self):
         clock = [0]
@@ -74,7 +74,7 @@ class PortfolioTests(unittest.TestCase):
     def test_routing_all_rooms_without_real_chat_send(self):
         class Inline:
             def submit(self, fn): fn()
-        for command in ('!보유', '!평단 가상회사', '!실현', '!실현 가상회사'):
+        for command in ('!보유', '!보유 가상회사', '!실현', '!실현 가상회사'):
             with patch.object(stock_commands, 'EXECUTOR', Inline()), patch.object(stock_commands.PORTFOLIO, 'reply', return_value='fixture') as reply, patch.object(stock_commands.requests, 'post') as post:
                 self.assertEqual(stock_commands.handle(command, 'any-room', 'http://local/reply')[1], 200)
                 self.assertEqual(post.call_args.kwargs['json']['room'], 'any-room')

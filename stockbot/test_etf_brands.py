@@ -56,7 +56,7 @@ class ETFBrandTests(unittest.TestCase):
                   holdings=[dict(name='KODEX 200',ticker='KRX:069500',currency='KRW',average='100')],
                   realized=[dict(name='KODEX 200',return_pct='1',last_trade_date='03.27.')])
         service=PortfolioService(lambda:data)
-        self.assertIn('[KODEX 200]',service.reply('평단','코덱스200'))
+        self.assertIn('[KODEX 200]',service.reply('보유','코덱스200'))
         self.assertIn('KODEX 200: ▲1.00%',service.reply('실현','코덱스200'))
 
 

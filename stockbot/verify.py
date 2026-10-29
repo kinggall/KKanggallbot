@@ -13,12 +13,14 @@ def main():
                                  ticker_lookup=service.ticker_for_name)
     try:
         data = portfolio.snapshot()
-        for command in ('보유', '평단', '실현'):
+        for command in ('보유', '실현'):
             rows = data['realized' if command == '실현' else 'holdings']
             arguments = '' if command in ('보유', '실현') else rows[0]['name'] if rows else ''
             reply = portfolio.reply(command, arguments)
             if '읽지 못했습니다' in reply:
                 raise ValueError('render failed')
+        if data['holdings'] and '읽지 못했습니다' in portfolio.reply('보유', data['holdings'][0]['name']):
+            raise ValueError('position render failed')
         print('Domino JSON and private command rendering: OK (values hidden)')
     except Exception as error:
         failed = True

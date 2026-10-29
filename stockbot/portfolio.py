@@ -193,10 +193,8 @@ class PortfolioService:
             return data
 
     def reply(self, command, keyword=''):
-        if command not in ('보유', '평단', '실현'):
+        if command not in ('보유', '실현'):
             return '지원하지 않는 자산 명령어입니다.'
-        if command == '평단' and not keyword.strip():
-            return '사용법: !평단 [종목명/티커]'
         try:
             data = self.snapshot()
             rows = data['realized' if command == '실현' else 'holdings']
@@ -227,9 +225,9 @@ class PortfolioService:
                     return '정확한 종목명을 입력해 주세요.\n' + '\n'.join('· ' + n for n in names)
                 rows = matches
             if command == '보유':
+                if key:
+                    return self.position_text(rows, data)
                 return self.holdings_text(rows, data['generated_at'])
-            if command == '평단':
-                return self.position_text(rows, data)
             if not key:
                 return self.realized_list(rows, data)
             lines = ['[실현 수익률]']

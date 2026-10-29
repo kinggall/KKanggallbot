@@ -22,7 +22,7 @@ INVESTMENT_HELP = (
     "예: !주가 삼전 / !주가 애플 / !주가 DRAM\n\n"
     "━━━━ 보유 · 평가 ━━━━\n"
     "!보유 — 보유종목 목록\n"
-    "!평단 [종목명/티커] — 평균 매입가\n\n"
+    "!보유 [종목명/티커] — 평균 매입가·수익률·현재가\n\n"
     "━━━━ 실현 · 손익 ━━━━\n"
     "!실현 — 실현 종목 목록\n"
     "!실현 [종목명/티커] — 실현 수익률\n\n"
@@ -35,7 +35,7 @@ def handle(message, chat_id, reply_url):
     """Route investment commands without registering them in the main help list."""
     match = re.fullmatch(r'!주가(?:\s+(.*))?', message)
     investment_help = message.strip() == '!주갤'
-    private = re.fullmatch(r'!(보유|평단|실현)(?:\s+(.*))?', message)
+    private = re.fullmatch(r'!(보유|실현)(?:\s+(.*))?', message)
     if not match and not investment_help and not private:
         return None
     if chat_id is None or str(chat_id) == '':

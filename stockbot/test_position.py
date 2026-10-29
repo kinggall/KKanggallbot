@@ -14,10 +14,24 @@ def snapshot():
 
 
 class PositionTests(unittest.TestCase):
+    def test_bare_holdings_lists_and_keyword_holdings_shows_position(self):
+        quote=Mock(return_value=dict(price='101',change='1',percent='1',fetched_at='2026-10-29'))
+        service=PortfolioService(snapshot,quote_loader=quote)
+        text=service.reply('보유')
+        self.assertTrue(text.startswith('[보유종목]'))
+        self.assertIn('가상회사(000001)',text)
+        self.assertNotIn('평균 매입가',text)
+        quote.assert_not_called()
+        text=service.reply('보유','가상회사')
+        self.assertTrue(text.startswith('[가상회사]'))
+        for label in ('평균 매입가','수익률','현재가','전일대비'):
+            self.assertIn('✔️ '+label+':',text)
+        quote.assert_called_once_with('KRX:000001','KRW')
+
     def test_live_price_and_change_share_one_quote_but_domino_return_is_preserved(self):
         quote=Mock(return_value=dict(price=Decimal('101'),change=Decimal('-2'),percent=Decimal('-1.9417'),fetched_at='2026-10-29T11:01:00Z'))
         service=PortfolioService(snapshot,quote_loader=quote)
-        text=service.reply('평단','가상회사')
+        text=service.reply('보유','가상회사')
         self.assertIn('평균 매입가: 120원',text)
         self.assertIn('수익률: -16.67%',text)
         self.assertIn('현재가: 101원',text)
@@ -27,7 +41,7 @@ class PositionTests(unittest.TestCase):
 
     def test_price_failure_falls_back_to_snapshot_without_making_up_change(self):
         service=PortfolioService(snapshot,quote_loader=Mock(side_effect=OSError('secret-token')))
-        text=service.reply('평단','가상회사')
+        text=service.reply('보유','가상회사')
         self.assertIn('현재가: 100원',text)
         self.assertIn('전일대비: 미확인',text)
         self.assertNotIn('secret-token',text)
@@ -36,9 +50,9 @@ class PositionTests(unittest.TestCase):
         data=snapshot(); data['holdings'][0].update(name='삼성전자',ticker='KRX:005930')
         quote=Mock(return_value={})
         service=PortfolioService(lambda:data,quote_loader=quote)
-        self.assertIn('[삼성전자]',service.reply('평단','삼전'))
+        self.assertIn('[삼성전자]',service.reply('보유','삼전'))
         quote.reset_mock()
-        self.assertIn('없습니다',service.reply('평단','없는회사'))
+        self.assertIn('없습니다',service.reply('보유','없는회사'))
         quote.assert_not_called()
 
     def test_structured_domestic_details_validate_and_cache(self):
