@@ -4,6 +4,9 @@ import tempfile
 from pathlib import Path
 import unittest
 import importlib.util
+import io
+from contextlib import redirect_stdout
+from unittest.mock import Mock, patch
 
 _spec = importlib.util.spec_from_file_location('stockbot_drive_test_support', Path(__file__).resolve().parents[1] / 'tests/test_drive_sync.py')
 _support = importlib.util.module_from_spec(_spec)
@@ -94,9 +97,63 @@ class StockbotSyncTests(unittest.TestCase):
         self.assertEqual(self.run_git(pc_repo,'rev-parse','origin/main'),self.first)
         self.assertEqual(self.run_git(pc_repo,'rev-parse','FETCH_HEAD'),revision)
         watcher=(Path(__file__).resolve().parents[1]/'watch_bot.ps1').read_text()
-        self.assertIn('rev-parse --verify FETCH_HEAD',watcher)
+        self.assertIn('--no-write-fetch-head',watcher)
+        self.assertIn('refs/kakaobot/bot-watch/',watcher)
+        self.assertNotIn('rev-parse --verify FETCH_HEAD',watcher)
         self.assertNotIn('rev-parse "origin/$Branch"',watcher)
         self.assertIn('Local code updated by sync.',watcher)
+
+    def test_fetch_does_not_depend_on_or_modify_shared_fetch_head(self):
+        pc_repo=self.pc/'KKanggallbot'
+        self.run_git(pc_repo,'config','--replace-all','remote.origin.fetch','+HEAD:refs/remotes/origin/HEAD')
+        revision=self.release()
+        shared=pc_repo/'.git/FETCH_HEAD'
+        shared.write_text('not a valid revision\n')
+        self.assertEqual(sync.fetch_main(self.pc),revision)
+        self.assertEqual(shared.read_text(),'not a valid revision\n')
+        self.assertEqual(self.run_git(pc_repo,'for-each-ref','--format=%(refname)','refs/kakaobot/drive-sync/'),'')
+        self.assertEqual(self.run_git(pc_repo,'rev-parse','origin/main'),self.first)
+
+    def test_missing_private_ref_becomes_safe_retry_error(self):
+        calls=[]
+        def fake_git(root,*args,**kwargs):
+            calls.append(args)
+            return Mock(returncode=128 if args[0]=='rev-parse' else 0,stdout=b'',stderr=b'private-secret')
+        with patch.object(sync,'git',side_effect=fake_git):
+            with self.assertRaisesRegex(sync.GitSyncError,'revision unavailable') as error:
+                sync.fetch_main(self.pc)
+        self.assertNotIn('private-secret',str(error.exception))
+        self.assertEqual(calls[-1][0],'update-ref')
+
+    def test_failed_fetch_never_reads_old_or_shared_revision(self):
+        calls=[]
+        def fake_git(root,*args,**kwargs):
+            calls.append(args)
+            return Mock(returncode=128 if args[0]=='fetch' else 0,stdout=b'',stderr=b'private-secret')
+        with patch.object(sync,'git',side_effect=fake_git):
+            with self.assertRaisesRegex(sync.GitSyncError,'fetch failed'):
+                sync.fetch_main(self.pc)
+        self.assertFalse(any(c[0]=='rev-parse' for c in calls))
+
+    def test_fetch_timeout_is_controlled_and_does_not_leak_command(self):
+        with patch.object(sync,'git',side_effect=subprocess.TimeoutExpired(['git','private-secret'],60)):
+            with self.assertRaisesRegex(sync.GitSyncError,'timed out') as error:
+                sync.fetch_main(self.pc)
+        self.assertNotIn('private-secret',str(error.exception))
+
+    def test_watch_recovers_from_git_timeout_exit_and_local_os_error(self):
+        errors=[subprocess.CalledProcessError(128,['git','private-secret'],stderr=b'private-secret'),
+                subprocess.TimeoutExpired(['git','private-secret'],60),
+                OSError('private-secret'), sync.GitSyncError('Git fetch failed; retry later.')]
+        for error in errors:
+            with self.subTest(error=type(error).__name__):
+                log=io.StringIO()
+                with patch.object(sync,'pull',side_effect=[error,None]) as pull, patch.object(sync.time,'sleep',side_effect=[None,KeyboardInterrupt]) as sleep, redirect_stdout(log):
+                    with self.assertRaises(KeyboardInterrupt):
+                        sync.watch(self.drive,self.pc,self.pc/'.drive-sync/state.json',120)
+                self.assertEqual(pull.call_count,2)
+                self.assertNotIn('private-secret',log.getvalue())
+                self.assertTrue(all(call.args==(120,) for call in sleep.call_args_list))
 
     def test_unpushed_commit_is_not_published_to_drive(self):
         (self.repo/'stockbot/main.py').write_text('version = 3\n')

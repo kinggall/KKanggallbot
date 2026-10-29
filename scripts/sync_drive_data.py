@@ -32,7 +32,34 @@ def stock_code(name):
 
 def git(root, *arguments, check=True):
     return subprocess.run(['git', '-C', str(Path(root)/'KKanggallbot'), *arguments],
-                          capture_output=True, check=check)
+                          capture_output=True, check=check, timeout=60)
+
+
+class GitSyncError(RuntimeError):
+    """Controlled Git diagnostic without provider output or credential URLs."""
+
+
+def fetch_main(root):
+    # FETCH_HEAD is shared mutable state: another watcher can truncate it.
+    # Each fetch owns a private ref and does not read or write FETCH_HEAD.
+    ref = 'refs/kakaobot/drive-sync/' + uuid.uuid4().hex
+    try:
+        result = git(root, 'fetch', '--quiet', '--no-write-fetch-head', 'origin',
+                     '+refs/heads/main:' + ref, check=False)
+        if result.returncode:
+            raise GitSyncError('Git fetch failed (exit ' + str(result.returncode) + '); retry later.')
+        result = git(root, 'rev-parse', '--verify', ref + '^{commit}', check=False)
+        revision = result.stdout.decode('ascii', errors='ignore').strip()
+        if result.returncode or len(revision) not in (40, 64) or any(c not in '0123456789abcdef' for c in revision):
+            raise GitSyncError('Git fetched revision unavailable; retry later.')
+        return revision
+    except (subprocess.SubprocessError, OSError):
+        raise GitSyncError('Git unavailable or timed out; retry later.') from None
+    finally:
+        try:
+            git(root, 'update-ref', '-d', ref, check=False)
+        except (subprocess.SubprocessError, OSError):
+            pass  # An unused temporary ref is safer than deleting other refs.
 
 def git_hash(root, revision, name):
     blob=git(root,'show',revision+':'+name.removeprefix('KKanggallbot/'),check=False)
@@ -321,9 +348,7 @@ def push(drive, root, state_path, includes, bootstrap=False):
     publishing_stock = 'KKanggallbot/stockbot' in includes and any(stock_code(n) for n in files)
     stock_commit = git(root,'rev-parse','HEAD').stdout.decode().strip() if publishing_stock else (remote or {}).get('stockbot_commit')
     if publishing_stock:
-        if git(root,'fetch','--quiet','origin','main',check=False).returncode:
-            raise RuntimeError('Verify GitHub before publishing stockbot to Drive')
-        fetched=git(root,'rev-parse','FETCH_HEAD').stdout.decode().strip()
+        fetched = fetch_main(root)
         if git(root,'merge-base','--is-ancestor',stock_commit,fetched,check=False).returncode:
             raise RuntimeError('Push stockbot commit to GitHub main before Drive sync')
         previous=(remote or {}).get('stockbot_commit')
@@ -397,9 +422,7 @@ def stock_sync_plan(root, remote):
     target=remote.get('stockbot_commit','')
     if remote.get('schema')!=3 or len(target)!=40 or any(c not in '0123456789abcdef' for c in target):
         raise RuntimeError('Missing stockbot Git release identity')
-    if git(root,'fetch','--quiet','origin','main',check=False).returncode:
-        raise RuntimeError('Cannot verify stockbot GitHub release; existing code was not changed')
-    fetched=git(root,'rev-parse','FETCH_HEAD').stdout.decode().strip()
+    fetched = fetch_main(root)
     if git(root,'merge-base','--is-ancestor',target,fetched,check=False).returncode:
         raise RuntimeError('Drive stockbot commit is not in GitHub main')
     expected={'KKanggallbot/'+n for n in git(root,'ls-tree','-r','--name-only',target,'--','stockbot').stdout.decode().splitlines()
@@ -486,6 +509,24 @@ def pull(drive, root, state_path):
     print(f'Synced {len(changed)} changed files. ZIP downloads: 0.', flush=True)
 
 
+def watch(drive, root, state, interval):
+    while True:
+        try:
+            pull(drive, root, state)
+        except GitSyncError as exc:
+            print(str(exc), flush=True)
+        except subprocess.SubprocessError as exc:
+            # CalledProcessError/TimeoutExpired may include secrets in command,
+            # stdout or stderr. Only emit their controlled category/exit code.
+            code = exc.returncode if isinstance(exc, subprocess.CalledProcessError) else 'timeout'
+            print(f'Git operation failed ({code}). Sync will retry; no forced overwrite.', flush=True)
+        except OSError:
+            print('Local file or process unavailable. Sync will retry; no forced overwrite.', flush=True)
+        except (RuntimeError, ValueError, requests.RequestException):
+            print('Sync failed or local conflict. Run pull once to inspect; retry later.', flush=True)
+        time.sleep(max(30, interval))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['plan', 'bootstrap', 'adopt-files', 'pull', 'push', 'watch'])
@@ -513,19 +554,18 @@ def main():
     elif args.action == 'pull':
         pull(drive, root, state)
     else:
-        while True:
-            try:
-                pull(drive, root, state)
-            except (RuntimeError, ValueError, requests.RequestException):
-                print('Sync failed or local conflict. Run pull once to inspect; retry later.', flush=True)
-            time.sleep(max(30, args.interval))
+        watch(drive, root, state, args.interval)
 
 
 if __name__ == '__main__':
     try:
         main()
-    except (RuntimeError, ValueError, requests.RequestException) as exc:
+    except (RuntimeError, ValueError, requests.RequestException, subprocess.SubprocessError, OSError) as exc:
         # HTTP exceptions may contain credentials: never print their request/response bodies.
         if isinstance(exc, requests.RequestException):
             raise SystemExit('Network request failed; credentials were not logged.')
+        if isinstance(exc, subprocess.SubprocessError):
+            raise SystemExit('Git operation failed or timed out; credentials were not logged.')
+        if isinstance(exc, OSError):
+            raise SystemExit('Local file or process unavailable; existing files were not forcibly overwritten.')
         raise SystemExit(str(exc))

@@ -91,17 +91,21 @@ function Start-Bot {
 }
 
 function Get-LatestRemoteCommit {
-    # A narrow/nonstandard remote.origin.fetch may leave origin/main stale.
-    # FETCH_HEAD is the result of this explicit branch fetch, independent of
-    # that configuration. Do not reset the user's refspec or local changes.
+    # Private per-fetch refs avoid racing Drive sync or any other fetch.
+    # Never read/write FETCH_HEAD or depend on a configured tracking refspec.
+    $fetchRef = "refs/kakaobot/bot-watch/$([Guid]::NewGuid().ToString('N'))"
     try {
-        & git -C $RepoPath fetch --quiet origin $Branch | Out-Null
+        & git -C $RepoPath fetch --quiet --no-write-fetch-head origin "+refs/heads/${Branch}:$fetchRef" | Out-Null
         if ($LASTEXITCODE -ne 0) { return $null }
-        $revision = & git -C $RepoPath rev-parse --verify FETCH_HEAD
+        $revision = & git -C $RepoPath rev-parse --verify "$fetchRef^{commit}"
         if ($LASTEXITCODE -ne 0 -or -not $revision) { return $null }
         return $revision.Trim()
     }
     catch { return $null }
+    finally {
+        try { & git -C $RepoPath update-ref -d $fetchRef 2>$null | Out-Null }
+        catch { } # Keep the existing bot running if temporary-ref cleanup fails.
+    }
 }
 
 if (-not (Test-Path $PythonPath)) {
