@@ -19,12 +19,24 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 
 DEFAULT_INCLUDES = ['KKanggallbot/guide_cache', 'pictures', 'KKanggallbot/data',
-                    'KakaoBot_사용방법.txt']
+                    'KakaoBot_사용방법.txt', 'KKanggallbot/stockbot']
 BLOCKED_PARTS = {'.git', '.venv', 'venv', '__pycache__', '.drive-sync', 'logs',
                  'node_modules', '.aws', '.ssh', '.codex'}
 BLOCKED_NAMES = {'token.json', 'credentials.json', 'client_secret.json'}
 API = 'https://www.googleapis.com/drive/v3/files'
 HEAD_NAME = 'kakaobot-data-head.json'
+STOCK_PREFIX = 'KKanggallbot/stockbot/'
+
+def stock_code(name):
+    return name.startswith(STOCK_PREFIX) and PurePosixPath(name).suffix == '.py' and allowed(name)
+
+def git(root, *arguments, check=True):
+    return subprocess.run(['git', '-C', str(Path(root)/'KKanggallbot'), *arguments],
+                          capture_output=True, check=check)
+
+def git_hash(root, revision, name):
+    blob=git(root,'show',revision+':'+name.removeprefix('KKanggallbot/'),check=False)
+    return hashlib.sha256(blob.stdout).hexdigest() if blob.returncode==0 else None
 
 
 def digest(path):
@@ -69,7 +81,12 @@ def inventory(root, includes):
             if not path.resolve().is_relative_to(root.resolve()):
                 raise ValueError('Path escapes sync root')
             rel = path.relative_to(root).as_posix()
-            if allowed(rel) and rel not in tracked:
+            if rel.startswith(STOCK_PREFIX):
+                if rel not in tracked or not stock_code(rel):continue
+                if digest(path)!=git_hash(root,'HEAD',rel):
+                    raise RuntimeError('Commit stockbot changes before publishing: '+rel)
+                found[rel]=digest(path)
+            elif allowed(rel) and rel not in tracked:
                 found[rel] = digest(path)
     return found
 
@@ -179,6 +196,8 @@ class Drive:
 
 def read_state(path):
     return json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+
+
 
 
 def write_json(path, obj):
@@ -292,16 +311,29 @@ def push(drive, root, state_path, includes, bootstrap=False):
     state = read_state(state_path)
     if bootstrap and remote:
         raise RuntimeError('Drive already initialized. Use adopt-files for existing folders.')
-    if not bootstrap and (not remote or remote.get('schema') != 2 or
+    if not bootstrap and (not remote or remote.get('schema') not in (2,3) or
                           state.get('revision') != remote['revision']):
         raise RuntimeError('Pull the latest individual-file index before pushing.')
     files = inventory(root, includes)
     if not files:
         raise RuntimeError('No data files found')
     indexed = dict((remote or {}).get('files', {}))
+    publishing_stock = 'KKanggallbot/stockbot' in includes and any(stock_code(n) for n in files)
+    stock_commit = git(root,'rev-parse','HEAD').stdout.decode().strip() if publishing_stock else (remote or {}).get('stockbot_commit')
+    if publishing_stock:
+        if git(root,'fetch','--quiet','origin','main',check=False).returncode:
+            raise RuntimeError('Verify GitHub before publishing stockbot to Drive')
+        fetched=git(root,'rev-parse','FETCH_HEAD').stdout.decode().strip()
+        if git(root,'merge-base','--is-ancestor',stock_commit,fetched,check=False).returncode:
+            raise RuntimeError('Push stockbot commit to GitHub main before Drive sync')
+        previous=(remote or {}).get('stockbot_commit')
+        if previous and git(root,'merge-base','--is-ancestor',previous,stock_commit,check=False).returncode:
+            raise RuntimeError('Older stockbot checkout cannot replace a newer Drive release')
+    removed_stock = [n for n in indexed if stock_code(n) and publishing_stock and n not in files]
+    for name in removed_stock:del indexed[name]
     folders = dict((remote or {}).get('folders', {'': drive.folder}))
     changed = [n for n, h in files.items() if checksum(indexed.get(n)) != h]
-    if not changed:
+    if not changed and not removed_stock and stock_commit == (remote or {}).get('stockbot_commit'):
         print('No data changes. Uploaded 0 files.', flush=True)
         return
     for i, name in enumerate(changed, 1):
@@ -351,10 +383,41 @@ def push(drive, root, state_path, includes, bootstrap=False):
     _, latest = drive.head()
     if (latest or {}).get('revision') != (remote or {}).get('revision'):
         raise RuntimeError('Another publisher changed the index; review before continuing')
-    head = {'schema': 2, 'revision': uuid.uuid4().hex, 'files': indexed,
+    head = {'schema': 3 if stock_commit else 2, 'revision': uuid.uuid4().hex, 'files': indexed,
             'includes': includes, 'folders': folders}
+    if stock_commit:head['stockbot_commit']=stock_commit
     publish_index(drive, head_id, head, state_path)
     print(f'Published {len(changed)} changed files. No ZIP created.', flush=True)
+
+
+def stock_sync_plan(root, remote):
+    names=[n for n in remote['files'] if n.startswith(STOCK_PREFIX)]
+    if not names:return None
+    if any(not stock_code(n) for n in names):raise RuntimeError('Non-code or excluded stockbot file in index')
+    target=remote.get('stockbot_commit','')
+    if remote.get('schema')!=3 or len(target)!=40 or any(c not in '0123456789abcdef' for c in target):
+        raise RuntimeError('Missing stockbot Git release identity')
+    if git(root,'fetch','--quiet','origin','main',check=False).returncode:
+        raise RuntimeError('Cannot verify stockbot GitHub release; existing code was not changed')
+    fetched=git(root,'rev-parse','FETCH_HEAD').stdout.decode().strip()
+    if git(root,'merge-base','--is-ancestor',target,fetched,check=False).returncode:
+        raise RuntimeError('Drive stockbot commit is not in GitHub main')
+    expected={'KKanggallbot/'+n for n in git(root,'ls-tree','-r','--name-only',target,'--','stockbot').stdout.decode().splitlines()
+              if stock_code('KKanggallbot/'+n)}
+    if expected!=set(names):raise RuntimeError('Incomplete stockbot package in Drive release')
+    for name in names:
+        if git_hash(root,target,name)!=remote['files'][name]['sha256']:
+            raise RuntimeError('Drive stockbot code differs from GitHub commit: '+name)
+    current=git(root,'rev-parse','HEAD').stdout.decode().strip()
+    if git(root,'diff','--quiet','HEAD','--','stockbot',check=False).returncode:
+        raise RuntimeError('Local stockbot edits detected; not overwriting')
+    if git(root,'merge-base','--is-ancestor',target,current,check=False).returncode==0:
+        return {'skip':set(names),'advance':False}
+    if git(root,'merge-base','--is-ancestor',current,target,check=False).returncode:
+        raise RuntimeError('PC Git history diverged; manual review required')
+    if git(root,'diff','--quiet','HEAD',check=False).returncode:
+        raise RuntimeError('Local Git edits detected; not updating stockbot release')
+    return {'skip':set(),'advance':True,'current':current,'target':target,'names':names}
 
 
 def pull(drive, root, state_path):
@@ -362,21 +425,23 @@ def pull(drive, root, state_path):
     if not remote:
         print('Waiting for initial data index.', flush=True)
         return
-    if remote.get('schema') != 2:
+    if remote.get('schema') not in (2,3):
         raise RuntimeError('ZIP index found. Run adopt-files in the cloud before starting file sync.')
     state = read_state(state_path)
+    code_plan=stock_sync_plan(root,remote)
     changed = []
     observed = {}
     for name, item in remote['files'].items():
         if not allowed(name):
             raise RuntimeError('Excluded file in index')
+        if code_plan and name in code_plan['skip']:continue
         path = root / name
         if not path.resolve().is_relative_to(root.resolve()):
             raise RuntimeError('Destination escapes sync root')
         actual = digest(path) if path.exists() else None
         if actual == item['sha256']:
             continue
-        prior = checksum(state.get('files', {}).get(name))
+        prior = git_hash(root,'HEAD',name) if stock_code(name) else checksum(state.get('files', {}).get(name))
         if actual is not None and actual != prior:
             raise RuntimeError('Local edit conflicts with cloud: ' + name)
         changed.append(name)
@@ -400,7 +465,14 @@ def pull(drive, root, state_path):
             actual = digest(dest) if dest.exists() else None
             if actual != observed[name]:
                 raise RuntimeError('Local file changed during download: ' + name)
+        if code_plan and code_plan['advance']:
+            if git(root,'rev-parse','HEAD').stdout.decode().strip()!=code_plan['current']:
+                raise RuntimeError('PC Git version changed during sync; retry without overwriting')
+            if git(root,'merge','--ff-only',code_plan['target'],check=False).returncode:
+                raise RuntimeError('Cannot fast-forward PC to stockbot release; local files preserved')
+            print('Installed Drive-verified Git release: '+code_plan['target'][:7],flush=True)
         for name in changed:
+            if stock_code(name):continue  # Git installed the verified bytes and index together.
             dest = root / name
             if dest.exists():
                 backup = state_path.parent / 'backups' / remote['revision'] / name

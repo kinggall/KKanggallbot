@@ -6,7 +6,11 @@ Drive의 `KaKaobot` 폴더 아래에서 폴더 구조와 개별 파일을 그대
 
 PC 루트의 `KakaoBot_사용방법.txt`도 개별 파일로 동기화합니다. 재부팅 후 실행 순서는 이 파일에 있습니다.
 
-자료는 `KKanggallbot/guide_cache`, `pictures`, `KKanggallbot/data` 안의 Git 미추적 파일입니다. 코드는 기존 GitHub 감시 프로그램이 30초마다 갱신하며, 이중 덮어쓰기를 막기 위해 Git 추적 파일은 Drive 동기화에서 제외합니다. Drive에 사용자가 업로드한 코드 사본은 현재 실행 코드의 배포 경로가 아닙니다.
+자료는 `KKanggallbot/guide_cache`, `pictures`, `KKanggallbot/data` 안의 Git 미추적 파일입니다. 일반 코드는 GitHub 감시 프로그램이 30초마다 갱신합니다. **stockbot은 예외로 Git에 커밋한 Python 파일을 `KKanggallbot/stockbot` 원래 경로 그대로 Drive 개별 파일 동기화에 포함합니다.** 별도 백업 폴더·백업 명령을 쓰지 않습니다.
+
+주식봇 수정 순서: 코드 수정·검증 → GitHub 커밋/푸시 → 기존 `sync_drive_data.py push --root /workspace` → PC의 자료 감시가 다운로드·검증 → 같은 Git 커밋으로 fast-forward 적용. 코드와 Git 인덱스를 함께 갱신해 다음 Git pull이 로컬 변경 충돌로 막히지 않게 합니다. Git 감시가 먼저 최신 코드를 받은 경우에는 Drive가 이전 코드를 덮어쓰지 않습니다. PC가 새 커밋으로 바뀌면 봇 감시가 프로세스도 재시작합니다.
+
+stockbot 전송이 포함되면 목록은 schema 3이며 Git 커밋 ID·파일 해시를 함께 기록합니다. 구형 자료 감시 프로그램은 schema 3을 거부하므로 **최초 한 번 Git pull 후 자료 감시와 봇 감시를 모두 재시작**해야 합니다. 인증 파일·DB·캐시·미커밋 파일·심볼릭 링크는 주식봇 코드 전송에서 제외합니다. PC 로컬 코드 수정·이력 분기·Git/Drive 해시 불일치가 있으면 강제 덮어쓰기 대신 중단합니다.
 
 `/workspace`는 PC의 `C:\KakaoBot`에 대응합니다. 인증·가상환경·로그·Iris 빌드 폴더와 실행 상태는 동기화하지 않습니다. 현재 봇 운영은 계속 집 PC에서 합니다.
 
@@ -42,6 +46,9 @@ cd /workspace/KKanggallbot
 ```
 
 수정된 자료만 Drive의 기존 파일 ID로 갱신하며, 새 파일은 대응 폴더에 생성합니다. 목록만 함께 갱신합니다. 진행 로그에 파일별 업로드·다운로드 수가 표시됩니다. 코드는 별도로 GitHub에 반영합니다. 여러 작업에서 동시에 push하지 않습니다.
+
+주식봇만 게시할 때는 `push --root /workspace --include KKanggallbot/stockbot`도 가능합니다. 기존 다른 자료 항목은 보존됩니다. PC에서는 기존 `watch` 명령 그대로 사용하며 주식봇 폴더도 내려받습니다. 주식봇 코드 수정 후에는 GitHub 푸시로만 끝내지 말고 반드시 Drive push까지 실행합니다.
+GitHub main에 아직 푸시하지 않은 커밋과 Drive보다 오래된 커밋은 게시를 거부합니다. 코드 삭제는 승인된 Git 커밋의 fast-forward로 적용되며, Drive의 예전 물리 파일은 자동 삭제하지 않고 새 동기화 목록에서만 제외합니다.
 
 5MiB 이하의 일반 파일은 하나의 multipart 요청으로 전송하고 Drive가 반환한 MD5가 있으면 대조합니다. 목록 갱신 전에 전송이 중단돼도 이미 올라간 파일의 이름·크기·해시가 모두 같으면 재전송하지 않고 이어갑니다. 다른 내용의 동명 파일은 자동 덮어쓰지 않습니다. 오류에는 HTTP 상태와 Google의 오류 분류만 표시하며 인증 응답 원문은 출력하지 않습니다.
 

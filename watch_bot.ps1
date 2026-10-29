@@ -11,6 +11,7 @@ $CheckIntervalSeconds = 30
 $LogPath = Join-Path $ParentPath "logs"
 $BotProcess = $null
 $FailedCommit = $null
+$RunningCommit = $null
 
 # Only one watcher may manage this checkout. A second watcher must not kill
 # the first watcher's bot or race it during an update.
@@ -73,6 +74,7 @@ function Stop-Bot {
 }
 
 function Start-Bot {
+    $script:RunningCommit = (& git -C $RepoPath rev-parse HEAD).Trim()
     $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
     $stdout = Join-Path $LogPath "bot-$stamp.out.log"
     $stderr = Join-Path $LogPath "bot-$stamp.err.log"
@@ -88,6 +90,20 @@ function Start-Bot {
     return $process
 }
 
+function Get-LatestRemoteCommit {
+    # A narrow/nonstandard remote.origin.fetch may leave origin/main stale.
+    # FETCH_HEAD is the result of this explicit branch fetch, independent of
+    # that configuration. Do not reset the user's refspec or local changes.
+    try {
+        & git -C $RepoPath fetch --quiet origin $Branch | Out-Null
+        if ($LASTEXITCODE -ne 0) { return $null }
+        $revision = & git -C $RepoPath rev-parse --verify FETCH_HEAD
+        if ($LASTEXITCODE -ne 0 -or -not $revision) { return $null }
+        return $revision.Trim()
+    }
+    catch { return $null }
+}
+
 if (-not (Test-Path $PythonPath)) {
     throw "Python 가상환경을 찾을 수 없습니다: $PythonPath"
 }
@@ -99,12 +115,12 @@ New-Item -ItemType Directory -Force -Path $LogPath | Out-Null
 Remove-DuplicateBots
 
 Write-Host "Checking GitHub main branch..."
-& git -C $RepoPath fetch --quiet origin $Branch
-if ($LASTEXITCODE -ne 0) {
+$remoteCommit = Get-LatestRemoteCommit
+if (-not $remoteCommit) {
     throw "GitHub에서 최신 버전을 확인하지 못했습니다."
 }
 $localCommit = (& git -C $RepoPath rev-parse HEAD).Trim()
-$remoteCommit = (& git -C $RepoPath rev-parse "origin/$Branch").Trim()
+Write-Host "Watching $RepoPath ($Branch, every $CheckIntervalSeconds seconds)."
 if ($localCommit -ne $remoteCommit) {
     & git -C $RepoPath pull --ff-only origin $Branch
     if ($LASTEXITCODE -ne 0) {
@@ -119,10 +135,9 @@ try {
 
         Remove-DuplicateBots
 
-        & git -C $RepoPath fetch --quiet origin $Branch
-        if ($LASTEXITCODE -eq 0) {
+        $remoteCommit = Get-LatestRemoteCommit
+        if ($remoteCommit) {
             $localCommit = (& git -C $RepoPath rev-parse HEAD).Trim()
-            $remoteCommit = (& git -C $RepoPath rev-parse "origin/$Branch").Trim()
 
             if ($localCommit -ne $remoteCommit) {
                 Write-Host "New GitHub commit detected. Updating and restarting..."
@@ -141,6 +156,15 @@ try {
         }
         else {
             Write-Host "GitHub check failed; bot keeps running and will retry."
+        }
+
+        # Drive may fast-forward Git while installing a verified stockbot release.
+        # Restart even when HEAD already equals the just-fetched remote commit.
+        if ($null -ne $BotProcess -and $RunningCommit -ne (& git -C $RepoPath rev-parse HEAD).Trim()) {
+            Write-Host "Local code updated by sync. Restarting bot.py..."
+            Stop-Bot
+            $FailedCommit = $null
+            $BotProcess = Start-Bot
         }
 
         if ($null -ne $BotProcess) {
