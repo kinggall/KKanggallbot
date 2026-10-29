@@ -28,8 +28,14 @@ def main():
                 print(command+' / '+item.key+': FAILED ('+reason+')')
     if args.details:
         loader=MARKETS.provider.night_loader
+        for section,shape in getattr(loader,'public_yield_schema',{}).items():
+            print('KIS public schema:',section,shape)
         for row in getattr(loader,'public_yield_rows',[])[:50]:
             print('KIS public yield:',row)
+        for row in getattr(loader,'public_bond_candidates',[]):
+            print('KIS identified bond:',row)
+        for key,reason in getattr(loader,'public_yield_errors',{}).items():
+            print('KIS yield lookup:',key,reason)
     return 1 if failed else 0
 
 

@@ -13,7 +13,8 @@ BOARD='/uapi/domestic-futureoption/v1/quotations/display-board-futures'
 CHART='/uapi/domestic-futureoption/v1/quotations/inquire-time-fuopchartprice'
 INDEX='/uapi/domestic-stock/v1/quotations/inquire-index-price'
 INTEREST='/uapi/domestic-stock/v1/quotations/comp-interest'
-ENDPOINTS={BOARD:'FHPIF05030200',CHART:'FHKIF03020200',INDEX:'FHPUP02100000',INTEREST:'FHPST07020000'}
+YIELD_CHART='/uapi/overseas-price/v1/quotations/inquire-daily-chartprice'
+ENDPOINTS={BOARD:'FHPIF05030200',CHART:'FHKIF03020200',INDEX:'FHPUP02100000',INTEREST:'FHPST07020000',YIELD_CHART:'FHKST03030100'}
 HOSTS={'https://openapi.koreainvestment.com:9443','https://openapivts.koreainvestment.com:29443'}
 
 
@@ -159,11 +160,18 @@ class KISNightFutures:
                                    '한국투자증권')
 
     def yields(self):
-        from .kis_yields import parse_yields, public_rows
-        data=query(self.client_instance(),INTEREST,{'FID_COND_MRKT_DIV_CODE':'I',
-                   'FID_COND_SCR_DIV_CODE':'20702','FID_DIV_CLS_CODE':'1','FID_DIV_CLS_CODE1':''})
+        from .kis_yields import public_rows, public_schema, BondMaster, complete_yields
+        client=self.client_instance()
+        try:
+            data=query(client,INTEREST,{'FID_COND_MRKT_DIV_CODE':'I',
+                       'FID_COND_SCR_DIV_CODE':'20702','FID_DIV_CLS_CODE':'1','FID_DIV_CLS_CODE1':''})
+        except MarketDataError:data={}
         self.public_yield_rows=public_rows(data)
-        return parse_yields(data,self.now().astimezone(KST))
+        self.public_yield_schema=public_schema(data)
+        if not hasattr(self,'bond_master'):self.bond_master=BondMaster()
+        result,self.public_bond_candidates,self.public_yield_errors=complete_yields(
+            data,self.now().astimezone(KST),self.bond_master,lambda path,params:query(client,path,params))
+        return result
 
     def __call__(self):
         client=self.client_instance()
