@@ -22,7 +22,7 @@ def snapshot():
 class PortfolioTests(unittest.TestCase):
     def test_commands_use_exported_values_and_timestamp(self):
         s = PortfolioService(snapshot)
-        self.assertIn('2주', s.reply('보유'))
+        self.assertIn('가상회사(000001)', s.reply('보유'))
         self.assertIn('1,234.5원', s.reply('평단', '가상회사'))
         self.assertIn('10.12 USD', s.reply('평단', 'FAKE'))
         self.assertIn('4.05%', s.reply('수익률', '가상회사'))

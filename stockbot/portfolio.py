@@ -4,8 +4,10 @@ import os
 from pathlib import Path
 import threading
 import time
+from datetime import datetime
 
-from .stock_quotes import normalize, number
+from .stock_quotes import normalize, number, KST
+from .security_names import USSecurityNames
 
 FILE_ID = '1xclx9sD8c1Bh4mnrleGaJDToAsZG5UU6'
 
@@ -34,11 +36,38 @@ def display(value, suffix=''):
 
 
 class PortfolioService:
-    def __init__(self, loader=load_snapshot, monotonic=time.monotonic):
+    def __init__(self, loader=load_snapshot, monotonic=time.monotonic, name_loader=None):
         self.loader, self.monotonic = loader, monotonic
         self.lock = threading.Lock()
         self.cached = None
         self.loaded_at = 0
+        self.name_loader = name_loader if name_loader is not None else USSecurityNames()
+
+    def holdings_text(self, rows, generated_at):
+        lines, seen = ['[보유종목]'], set()
+        for row in rows:
+            symbol = str(row.get('ticker') or '').split(':')[-1].strip()
+            identity = (row.get('currency'), symbol or normalize(row['name']))
+            if identity in seen:
+                continue
+            seen.add(identity)
+            if row.get('currency') == 'USD':
+                symbol = symbol or row['name']
+                name = row['name']
+                if normalize(name) == normalize(symbol):
+                    name = self.name_loader(symbol)
+                lines.append(f'· {symbol}({name})')
+            else:
+                lines.append(f'· {row["name"]}({symbol or "코드 미확인"})')
+        if not rows:
+            lines.append('등록된 자료가 없습니다.')
+        try:
+            stamp = datetime.fromisoformat(generated_at.replace('Z', '+00:00'))
+            date = stamp.astimezone(KST).date().isoformat() if stamp.tzinfo else stamp.date().isoformat()
+        except (ValueError, TypeError):
+            date = '미확인'
+        lines.extend(['', '갱신 일자 : ' + date])
+        return '\n'.join(lines)
 
     def snapshot(self):
         with self.lock:
@@ -71,6 +100,8 @@ class PortfolioService:
                 if len(names) > 1:
                     return '정확한 종목명을 입력해 주세요.\n' + '\n'.join('· ' + n for n in names)
                 rows = matches
+            if command == '보유':
+                return self.holdings_text(rows, data['generated_at'])
             title = {'보유': '보유종목', '평단': '평균 매입가', '수익률': '보유 수익률', '실현': '실현 수익률'}[command]
             lines = [f'[{title}]']
             if not rows:
@@ -80,9 +111,7 @@ class PortfolioService:
                 unit = '원' if currency == 'KRW' else ' USD' if currency == 'USD' else ' ' + currency
                 account = ' [' + str(row['account']) + ']' if row.get('account') else ''
                 label = row['name'] + account
-                if command == '보유':
-                    value = display(row.get('quantity'), '주')
-                elif command == '평단':
+                if command == '평단':
                     value = display(row.get('average'), unit)
                     if row.get('average_at'):
                         value += ' (기준: ' + str(row['average_at']) + ')'
