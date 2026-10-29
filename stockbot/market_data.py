@@ -81,7 +81,7 @@ def format_line(item, observation):
         absolute = arrow + decimal_text(abs(delta),item.digits,item.trim) + change_unit
         percent = arrow + decimal_text(abs(delta / previous * 100),2) + '%' if previous != 0 else '증감률 미확인'
         changes = absolute + ', ' + percent
-    return item.label + ': ' + price + ' (' + changes + ')'
+    return item.label + ': ' + price + '\n   (' + changes + ')'
 
 
 class MarketProvider:
@@ -102,7 +102,8 @@ class MarketProvider:
             delay=.25-(time.monotonic()-self.last_request)
             if delay>0:time.sleep(delay)
             self.last_request=time.monotonic()
-        response=self.get(url,timeout=(3,7),headers={'User-Agent':'Mozilla/5.0 KKanggallbot'},**kwargs)
+        timeout=kwargs.pop('timeout',(3,7))
+        response=self.get(url,timeout=timeout,headers={'User-Agent':'Mozilla/5.0 KKanggallbot'},**kwargs)
         response.raise_for_status()
         return response
 
@@ -111,7 +112,11 @@ class MarketProvider:
         return response.json()
 
     def load(self,item):
-        if item.provider == 'yahoo': return self.yahoo(item)
+        if item.provider == 'yahoo':
+            if item.key in ('kospi','kosdaq') and hasattr(self.night_loader,'domestic_index'):
+                try:return self.night_loader.domestic_index(item)
+                except Exception:pass
+            return self.yahoo(item)
         if item.provider == 'upbit': return self.batch('coins',self.upbit,15)[item.key]
         if item.provider == 'treasury': return self.batch('treasury',self.treasury,600)[item.key]
         if item.provider == 'ecos': return self.ecos(item)
@@ -122,8 +127,15 @@ class MarketProvider:
     def batch(self,key,loader,ttl):
         with self.lock:
             cached=self.batches.get(key)
-            if cached and self.monotonic()-cached[0]<ttl:return cached[1]
-            data=loader()
+            if cached and self.monotonic()-cached[0]<(ttl if cached[1] is not None else 5):
+                if cached[1] is None:raise MarketDataError('Market batch temporarily unavailable')
+                return cached[1]
+            try:data=loader()
+            except Exception:
+                # A failed batch is shared too: do not repeat a slow four-tenor
+                # request four times in one verification/command.
+                self.batches[key]=(self.monotonic(),None)
+                raise
             self.batches[key]=(self.monotonic(),data)
             return data
 
@@ -161,10 +173,18 @@ class MarketProvider:
 
     def treasury(self):
         samples={y:[] for y in (2,5,10,30)}
-        year=self.now().year
-        for target_year in (year,year-1):
-            response=self.request('https://home.treasury.gov/resource-center-data-chart-center/interest-rates/pages/xml',
-                                  params={'data':'daily_treasury_yield_curve','field_tdr_date_value':target_year})
+        current=self.now().replace(day=1)
+        previous_month=current-timedelta(days=1)
+        # Monthly feeds are much smaller than the complete annual XML feed.
+        for month in (current,previous_month):
+            response=None
+            for attempt in range(2):
+                try:
+                    response=self.request('https://home.treasury.gov/resource-center-data-chart-center/interest-rates/pages/xml',
+                                          params={'data':'daily_treasury_yield_curve','field_tdr_date_value_month':month.strftime('%Y%m')},timeout=(5,30))
+                    break
+                except (requests.Timeout,requests.ConnectionError):
+                    if attempt:raise MarketDataError('US Treasury connection timed out') from None
             root=ET.fromstring(response.content)
             for entry in root.iter():
                 if entry.tag.rsplit('}',1)[-1]!='properties':continue
@@ -260,11 +280,11 @@ class MarketService:
             stamps=[]
             for value in values:
                 parsed=datetime.fromisoformat(value.as_of.replace('Z','+00:00'))
-                label=parsed.astimezone(KST).strftime('%m.%d. %H:%M') if parsed.tzinfo else parsed.strftime('%Y-%m-%d')
+                label=parsed.astimezone(KST).strftime('%Y-%m-%d. %H:%M') if parsed.tzinfo else parsed.strftime('%Y-%m-%d')
                 stamps.append((parsed.replace(tzinfo=KST).timestamp() if not parsed.tzinfo else parsed.timestamp(),label))
-            unique=[label for timestamp,label in sorted(set(stamps))]
+            unique=list(dict.fromkeys(label for timestamp,label in sorted(set(stamps))))
             basis=unique[0] if len(unique)==1 else unique[0]+' ~ '+unique[-1]
-            lines.extend(['','기준(KST): '+basis,'출처: '+' / '.join(dict.fromkeys(v.source for v in values))])
+            lines.extend(['','조회 기준: '+basis,'출처: '+' / '.join(dict.fromkeys(v.source for v in values))])
         else:
             lines.extend(['','데이터 연결을 확인해 주세요.'])
         return '\n'.join(lines)

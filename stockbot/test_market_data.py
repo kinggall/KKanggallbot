@@ -5,12 +5,55 @@ import unittest
 from unittest.mock import Mock, patch
 
 from stockbot.market_data import GROUPS, MarketService, MarketProvider, MarketDataError, Observation, format_line
-from stockbot.night_futures import night_observation, query, BOARD
+from stockbot.night_futures import night_observation, query, BOARD, KISNightFutures, INDEX
 from stockbot.stock_quotes import KST
 from stockbot import stock_commands
 
 
 class MarketTests(unittest.TestCase):
+    def test_footer_deduplicates_times_rounded_to_same_minute(self):
+        provider=Mock()
+        provider.load.side_effect=[Observation(D(1),D(1),'2026-10-29T15:28:01Z','fixture'),
+                                   Observation(D(2),D(1),'2026-10-29T15:28:50Z','fixture')]
+        text=MarketService(provider).reply('국내지수')
+        self.assertIn('조회 기준: 2026-10-30. 00:28\n',text)
+        self.assertNotIn(' ~ ',text)
+
+    def test_failed_batch_is_not_retried_for_each_maturity(self):
+        provider=MarketProvider()
+        loader=Mock(side_effect=MarketDataError('offline'))
+        for unused in range(4):
+            with self.assertRaises(MarketDataError):provider.batch('test',loader,600)
+        self.assertEqual(loader.call_count,1)
+
+    def test_domestic_index_prefers_kis_and_falls_back_to_yahoo(self):
+        night=Mock()
+        obs=Observation(D(100),D(99),'2026-10-30T01:00:00+09:00','한국투자증권')
+        night.domestic_index.return_value=obs
+        provider=MarketProvider(night_loader=night)
+        with patch.object(provider,'yahoo',return_value=obs) as yahoo:
+            self.assertEqual(provider.load(GROUPS['국내지수'][0]),obs)
+            yahoo.assert_not_called()
+            night.domestic_index.side_effect=MarketDataError('unavailable')
+            provider.load(GROUPS['국내지수'][0]);yahoo.assert_called_once()
+
+    def test_kis_index_signed_delta_and_request_time_are_explicit(self):
+        adapter=KISNightFutures(Mock(),now=lambda:datetime(2026,10,30,1,tzinfo=KST))
+        data={'output':{'bstp_nmix_prpr':'100','bstp_nmix_prdy_vrss':'2','prdy_vrss_sign':'5'}}
+        with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',return_value=data) as request:
+            row=adapter.domestic_index(GROUPS['국내지수'][0])
+        self.assertEqual(row.previous,D(102));self.assertIn('조회 시각',row.source)
+        self.assertEqual(request.call_args.args[1],INDEX)
+        self.assertEqual(request.call_args.args[2]['FID_INPUT_ISCD'],'0001')
+
+    def test_night_accepts_eight_digit_contract_without_guessing_expiry(self):
+        adapter=KISNightFutures(Mock(),now=lambda:datetime(2026,10,30,1,tzinfo=KST))
+        board={'output':[{'futs_shrn_iscd':'101Z1200','hts_rmnn_dynu':'40'}]}
+        chart={'output1':{'futs_shrn_iscd':'101Z1200'},'output2':[
+            {'stck_bsop_date':'20261030','stck_cntg_hour':'005900','futs_prpr':'100'}]}
+        with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',side_effect=[board,chart]):
+            self.assertEqual(adapter().value,D(100))
+
     def test_all_requested_groups_and_maturities(self):
         self.assertEqual(set(GROUPS),{'국내지수','미국지수','나선','야선','환율','상품','미국채','국채','코인'})
         for command,prefix in [('국채','kr'),('미국채','us')]:
@@ -19,7 +62,7 @@ class MarketTests(unittest.TestCase):
     def test_compact_layout_has_absolute_and_percentage_changes(self):
         item=GROUPS['미국지수'][0]
         row=Observation(D('7713.83'),D('7744.03'),'2026-10-29T14:00:00Z','fixture')
-        self.assertEqual(format_line(item,row),'🇺🇸 S&P500: 7,713.83 (▼30.20, ▼0.39%)')
+        self.assertEqual(format_line(item,row),'🇺🇸 S&P500: 7,713.83\n   (▼30.20, ▼0.39%)')
         rising=Observation(D('101'),D('100'),row.as_of,'fixture')
         self.assertIn('(▲1.00, ▲1.00%)',format_line(item,rising))
         self.assertIn('(0.00, 0.00%)',format_line(item,Observation(D(100),D(100),row.as_of,'fixture')))
@@ -27,14 +70,14 @@ class MarketTests(unittest.TestCase):
 
     def test_yield_change_uses_percentage_points_not_fake_basis_multiplier(self):
         text=format_line(GROUPS['미국채'][0],Observation(D('4.12'),D('4.10'),'2026-10-29','fixture'))
-        self.assertIn('4.12% (▲0.02%p, ▲0.49%)',text)
+        self.assertIn('4.12%\n   (▲0.02%p, ▲0.49%)',text)
 
     def test_service_failure_is_partial_safe_and_does_not_leak(self):
         provider=Mock()
         provider.load.side_effect=lambda item: Observation(D(100),D(99),'2026-10-29T14:00:00Z','fixture') if item.key=='kospi' else (_ for _ in ()).throw(ValueError('secret-key'))
         text=MarketService(provider).reply('국내지수')
         self.assertIn('코스피: 100.00',text);self.assertIn('코스닥: 조회 불가',text)
-        self.assertNotIn('secret-key',text);self.assertIn('기준(KST)',text)
+        self.assertNotIn('secret-key',text);self.assertIn('조회 기준: 2026-10-29. 23:00',text)
 
     def test_quote_cache_does_not_serve_old_success_after_expired_failure(self):
         clock=[0]

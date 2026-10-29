@@ -9,7 +9,8 @@ from .stock_quotes import KST, number
 
 BOARD='/uapi/domestic-futureoption/v1/quotations/display-board-futures'
 CHART='/uapi/domestic-futureoption/v1/quotations/inquire-time-fuopchartprice'
-ENDPOINTS={BOARD:'FHPIF05030200',CHART:'FHKIF03020200'}
+INDEX='/uapi/domestic-stock/v1/quotations/inquire-index-price'
+ENDPOINTS={BOARD:'FHPIF05030200',CHART:'FHKIF03020200',INDEX:'FHPUP02100000'}
 HOSTS={'https://openapi.koreainvestment.com:9443','https://openapivts.koreainvestment.com:29443'}
 
 
@@ -61,22 +62,45 @@ class KISNightFutures:
         self.stock_service=stock_service
         self.now=now or (lambda:datetime.now(KST))
 
-    def __call__(self):
+    def client_instance(self):
         service=self.stock_service
         with service.lock:
             kis,_=service._modules()
             if service.client is None:service.client=kis.Client(service.data_home)
             client=service.client
+        return client
+
+    def domestic_index(self,item):
+        codes={'kospi':'0001','kosdaq':'1001'}
+        if item.key not in codes:raise MarketDataError('Unsupported domestic index')
+        data=query(self.client_instance(),INDEX,{'FID_COND_MRKT_DIV_CODE':'U','FID_INPUT_ISCD':codes[item.key]})
+        row=data.get('output',{})
+        value=number(row.get('bstp_nmix_prpr'))
+        delta=number(row.get('bstp_nmix_prdy_vrss'))
+        sign=str(row.get('prdy_vrss_sign',''))
+        if value is None or value<=0 or delta is None or sign not in ('1','2','3','4','5'):
+            raise MarketDataError('Domestic index quote unavailable')
+        delta=abs(delta)*(-1 if sign in ('4','5') else 1)
+        return checked_observation(value,value-delta,self.now().astimezone(KST).isoformat(),
+                                   '한국투자증권 · 조회 시각')
+
+    def __call__(self):
+        client=self.client_instance()
         now=self.now().astimezone(KST)
         board=query(client,BOARD,{'FID_COND_MRKT_DIV_CODE':'F','FID_COND_SCR_DIV_CODE':'20503','FID_COND_MRKT_CLS_CODE':'MKI'})
         contracts=[]
         for row in board.get('output',[]):
             code=str(row.get('futs_shrn_iscd',''))
             days=number(row.get('hts_rmnn_dynu'))
-            if re.fullmatch(r'101[A-Z0-9]{3}',code) and days is not None and days>=0:
+            if re.fullmatch(r'101(?:[A-Z0-9]{3}|[A-Z0-9]{5})',code) and days is not None and days>=0:
                 if days==0 and now.hour>=15:continue
                 contracts.append((days,code))
-        if not contracts:raise MarketDataError('KOSPI200 front contract unavailable')
+        if not contracts:
+            public_codes=[str(row.get('futs_shrn_iscd','')) for row in board.get('output',[])]
+            public_codes=[code for code in public_codes if re.fullmatch(r'[A-Z0-9]{6,12}',code)]
+            # Public instrument identifiers only; no response bodies/tokens.
+            detail=', '.join(public_codes[:8]) or 'none'
+            raise MarketDataError('KOSPI200 front contract unavailable; public codes: '+detail)
         code=min(contracts)[1]
         cutoff=now if now.hour>=18 or now.hour<6 else now.replace(hour=6,minute=0,second=0,microsecond=0)
         data=query(client,CHART,{'FID_COND_MRKT_DIV_CODE':'F','FID_INPUT_ISCD':code,
