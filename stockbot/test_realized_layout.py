@@ -4,6 +4,33 @@ from stockbot.portfolio import PortfolioService, arrow_percent
 
 
 class RealizedLayoutTests(unittest.TestCase):
+    def test_us_realized_krw_profit_is_not_classified_as_korean_listing(self):
+        from unittest.mock import Mock
+        data=self.snapshot()
+        data['realized']=[dict(name=s,currency='KRW',ticker=None) for s in ('KORU','SPCX')]
+        names={'KORU':'Public KORU Fund Name','SPCX':'Public SPCX Security Name'}
+        service=PortfolioService(lambda:data,name_loader=lambda symbol:names[symbol],ticker_lookup=Mock(return_value=''))
+        text=service.reply('실현')
+        self.assertIn('KORU(Public KORU Fund Name)',text)
+        self.assertIn('SPCX(Public SPCX Security Name)',text)
+        self.assertNotIn('코드 미확인',text)
+        self.assertTrue(all(r['currency']=='KRW' and r['ticker'] is None for r in data['realized']))
+
+    def test_korean_english_name_stays_domestic_with_verified_numeric_ticker(self):
+        from unittest.mock import Mock
+        data=self.snapshot();data['realized']=[dict(name='NAVER',currency='KRW')]
+        names=Mock(side_effect=AssertionError('must not query US names'))
+        service=PortfolioService(lambda:data,name_loader=names,ticker_lookup=lambda name,currency:'035420')
+        self.assertIn('NAVER(035420)',service.reply('실현'))
+        names.assert_not_called()
+
+    def test_us_holdings_market_is_retained_when_realized_profit_is_krw(self):
+        data=self.snapshot()
+        data['holdings']=[dict(name='FAKE',ticker='NASDAQ:FAKE',currency='USD')]
+        data['realized']=[dict(name='FAKE',currency='KRW')]
+        service=PortfolioService(lambda:data,name_loader=lambda symbol:'Public Full Name')
+        self.assertIn('FAKE(Public Full Name)',service.reply('실현'))
+
     def test_realized_list_matches_holdings_layout_and_deduplicates(self):
         data=self.snapshot()
         data['realized'].append(dict(data['realized'][0],account='second-account'))

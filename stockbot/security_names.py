@@ -8,6 +8,9 @@ import requests
 
 URL = 'https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt'
 KNOWN_NAMES = {'VOO': 'Vanguard S&P 500 ETF'}
+# Confirmed US listings; do not infer listing country from profit currency.
+# Names remain provider-resolved rather than guessing a historical fund name.
+KNOWN_US_SYMBOLS = {'KORU', 'SPCX', *KNOWN_NAMES}
 
 
 class USSecurityNames:
@@ -22,7 +25,7 @@ class USSecurityNames:
             now = self.monotonic()
             if now >= self.next_refresh:
                 try:
-                    response = requests.get(URL, timeout=8)
+                    response = requests.get(URL, timeout=8, headers={'User-Agent': 'Mozilla/5.0 KKanggallbot'})
                     response.raise_for_status()
                     rows = csv.DictReader(io.StringIO(response.content.decode('utf-8-sig')), delimiter='|')
                     if not {'Symbol', 'Security Name', 'Test Issue'}.issubset(rows.fieldnames or []):

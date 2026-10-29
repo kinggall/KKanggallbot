@@ -4,12 +4,13 @@ import os
 from pathlib import Path
 import threading
 import time
+import re
 from datetime import datetime
 from decimal import ROUND_HALF_UP, localcontext
 
 from .stock_quotes import normalize, number, KST
-from .security_names import USSecurityNames
-from .aliases import lookup, name_targets
+from .security_names import USSecurityNames, KNOWN_US_SYMBOLS
+from .aliases import lookup, name_targets, US_NAMES
 from .unlisted import UNLISTED_NAMES
 
 FILE_ID = '1xclx9sD8c1Bh4mnrleGaJDToAsZG5UU6'
@@ -112,9 +113,9 @@ class PortfolioService:
             seen.add(identity)
             if normalize(row['name']) in {normalize(name) for name in UNLISTED_NAMES}:
                 lines.append(f'· {row["name"]}(비상장)')
-            elif row.get('currency') == 'USD':
+            elif row.get('listing_market') == 'US' or row.get('currency') == 'USD':
                 symbol = symbol or row['name']
-                name = row['name']
+                name = row.get('security_name') or row['name']
                 if normalize(name) == normalize(symbol):
                     name = self.name_loader(symbol)
                 lines.append(f'· {symbol}({name})')
@@ -130,16 +131,35 @@ class PortfolioService:
         for row in rows:
             item = dict(row)
             if not item.get('ticker') or item['ticker'] in ('미확인', '코드 미확인'):
-                candidates = {str(r['ticker']) for r in data['holdings']
+                holdings = [r for r in data['holdings']
                               if normalize(r['name']) == normalize(item['name'])
-                              and r.get('currency') == item.get('currency') and r.get('ticker')}
+                              and r.get('ticker')]
+                candidates = {str(r['ticker']) for r in holdings}
                 if len(candidates) == 1:
                     item['ticker'] = next(iter(candidates))
+                    if any(r.get('currency') == 'USD' for r in holdings):
+                        item['listing_market'] = 'US'
                 elif self.ticker_lookup:
                     try:
                         item['ticker'] = self.ticker_lookup(item['name'], item.get('currency'))
                     except Exception:
                         item['ticker'] = ''
+            ticker = str(item.get('ticker') or '')
+            symbol = (ticker.split(':')[-1] or item['name']).upper()
+            us_prefix = ticker.split(':')[0] in ('NASDAQ', 'NYSE', 'NYSEARCA', 'NYSEAMERICAN', 'AMEX', 'NAS', 'NYS', 'AMS')
+            # Realized profit can be converted to KRW even for US shares. Only
+            # explicit venue, a verified public name, or a confirmed US symbol
+            # identifies the listing market; do not overwrite the profit unit.
+            if re.fullmatch(r'[A-Z]{1,6}(?:[.\-/][A-Z])?', symbol):
+                try:
+                    full_name = self.name_loader(symbol)
+                except Exception:
+                    full_name = '종목명 미확인'
+                if (us_prefix or item.get('listing_market') == 'US' or item.get('currency') == 'USD'
+                        or full_name != '종목명 미확인' or symbol in KNOWN_US_SYMBOLS or symbol in US_NAMES):
+                    item['ticker'] = symbol
+                    item['listing_market'] = 'US'
+                    item['security_name'] = full_name
             enriched.append(item)
         return self.holdings_text(enriched, data['generated_at'], title='실현 수익률')
 
