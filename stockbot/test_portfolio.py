@@ -40,7 +40,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertIn('10.12 USD', s.reply('평단', 'FAKE'))
         self.assertIn('4.05%', s.reply('평단', '가상회사'))
         self.assertIn('미확인', s.reply('평단', 'FAKE'))
-        self.assertIn('!실현 가상회사', s.reply('실현'))
+        self.assertIn('가상회사(000001)', s.reply('실현'))
         text = s.reply('실현', '가상회사')
         for expected in ('▼2.30%', '갱신 일자: 2026-10-29'):
             self.assertIn(expected, text)

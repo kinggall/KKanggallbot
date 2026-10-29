@@ -4,6 +4,26 @@ from stockbot.portfolio import PortfolioService, arrow_percent
 
 
 class RealizedLayoutTests(unittest.TestCase):
+    def test_realized_list_matches_holdings_layout_and_deduplicates(self):
+        data=self.snapshot()
+        data['realized'].append(dict(data['realized'][0],account='second-account'))
+        data['realized'].append(dict(name='가상 ETF',currency='KRW',ticker='KRX:000002'))
+        data['holdings']=[dict(name='가상회사',ticker='KRX:000001',currency='KRW')]
+        text=PortfolioService(lambda:data).reply('실현')
+        self.assertEqual(text,'[실현 수익률]\n· 가상회사(000001)\n· 가상 ETF(000002)\n\n갱신 일자: 2026-10-29')
+        self.assertNotIn('상세',text)
+        self.assertNotIn('secret',text)
+        self.assertNotIn('▼',text)
+
+    def test_realized_missing_ticker_uses_exact_public_name_lookup(self):
+        from unittest.mock import Mock
+        data=self.snapshot()
+        lookup=Mock(return_value='000003')
+        text=PortfolioService(lambda:data,ticker_lookup=lookup).reply('실현')
+        self.assertIn('· 가상회사(000003)',text)
+        lookup.assert_called_once_with('가상회사','KRW')
+        self.assertNotIn('ticker',data['realized'][0])
+
     def test_ticker_resolves_realized_name_even_when_realized_row_has_no_ticker(self):
         data=self.snapshot()
         service=PortfolioService(lambda:data,symbol_names=lambda ticker:['가상회사'] if ticker=='000001' else [])
@@ -32,7 +52,8 @@ class RealizedLayoutTests(unittest.TestCase):
         for value,expected in [('1.234','▲1.23%'),('0','0.00%'),(None,'미확인')]:
             self.assertEqual(arrow_percent(value),expected)
         text=PortfolioService(self.snapshot).reply('실현')
-        self.assertIn('상세: !실현 가상회사',text)
+        self.assertIn('· 가상회사(코드 미확인)',text)
+        self.assertNotIn('상세:',text)
         self.assertNotIn('최종 거래일',text)
 
     def test_trade_dates_remain_associated_with_each_record(self):

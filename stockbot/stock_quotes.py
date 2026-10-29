@@ -241,6 +241,21 @@ class StockService:
                 return [name for name, codes in catalog.items() if symbol in codes]
         return []
 
+    def ticker_for_name(self, name, currency):
+        """Exact name-to-ticker lookup for realized records with no ticker."""
+        if currency == 'USD':
+            alias = stock_alias(name)
+            if alias and alias[0] == 'US':
+                return alias[1]
+            if re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', name):
+                return us_symbol(name)
+            return ''
+        if currency == 'KRW':
+            with self.lock:
+                codes = self._catalog().get(normalize(name), set())
+                return next(iter(codes)) if len(codes) == 1 else ''
+        return ''
+
     def reply(self, arguments):
         keyword = str(arguments).strip()
         if not keyword or len(keyword) > 80 or any(ord(c) < 32 for c in keyword):

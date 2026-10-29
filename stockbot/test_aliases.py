@@ -16,6 +16,13 @@ def overseas(symbol):
 
 
 class StockAliasTests(unittest.TestCase):
+    def test_name_to_ticker_requires_exact_unique_listing(self):
+        service=StockService(codes_loader=lambda:{'가상ETF':'KRX:000001','가상ETF레버리지':'KRX:000002'})
+        self.assertEqual(service.ticker_for_name('가상ETF','KRW'),'000001')
+        self.assertEqual(service.ticker_for_name('가상','KRW'),'')
+        self.assertEqual(service.ticker_for_name('애플','USD'),'AAPL')
+        self.assertEqual(service.ticker_for_name('VOO','USD'),'VOO')
+
     def test_ticker_names_do_not_fetch_quotes(self):
         quote=Mock()
         service=StockService(codes_loader=lambda:{'가상회사':'KRX:000001'},quote_loader=quote)

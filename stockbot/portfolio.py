@@ -63,7 +63,7 @@ def display(value, suffix=''):
 
 
 class PortfolioService:
-    def __init__(self, loader=load_snapshot, monotonic=time.monotonic, name_loader=None, quote_loader=None, symbol_names=None):
+    def __init__(self, loader=load_snapshot, monotonic=time.monotonic, name_loader=None, quote_loader=None, symbol_names=None, ticker_lookup=None):
         self.loader, self.monotonic = loader, monotonic
         self.lock = threading.Lock()
         self.cached = None
@@ -71,6 +71,7 @@ class PortfolioService:
         self.name_loader = name_loader if name_loader is not None else USSecurityNames()
         self.quote_loader = quote_loader
         self.symbol_names = symbol_names
+        self.ticker_lookup = ticker_lookup
 
     def position_text(self, rows, data):
         blocks = []
@@ -101,8 +102,8 @@ class PortfolioService:
             ]))
         return '\n\n'.join(blocks) if blocks else '등록된 자료가 없습니다.'
 
-    def holdings_text(self, rows, generated_at):
-        lines, seen = ['[보유종목]'], set()
+    def holdings_text(self, rows, generated_at, title='보유종목'):
+        lines, seen = ['[' + title + ']'], set()
         for row in rows:
             symbol = str(row.get('ticker') or '').split(':')[-1].strip()
             identity = (row.get('currency'), symbol or normalize(row['name']))
@@ -123,6 +124,24 @@ class PortfolioService:
             lines.append('등록된 자료가 없습니다.')
         lines.extend(['', '갱신 일자: ' + date_text(generated_at)])
         return '\n'.join(lines)
+
+    def realized_list(self, rows, data):
+        enriched = []
+        for row in rows:
+            item = dict(row)
+            if not item.get('ticker') or item['ticker'] in ('미확인', '코드 미확인'):
+                candidates = {str(r['ticker']) for r in data['holdings']
+                              if normalize(r['name']) == normalize(item['name'])
+                              and r.get('currency') == item.get('currency') and r.get('ticker')}
+                if len(candidates) == 1:
+                    item['ticker'] = next(iter(candidates))
+                elif self.ticker_lookup:
+                    try:
+                        item['ticker'] = self.ticker_lookup(item['name'], item.get('currency'))
+                    except Exception:
+                        item['ticker'] = ''
+            enriched.append(item)
+        return self.holdings_text(enriched, data['generated_at'], title='실현 수익률')
 
     def snapshot(self):
         with self.lock:
@@ -174,21 +193,19 @@ class PortfolioService:
                 return self.holdings_text(rows, data['generated_at'])
             if command == '평단':
                 return self.position_text(rows, data)
+            if not key:
+                return self.realized_list(rows, data)
             lines = ['[실현 수익률]']
             if not rows:
                 lines.append('등록된 자료가 없습니다.')
             for index, row in enumerate(rows):
                 label = row['name']
-                if not key:
-                    value = '상세: !실현 ' + row['name']
-                else:
-                    value = arrow_percent(row.get('return_pct'))
-                    if index:
-                        lines.append('')
+                value = arrow_percent(row.get('return_pct'))
+                if index:
+                    lines.append('')
                 lines.append('· ' + label + ': ' + value)
-                if key:
-                    lines.extend(['', '최종 거래일 : ' + date_text(row.get('last_trade_date'))])
-            if not key or not rows:
+                lines.extend(['', '최종 거래일 : ' + date_text(row.get('last_trade_date'))])
+            if not rows:
                 lines.append('')
             lines.append('갱신 일자: ' + date_text(data['generated_at']))
             return '\n'.join(lines)

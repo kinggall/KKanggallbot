@@ -8,7 +8,8 @@ from . import stock_quotes
 from .portfolio import PortfolioService
 
 SERVICE = stock_quotes.StockService()
-PORTFOLIO = PortfolioService(quote_loader=SERVICE.details, symbol_names=SERVICE.names_for_ticker)
+PORTFOLIO = PortfolioService(quote_loader=SERVICE.details, symbol_names=SERVICE.names_for_ticker,
+                             ticker_lookup=SERVICE.ticker_for_name)
 EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix='stock-reply')
 PENDING = threading.BoundedSemaphore(8)
 INVESTMENT_HELP = (

@@ -9,7 +9,8 @@ from .stock_quotes import StockService
 def main():
     failed = False
     service = StockService()
-    portfolio = PortfolioService(quote_loader=service.details, symbol_names=service.names_for_ticker)
+    portfolio = PortfolioService(quote_loader=service.details, symbol_names=service.names_for_ticker,
+                                 ticker_lookup=service.ticker_for_name)
     try:
         data = portfolio.snapshot()
         for command in ('보유', '평단', '실현'):
