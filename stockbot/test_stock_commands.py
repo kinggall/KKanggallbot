@@ -20,8 +20,26 @@ class StockCommandTests(unittest.TestCase):
             result = stock_commands.handle('!투자', 'investment-room', 'http://local/reply')
         self.assertEqual(result[1], 200)
         self.assertEqual(post.call_args.kwargs['json']['room'], 'investment-room')
-        self.assertIn('[주갤봇 사용법]\n\n!주가 종목명', post.call_args.kwargs['json']['data'])
+        self.assertEqual(post.call_args.kwargs['json']['data'], stock_commands.INVESTMENT_HELP)
         reply.assert_not_called()
+
+    def test_help_alias_is_identical_and_never_loads_private_data(self):
+        import bot
+        for command in ('!투자', '!주갤'):
+            with self.subTest(command=command), patch.object(stock_commands, 'EXECUTOR', Inline()), patch.object(stock_commands.SERVICE, 'reply') as quote, patch.object(stock_commands.PORTFOLIO, 'reply') as portfolio, patch.object(stock_commands.requests, 'post') as post:
+                response = bot.app.test_client().post('/webhook', json={'msg':command, 'room':'help-room'})
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(post.call_args.kwargs['json']['data'], stock_commands.INVESTMENT_HELP)
+                quote.assert_not_called(); portfolio.assert_not_called()
+
+    def test_help_layout_matches_kancolle_fold_style(self):
+        text = stock_commands.INVESTMENT_HELP
+        self.assertTrue(text.startswith('[주갤봇 사용법]' + '\u200b' * 4000 + '\n\n'))
+        self.assertEqual(text.count('\u200b'), 4000)
+        for section in ('주가 · 시세', '보유 · 평가', '실현 · 손익'):
+            self.assertIn('━━━━ ' + section + ' ━━━━', text)
+        for command in ('!주가', '!보유', '!평단', '!수익률', '!실현'):
+            self.assertIn(command, text)
 
     def test_null_iris_metadata_uses_top_level_room(self):
         import bot
@@ -42,7 +60,7 @@ class StockCommandTests(unittest.TestCase):
 
     def test_quote_reply_echo_and_other_commands_are_not_intercepted(self):
         with patch.object(stock_commands.SERVICE,'reply') as reply:
-            for text in ('🔵 가상회사 주가 🔵','!도움말','!주가아님','일반 대화'):
+            for text in ('🔵 가상회사 주가 🔵','!도움말','!주가아님','!주갤아님','!주갤 추가','일반 대화'):
                 self.assertIsNone(stock_commands.handle(text,'room','http://local/reply'))
         reply.assert_not_called()
 
