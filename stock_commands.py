@@ -9,12 +9,14 @@ import stock_quotes
 SERVICE = stock_quotes.StockService()
 EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix='stock-reply')
 PENDING = threading.BoundedSemaphore(8)
+INVESTMENT_HELP = "[주갤봇 사용법]\n\n!주가 종목명\n예: !주가 두산에너빌리티"
 
 
 def handle(message, chat_id, reply_url):
-    """Return (JSON body, HTTP status) for !주가 only; do not register any help entry."""
+    """Route investment commands without registering them in the main help list."""
     match = re.fullmatch(r'!주가(?:\s+(.*))?', message)
-    if not match:
+    investment_help = message.strip() == '!투자'
+    if not match and not investment_help:
         return None
     if chat_id is None or str(chat_id) == '':
         return {'ok': False, 'error': 'chat_id missing'}, 400
@@ -28,7 +30,7 @@ def handle(message, chat_id, reply_url):
 
     def send():
         try:
-            text = SERVICE.reply(match.group(1) or '')
+            text = INVESTMENT_HELP if investment_help else SERVICE.reply(match.group(1) or '')
             requests.post(reply_url, json={'type': 'text', 'room': str(chat_id), 'data': text}, timeout=10).raise_for_status()
             print('[주가 답변] 전송 완료')
         except Exception as error:
