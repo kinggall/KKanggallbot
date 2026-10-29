@@ -12,6 +12,7 @@ from .stock_quotes import normalize, number, KST
 from .security_names import USSecurityNames, KNOWN_US_SYMBOLS
 from .aliases import lookup, name_targets, US_NAMES
 from .unlisted import UNLISTED_NAMES
+from .etf_brands import match_etfs
 
 FILE_ID = '1xclx9sD8c1Bh4mnrleGaJDToAsZG5UU6'
 TRADE_LEDGER_YEAR = 2026
@@ -202,6 +203,9 @@ class PortfolioService:
             key = normalize(keyword)
             if key:
                 exact = [r for r in rows if key in (normalize(r['name']), normalize(r.get('ticker', '')).split(':')[-1])]
+                if not exact:
+                    matched = match_etfs(keyword, {index:r['name'] for index,r in enumerate(rows)})
+                    exact = [r for index,r in enumerate(rows) if index in matched]
                 if not exact:
                     alias = lookup(keyword)
                     targets = {normalize(n) for n in name_targets(keyword)}

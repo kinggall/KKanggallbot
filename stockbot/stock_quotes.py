@@ -21,6 +21,7 @@ import unicodedata
 
 import requests
 from .aliases import lookup as stock_alias, us_symbol, name_targets, preferred_bases
+from .etf_brands import brand_query, match_etfs
 
 KST = timezone(timedelta(hours=9))
 LOG = logging.getLogger(__name__)
@@ -253,6 +254,8 @@ class StockService:
         if currency == 'KRW':
             with self.lock:
                 codes = self._catalog().get(normalize(name), set())
+                if not codes:
+                    codes = match_etfs(name, self.code_names, exact_only=True)
                 return next(iter(codes)) if len(codes) == 1 else ''
         return ''
 
@@ -287,6 +290,17 @@ class StockService:
                             return self._candidate_reply(found)
                         code = next(iter(found))
                         alias = ('KR', code, self.code_names[code])
+                if not alias and brand_query(keyword):
+                    catalog = self._catalog()
+                    # A real company name or explicit ticker must not be
+                    # reinterpreted merely because it starts with 원/솔/etc.
+                    if keyword.upper() not in self.code_names:
+                        found = catalog.get(normalize(keyword), set()) or match_etfs(keyword, self.code_names)
+                        if len(found) > 1:
+                            return self._candidate_reply(found)
+                        if found:
+                            code = next(iter(found))
+                            alias = ('KR', code, self.code_names[code])
                 if alias and alias[0] == 'US':
                     keyword = alias[1]
                 if not (alias and alias[0] == 'KR') and re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', keyword):
