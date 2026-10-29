@@ -11,6 +11,13 @@ from stockbot import stock_commands
 
 
 class MarketTests(unittest.TestCase):
+    def test_standard_board_abbreviation_is_scoped_and_mini_stays_rejected(self):
+        row={'futs_shrn_iscd':'A01612','hts_kor_isnm':'F 202612'}
+        self.assertTrue(is_kospi200_contract(row,'KI'))
+        self.assertFalse(is_kospi200_contract(row,'MKI'))
+        self.assertFalse(is_kospi200_contract(row))
+        row['hts_kor_isnm']='미니F 202612'
+        self.assertFalse(is_kospi200_contract(row,'KI'))
     def test_new_contract_family_requires_public_name_and_excludes_mini(self):
         self.assertTrue(is_kospi200_contract({'futs_shrn_iscd':'A01612','hts_kor_isnm':'코스피200 F 202612'}))
         self.assertFalse(is_kospi200_contract({'futs_shrn_iscd':'A05612','hts_kor_isnm':'미니코스피200 F 202612'}))
@@ -86,8 +93,9 @@ class MarketTests(unittest.TestCase):
         board={'output':[{'futs_shrn_iscd':'101Z1200','hts_rmnn_dynu':'40'}]}
         chart={'output1':{'futs_shrn_iscd':'101Z1200'},'output2':[
             {'stck_bsop_date':'20261030','stck_cntg_hour':'005900','futs_prpr':'100'}]}
-        with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',side_effect=[board,chart]):
+        with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',side_effect=[board,chart]) as request:
             self.assertEqual(adapter().value,D(100))
+        self.assertEqual(request.call_args_list[0].args[2]['FID_COND_MRKT_CLS_CODE'],'KI')
 
     def test_all_requested_groups_and_maturities(self):
         self.assertEqual(set(GROUPS),{'국내지수','미국지수','나선','야선','환율','상품','미국채','국채','코인'})

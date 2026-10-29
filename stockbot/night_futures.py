@@ -14,12 +14,15 @@ ENDPOINTS={BOARD:'FHPIF05030200',CHART:'FHKIF03020200',INDEX:'FHPUP02100000'}
 HOSTS={'https://openapi.koreainvestment.com:9443','https://openapivts.koreainvestment.com:29443'}
 
 
-def is_kospi200_contract(row):
+def is_kospi200_contract(row, market_class=None):
     code=str(row.get('futs_shrn_iscd',''))
     if re.fullmatch(r'101(?:[A-Z0-9]{3}|[A-Z0-9]{5})',code):return True
     if not re.fullmatch(r'[A-Z0-9]{6,8}',code):return False
     name=re.sub(r'\s+','',str(row.get('hts_kor_isnm',''))).upper()
     if any(word in name for word in ('미니','MINI','스프레드','SPREAD','옵션','OPTION')):return False
+    # Standard-board rows may abbreviate the product name to "F YYYYMM".
+    # This abbreviation is not sufficient outside the KI board.
+    if market_class=='KI' and re.fullmatch(r'F20\d{2}(?:0[1-9]|1[0-2])',name):return True
     # New code families are accepted only with the public product name,
     # never because their numeric price resembles the KOSPI200 future.
     return bool(re.match(r'^(?:코스피200|KOSPI200)(?:선물|F)',name))
@@ -98,12 +101,12 @@ class KISNightFutures:
     def __call__(self):
         client=self.client_instance()
         now=self.now().astimezone(KST)
-        board=query(client,BOARD,{'FID_COND_MRKT_DIV_CODE':'F','FID_COND_SCR_DIV_CODE':'20503','FID_COND_MRKT_CLS_CODE':'MKI'})
+        board=query(client,BOARD,{'FID_COND_MRKT_DIV_CODE':'F','FID_COND_SCR_DIV_CODE':'20503','FID_COND_MRKT_CLS_CODE':'KI'})
         contracts=[]
         for row in board.get('output',[]):
             code=str(row.get('futs_shrn_iscd',''))
             days=number(row.get('hts_rmnn_dynu'))
-            if is_kospi200_contract(row) and days is not None and days>=0:
+            if is_kospi200_contract(row,'KI') and days is not None and days>=0:
                 if days==0 and now.hour>=15:continue
                 contracts.append((days,code))
         if not contracts:
