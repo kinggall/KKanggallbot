@@ -6,8 +6,11 @@ import threading
 import requests
 from . import stock_quotes
 from .portfolio import PortfolioService
+from .market_data import MarketService, MarketProvider, GROUPS
+from .night_futures import KISNightFutures
 
 SERVICE = stock_quotes.StockService()
+MARKETS = MarketService(MarketProvider(night_loader=KISNightFutures(SERVICE)))
 PORTFOLIO = PortfolioService(quote_loader=SERVICE.details, symbol_names=SERVICE.names_for_ticker,
                              ticker_lookup=SERVICE.ticker_for_name)
 EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix='stock-reply')
@@ -20,6 +23,16 @@ INVESTMENT_HELP = (
     "━━━━ 주가 · 시세 ━━━━\n"
     "!주가 [종목명/티커]\n"
     "예: !주가 넵튠 / !주가 삼전 / !주가 NVDA\n\n"
+    "━━━━ 지수 · 선물 ━━━━\n"
+    "!국내지수 — 코스피·코스닥\n"
+    "!미국지수 — S&P500·나스닥·다우\n"
+    "!나선 — 나스닥100 선물\n"
+    "!야선 — KOSPI200 야간선물\n\n"
+    "━━━━ 환율 · 상품 · 금리 ━━━━\n"
+    "!환율 — USD/KRW·달러인덱스\n"
+    "!상품 — 금·은·WTI·천연가스·구리 선물\n"
+    "!미국채 / !국채 — 2·5·10·30년 금리\n"
+    "!코인 — 비트코인·이더리움·리플(원화)\n\n"
     "━━━━ 보유 · 평가 ━━━━\n"
     "!보유 — 보유 종목 목록\n"
     "!보유 [종목명/티커] — 평균 매입가·수익률·현재가\n\n"
@@ -36,14 +49,15 @@ def handle(message, chat_id, reply_url):
     match = re.fullmatch(r'!주가(?:\s+(.*))?', message)
     investment_help = message.strip() == '!주갤'
     private = re.fullmatch(r'!(보유|실현)(?:\s+(.*))?', message)
-    if not match and not investment_help and not private:
+    market = message.strip()[1:] if message.strip().startswith('!') and message.strip()[1:] in GROUPS else None
+    if not match and not investment_help and not private and not market:
         return None
     if chat_id is None or str(chat_id) == '':
         return {'ok': False, 'error': 'chat_id missing'}, 400
     if not PENDING.acquire(blocking=False):
         try:
             requests.post(reply_url, json={'type': 'text', 'room': str(chat_id),
-                          'data': '주가 요청이 많습니다. 잠시 후 다시 시도해 주세요.'}, timeout=3).raise_for_status()
+                          'data': '조회 요청이 많습니다. 잠시 후 다시 시도해 주세요.'}, timeout=3).raise_for_status()
         except requests.RequestException:
             pass
         return {'ok': True, 'stock_queue_busy': True}, 200
@@ -51,6 +65,7 @@ def handle(message, chat_id, reply_url):
     def send():
         try:
             text = (INVESTMENT_HELP if investment_help else
+                    MARKETS.reply(market) if market else
                     PORTFOLIO.reply(private.group(1), private.group(2) or '') if private else
                     SERVICE.reply(match.group(1) or ''))
             requests.post(reply_url, json={'type': 'text', 'room': str(chat_id), 'data': text}, timeout=10).raise_for_status()
