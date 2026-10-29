@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock,patch
-import stock_commands
+from stockbot import stock_commands
 
 
 class Inline:
@@ -14,6 +14,14 @@ class StockCommandTests(unittest.TestCase):
             response=bot.app.test_client().post('/webhook',json={'msg':'!주가 가상회사','json':{'chat_id':'stock-room'}})
         self.assertEqual(response.status_code,200);reply.assert_called_once_with('가상회사')
         self.assertEqual(post.call_args.kwargs['json'],{'type':'text','room':'stock-room','data':'가상 주가'})
+
+    def test_investment_help_uses_its_own_menu_without_quote_lookup(self):
+        with patch.object(stock_commands, 'EXECUTOR', Inline()), patch.object(stock_commands.SERVICE, 'reply') as reply, patch.object(stock_commands.requests, 'post') as post:
+            result = stock_commands.handle('!투자', 'investment-room', 'http://local/reply')
+        self.assertEqual(result[1], 200)
+        self.assertEqual(post.call_args.kwargs['json']['room'], 'investment-room')
+        self.assertIn('[주갤봇 사용법]\n\n!주가 종목명', post.call_args.kwargs['json']['data'])
+        reply.assert_not_called()
 
     def test_null_iris_metadata_uses_top_level_room(self):
         import bot

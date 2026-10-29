@@ -3,7 +3,7 @@ from decimal import Decimal as D
 import unittest
 from unittest.mock import Mock
 
-import stock_quotes as stocks
+from stockbot import stock_quotes as stocks
 
 
 def output(code='000001', price='900', change='100', sign='5', volume='1234567', turnover='6400000000'):
@@ -70,7 +70,7 @@ class StockQuoteTests(unittest.TestCase):
 
     def test_provider_errors_do_not_leak_exception_text(self):
         loader=Mock(side_effect=ValueError('private-fake-secret-token'))
-        with self.assertLogs('stock_quotes',level='WARNING') as logs:
+        with self.assertLogs('stockbot.stock_quotes',level='WARNING') as logs:
             reply=service(quote_loader=loader).reply('가상회사')
         self.assertNotIn('private-fake-secret-token',reply+' '.join(logs.output))
         self.assertIn('불러오지 못했습니다',reply)

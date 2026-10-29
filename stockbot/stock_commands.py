@@ -4,7 +4,7 @@ import re
 import threading
 
 import requests
-import stock_quotes
+from . import stock_quotes
 
 SERVICE = stock_quotes.StockService()
 EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix='stock-reply')

@@ -25,7 +25,7 @@ import quests
 import experience
 import senka
 import guide_lookup
-import stock_commands
+from stockbot import stock_commands
 
 app = Flask(__name__)
 
