@@ -1,50 +1,21 @@
 """KIS US-only quote adapter. No credentials or private holdings are read here."""
-from dataclasses import fields, is_dataclass, replace
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .stock_quotes import QuoteError, number, integer, KST
 
-PATH = '/uapi/overseas-price/v1/quotations/price'
-TR_ID = 'HHDFS00000300'
+PATH = '/uapi/overseas-price/v1/quotations/price-detail'
 
 
-def overseas_spec(domestic):
-    """Retain the installed adapter's spec type, replace only endpoint/TR ID.
-
-    Reject unknown adapter layouts instead of accidentally querying a domestic
-    endpoint with foreign parameters. No modification to the Domino module.
-    """
-    changed = set()
-
-    def convert(value):
-        if isinstance(value, str):
-            if value == '/uapi/domestic-stock/v1/quotations/inquire-price':
-                changed.add('path')
-                return PATH
-            if value == 'FHKST01010100':
-                changed.add('tr')
-                return TR_ID
-            return value
-        if is_dataclass(value) and not isinstance(value, type):
-            return replace(value, **{f.name: convert(getattr(value, f.name)) for f in fields(value) if f.init})
-        if isinstance(value, dict):
-            return {key: convert(v) for key, v in value.items()}
-        if isinstance(value, tuple):
-            items = [convert(v) for v in value]
-            return type(value)(*items) if hasattr(value, '_fields') else tuple(items)
-        if isinstance(value, list):
-            return [convert(v) for v in value]
-        return value
-
-    result = convert(domestic)
-    if changed != {'path', 'tr'}:
+def overseas_spec(endpoint):
+    """Use the installed Domino OVERSEAS path; its query selects the TR ID."""
+    if endpoint != PATH:
         raise QuoteError('Unsupported KIS adapter endpoint specification')
-    return result
+    return endpoint
 
 
-def load_us(client, domestic, symbol):
-    spec = overseas_spec(domestic)
+def load_us(client, endpoint, symbol):
+    spec = overseas_spec(endpoint)
     # Quote API exchange codes, not order API codes (NASD/NYSE/AMEX).
     for exchange in ('NAS', 'NYS', 'AMS'):
         try:
@@ -57,7 +28,7 @@ def load_us(client, domestic, symbol):
             continue
         price = number(result.get('last'))
         rsym = str(result.get('rsym', '')).upper()
-        if price is not None and price > 0 and rsym == 'D' + exchange + symbol:
+        if price is not None and price > 0 and rsym == 'D' + exchange + symbol and result.get('curr') == 'USD':
             return result | {'exchange': exchange}
     raise QuoteError('US ticker unavailable')
 
@@ -90,6 +61,8 @@ def format_us(output, symbol, when):
         raise QuoteError('US exchange missing')
     if str(output.get('rsym', '')).upper() != 'D' + output['exchange'] + symbol:
         raise QuoteError('US symbol mismatch')
+    if output.get('curr') != 'USD':
+        raise QuoteError('US currency mismatch')
     price, previous = number(output.get('last')), number(output.get('base'))
     if price is None or price <= 0:
         raise QuoteError('US price missing')

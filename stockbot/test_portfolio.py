@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
 from datetime import datetime, timedelta
-from dataclasses import dataclass
 
 from stockbot.portfolio import PortfolioService
 from stockbot import stock_commands, stock_quotes, us_quotes
@@ -94,7 +93,7 @@ class QuoteExtensionTests(unittest.TestCase):
         self.assertIn('장외', stock_quotes.domestic_session(base + timedelta(days=2,hours=10)))
 
     def test_us_ticker_precedes_domestic_partial_search_and_caches(self):
-        output = {'exchange':'AMS','rsym':'DAMSDRAM','last':'20.12','base':'20','tvol':'5','tamt':'100.6'}
+        output = {'exchange':'AMS','rsym':'DAMSDRAM','curr':'USD','last':'20.12','base':'20','tvol':'5','tamt':'100.6'}
         loader = Mock(return_value=output)
         catalog = Mock(side_effect=AssertionError('no domestic lookup'))
         s = stock_quotes.StockService(codes_loader=catalog, us_loader=loader)
@@ -104,17 +103,11 @@ class QuoteExtensionTests(unittest.TestCase):
         self.assertEqual(s.reply('dram'), first)
         loader.assert_called_once_with('DRAM'); catalog.assert_not_called()
 
-    def test_overseas_endpoint_reuses_spec_type_and_validates_symbol(self):
-        @dataclass(frozen=True)
-        class Spec:
-            path: str
-            tr_id: str
-        spec = Spec('/uapi/domestic-stock/v1/quotations/inquire-price','FHKST01010100')
-        converted = us_quotes.overseas_spec(spec)
-        self.assertEqual(converted.path, us_quotes.PATH)
-        self.assertEqual(converted.tr_id, us_quotes.TR_ID)
+    def test_overseas_endpoint_uses_domino_allowed_path_and_validates_symbol(self):
+        spec = '/uapi/overseas-price/v1/quotations/price-detail'
+        self.assertEqual(us_quotes.overseas_spec(spec), spec)
         client = Mock()
-        client.query.side_effect = [{}, {}, {'rsym':'DAMSDRAM','last':'20'}]
+        client.query.side_effect = [{}, {}, {'rsym':'DAMSDRAM','curr':'USD','last':'20'}]
         self.assertEqual(us_quotes.load_us(client,spec,'DRAM')['exchange'],'AMS')
         self.assertEqual([c.args[1]['EXCD'] for c in client.query.call_args_list],['NAS','NYS','AMS'])
         with self.assertRaises(stock_quotes.QuoteError):
@@ -129,10 +122,32 @@ class QuoteExtensionTests(unittest.TestCase):
                 self.assertEqual(us_quotes.us_session(when),'정규장')
 
     def test_missing_us_symbol_on_first_exchange_does_not_prevent_amex(self):
-        domestic = ('/uapi/domestic-stock/v1/quotations/inquire-price', 'FHKST01010100')
+        endpoint = us_quotes.PATH
         client = Mock()
-        client.query.side_effect = [ValueError('provider-private'), {}, {'rsym':'DAMSDRAM','last':'20'}]
-        self.assertEqual(us_quotes.load_us(client, domestic, 'DRAM')['exchange'], 'AMS')
+        client.query.side_effect = [ValueError('provider-private'), {}, {'rsym':'DAMSDRAM','curr':'USD','last':'20'}]
+        self.assertEqual(us_quotes.load_us(client, endpoint, 'DRAM')['exchange'], 'AMS')
+
+    def test_installed_domino_string_endpoint_is_passed_without_rewriting(self):
+        from types import SimpleNamespace
+        endpoint = us_quotes.PATH
+        def query(path, params):
+            if path != endpoint:
+                raise ValueError('not allowed')
+            exchange, symbol = params['EXCD'], params['SYMB']
+            if symbol == 'DRAM' and exchange != 'AMS':
+                return {}
+            return {'rsym':'D'+exchange+symbol, 'curr':'USD', 'last':'10', 'base':'9'}
+        service = stock_quotes.StockService()
+        service.client = Mock(); service.client.query.side_effect = query
+        kis = SimpleNamespace(DOMESTIC='/uapi/domestic-stock/v1/quotations/inquire-price', OVERSEAS=endpoint)
+        with patch.object(service, '_modules', return_value=(kis,None)):
+            for symbol in ('DRAM', 'AAPL'):
+                self.assertIn('✔️ 현재가:', service.reply(symbol))
+        self.assertTrue(all(c.args[0] == endpoint for c in service.client.query.call_args_list))
+
+    def test_us_non_dollar_data_is_rejected(self):
+        with self.assertRaises(stock_quotes.QuoteError):
+            us_quotes.format_us({'exchange':'NAS','rsym':'DNASAAPL','curr':'KRW','last':'10'}, 'AAPL', datetime.now(stock_quotes.KST))
 
 
 if __name__ == '__main__':

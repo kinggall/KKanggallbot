@@ -30,7 +30,7 @@ def main():
             try:
                 from .us_quotes import overseas_spec
                 kis, _ = service._modules()
-                overseas_spec(kis.DOMESTIC)
+                overseas_spec(getattr(kis, 'OVERSEAS', None))
                 print('US endpoint spec: OK')
             except Exception as error:
                 print('US endpoint spec: FAILED (' + type(error).__name__ + ')')

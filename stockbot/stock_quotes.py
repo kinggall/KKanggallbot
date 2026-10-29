@@ -182,7 +182,7 @@ class StockService:
         kis, _ = self._modules()
         if self.client is None:
             self.client = kis.Client(self.data_home)
-        return load_us(self.client, kis.DOMESTIC, symbol)
+        return load_us(self.client, getattr(kis, 'OVERSEAS', None), symbol)
 
     def _catalog(self):
         if self.codes_loaded_at is None or self.monotonic() - self.codes_loaded_at >= 86400:

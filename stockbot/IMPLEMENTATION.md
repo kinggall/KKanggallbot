@@ -41,12 +41,14 @@ python -m unittest discover -s tests
 
 자동 검증은 가상 데이터만 사용하며 실제 카카오 메시지를 전송하지 않습니다.
 실제 Drive JSON의 모든 보유/실현 종목 렌더링도 확인했습니다(개인 수치는 출력·저장하지 않음).
-기존 테스트 327개와 별도 stockbot 테스트 38개를 통과했습니다(총 365개).
+기존 테스트 327개와 별도 stockbot 테스트를 실행합니다.
 
 한투 PC 모듈과 인증은 클라우드에 없으므로 실제 통합·미국 시세 성공은 별도 PC 검증이
-필요합니다. 해외 어댑터는 설치된 DOMESTIC endpoint spec의 구조를 유지하며 공식 해외
-endpoint/TR ID로 교체합니다. 알려지지 않은 구조는 추측해서 호출하지 않고 거부합니다.
-따라서 PC 모듈 호환성이 확인되기 전에는 미국 실조회 완료라고 보지 않습니다.
+필요합니다. 첨부된 실제 모듈에서 DOMESTIC/OVERSEAS는 문자열 경로이고, query가
+ALLOWED 표에서 TR ID를 선택하는 것을 확인했습니다. 해외 조회에는 설치된 OVERSEAS
+`/uapi/overseas-price/v1/quotations/price-detail` 경로를 그대로 전달합니다.
+DOMESTIC 구조를 추측해 경로/TR ID를 치환하던 초기 연결 방식은 제거했습니다.
+실제 모듈의 Client.query를 가상 전송으로 검사하되, 실제 한투 실조회와 구분합니다.
 
 PC에서 아래 명령은 자산 값이나 시세 값을 출력하지 않고 성공 여부만 검사합니다.
 카카오 메시지를 보내거나 Domino DB를 수정하지 않습니다. 실패 시 종료코드는 1입니다.
@@ -61,4 +63,4 @@ C:\KakaoBot\.venv\Scripts\python.exe -m stockbot.verify
 공식 API 참고:
 
 - https://github.com/koreainvestment/open-trading-api/blob/main/examples_llm/domestic_stock/inquire_price/inquire_price.py
-- https://github.com/koreainvestment/open-trading-api/blob/main/examples_llm/overseas_stock/price/price.py
+- https://github.com/koreainvestment/open-trading-api/blob/main/examples_llm/overseas_stock/price_detail/price_detail.py
