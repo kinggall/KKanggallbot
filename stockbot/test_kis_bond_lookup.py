@@ -67,6 +67,17 @@ class BondLookupTests(unittest.TestCase):
         self.assertEqual(set(rows),{'us2','kr5'})
         self.assertEqual(rows['us2'][0]['code'],'B2')
 
+    def test_master_category_is_not_the_api_market_parameter(self):
+        report={}
+        payload=master_zip([('B','US2','US Treasury 2 Year Yield','미국 국채 2년'),
+                            ('N','KR10','Korea Government Bond 10 Years','국고채 10년'),
+                            ('N','ETF','US Treasury 2 Year ETF','미국 국채 2년 ETF')])
+        rows=parse_master(payload,report)
+        self.assertEqual(set(rows),{'us2','kr10'})
+        self.assertEqual(rows['us2'][0]['category'],'B')
+        self.assertEqual(report['categories'],{'B':1,'N':2})
+        self.assertTrue(report['bond_names'])
+
     def test_current_header_is_required_and_daily_candle_cannot_replace_it(self):
         record={'code':'B2','name':'미국 2년','english':'US 2 Year Treasury'}
         data=quote('B2','미국 2년')

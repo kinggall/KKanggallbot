@@ -83,11 +83,11 @@ def lookup_failure(error):
     return type(error).__name__
 
 
-def parse_master(payload):
+def parse_master(payload,report=None):
     """Official stocks_info/overseas_index_code.py character offsets, CP949.
 
     No positional repair of the malformed comp-interest rows is attempted.
-    Category I is the documented government-bond market classification.
+    API market I is NOT evidence that the file's category character is I.
     """
     if len(payload)>4*1024*1024:raise MarketDataError('KIS public master too large')
     try:
@@ -98,17 +98,28 @@ def parse_master(payload):
     except (zipfile.BadZipFile,KeyError,UnicodeError):
         raise MarketDataError('Invalid KIS public bond master') from None
     found={}
+    if report is None:report={}
+    report.update({'categories':{},'bond_names':[]})
     for line in text.splitlines():
-        if len(line)<75 or line[0]!='I':continue
+        if not line:continue
+        kind=line[0] if re.fullmatch(r'[A-Za-z0-9]',line[0]) else '?'
+        report['categories'][kind]=report['categories'].get(kind,0)+1
+        if len(line)<75:continue
         code=line[1:11].strip()
         english=line[11:50].strip()
         korean=line[50:75].strip()
         if not re.fullmatch(r'[A-Za-z0-9.^_:/=+-]{1,10}',code):continue
+        names=korean+' '+english
+        debt_label=bool(re.search(r'국채|국고|정부채|수익률|TREASUR|T-?(?:BOND|NOTE|BILL)|GOV.*BOND|BOND.*YIELD',names,re.I))
+        if debt_label and len(report['bond_names'])<24:
+            report['bond_names'].append({'category':kind,'code':code,'name':korean,'english':english})
         korean_key=maturity_key(korean)
         english_key=maturity_key(english)
         if korean_key and english_key and korean_key!=english_key:continue
         key=korean_key or english_key
-        if key:found.setdefault(key,[]).append({'code':code,'name':korean or english,'english':english})
+        abbreviated=bool(re.fullmatch(r'(?:미국|국고채|한국국채)\s*\d+\s*년(?:물)?',korean))
+        if key and (debt_label or abbreviated):
+            found.setdefault(key,[]).append({'code':code,'name':korean or english,'english':english,'category':kind})
     return found
 
 
@@ -120,6 +131,7 @@ class BondMaster:
         self.loaded=0
         self.retry_after=0
         self.last_failure=''
+        self.report={}
         self.lock=threading.Lock()
 
     def load(self):
@@ -130,7 +142,7 @@ class BondMaster:
             try:
                 response=self.get(MASTER_URL,timeout=(4,10))
                 response.raise_for_status()
-                found=parse_master(response.content)
+                found=parse_master(response.content,self.report)
                 if not found:raise MarketDataError('No identified benchmark yields in KIS master')
             except (requests.RequestException,MarketDataError) as error:
                 self.retry_after=self.monotonic()+60
@@ -170,7 +182,11 @@ def complete_yields(data,now,master,query_fn):
     except MarketDataError:result={}
     wanted={prefix+str(year) for prefix in ('kr','us') for year in (2,10,30)}
     try:catalog=master.load()
-    except MarketDataError as error:return result,[],{'master':str(error)}
+    except MarketDataError as error:
+        errors={'master':str(error)}
+        report=getattr(master,'report',None)
+        if isinstance(report,dict) and report:errors['master_records']=str(report)
+        return result,[],errors
     diagnostics=[]
     errors={}
     for key in sorted(wanted):
