@@ -309,6 +309,7 @@ class MarketService:
         with ThreadPoolExecutor(max_workers=min(3,len(items))) as executor:
             rows=list(executor.map(load,items))
         lines=[format_line(item,value) if value else item.label+': 조회 불가' for item,value in rows]
+        if command=='금리':lines=['[국채 금리]','']+lines
         values=[value for item,value in rows if value]
         if values:
             stamps=[]

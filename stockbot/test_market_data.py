@@ -21,9 +21,15 @@ class MarketTests(unittest.TestCase):
         provider=Mock()
         provider.load.return_value=Observation(D('4.12'),D('4.10'),'2026-10-30','fixture')
         text=MarketService(provider).reply('금리')
+        self.assertTrue(text.startswith('[국채 금리]\n\n'))
         self.assertEqual(text.count('년:'),6)
         self.assertNotIn('5년',text)
         self.assertLess(text.index('국고채 30년'),text.index('미국채 2년'))
+
+    def test_rate_heading_stays_visible_even_when_all_quotes_fail(self):
+        provider=Mock();provider.load.side_effect=MarketDataError('offline')
+        self.assertTrue(MarketService(provider).reply('금리').startswith('[국채 금리]\n\n'))
+        self.assertNotIn('[국채 금리]',MarketService(provider).reply('국내지수'))
 
     def test_kospi200_is_cash_index_with_kis_2001_and_yahoo_fallback(self):
         item=next(row for row in GROUPS['국내지수'] if row.key=='kospi200')

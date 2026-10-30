@@ -99,7 +99,7 @@ def parse_master(payload,report=None):
         raise MarketDataError('Invalid KIS public bond master') from None
     found={}
     if report is None:report={}
-    report.update({'categories':{},'bond_names':[]})
+    report.update({'categories':{},'bond_names':[],'two_year_records':[]})
     for line in text.splitlines():
         if not line:continue
         kind=line[0] if re.fullmatch(r'[A-Za-z0-9]',line[0]) else '?'
@@ -110,6 +110,8 @@ def parse_master(payload,report=None):
         korean=line[50:75].strip()
         if not re.fullmatch(r'[A-Za-z0-9.^_:/=+-]{1,10}',code):continue
         names=korean+' '+english
+        if re.search(r'(?<!\d)0?2\s*-?\s*(?:년|年|YEARS?\b|YRS?\b|Y\b)',names,re.I) and len(report['two_year_records'])<40:
+            report['two_year_records'].append({'category':kind,'code':code,'name':korean,'english':english})
         debt_label=bool(re.search(r'국채|국고|정부채|수익률|TREASUR|T-?(?:BOND|NOTE|BILL)|GOV.*BOND|BOND.*YIELD',names,re.I))
         if debt_label and len(report['bond_names'])<24:
             report['bond_names'].append({'category':kind,'code':code,'name':korean,'english':english})
@@ -193,6 +195,9 @@ def complete_yields(data,now,master,query_fn):
         candidates=catalog.get(key,[])
         if not candidates:
             errors[key]='No exact country/maturity in KIS public master'
+            if key in ('kr2','us2'):
+                report=getattr(master,'report',None)
+                if isinstance(report,dict):errors['master_2year_records']=str(report.get('two_year_records',[]))
             continue
         # More than one current benchmark may exist; try verified identities
         # in order, bounded to avoid sweeping the broker's entire catalogue.
