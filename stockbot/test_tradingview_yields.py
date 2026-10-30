@@ -28,7 +28,7 @@ class TradingViewTests(unittest.TestCase):
         self.assertEqual(len(result),8);self.assertEqual(errors,{})
         self.assertEqual(result['us2'].value,D('4.594'))
         self.assertEqual(result['us2'].previous,D('4.602'))
-        self.assertIn('4.594%\n   (▼0.008%p, ▼0.17%)',format_line(GROUPS['금리'][4],result['us2']))
+        self.assertIn('4.594%\n   (▼0.008, ▼0.17%)',format_line(GROUPS['금리'][4],result['us2']))
 
     def test_unknown_symbols_and_missing_values_are_not_invented(self):
         data={'data':[{'s':'NASDAQ:US02Y','d':[100,1,'streaming']},

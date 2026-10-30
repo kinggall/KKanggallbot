@@ -237,7 +237,8 @@ class MarketTests(unittest.TestCase):
 
     def test_yield_change_uses_percentage_points_not_fake_basis_multiplier(self):
         text=format_line(GROUPS['금리'][3],Observation(D('4.12'),D('4.10'),'2026-10-29','fixture'))
-        self.assertIn('4.12%\n   (▲0.02%p, ▲0.49%)',text)
+        self.assertIn('4.12%\n   (▲0.02, ▲0.49%)',text)
+        self.assertNotIn('%p',text)
 
     def test_service_failure_is_partial_safe_and_does_not_leak(self):
         provider=Mock()

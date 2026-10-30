@@ -81,8 +81,7 @@ def format_line(item, observation):
     else:
         delta = observation.value - previous
         arrow = '▲' if delta > 0 else '▼' if delta < 0 else ''
-        change_unit = '%p' if item.unit == '%' else ''
-        absolute = arrow + decimal_text(abs(delta),item.digits,item.trim) + change_unit
+        absolute = arrow + decimal_text(abs(delta),item.digits,item.trim)
         percent = arrow + decimal_text(abs(delta / previous * 100),2) + '%' if previous != 0 else '증감률 미확인'
         changes = absolute + ', ' + percent
     return item.label + ': ' + price + '\n   (' + changes + ')'
