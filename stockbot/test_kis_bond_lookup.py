@@ -85,7 +85,7 @@ class BondLookupTests(unittest.TestCase):
         data['output2'].append({'stck_bsop_date':'20261030','ovrs_nmix_prpr':'4.99'})
         with self.assertRaises(MarketDataError):parse_current_chart(data,'us2',record,NOW)
 
-    def test_all_eight_maturities_resolve_only_from_kis_master(self):
+    def test_only_six_requested_maturities_are_queried_from_kis_master(self):
         records={p+str(y):[{'code':p+str(y),'name':('미국 ' if p=='us' else '국고채 ')+str(y)+'년',
                            'english':''}] for p in ('us','kr') for y in (2,5,10,30)}
         master=Mock();master.load.return_value=records
@@ -94,8 +94,9 @@ class BondLookupTests(unittest.TestCase):
             code=params['FID_INPUT_ISCD']
             return quote(code,records[code][0]['name'])
         result,details,errors=complete_yields({},NOW,master,query)
-        self.assertEqual(set(result),set(records))
-        self.assertEqual(len(details),8);self.assertEqual(errors,{})
+        wanted={'us2','us10','us30','kr2','kr10','kr30'}
+        self.assertEqual(set(result),wanted)
+        self.assertEqual(len(details),6);self.assertEqual(errors,{})
 
     def test_master_missing_does_not_erase_valid_comp_interest_quote(self):
         data={'output1':[{'hts_kor_isnm':'미국 10년T-NOTE','bond_mnrt_prpr':'4.98',

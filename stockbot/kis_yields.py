@@ -168,7 +168,7 @@ def complete_yields(data,now,master,query_fn):
     """Fill missing tenors using only official KIS master + KIS current quotes."""
     try:result=parse_yields(data,now)
     except MarketDataError:result={}
-    wanted={prefix+str(year) for prefix in ('kr','us') for year in (2,5,10,30)}
+    wanted={prefix+str(year) for prefix in ('kr','us') for year in (2,10,30)}
     try:catalog=master.load()
     except MarketDataError as error:return result,[],{'master':str(error)}
     diagnostics=[]

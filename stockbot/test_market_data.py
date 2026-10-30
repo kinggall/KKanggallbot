@@ -12,6 +12,19 @@ from stockbot import stock_commands
 
 
 class MarketTests(unittest.TestCase):
+    def test_combined_rates_help_and_retired_commands(self):
+        self.assertIn('!금리',stock_commands.INVESTMENT_HELP)
+        self.assertNotIn('!국채',stock_commands.INVESTMENT_HELP)
+        self.assertNotIn('!미국채',stock_commands.INVESTMENT_HELP)
+        self.assertIsNone(stock_commands.handle('!국채','room','http://local'))
+        self.assertIsNone(stock_commands.handle('!미국채','room','http://local'))
+        provider=Mock()
+        provider.load.return_value=Observation(D('4.12'),D('4.10'),'2026-10-30','fixture')
+        text=MarketService(provider).reply('금리')
+        self.assertEqual(text.count('년:'),6)
+        self.assertNotIn('5년',text)
+        self.assertLess(text.index('국고채 30년'),text.index('미국채 2년'))
+
     def test_kospi200_is_cash_index_with_kis_2001_and_yahoo_fallback(self):
         item=next(row for row in GROUPS['국내지수'] if row.key=='kospi200')
         self.assertEqual(item.symbol,'^KS200')
@@ -163,11 +176,11 @@ class MarketTests(unittest.TestCase):
         self.assertNotIn('us2',result);self.assertNotIn('us5',result)
 
     def test_rates_use_only_kis_without_daily_provider_fallback(self):
-        self.assertTrue(all(row.provider=='kis_yields' for cmd in ('국채','미국채') for row in GROUPS[cmd]))
+        self.assertTrue(all(row.provider=='kis_yields' for row in GROUPS['금리']))
         loader=Mock();loader.yields.return_value={}
         provider=MarketProvider(night_loader=loader)
         with patch.object(provider,'ecos') as ecos,patch.object(provider,'treasury') as fred:
-            with self.assertRaisesRegex(MarketDataError,'no daily-rate fallback'):provider.load(GROUPS['미국채'][0])
+            with self.assertRaisesRegex(MarketDataError,'no daily-rate fallback'):provider.load(GROUPS['금리'][3])
             ecos.assert_not_called();fred.assert_not_called()
 
     def test_requested_december_contract_is_used_instead_of_nearer_month(self):
@@ -200,9 +213,8 @@ class MarketTests(unittest.TestCase):
         self.assertEqual(request.call_count,1)
 
     def test_all_requested_groups_and_maturities(self):
-        self.assertEqual(set(GROUPS),{'국내지수','미국지수','나선','야선','환율','상품','미국채','국채','코인'})
-        for command,prefix in [('국채','kr'),('미국채','us')]:
-            self.assertEqual([r.key for r in GROUPS[command]],[prefix+str(y) for y in (2,5,10,30)])
+        self.assertEqual(set(GROUPS),{'국내지수','미국지수','나선','야선','환율','상품','금리','코인'})
+        self.assertEqual([r.key for r in GROUPS['금리']],['kr2','kr10','kr30','us2','us10','us30'])
 
     def test_compact_layout_has_absolute_and_percentage_changes(self):
         item=GROUPS['미국지수'][0]
@@ -214,7 +226,7 @@ class MarketTests(unittest.TestCase):
         self.assertIn('증감 미확인',format_line(item,Observation(D(100),None,row.as_of,'fixture')))
 
     def test_yield_change_uses_percentage_points_not_fake_basis_multiplier(self):
-        text=format_line(GROUPS['미국채'][0],Observation(D('4.12'),D('4.10'),'2026-10-29','fixture'))
+        text=format_line(GROUPS['금리'][3],Observation(D('4.12'),D('4.10'),'2026-10-29','fixture'))
         self.assertIn('4.12%\n   (▲0.02%p, ▲0.49%)',text)
 
     def test_service_failure_is_partial_safe_and_does_not_leak(self):
@@ -283,7 +295,7 @@ class MarketTests(unittest.TestCase):
             if service=='StatisticItemList':return {'StatisticItemList':{'list_total_count':4,'row':rows}}
             return {'StatisticSearch':{'row':[dict(TIME='20261028',DATA_VALUE='2.5',ITEM_CODE1=args[-1]),dict(TIME='20261029',DATA_VALUE='2.6',ITEM_CODE1=args[-1])]}}
         with patch.object(provider,'ecos_json',side_effect=data):
-            result=provider.ecos(GROUPS['국채'][0])
+            result=provider.ecos(GROUPS['금리'][0])
         self.assertEqual(result.value,D('2.6'));self.assertEqual(result.previous,D('2.5'))
 
     def test_night_rejects_daytime_bars_and_checks_contract(self):
