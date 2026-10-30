@@ -12,6 +12,24 @@ from stockbot import stock_commands
 
 
 class MarketTests(unittest.TestCase):
+    def test_kospi200_is_cash_index_with_kis_2001_and_yahoo_fallback(self):
+        item=next(row for row in GROUPS['국내지수'] if row.key=='kospi200')
+        self.assertEqual(item.symbol,'^KS200')
+        adapter=KISNightFutures(Mock(),now=lambda:datetime(2026,10,30,10,tzinfo=KST))
+        data={'output':{'bstp_nmix_prpr':'900','bstp_nmix_prdy_vrss':'2','prdy_vrss_sign':'2'}}
+        with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',return_value=data) as request:
+            observation=adapter.domestic_index(item)
+        self.assertEqual(request.call_args.args[2],{'FID_COND_MRKT_DIV_CODE':'U','FID_INPUT_ISCD':'2001'})
+        self.assertEqual(observation.previous,D(898))
+        provider=MarketProvider(night_loader=adapter)
+        with patch.object(adapter,'domestic_index',return_value=observation),patch.object(provider,'yahoo') as yahoo:
+            self.assertEqual(provider.load(item),observation);yahoo.assert_not_called()
+        with patch.object(adapter,'domestic_index',side_effect=MarketDataError('offline')),patch.object(provider,'yahoo',return_value=observation) as yahoo:
+            self.assertEqual(provider.load(item),observation);yahoo.assert_called_once_with(item)
+        with patch.object(provider,'load',return_value=observation):
+            reply=MarketService(provider).reply('국내지수')
+        self.assertIn('코스피200: 900.00\n   (▲2.00, ▲0.22%)',reply)
+
     def test_standard_board_abbreviation_is_scoped_and_mini_stays_rejected(self):
         row={'futs_shrn_iscd':'A01612','hts_kor_isnm':'F 202612'}
         self.assertTrue(is_kospi200_contract(row,''))
@@ -58,7 +76,8 @@ class MarketTests(unittest.TestCase):
     def test_footer_deduplicates_times_rounded_to_same_minute(self):
         provider=Mock()
         provider.load.side_effect=[Observation(D(1),D(1),'2026-10-29T15:28:01Z','fixture'),
-                                   Observation(D(2),D(1),'2026-10-29T15:28:50Z','fixture')]
+                                   Observation(D(2),D(1),'2026-10-29T15:28:50Z','fixture'),
+                                   Observation(D(3),D(1),'2026-10-29T15:28:51Z','fixture')]
         text=MarketService(provider).reply('국내지수')
         self.assertIn('조회 기준: 2026-10-30. 00:28\n',text)
         self.assertNotIn(' ~ ',text)

@@ -36,7 +36,8 @@ class Observation:
 
 
 GROUPS = {
- '국내지수': (Instrument('kospi','🇰🇷 코스피','^KS11'), Instrument('kosdaq','🇰🇷 코스닥','^KQ11')),
+ '국내지수': (Instrument('kospi','🇰🇷 코스피','^KS11'), Instrument('kosdaq','🇰🇷 코스닥','^KQ11'),
+              Instrument('kospi200','🇰🇷 코스피200','^KS200')),
  '미국지수': (Instrument('sp500','🇺🇸 S&P500','^GSPC'), Instrument('nasdaq','🇺🇸 나스닥','^IXIC'), Instrument('dow','🇺🇸 다우','^DJI')),
  '나선': (Instrument('nq','🇺🇸 나스닥100 선물','NQ=F'),),
  '야선': (Instrument('night','🇰🇷 KOSPI200 야간선물',provider='kis_night'),),
@@ -115,7 +116,7 @@ class MarketProvider:
 
     def load(self,item):
         if item.provider == 'yahoo':
-            if item.key in ('kospi','kosdaq') and hasattr(self.night_loader,'domestic_index'):
+            if item.key in ('kospi','kosdaq','kospi200') and hasattr(self.night_loader,'domestic_index'):
                 try:return self.night_loader.domestic_index(item)
                 except Exception:pass
             return self.yahoo(item)

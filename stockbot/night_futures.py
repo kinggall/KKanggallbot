@@ -146,7 +146,7 @@ class KISNightFutures:
         return client
 
     def domestic_index(self,item):
-        codes={'kospi':'0001','kosdaq':'1001'}
+        codes={'kospi':'0001','kosdaq':'1001','kospi200':'2001'}
         if item.key not in codes:raise MarketDataError('Unsupported domestic index')
         data=query(self.client_instance(),INDEX,{'FID_COND_MRKT_DIV_CODE':'U','FID_INPUT_ISCD':codes[item.key]})
         row=data.get('output',{})
