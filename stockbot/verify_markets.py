@@ -27,6 +27,8 @@ def main():
                 reason=str(error) if isinstance(error,MarketDataError) else type(error).__name__
                 print(command+' / '+item.key+': FAILED ('+reason+')')
     if args.details:
+        for diagnostic in getattr(MARKETS.provider.tv_yields,'public_diagnostics',[]):
+            print('TradingView yield lookup:',diagnostic)
         loader=MARKETS.provider.night_loader
         if hasattr(loader,'public_night_reference'):
             print('KIS night day-close reference:',loader.public_night_reference)

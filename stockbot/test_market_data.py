@@ -181,13 +181,15 @@ class MarketTests(unittest.TestCase):
         self.assertEqual(result['us30'].previous,D('5.3700'))
         self.assertNotIn('us2',result);self.assertNotIn('us5',result)
 
-    def test_rates_use_only_kis_without_daily_provider_fallback(self):
-        self.assertTrue(all(row.provider=='kis_yields' for row in GROUPS['금리']))
+    def test_rates_use_only_tradingview_without_kis_or_daily_fallback(self):
+        self.assertTrue(all(row.provider=='tradingview_yields' for row in GROUPS['금리']))
         loader=Mock();loader.yields.return_value={}
         provider=MarketProvider(night_loader=loader)
+        provider.tv_yields=Mock(return_value={})
         with patch.object(provider,'ecos') as ecos,patch.object(provider,'treasury') as fred:
-            with self.assertRaisesRegex(MarketDataError,'no daily-rate fallback'):provider.load(GROUPS['금리'][3])
+            with self.assertRaisesRegex(MarketDataError,'no other-source fallback'):provider.load(GROUPS['금리'][3])
             ecos.assert_not_called();fred.assert_not_called()
+            loader.yields.assert_not_called()
 
     def test_requested_december_contract_is_used_instead_of_nearer_month(self):
         adapter=KISNightFutures(Mock(),now=lambda:datetime(2026,10,30,8,tzinfo=KST),contract='202612')

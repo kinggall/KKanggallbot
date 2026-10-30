@@ -45,7 +45,8 @@ GROUPS = {
  '상품': (Instrument('gold','🥇 금 선물(USD/oz)','GC=F'), Instrument('silver','🥈 은 선물(USD/oz)','SI=F',digits=3),
           Instrument('wti','🛢️ WTI 선물(USD/배럴)','CL=F'),Instrument('gas','🔥 천연가스 선물(USD/MMBtu)','NG=F',digits=3),
           Instrument('copper','🔩 구리 선물(USD/lb)','HG=F',digits=4)),
- '금리': tuple(Instrument(prefix+str(y),label+f' {y}년',unit='%',digits=3,trim=True,provider='kis_yields')
+ '금리': tuple(Instrument(prefix+str(y),label+f' {y}년',f'TVC:{prefix.upper()}{y:02d}Y',
+                         unit='%',digits=3,trim=True,provider='tradingview_yields')
               for prefix,label in (('kr','🇰🇷 국고채'),('us','🇺🇸 미국채')) for y in (2,10,30)),
  '코인': tuple(Instrument('coin'+s,label,s+'-USD',unit=' USD',digits=4 if s=='XRP' else 2)
              for s,label in (('BTC','₿ 비트코인'),('ETH','💎 이더리움'),('XRP','🪙 리플'))),
@@ -99,6 +100,7 @@ class MarketProvider:
         self.ecos_loaded = 0
         self.request_lock=threading.Lock()
         self.last_request=0
+        self.tv_yields=None
 
     def request(self,url,**kwargs):
         with self.request_lock:
@@ -123,6 +125,14 @@ class MarketProvider:
         if item.provider == 'upbit': return self.batch('coins',self.upbit,15)[item.key]
         if item.provider == 'treasury': return self.batch('treasury',self.treasury,600)[item.key]
         if item.provider == 'ecos': return self.ecos(item)
+        if item.provider == 'tradingview_yields':
+            with self.lock:
+                if self.tv_yields is None:
+                    from .tradingview_yields import TradingViewYields
+                    self.tv_yields=TradingViewYields(now=self.now)
+            values=self.batch('tradingview_yields',self.tv_yields,15)
+            if item.key not in values:raise MarketDataError('TradingView yield symbol unavailable; no other-source fallback')
+            return values[item.key]
         if item.provider == 'kis_yields' and hasattr(self.night_loader,'yields'):
             values=self.batch('kis_yields',self.night_loader.yields,15)
             if item.key not in values:raise MarketDataError('KIS yield maturity unavailable; no daily-rate fallback')
