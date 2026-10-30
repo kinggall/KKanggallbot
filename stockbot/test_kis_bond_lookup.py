@@ -4,8 +4,9 @@ import io
 import zipfile
 import unittest
 from unittest.mock import Mock
+import requests
 
-from stockbot.kis_yields import parse_master, parse_current_chart, complete_yields, BondMaster, maturity_key, public_rows
+from stockbot.kis_yields import parse_master, parse_current_chart, complete_yields, BondMaster, maturity_key, public_rows, lookup_failure
 from stockbot.market_data import MarketDataError
 from stockbot.stock_quotes import KST
 
@@ -29,6 +30,19 @@ def quote(code,name,value='4.12',previous='4.10'):
 
 
 class BondLookupTests(unittest.TestCase):
+    def test_diagnostics_keep_failure_stage_but_not_secrets(self):
+        response=Mock(status_code=403)
+        error=requests.HTTPError('secret-token-url',response=response)
+        self.assertEqual(lookup_failure(error),'master HTTP 403')
+        self.assertEqual(lookup_failure(ValueError('secret-token-url')),'ValueError')
+        self.assertEqual(lookup_failure(MarketDataError('KIS bond instrument identity mismatch')),
+                         'KIS bond instrument identity mismatch')
+
+    def test_quote_parse_failure_is_preserved_in_candidate_diagnostics(self):
+        master=Mock();master.load.return_value={'us2':[{'code':'B2','name':'미국 2년','english':''}]}
+        result,details,errors=complete_yields({},NOW,master,lambda *args:quote('WRONG','미국 2년'))
+        self.assertEqual(details[0]['failure'],'KIS bond instrument identity mismatch')
+        self.assertEqual(errors['us2'],'KIS bond instrument identity mismatch')
     def test_nested_and_suffixed_output_groups_do_not_lose_maturities(self):
         data={'output3':{'rows':[{'hts_kor_isnm1':'국고채 2년','bond_mnrt_prpr1':'3.1',
                                  'stck_bsop_date1':'20261030'}]}}

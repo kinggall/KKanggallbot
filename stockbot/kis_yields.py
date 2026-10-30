@@ -65,6 +65,24 @@ MASTER_URL='https://new.real.download.dws.co.kr/common/master/frgn_code.mst.zip'
 YIELD_CHART='/uapi/overseas-price/v1/quotations/inquire-daily-chartprice'
 
 
+def lookup_failure(error):
+    """Retain failure stage, never a credential-bearing exception/body/URL."""
+    if isinstance(error,requests.HTTPError):
+        status=getattr(getattr(error,'response',None),'status_code',None)
+        return 'master HTTP '+str(status) if isinstance(status,int) else 'master HTTP error'
+    if isinstance(error,requests.Timeout):return 'master download timeout'
+    if isinstance(error,requests.ConnectionError):return 'master download connection failure'
+    safe={'KIS public master too large','Invalid KIS public bond master',
+          'No identified benchmark yields in KIS master','Missing KIS current bond header',
+          'KIS bond instrument identity mismatch','KIS bond country/maturity mismatch',
+          'Unidentified KIS bond quote name','Invalid KIS current yield',
+          'KIS current yield has no matching source date'}
+    if isinstance(error,MarketDataError):
+        text=str(error)
+        if text in safe or re.fullmatch(r'KIS quote unavailable(?: \([A-Z][A-Z0-9]{3,20}\))?',text):return text
+    return type(error).__name__
+
+
 def parse_master(payload):
     """Official stocks_info/overseas_index_code.py character offsets, CP949.
 
@@ -101,21 +119,23 @@ class BondMaster:
         self.cached=None
         self.loaded=0
         self.retry_after=0
+        self.last_failure=''
         self.lock=threading.Lock()
 
     def load(self):
         with self.lock:
             tick=self.monotonic()
             if self.cached is not None and tick-self.loaded<86400:return self.cached
-            if tick<self.retry_after:raise MarketDataError('KIS public master temporarily unavailable')
+            if tick<self.retry_after:raise MarketDataError(self.last_failure)
             try:
                 response=self.get(MASTER_URL,timeout=(4,10))
                 response.raise_for_status()
                 found=parse_master(response.content)
                 if not found:raise MarketDataError('No identified benchmark yields in KIS master')
-            except (requests.RequestException,MarketDataError):
+            except (requests.RequestException,MarketDataError) as error:
                 self.retry_after=self.monotonic()+60
-                raise MarketDataError('KIS public bond master unavailable') from None
+                self.last_failure=lookup_failure(error)
+                raise MarketDataError(self.last_failure) from None
             self.cached=found;self.loaded=self.monotonic()
             return found
 
@@ -176,8 +196,9 @@ def complete_yields(data,now,master,query_fn):
                     result[key]=observation
                 else:detail['kept']='newer_comp_interest_date'
                 break
-            except Exception:
-                errors[key]='KIS identified bond current quote unavailable'
+            except Exception as error:
+                detail['failure']=lookup_failure(error)
+                errors[key]=detail['failure']
         if key in result:errors.pop(key,None)
     return result,diagnostics,errors
 
