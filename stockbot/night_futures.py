@@ -14,7 +14,8 @@ CHART='/uapi/domestic-futureoption/v1/quotations/inquire-time-fuopchartprice'
 INDEX='/uapi/domestic-stock/v1/quotations/inquire-index-price'
 INTEREST='/uapi/domestic-stock/v1/quotations/comp-interest'
 YIELD_CHART='/uapi/overseas-price/v1/quotations/inquire-daily-chartprice'
-ENDPOINTS={BOARD:'FHPIF05030200',CHART:'FHKIF03020200',INDEX:'FHPUP02100000',INTEREST:'FHPST07020000',YIELD_CHART:'FHKST03030100'}
+INVESTOR='/uapi/domestic-stock/v1/quotations/inquire-investor-time-by-market'
+ENDPOINTS={BOARD:'FHPIF05030200',CHART:'FHKIF03020200',INDEX:'FHPUP02100000',INTEREST:'FHPST07020000',YIELD_CHART:'FHKST03030100',INVESTOR:'FHPTJ04030000'}
 HOSTS={'https://openapi.koreainvestment.com:9443','https://openapivts.koreainvestment.com:29443'}
 
 
