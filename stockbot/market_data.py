@@ -47,7 +47,7 @@ GROUPS = {
           Instrument('copper','🔩 구리 선물(USD/lb)','HG=F',digits=4)),
  '금리': tuple(Instrument(prefix+str(y),label+f' {y}년',f'TVC:{prefix.upper()}{y:02d}Y',
                          unit='%',digits=3,trim=True,provider='tradingview_yields')
-              for prefix,label in (('kr','🇰🇷 국고채'),('us','🇺🇸 미국채')) for y in (2,10,30)),
+              for prefix,label in (('kr','🇰🇷 국고채'),('us','🇺🇸 미국채')) for y in (2,5,10,30)),
  '코인': tuple(Instrument('coin'+s,label,s+'-USD',unit=' USD',digits=4 if s=='XRP' else 2)
              for s,label in (('BTC','₿ 비트코인'),('ETH','💎 이더리움'),('XRP','🪙 리플'))),
 }
@@ -332,4 +332,9 @@ class MarketService:
             lines.extend(['','조회 기준: '+basis,'출처: '+' / '.join(dict.fromkeys(v.source for v in values))])
         else:
             lines.extend(['','데이터 연결을 확인해 주세요.'])
+            if command=='금리':
+                from .tradingview_yields import failure_summary
+                diagnostics=getattr(getattr(self.provider,'tv_yields',None),'public_diagnostics',[])
+                reason=failure_summary(diagnostics)
+                if reason:lines.append('연결 상태: '+reason)
         return '\n'.join(lines)

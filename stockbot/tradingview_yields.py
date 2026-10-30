@@ -15,9 +15,28 @@ from .stock_quotes import KST, number
 
 
 SYMBOLS={prefix+str(year):f'TVC:{country}{year:02d}Y'
-         for prefix,country in (('kr','KR'),('us','US')) for year in (2,10,30)}
+         for prefix,country in (('kr','KR'),('us','US')) for year in (2,5,10,30)}
 COLUMNS=('close','change_abs','update_mode')
 ROUTES=('bond','cfd')
+
+
+def failure_summary(diagnostics):
+    if not isinstance(diagnostics,list) or not diagnostics:return None
+    labels={'request timeout':'TradingView 응답 시간 초과',
+            'connection/proxy unavailable':'TradingView 네트워크·프록시 연결 실패',
+            'invalid scanner response':'TradingView 응답 형식 불일치',
+            'request failed':'TradingView 요청 실패',
+            'HTTP 401':'TradingView 인증 필요(HTTP 401)',
+            'HTTP 403':'TradingView 접근 거절(HTTP 403)',
+            'HTTP 429':'TradingView 요청 제한(HTTP 429)'}
+    for row in diagnostics:
+        if not isinstance(row,dict):continue
+        reason=row.get('failure')
+        if reason in labels:return labels[reason]
+        if isinstance(reason,str) and re.fullmatch(r'HTTP [1-5]\d{2}',reason):return 'TradingView '+reason
+    if any(isinstance(row,dict) and row.get('missing') for row in diagnostics):
+        return 'TradingView 국채 심볼·값 미반환'
+    return None
 
 
 def parse_scanner(data,now):

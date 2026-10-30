@@ -22,8 +22,9 @@ class MarketTests(unittest.TestCase):
         provider.load.return_value=Observation(D('4.12'),D('4.10'),'2026-10-30','fixture')
         text=MarketService(provider).reply('금리')
         self.assertTrue(text.startswith('[국채 금리]\n\n'))
-        self.assertEqual(text.count('년:'),6)
-        self.assertNotIn('5년',text)
+        self.assertEqual(text.count('년:'),8)
+        self.assertIn('국고채 5년',text)
+        self.assertIn('미국채 5년',text)
         self.assertLess(text.index('국고채 30년'),text.index('미국채 2년'))
 
     def test_rate_heading_stays_visible_even_when_all_quotes_fail(self):
@@ -187,7 +188,7 @@ class MarketTests(unittest.TestCase):
         provider=MarketProvider(night_loader=loader)
         provider.tv_yields=Mock(return_value={})
         with patch.object(provider,'ecos') as ecos,patch.object(provider,'treasury') as fred:
-            with self.assertRaisesRegex(MarketDataError,'no other-source fallback'):provider.load(GROUPS['금리'][3])
+            with self.assertRaisesRegex(MarketDataError,'no other-source fallback'):provider.load(GROUPS['금리'][4])
             ecos.assert_not_called();fred.assert_not_called()
             loader.yields.assert_not_called()
 
@@ -223,7 +224,7 @@ class MarketTests(unittest.TestCase):
 
     def test_all_requested_groups_and_maturities(self):
         self.assertEqual(set(GROUPS),{'국내지수','미국지수','나선','야선','환율','상품','금리','코인'})
-        self.assertEqual([r.key for r in GROUPS['금리']],['kr2','kr10','kr30','us2','us10','us30'])
+        self.assertEqual([r.key for r in GROUPS['금리']],['kr2','kr5','kr10','kr30','us2','us5','us10','us30'])
 
     def test_compact_layout_has_absolute_and_percentage_changes(self):
         item=GROUPS['미국지수'][0]

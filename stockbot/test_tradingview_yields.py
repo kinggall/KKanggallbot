@@ -5,7 +5,7 @@ from unittest.mock import Mock,patch
 
 import requests
 
-from stockbot.tradingview_yields import SYMBOLS,COLUMNS,TradingViewYields,parse_scanner
+from stockbot.tradingview_yields import SYMBOLS,COLUMNS,TradingViewYields,parse_scanner,failure_summary
 from stockbot.market_data import MarketProvider,MarketService,GROUPS,format_line,MarketDataError
 from stockbot.stock_quotes import KST
 
@@ -18,17 +18,17 @@ def scanner(symbols=None,mode='streaming'):
 
 
 class TradingViewTests(unittest.TestCase):
-    def test_exact_six_user_selected_yield_indices(self):
-        self.assertEqual(list(SYMBOLS.values()),['TVC:KR02Y','TVC:KR10Y','TVC:KR30Y',
-                                               'TVC:US02Y','TVC:US10Y','TVC:US30Y'])
+    def test_exact_eight_user_selected_yield_indices(self):
+        self.assertEqual(list(SYMBOLS.values()),['TVC:KR02Y','TVC:KR05Y','TVC:KR10Y','TVC:KR30Y',
+                                               'TVC:US02Y','TVC:US05Y','TVC:US10Y','TVC:US30Y'])
         self.assertEqual({item.key:item.symbol for item in GROUPS['금리']},SYMBOLS)
 
     def test_yield_not_coupon_or_price_and_percentage_point_change(self):
         result,errors,modes=parse_scanner(scanner(),NOW)
-        self.assertEqual(len(result),6);self.assertEqual(errors,{})
+        self.assertEqual(len(result),8);self.assertEqual(errors,{})
         self.assertEqual(result['us2'].value,D('4.594'))
         self.assertEqual(result['us2'].previous,D('4.602'))
-        self.assertIn('4.594%\n   (▼0.008%p, ▼0.17%)',format_line(GROUPS['금리'][3],result['us2']))
+        self.assertIn('4.594%\n   (▼0.008%p, ▼0.17%)',format_line(GROUPS['금리'][4],result['us2']))
 
     def test_unknown_symbols_and_missing_values_are_not_invented(self):
         data={'data':[{'s':'NASDAQ:US02Y','d':[100,1,'streaming']},
@@ -55,7 +55,7 @@ class TradingViewTests(unittest.TestCase):
         response=Mock();response.json.return_value=scanner()
         post=Mock(return_value=response)
         result=TradingViewYields(post=post,now=lambda:NOW)()
-        self.assertEqual(len(result),6);self.assertEqual(post.call_count,1)
+        self.assertEqual(len(result),8);self.assertEqual(post.call_count,1)
         kwargs=post.call_args.kwargs
         self.assertNotIn('cookies',kwargs);self.assertNotIn('auth',kwargs)
         self.assertEqual(kwargs['json']['columns'],list(COLUMNS))
@@ -66,7 +66,7 @@ class TradingViewTests(unittest.TestCase):
         second=Mock();second.json.return_value=scanner()
         post=Mock(side_effect=[first,second])
         result=TradingViewYields(post=post,now=lambda:NOW)()
-        self.assertEqual(len(result),6)
+        self.assertEqual(len(result),8)
         self.assertEqual(post.call_args.args[0],'https://scanner.tradingview.com/cfd/scan')
 
     def test_access_refusal_and_rate_limit_stop_routes_and_back_off(self):
@@ -92,6 +92,16 @@ class TradingViewTests(unittest.TestCase):
         self.assertIn('출처: TradingView',text)
         self.assertNotIn('한국투자증권',text)
         self.assertEqual(loader.call_count,1)
+
+    def test_all_failed_reply_exposes_safe_status_without_needing_pc_console(self):
+        loader=Mock(side_effect=MarketDataError('secret-token'))
+        loader.public_diagnostics=[{'scanner':'bond','failure':'HTTP 403'}]
+        provider=MarketProvider();provider.tv_yields=loader
+        text=MarketService(provider).reply('금리')
+        self.assertIn('연결 상태: TradingView 접근 거절(HTTP 403)',text)
+        self.assertEqual(text.count('조회 불가'),8)
+        self.assertNotIn('secret-token',text)
+        self.assertIsNone(failure_summary([{'failure':'secret-token'}]))
 
 
 if __name__=='__main__':unittest.main()
