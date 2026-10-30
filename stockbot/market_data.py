@@ -41,7 +41,8 @@ GROUPS = {
  '미국지수': (Instrument('sp500','🇺🇸 S&P500','^GSPC'), Instrument('nasdaq','🇺🇸 나스닥','^IXIC'), Instrument('dow','🇺🇸 다우','^DJI')),
  '나선': (Instrument('nq','🇺🇸 나스닥100 선물','NQ=F'),),
  '야선': (Instrument('night','🇰🇷 KOSPI200 야간선물',provider='kis_night'),),
- '환율': (Instrument('usdkrw','💵 USD/KRW','KRW=X'),Instrument('dxy','💵 달러인덱스','DX-Y.NYB')),
+ '환율': (Instrument('usdkrw','💵 USD/KRW','FX_IDC:USDKRW',provider='tradingview_forex'),
+          Instrument('dxy','💵 달러인덱스','TVC:DXY',provider='tradingview_forex')),
  '상품': (Instrument('gold','🥇 금 선물(USD/oz)','GC=F'), Instrument('silver','🥈 은 선물(USD/oz)','SI=F',digits=3),
           Instrument('wti','🛢️ WTI 선물(USD/배럴)','CL=F'),Instrument('gas','🔥 천연가스 선물(USD/MMBtu)','NG=F',digits=3),
           Instrument('copper','🔩 구리 선물(USD/lb)','HG=F',digits=4)),
@@ -100,6 +101,7 @@ class MarketProvider:
         self.request_lock=threading.Lock()
         self.last_request=0
         self.tv_yields=None
+        self.tv_forex=None
 
     def request(self,url,**kwargs):
         with self.request_lock:
@@ -124,6 +126,14 @@ class MarketProvider:
         if item.provider == 'upbit': return self.batch('coins',self.upbit,15)[item.key]
         if item.provider == 'treasury': return self.batch('treasury',self.treasury,600)[item.key]
         if item.provider == 'ecos': return self.ecos(item)
+        if item.provider == 'tradingview_forex':
+            with self.lock:
+                if self.tv_forex is None:
+                    from .tradingview_forex import TradingViewForex
+                    self.tv_forex=TradingViewForex(now=self.now)
+            values=self.batch('tradingview_forex',self.tv_forex,15)
+            if item.key not in values:raise MarketDataError('TradingView forex symbol unavailable; no other-source fallback')
+            return values[item.key]
         if item.provider == 'tradingview_yields':
             with self.lock:
                 if self.tv_yields is None:
@@ -331,9 +341,10 @@ class MarketService:
             lines.extend(['','조회 기준: '+basis,'출처: '+' / '.join(dict.fromkeys(v.source for v in values))])
         else:
             lines.extend(['','데이터 연결을 확인해 주세요.'])
-            if command=='금리':
+            if command in ('금리','환율'):
                 from .tradingview_yields import failure_summary
-                diagnostics=getattr(getattr(self.provider,'tv_yields',None),'public_diagnostics',[])
-                reason=failure_summary(diagnostics)
+                family='tv_yields' if command=='금리' else 'tv_forex'
+                diagnostics=getattr(getattr(self.provider,family,None),'public_diagnostics',[])
+                reason=failure_summary(diagnostics,subject='국채' if command=='금리' else '환율')
                 if reason:lines.append('연결 상태: '+reason)
         return '\n'.join(lines)

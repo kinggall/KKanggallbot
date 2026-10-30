@@ -29,6 +29,8 @@ def main():
     if args.details:
         for diagnostic in getattr(MARKETS.provider.tv_yields,'public_diagnostics',[]):
             print('TradingView yield lookup:',diagnostic)
+        for diagnostic in getattr(MARKETS.provider.tv_forex,'public_diagnostics',[]):
+            print('TradingView forex lookup:',diagnostic)
         loader=MARKETS.provider.night_loader
         if hasattr(loader,'public_night_reference'):
             print('KIS night day-close reference:',loader.public_night_reference)

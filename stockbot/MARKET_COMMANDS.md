@@ -9,7 +9,7 @@
 | !미국지수 | S&P500·나스닥종합·다우 | Yahoo |
 | !나선 | 나스닥100 연속 선물 | Yahoo |
 | !야선 | KOSPI200 일반 분기 월물 야간선물 | 한투 |
-| !환율 | USD/KRW·달러인덱스 | Yahoo |
+| !환율 | USD/KRW 현물·달러인덱스 | TradingView만 사용 |
 | !상품 | 금·은·WTI·천연가스·구리 연속 선물 | Yahoo |
 | !금리 | 국고채 2·5·10·30년 / 미국채 2·5·10·30년, 총 8개 | TradingView만 사용 |
 | !코인 | BTC·ETH·XRP 실제 USD 페어 | Yahoo |
@@ -87,6 +87,14 @@ KQI=코스닥150입니다. KI는 잘못된 요청값이었습니다.
 https://github.com/koreainvestment/open-trading-api/blob/main/legacy/postman/실전계좌_POSTMAN_샘플코드_v2.6.json
 
 ## 수급 및 기타
+
+!환율은 FX_IDC:USDKRW와 TVC:DXY를 global + markets=[] 한 번에 요청합니다.
+누락 시 같은 TradingView의 forex/cfd 자산 경로만 확인하며 Yahoo로 대체하지 않습니다.
+금리의 -20~100 값 범위를 환율에 잘못 적용하지 않도록 환율은 양수~100000 범위를 별도로 검증합니다.
+15초 배치 캐시, 원본 심볼 검증, 피드 지연 표시, 접근 차단·요청 제한 중단 규칙은 금리와 같습니다.
+조회 기준은 요청 시각이며 원본 체결시각은 아닙니다. 이전 Yahoo 조회 실패의 원인은 확정하지 못했습니다.
+금리 TradingView 8개는 사용자 PC에서 실제 성공했지만 새 환율 2개는 전환 후 PC 확인이 남아 있습니다.
+공개 검증은 python -m stockbot.verify_markets 환율 --details이며 오류는 인증값 없이 출력합니다.
 
 !수급의 시장·투자자·단위와 PC 검증은 INVESTOR_FLOWS.md를 참고합니다.
 국내지수는 원본에 체결시각이 없어 조회 시각이며, 다른 값도 모두 같은 시각이라는 뜻이 아닙니다.

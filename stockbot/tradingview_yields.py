@@ -23,7 +23,7 @@ COLUMNS=('close','change_abs','update_mode')
 ROUTES=('global','bond','cfd')
 
 
-def failure_summary(diagnostics):
+def failure_summary(diagnostics,subject='국채'):
     if not isinstance(diagnostics,list) or not diagnostics:return None
     labels={'request timeout':'TradingView 응답 시간 초과',
             'connection/proxy unavailable':'TradingView 네트워크·프록시 연결 실패',
@@ -42,17 +42,18 @@ def failure_summary(diagnostics):
                  for reason in row.get('missing',{}).values()}
         if 'daily-only feed rejected' in reasons:return 'TradingView 일별 전용 피드 반환(실시간으로 사용하지 않음)'
         if 'unexpected fields' in reasons:return 'TradingView 응답 필드 불일치'
-        if 'missing or invalid yield' in reasons:return 'TradingView 금리 값 누락'
+        if 'missing or invalid yield' in reasons:return 'TradingView '+('금리' if subject=='국채' else subject)+' 값 누락'
         counts=[row['scanner']+' '+str(row['matched'])+'건' for row in diagnostics
-                if isinstance(row,dict) and row.get('scanner') in ROUTES and isinstance(row.get('matched'),int)]
-        return 'TradingView 국채 심볼 미반환'+(' ('+' / '.join(counts)+')' if counts else '')
+                if isinstance(row,dict) and row.get('scanner') in ROUTES+('forex',) and isinstance(row.get('matched'),int)]
+        return 'TradingView '+subject+' 심볼 미반환'+(' ('+' / '.join(counts)+')' if counts else '')
     return None
 
 
-def parse_scanner(data,now):
+def parse_scanner(data,now,symbols=None,bounds=(-20,100)):
     if not isinstance(data,dict) or not isinstance(data.get('data'),list):
         raise MarketDataError('TradingView yield response schema unavailable')
-    reverse={symbol:key for key,symbol in SYMBOLS.items()}
+    symbols=SYMBOLS if symbols is None else symbols
+    reverse={symbol:key for key,symbol in symbols.items()}
     found={};errors={};modes={}
     for row in data['data']:
         if not isinstance(row,dict) or row.get('s') not in reverse:continue
@@ -64,7 +65,7 @@ def parse_scanner(data,now):
             errors[key]='unexpected fields';continue
         value,delta,mode=fields
         value,delta=number(value),number(delta)
-        if value is None or not -20<value<100:
+        if value is None or not bounds[0]<value<bounds[1]:
             errors[key]='missing or invalid yield';continue
         mode=mode if isinstance(mode,str) and re.fullmatch(r'[A-Za-z0-9_]{1,60}',mode) else 'unknown'
         modes[key]=mode
@@ -79,27 +80,32 @@ def parse_scanner(data,now):
         else:source='TradingView · 지연 여부 미확인'
         found[key]=checked_observation(value,value-delta if delta is not None else None,
                                        now.astimezone(KST).isoformat(),source)
-    for key in SYMBOLS:
+    for key in symbols:
         if key not in found:errors.setdefault(key,'symbol not returned by this scanner')
     return found,errors,modes
 
 
 class TradingViewYields:
-    def __init__(self,post=requests.post,now=None,monotonic=time.monotonic):
+    def __init__(self,post=requests.post,now=None,monotonic=time.monotonic,
+                 symbols=None,routes=None,bounds=(-20,100),family='yields'):
         self.post=post
         self.now=now or (lambda:datetime.now(KST))
         self.public_diagnostics=[]
         self.monotonic=monotonic
         self.blocked_until=0
         self.last_failure=''
+        self.symbols=SYMBOLS if symbols is None else symbols
+        self.routes=ROUTES if routes is None else routes
+        self.bounds=bounds
+        self.family=family
 
     def __call__(self):
         if self.monotonic()<self.blocked_until:
-            raise MarketDataError('TradingView yields unavailable: '+self.last_failure+'; retry backoff active')
+            raise MarketDataError('TradingView '+self.family+' unavailable: '+self.last_failure+'; retry backoff active')
         self.public_diagnostics=[]
         result={}
-        for route in ROUTES:
-            pending=[symbol for key,symbol in SYMBOLS.items() if key not in result]
+        for route in self.routes:
+            pending=[symbol for key,symbol in self.symbols.items() if key not in result]
             if not pending:break
             diagnostic={'scanner':route}
             self.public_diagnostics.append(diagnostic)
@@ -110,14 +116,14 @@ class TradingViewYields:
                     headers={'User-Agent':'Mozilla/5.0','Content-Type':'application/json'},timeout=(4,10))
                 response.raise_for_status()
                 payload=response.json()
-                found,errors,modes=parse_scanner(payload,self.now())
+                found,errors,modes=parse_scanner(payload,self.now(),self.symbols,self.bounds)
                 diagnostic['matched']=sum(1 for row in payload['data']
                                           if isinstance(row,dict) and row.get('s') in pending)
                 diagnostic.update({'accepted':sorted(found),
-                                   'missing':{key:reason for key,reason in errors.items() if SYMBOLS[key] in pending},
+                                   'missing':{key:reason for key,reason in errors.items() if self.symbols[key] in pending},
                                    'update_modes':modes})
                 for key,value in found.items():
-                    if SYMBOLS[key] in pending:result[key]=value
+                    if self.symbols[key] in pending:result[key]=value
             except requests.HTTPError as error:
                 status=getattr(getattr(error,'response',None),'status_code',None)
                 diagnostic['failure']='HTTP '+str(status) if isinstance(status,int) else 'HTTP error'
@@ -136,5 +142,5 @@ class TradingViewYields:
         if not result:
             reason=next((row['failure'] for row in self.public_diagnostics if 'failure' in row),
                         'no valid yield symbols returned')
-            raise MarketDataError('TradingView yields unavailable: '+reason) from None
+            raise MarketDataError('TradingView '+self.family+' unavailable: '+reason) from None
         return result
