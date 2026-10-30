@@ -128,7 +128,7 @@ def format_quote(quote):
 class StockService:
     def __init__(self, cache_dir=None, code_dir=None, data_home=None,
                  codes_loader=None, quote_loader=None, basic_loader=None, monotonic=time.monotonic,
-                 us_loader=None):
+                 us_loader=None,listing_lookup=None):
         self.code_dir = Path(code_dir or os.environ.get('KAKAO_STOCK_CODE_DIR') or Path.home() / 'projects' / 'domino-code')
         self.data_home = Path(data_home or os.environ.get('KAKAO_STOCK_DATA_HOME') or 'C:/domino')
         self.cache_dir = Path(cache_dir or os.environ.get('LOCALAPPDATA') or os.environ.get('XDG_CACHE_HOME') or Path.home() / '.cache') / 'KKanggallbot-stocks'
@@ -141,6 +141,10 @@ class StockService:
         self.codes = {}; self.codes_loaded_at = None; self.quotes = {}; self.client = None
         self.code_names = {}
         self.detail_quotes = {}
+        self.listing_lookup=listing_lookup
+        if listing_lookup is None and codes_loader is None:
+            from .listing_lookup import DailyListingLookup
+            self.listing_lookup=DailyListingLookup(self.basic_loader)
 
     def details(self, ticker, currency):
         """Structured public quote for portfolio display; never parse reply text."""
@@ -260,6 +264,8 @@ class StockService:
                 return matches[0]
             return ''
         if currency == 'KRW':
+            if self.listing_lookup is not None:
+                return self.listing_lookup(name)
             with self.lock:
                 codes = self._catalog().get(normalize(name), set())
                 if not codes:

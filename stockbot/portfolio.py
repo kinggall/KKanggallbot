@@ -78,6 +78,16 @@ def display(value, suffix=''):
     return text + suffix
 
 
+def holding_symbol(row):
+    raw=str(row.get('ticker') or '').split(':')[-1].strip().upper()
+    if normalize(raw) in ('','미확인','코드미확인','unknown','none','null','n/a'):return ''
+    prefix=str(row.get('ticker') or '').split(':')[0].upper()
+    if row.get('listing_market')=='US' or prefix in ('NASDAQ','NYSE','NYSEARCA','NYSEAMERICAN','AMEX','NAS','NYS','AMS'):
+        return raw if re.fullmatch(r'[A-Z]{1,10}(?:[.\-/][A-Z])?',raw) else ''
+    if row.get('currency')=='KRW':return raw if re.fullmatch(r'[A-Z0-9]{6}',raw) else ''
+    return raw if re.fullmatch(r'[A-Z]{1,10}(?:[.\-/][A-Z])?',raw) else ''
+
+
 class PortfolioService:
     def __init__(self, loader=load_snapshot, monotonic=time.monotonic, name_loader=None, quote_loader=None, symbol_names=None, ticker_lookup=None):
         self.loader, self.monotonic = loader, monotonic
@@ -89,9 +99,25 @@ class PortfolioService:
         self.symbol_names = symbol_names
         self.ticker_lookup = ticker_lookup
 
+    def resolved_row(self,row):
+        item=dict(row)
+        if normalize(item['name']) in {normalize(name) for name in UNLISTED_NAMES}:
+            item['ticker']=''
+            return item
+        symbol=holding_symbol(item)
+        if symbol:return item
+        if not symbol and self.ticker_lookup:
+            try:
+                candidate=self.ticker_lookup(item['name'],item.get('currency'))
+                symbol=holding_symbol(dict(item,ticker=candidate))
+            except Exception:symbol=''
+        item['ticker']=symbol
+        return item
+
     def position_text(self, rows, data):
         blocks = []
         for row in rows:
+            row=self.resolved_row(row)
             unit = '원' if row.get('currency') == 'KRW' else ' USD' if row.get('currency') == 'USD' else ''
             live = {}
             if self.quote_loader and row.get('ticker'):
@@ -121,8 +147,9 @@ class PortfolioService:
     def holdings_text(self, rows, generated_at, title='보유종목'):
         lines, seen = ['[' + title + ']'], set()
         for row in rows:
-            symbol = str(row.get('ticker') or '').split(':')[-1].strip()
-            identity = (row.get('currency'), symbol or normalize(row['name']))
+            row=self.resolved_row(row)
+            symbol = holding_symbol(row)
+            identity = (row.get('currency'), 'code' if symbol else 'name', symbol or normalize(row['name']))
             if identity in seen:
                 continue
             seen.add(identity)
@@ -145,6 +172,9 @@ class PortfolioService:
         enriched = []
         for row in rows:
             item = dict(row)
+            if normalize(item['name']) in {normalize(name) for name in UNLISTED_NAMES}:
+                enriched.append(item)
+                continue
             if not item.get('ticker') or item['ticker'] in ('미확인', '코드 미확인'):
                 holdings = [r for r in data['holdings']
                               if normalize(r['name']) == normalize(item['name'])
