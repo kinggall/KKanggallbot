@@ -199,17 +199,18 @@ class MarketTests(unittest.TestCase):
         with patch.object(adapter,'client_instance',return_value=Mock()),patch('stockbot.night_futures.query',side_effect=[board,chart]) as request:
             value=adapter()
         self.assertEqual(value.value,D('932.10'))
-        self.assertEqual(request.call_args.args[2]['FID_INPUT_ISCD'],'A01612')
-        self.assertEqual(request.call_args.args[2]['FID_INPUT_HOUR_1'],'300000')
-        self.assertEqual(request.call_args.args[2]['FID_INPUT_DATE_1'],'20261029')
-        self.assertEqual(request.call_args.args[2]['FID_COND_MRKT_DIV_CODE'],'CM')
+        night_params=request.call_args_list[1].args[2]
+        self.assertEqual(night_params['FID_INPUT_ISCD'],'A01612')
+        self.assertEqual(night_params['FID_INPUT_HOUR_1'],'300000')
+        self.assertEqual(night_params['FID_INPUT_DATE_1'],'20261029')
+        self.assertEqual(night_params['FID_COND_MRKT_DIV_CODE'],'CM')
 
     def test_extended_night_bar_time_and_reference_close_after_session(self):
         data={'output1':{'futs_shrn_iscd':'A01612','futs_prpr':'932.10','futs_prdy_clpr':'935'},
               'output2':[{'stck_bsop_date':'20261029','stck_cntg_hour':'300000','futs_prpr':'932.10'}]}
         value=night_observation(data,'A01612',datetime(2026,10,30,8,tzinfo=KST),night_market=True)
         self.assertEqual(value.as_of,'2026-10-30T06:00:00+09:00')
-        self.assertEqual(value.previous,D('935'))
+        self.assertIsNone(value.previous)
 
     def test_requested_month_missing_does_not_silently_use_another_contract(self):
         adapter=KISNightFutures(Mock(),now=lambda:datetime(2026,10,30,8,tzinfo=KST),contract='202612')
@@ -310,7 +311,7 @@ class MarketTests(unittest.TestCase):
         row=dict(stck_bsop_date='20261030',stck_cntg_hour='005900',futs_prpr='932.10')
         data=dict(output1=basic,output2=[row])
         obs=night_observation(data,'101Z12',now)
-        self.assertEqual(obs.value,D('932.10'));self.assertEqual(obs.previous,D(935))
+        self.assertEqual(obs.value,D('932.10'));self.assertIsNone(obs.previous)
         row.update(stck_cntg_hour='150000',stck_bsop_date='20261029')
         with self.assertRaises(MarketDataError):night_observation(data,'101Z12',now)
         with self.assertRaises(MarketDataError):night_observation(data,'101OTHER',now)

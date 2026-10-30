@@ -4,6 +4,7 @@ import calendar
 import re
 import os
 import time
+import threading
 from urllib.parse import urlencode
 
 from .market_data import checked_observation, MarketDataError
@@ -122,16 +123,32 @@ def night_observation(data,code,now,night_market=False):
             continue
     if not candidates:raise MarketDataError('No confirmed night-session bar')
     stamp,price=max(candidates,key=lambda row:row[0])
-    # Current basic quote may be a later day-session value. In that case do not
-    # mix its reference close/change with an earlier night bar.
-    previous=basic.get('futs_prdy_clpr') if number(basic.get('futs_prpr'))==price and (night_market or now.hour>=18 or now.hour<6) else None
-    return checked_observation(price,previous,stamp.isoformat(),'한국투자증권 · '+code)
+    # CM futs_prdy_clpr can mean the preceding NIGHT close (915.10 in the
+    # reported case), not the intervening DAY close (899.45). Never use it.
+    return checked_observation(price,None,stamp.isoformat(),'한국투자증권 · '+code)
+
+
+def regular_session_close(data,code,day):
+    if data.get('output1',{}).get('futs_shrn_iscd')!=code:
+        raise MarketDataError('Day-close futures identity mismatch')
+    values=[]
+    for row in data.get('output2',[]):
+        if str(row.get('stck_bsop_date',''))!=day.strftime('%Y%m%d'):continue
+        # Standard KOSPI200 futures closing auction: 15:45. Earlier intraday
+        # bars, previous sessions, and settlement/reference fields are not it.
+        if str(row.get('stck_cntg_hour','')).zfill(6)!='154500':continue
+        value=number(row.get('futs_prpr'))
+        if value is not None and value>0:values.append(value)
+    if not values or len(set(values))!=1:raise MarketDataError('Confirmed day-session closing bar unavailable')
+    return values[0]
 
 
 class KISNightFutures:
     def __init__(self,stock_service,now=None,contract=None):
         self.stock_service=stock_service
         self.now=now or (lambda:datetime.now(KST))
+        self.reference_cache={}
+        self.reference_lock=threading.Lock()
         # Resolve actual codes from the board and roll only quarterly months.
         self.contract=contract or os.environ.get('KAKAO_NIGHT_FUTURES_MONTH','202612')
         if not re.fullmatch(r'20\d{2}(?:0[1-9]|1[0-2])',self.contract):
@@ -145,6 +162,21 @@ class KISNightFutures:
             if service.client is None:service.client=kis.Client(service.data_home)
             client=service.client
         return client
+
+    def day_close(self,client,code,day):
+        key=(code,day.isoformat())
+        with self.reference_lock:
+            cached=self.reference_cache.get(key)
+            if cached and (cached[1] is not None or time.monotonic()-cached[0]<5):return cached[1]
+            try:
+                data=query(client,CHART,{'FID_COND_MRKT_DIV_CODE':'F','FID_INPUT_ISCD':code,
+                           'FID_HOUR_CLS_CODE':'60','FID_PW_DATA_INCU_YN':'Y','FID_FAKE_TICK_INCU_YN':'N',
+                           'FID_INPUT_DATE_1':day.strftime('%Y%m%d'),'FID_INPUT_HOUR_1':'154500'})
+                value=regular_session_close(data,code,day)
+            except Exception:value=None
+            self.reference_cache[key]=(time.monotonic(),value)
+            if len(self.reference_cache)>16:self.reference_cache.pop(next(iter(self.reference_cache)))
+            return value
 
     def domestic_index(self,item):
         codes={'kospi':'0001','kosdaq':'1001','kospi200':'2001'}
@@ -190,4 +222,10 @@ class KISNightFutures:
                                 'FID_HOUR_CLS_CODE':'60','FID_PW_DATA_INCU_YN':'Y','FID_FAKE_TICK_INCU_YN':'N',
                                 'FID_INPUT_DATE_1':session_day.strftime('%Y%m%d'),
                                 'FID_INPUT_HOUR_1':f'{hour:02d}{minute:02d}{second:02d}'})
-        return night_observation(data,code,now,night_market=True)
+        observation=night_observation(data,code,now,night_market=True)
+        stamp=datetime.fromisoformat(observation.as_of)
+        reference_day=stamp.date() if stamp.hour>=18 else (stamp-timedelta(days=1)).date()
+        previous=self.day_close(client,code,reference_day)
+        self.public_night_reference={'contract':code,'day':reference_day.isoformat(),
+                                     'day_close':str(previous) if previous is not None else 'unavailable'}
+        return checked_observation(observation.value,previous,observation.as_of,observation.source)

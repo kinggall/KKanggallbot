@@ -28,6 +28,8 @@ def main():
                 print(command+' / '+item.key+': FAILED ('+reason+')')
     if args.details:
         loader=MARKETS.provider.night_loader
+        if hasattr(loader,'public_night_reference'):
+            print('KIS night day-close reference:',loader.public_night_reference)
         for section,shape in getattr(loader,'public_yield_schema',{}).items():
             print('KIS public schema:',section,shape)
         for row in getattr(loader,'public_yield_rows',[])[:50]:
