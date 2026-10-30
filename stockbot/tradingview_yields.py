@@ -17,7 +17,10 @@ from .stock_quotes import KST, number
 SYMBOLS={prefix+str(year):f'TVC:{country}{year:02d}Y'
          for prefix,country in (('kr','KR'),('us','US')) for year in (2,5,10,30)}
 COLUMNS=('close','change_abs','update_mode')
-ROUTES=('bond','cfd')
+# The documented scanner client uses global + markets=[] for all asset
+# classes, and sets markets=[route] on an asset-scoped request. A URL alone
+# does not establish the same request scope as that client.
+ROUTES=('global','bond','cfd')
 
 
 def failure_summary(diagnostics):
@@ -35,7 +38,14 @@ def failure_summary(diagnostics):
         if reason in labels:return labels[reason]
         if isinstance(reason,str) and re.fullmatch(r'HTTP [1-5]\d{2}',reason):return 'TradingView '+reason
     if any(isinstance(row,dict) and row.get('missing') for row in diagnostics):
-        return 'TradingView 국채 심볼·값 미반환'
+        reasons={reason for row in diagnostics if isinstance(row,dict)
+                 for reason in row.get('missing',{}).values()}
+        if 'daily-only feed rejected' in reasons:return 'TradingView 일별 전용 피드 반환(실시간으로 사용하지 않음)'
+        if 'unexpected fields' in reasons:return 'TradingView 응답 필드 불일치'
+        if 'missing or invalid yield' in reasons:return 'TradingView 금리 값 누락'
+        counts=[row['scanner']+' '+str(row['matched'])+'건' for row in diagnostics
+                if isinstance(row,dict) and row.get('scanner') in ROUTES and isinstance(row.get('matched'),int)]
+        return 'TradingView 국채 심볼 미반환'+(' ('+' / '.join(counts)+')' if counts else '')
     return None
 
 
@@ -95,10 +105,14 @@ class TradingViewYields:
             self.public_diagnostics.append(diagnostic)
             try:
                 response=self.post('https://scanner.tradingview.com/'+route+'/scan',
-                    json={'symbols':{'tickers':pending,'query':{'types':[]}},'columns':list(COLUMNS)},
+                    json={'markets':[] if route=='global' else [route],
+                          'symbols':{'tickers':pending,'query':{'types':[]}},'columns':list(COLUMNS)},
                     headers={'User-Agent':'Mozilla/5.0','Content-Type':'application/json'},timeout=(4,10))
                 response.raise_for_status()
-                found,errors,modes=parse_scanner(response.json(),self.now())
+                payload=response.json()
+                found,errors,modes=parse_scanner(payload,self.now())
+                diagnostic['matched']=sum(1 for row in payload['data']
+                                          if isinstance(row,dict) and row.get('s') in pending)
                 diagnostic.update({'accepted':sorted(found),
                                    'missing':{key:reason for key,reason in errors.items() if SYMBOLS[key] in pending},
                                    'update_modes':modes})

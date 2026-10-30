@@ -60,6 +60,8 @@ class TradingViewTests(unittest.TestCase):
         self.assertNotIn('cookies',kwargs);self.assertNotIn('auth',kwargs)
         self.assertEqual(kwargs['json']['columns'],list(COLUMNS))
         self.assertEqual(kwargs['json']['symbols']['tickers'],list(SYMBOLS.values()))
+        self.assertEqual(post.call_args.args[0],'https://scanner.tradingview.com/global/scan')
+        self.assertEqual(kwargs['json']['markets'],[])
 
     def test_empty_asset_scanner_tries_other_asset_route_not_other_data_source(self):
         first=Mock();first.json.return_value={'data':[]}
@@ -67,7 +69,8 @@ class TradingViewTests(unittest.TestCase):
         post=Mock(side_effect=[first,second])
         result=TradingViewYields(post=post,now=lambda:NOW)()
         self.assertEqual(len(result),8)
-        self.assertEqual(post.call_args.args[0],'https://scanner.tradingview.com/cfd/scan')
+        self.assertEqual(post.call_args.args[0],'https://scanner.tradingview.com/bond/scan')
+        self.assertEqual(post.call_args.kwargs['json']['markets'],['bond'])
 
     def test_access_refusal_and_rate_limit_stop_routes_and_back_off(self):
         for status in (401,403,429):
@@ -102,6 +105,15 @@ class TradingViewTests(unittest.TestCase):
         self.assertEqual(text.count('조회 불가'),8)
         self.assertNotIn('secret-token',text)
         self.assertIsNone(failure_summary([{'failure':'secret-token'}]))
+
+    def test_diagnostics_distinguish_no_symbols_from_daily_only_values(self):
+        response=Mock();response.json.return_value={'data':[]}
+        loader=TradingViewYields(post=Mock(return_value=response),now=lambda:NOW)
+        with self.assertRaises(MarketDataError):loader()
+        self.assertIn('global 0건',failure_summary(loader.public_diagnostics))
+        response.json.return_value=scanner(mode='endofday')
+        with self.assertRaises(MarketDataError):loader()
+        self.assertIn('일별 전용 피드',failure_summary(loader.public_diagnostics))
 
 
 if __name__=='__main__':unittest.main()
