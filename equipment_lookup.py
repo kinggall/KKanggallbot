@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import re
 import unicodedata
+from equipment_updates import supplement_rows
 
 STATS = (("火力", "화력"), ("雷装", "뇌장"), ("対空", "대공"),
          ("装甲", "장갑"), ("対潜", "대잠"), ("回避", "회피"),
@@ -54,19 +55,22 @@ class EquipmentCatalog:
             raise ValueError("장비 별명 파일의 최상위 형식은 객체여야 합니다.")
         self.items, self.names, self.gun_names = {}, {}, {}
         known_jp_names = set()
+        additions = supplement_rows(root)
+        extra_names = {r['values']['装備ID']: r.get('name', r['name_jp']) for r in additions}
         with (root / "equipments.csv").open(encoding="cp932", newline="") as file:
             reader = csv.DictReader(file)
             required = {"装備ID", "装備名", "装備種3", "射程", "配置コスト", "戦闘行動半径", *(field for field, _ in STATS)}
             if not required.issubset(reader.fieldnames or []):
                 raise ValueError("장비 CSV에 필요한 컬럼이 없습니다.")
-            for row in reader:
+            rows = [*reader, *({**r['values'], '装備名': r['name_jp']} for r in additions)]
+            for row in rows:
                 item_id = int(row["装備ID"])
                 if not 0 < item_id < 1500:
                     continue
                 if item_id in self.items:
                     raise ValueError(f"중복 장비 ID: {item_id}")
                 translation = meta.get(str(item_id), {})
-                name = display_name(overrides.get(str(item_id), translation.get("name", row["装備名"])))
+                name = display_name(overrides.get(str(item_id), extra_names.get(item_id, translation.get("name", row["装備名"]))))
                 values = {field: int(row[field]) for field in required - {"装備名"}}
                 self.items[item_id] = dict(name=name, values=values)
                 jp_name = row["装備名"]

@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/Tibowl/api_start2/master/parsed/api_mst_slotitem.json",
+      "sha256": "8404e1ca719f662e72a1fefec1fce190a4a84d3bd7a118fb7920471686364ea9"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kcwiki/kancolle-data/master/api/api_start2.json",
+      "sha256": "0cc222bbc82bb68b982f34e28bb5837fb243c9a90de6ef436e9901bc55a57999"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/ElectronicObserverEN/Data/master/Translations/ko-KR/equipment.json",
+      "sha256": "be14b8a7081e5b558b9c525a52a5f4e0fd98ebedf4198c1b9f775470c2e4279d"
+    }
+  ],
+  "items": []
+}
