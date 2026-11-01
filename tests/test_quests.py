@@ -142,7 +142,7 @@ Bw5 + B98'''
         self.assertEqual(self.catalog.search_keys("다몬마루"), self.catalog.search_keys("히류"))
         self.assertEqual(self.catalog.search_keys("시마키요 히데"), self.catalog.search_keys("키요히데"))
         self.assertEqual(self.catalog.search_keys("구리다 타케오"), self.catalog.search_keys("쿠리다"))
-        self.assertIn("검색 결과 40개", self.catalog.reply("니시무라"))
+        self.assertIn("검색 결과 41개", self.catalog.reply("니시무라"))
         self.assertIn("앞의 30개만 표시합니다", self.catalog.reply("니시무라"))
 
     def test_graph_has_no_cycles_and_all_ids_have_external_codes(self):
@@ -164,7 +164,7 @@ Bw5 + B98'''
 
     def test_every_quest_renders_offline_and_external_code_returns_same_record(self):
         with patch.object(requests, "get", side_effect=AssertionError("Quest lookup must stay offline")):
-            self.assertEqual(len(self.catalog.items), 664)
+            self.assertEqual(len(self.catalog.items), 678)
             for key, row in self.catalog.items.items():
                 with self.subTest(code=row["wiki_id"]):
                     result = self.catalog.reply(row["wiki_id"].lower())
@@ -185,6 +185,10 @@ Bw5 + B98'''
         self.assertEqual(report["priority"], ["verified", "quests.json", "unverified"])
         self.assertEqual(report["unresolved_prerequisite_ids"], [])
         for key, row in self.catalog.items.items():
+            if row.get('translation_only'):
+                supplements = json.loads((ROOT / 'data/quest_translation_supplements.json').read_text())
+                self.assertEqual(row, next(q for q in supplements['quests'] if str(q['game_id']) == key))
+                continue
             if row.get('source_row'):
                 digest = hashlib.sha256(json.dumps(row['source_row'], ensure_ascii=False).encode()).hexdigest()
                 self.assertEqual(digest, row['source_sha256'])

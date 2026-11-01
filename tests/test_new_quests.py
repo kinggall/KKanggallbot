@@ -196,7 +196,7 @@ class NewQuestTests(unittest.TestCase):
                 patch.object(collect_zekamashi,'Fetcher',side_effect=AssertionError('No network')), \
                 redirect_stdout(output):
             collect_zekamashi.main()
-        self.assertIn('Targets: 286',output.getvalue())
+        self.assertIn('Targets: 290',output.getvalue())
         self.assertIn('2610 Fm1:',output.getvalue())
         self.assertIn('2610 Cw1:',output.getvalue())
 

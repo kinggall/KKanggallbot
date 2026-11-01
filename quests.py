@@ -205,6 +205,7 @@ class QuestCatalog:
         for key, row in self.items.items():
             ids = required_ships(row["requirements"])
             titles = [row.get(field, "") for field in ("name_ko", "name_jp")]
+            titles.extend(row.get('search_ship_mentions', []))
             for title in titles:
                 for match in title_pattern.finditer(normalized(title)):
                     term = match.group()
@@ -459,7 +460,9 @@ class QuestCatalog:
                 else:
                     lines.append("· " + self.item_name(reward))
         if not resources and not other:
-            lines.append("· 보상 정보 없음")
+            lines.append("· 보상 정보 미등록" if row.get('translation_only') else "· 보상 정보 없음")
+        if row.get('translation_only'):
+            lines.extend(['', '※ 설명 자료로 보완한 임무입니다. 보상·선행조건은 미등록이며 현재 출현 여부는 미확인입니다.'])
         before, grouped = [], set()
         groups = row.get("prereq_any_of", [])
         for item_id in row["prereqs"]:

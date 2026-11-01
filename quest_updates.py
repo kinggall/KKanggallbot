@@ -80,4 +80,17 @@ def apply_updates(data, root):
                 raise ValueError('Unresolved wiki prerequisite: ' + code)
             item['prereqs'].append(int(key) if key.isdigit() else key)
     data['sources']['wiki_new_quests'] = update['source']
+    supplement_path = root / 'data/quest_translation_supplements.json'
+    if supplement_path.exists():
+        supplement = json.loads(supplement_path.read_text(encoding='utf-8'))
+        for row in supplement['quests']:
+            key = str(row['game_id'])
+            if data['quests'].get(key) == row:
+                continue  # Applying the same reviewed overlay twice is harmless.
+            if key in data['quests'] or any(identity(q['wiki_id']) == identity(row['wiki_id'])
+                                            for q in data['quests'].values()):
+                raise ValueError('Duplicate supplemental quest: ' + row['wiki_id'])
+            data['quests'][key] = deepcopy(row)
+            data['codes'][key] = row['wiki_id']
+        data['sources']['translation_supplements'] = supplement['source']
     return data

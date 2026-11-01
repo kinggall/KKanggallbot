@@ -1,0 +1,530 @@
+{
+  "schema": 1,
+  "source": {
+    "repository": "kinggall/Data",
+    "revision": "79a2c818924060dcb3b18dbdb043b855bcc04694",
+    "path": "Translations/ko-KR/quest.json",
+    "policy": "Translation descriptions only; rewards, prerequisites and current availability unknown. Su01-Su09 excluded."
+  },
+  "quests": [
+    {
+      "game_id": 199,
+      "wiki_id": "2606 Am1",
+      "aliases": [
+        "2606Am1"
+      ],
+      "name_ko": "[기간 한정 임무] 제31전대 특무 편성!",
+      "name_jp": "【期間限定任務】第三十一戦隊 特務編成！",
+      "description": "기간 한정 임무: 방공 구축함 「하나즈키」, 정형 구축함 「키리」「카야」「스기」「카시」「타케」 및 특형 구축함 「우시오」「히비키」 중 5척 이상을 선발하여 후기 제31전대를 특별 편성하라!",
+      "desc_ko": "기간 한정 임무: 방공 구축함 「하나즈키」, 정형 구축함 「키리」「카야」「스기」「카시」「타케」 및 특형 구축함 「우시오」「히비키」 중 5척 이상을 선발하여 후기 제31전대를 특별 편성하라!",
+      "desc_jp": "期間限定任務：防空駆逐艦「花月」、丁型駆逐艦「桐」「榧」「杉」「樫」「竹」及び<br>特型駆逐艦「潮」「響」から5隻以上を抽出、後期第三十一戦隊を特別編成せよ！",
+      "category": "composition",
+      "frequency": "monthly",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "기간 한정 임무: 방공 구축함 「하나즈키」, 정형 구축함 「키리」「카야」「스기」「카시」「타케」 및 특형 구축함 「우시오」「히비키」 중 5척 이상을 선발하여 후기 제31전대를 특별 편성하라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": [
+        "「花月」",
+        "「桐」",
+        "「榧」",
+        "「杉」",
+        "「樫」",
+        "「竹」",
+        "「潮」",
+        "「響」"
+      ]
+    },
+    {
+      "game_id": 321,
+      "wiki_id": "5A04",
+      "aliases": [
+        "5A04"
+      ],
+      "name_ko": "5주년 임무 [사：연습]",
+      "name_jp": "五周年任務【肆：演習】",
+      "description": "5주년 임무：구축함 또는 해방함 2척 이상을 포함한 5척의 특별 함대를 편성! 이 5주년 특별 함대로, 오늘 중 연습에서 4회 이상 승리해라!",
+      "desc_ko": "5주년 임무：구축함 또는 해방함 2척 이상을 포함한 5척의 특별 함대를 편성! 이 5주년 특별 함대로, 오늘 중 연습에서 4회 이상 승리해라!",
+      "desc_jp": "五周年任務：駆逐艦または海防艦2隻以上を含む五隻の特別編成の艦隊を編成！<br>この五周年特別艦隊で、本日中に演習で4回以上勝利せよ！",
+      "category": "exercise",
+      "frequency": "onetime",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "5주년 임무：구축함 또는 해방함 2척 이상을 포함한 5척의 특별 함대를 편성! 이 5주년 특별 함대로, 오늘 중 연습에서 4회 이상 승리해라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": []
+    },
+    {
+      "game_id": 326,
+      "wiki_id": "Cs4",
+      "aliases": [
+        "Cs4"
+      ],
+      "name_ko": "하계대연습",
+      "name_jp": "夏季大演習",
+      "description": "하계대연습: 하계 기간의 하루중에 연습에서 8회 이상 승리를 거둬 함대의 숙련도 향상에 힘써라! 더위에 지지 마라! 함대, 발묘!",
+      "desc_ko": "하계대연습: 하계 기간의 하루중에 연습에서 8회 이상 승리를 거둬 함대의 숙련도 향상에 힘써라! 더위에 지지 마라! 함대, 발묘!",
+      "desc_jp": "夏季大演習：夏季期間の一日中に「演習」で8回以上「勝利」をおさめ、艦隊の練度向上に努めよ！<br>暑さに負けるな！　艦隊、抜錨！",
+      "category": "exercise",
+      "frequency": "onetime",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "하계대연습: 하계 기간의 하루중에 연습에서 8회 이상 승리를 거둬 함대의 숙련도 향상에 힘써라! 더위에 지지 마라! 함대, 발묘!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": [
+        "「演習」",
+        "「勝利」"
+      ]
+    },
+    {
+      "game_id": 382,
+      "wiki_id": "2606 Cm1",
+      "aliases": [
+        "2606Cm1"
+      ],
+      "name_ko": "[기간 한정 임무] 제31전대 긴급 연습!",
+      "name_jp": "【期間限定任務】第三十一戦隊 緊急演習！",
+      "description": "기간 한정 임무: 방공 구축함 「하나즈키」, 정형 구축함 「키리」「타케」「카야」「스기」「카시」 및 특형 구축함 「우시오」「히비키」 중 5척 이상으로 제31전대를 편성하여 오늘 안에 연습에서 【A판정】 승리를 3회 이상 달성하라!",
+      "desc_ko": "기간 한정 임무: 방공 구축함 「하나즈키」, 정형 구축함 「키리」「타케」「카야」「스기」「카시」 및 특형 구축함 「우시오」「히비키」 중 5척 이상으로 제31전대를 편성하여 오늘 안에 연습에서 【A판정】 승리를 3회 이상 달성하라!",
+      "desc_jp": "期間限定任務：防空駆逐艦「花月」、丁型駆逐艦「桐」「竹」「榧」「杉」「樫」及び特型駆逐艦<br>「潮」「響」から5隻以上による第三十一戦隊で本日中に演習【A判定】勝利3回以上を達成せよ！",
+      "category": "exercise",
+      "frequency": "monthly",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "기간 한정 임무: 방공 구축함 「하나즈키」, 정형 구축함 「키리」「타케」「카야」「스기」「카시」 및 특형 구축함 「우시오」「히비키」 중 5척 이상으로 제31전대를 편성하여 오늘 안에 연습에서 【A판정】 승리를 3회 이상 달성하라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": [
+        "「花月」",
+        "「桐」",
+        "「竹」",
+        "「榧」",
+        "「杉」",
+        "「樫」",
+        "「潮」",
+        "「響」"
+      ]
+    },
+    {
+      "game_id": 640,
+      "wiki_id": "SF",
+      "aliases": [
+        "SF"
+      ],
+      "name_ko": "초여름의 정리정돈",
+      "name_jp": "初夏の整理整頓",
+      "description": "불필요한 장비를 여러 개 「폐기」하여, 여름을 맞이할 준비를 합시다!(장비 5회 폐기)",
+      "desc_ko": "불필요한 장비를 여러 개 「폐기」하여, 여름을 맞이할 준비를 합시다!(장비 5회 폐기)",
+      "desc_jp": "不要な装備を複数「廃棄」して、夏を迎える準備をしましょう！",
+      "category": "factory",
+      "frequency": "onetime",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "불필요한 장비를 여러 개 「폐기」하여, 여름을 맞이할 준비를 합시다!(장비 5회 폐기)"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": [
+        "「廃棄」"
+      ]
+    },
+    {
+      "game_id": 697,
+      "wiki_id": "2003LQ2",
+      "aliases": [
+        "2003LQ2"
+      ],
+      "name_ko": "【봄의 기간 한정 임무】 수상기형 소드피쉬의 개수",
+      "name_jp": "【春の期間限定任務】下駄履きメカジキの改修",
+      "description": "기함 「Gotland」의 1번 슬롯에 「Swordfish(수상기형)」 개수 max를 탑재, 「즈이운」 x3, 「0식 수상정찰기」 x3, 「13호 대공 전탐 개」 x1을 폐기, 탄약 x2,500, 보크사이트 4,000, 신형 항공 병장 자재 x1, 「숙련탑승원」 x1을 준비하라!",
+      "desc_ko": "기함 「Gotland」의 1번 슬롯에 「Swordfish(수상기형)」 개수 max를 탑재, 「즈이운」 x3, 「0식 수상정찰기」 x3, 「13호 대공 전탐 개」 x1을 폐기, 탄약 x2,500, 보크사이트 4,000, 신형 항공 병장 자재 x1, 「숙련탑승원」 x1을 준비하라!",
+      "desc_jp": "旗艦「Gotland」第一スロに「Swordfish(水上機型)」改修max、 「瑞雲」x3、「零式水上偵察機」x3、<br>「13号対空電探改」x1廃棄、弾薬x2,500、ボーキ4,000、新型航空兵装資材x1、熟練搭乗員x1を準備！",
+      "category": "factory",
+      "frequency": "onetime",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "기함 「Gotland」의 1번 슬롯에 「Swordfish(수상기형)」 개수 max를 탑재, 「즈이운」 x3, 「0식 수상정찰기」 x3, 「13호 대공 전탐 개」 x1을 폐기, 탄약 x2,500, 보크사이트 4,000, 신형 항공 병장 자재 x1, 「숙련탑승원」 x1을 준비하라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": [
+        "「Gotland」",
+        "「Swordfish(水上機型)」",
+        "「瑞雲」",
+        "「零式水上偵察機」",
+        "「13号対空電探改」"
+      ]
+    },
+    {
+      "game_id": 706,
+      "wiki_id": "5A03",
+      "aliases": [
+        "5A03"
+      ],
+      "name_ko": "5주년 임무【제3단계: 근대화 개수】",
+      "name_jp": "五周年任務【参：近代化改修】",
+      "description": "5주년 임무: 강재 555 및 보크사이트 555를 준비하여, 임의의 해방함 근대화 개수를 [구축함] x5척 동시 사용으로 2회 성공시켜라! ※임무 달성 후, 준비한 자원은 소비합니다.",
+      "desc_ko": "5주년 임무: 강재 555 및 보크사이트 555를 준비하여, 임의의 해방함 근대화 개수를 [구축함] x5척 동시 사용으로 2회 성공시켜라! ※임무 달성 후, 준비한 자원은 소비합니다.",
+      "desc_jp": "五周年任務：鉄鋼555及びボーキサイト555を準備して、任意の海防艦の近代化改修を[駆逐艦]x5隻<br>同時使用により2回成功させよ！※任務達成後、準備した資源は消費します。",
+      "category": "factory",
+      "frequency": "onetime",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "5주년 임무: 강재 555 및 보크사이트 555를 준비하여, 임의의 해방함 근대화 개수를 [구축함] x5척 동시 사용으로 2회 성공시켜라! ※임무 달성 후, 준비한 자원은 소비합니다."
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": []
+    },
+    {
+      "game_id": 720,
+      "wiki_id": "2603 G2",
+      "aliases": [
+        "2603G2"
+      ],
+      "name_ko": "[기간 한정: 확장 임무] 유구모형 개장 임무!",
+      "name_jp": "【期間限定:拡張任務】夕雲型改装任務！",
+      "description": "【기간 한정 확장 개장 임무】: 개발 자재 24개를 준비하고, 임의의 유구모형 구축함의 근대화 개수를 중순양함급 3척 이상을 동시에 사용하여 3회 성공시켜라!",
+      "desc_ko": "【기간 한정 확장 개장 임무】: 개발 자재 24개를 준비하고, 임의의 유구모형 구축함의 근대화 개수를 중순양함급 3척 이상을 동시에 사용하여 3회 성공시켜라!",
+      "desc_jp": "【期間限定拡張改装任務】：開発資材x24を用意して、任意の夕雲型駆逐艦の近代化<br>改修を重巡洋艦級x3隻以上の同時使用により3回成功させよ！",
+      "category": "factory",
+      "frequency": "onetime",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "【기간 한정 확장 개장 임무】: 개발 자재 24개를 준비하고, 임의의 유구모형 구축함의 근대화 개수를 중순양함급 3척 이상을 동시에 사용하여 3회 성공시켜라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": []
+    },
+    {
+      "game_id": 915,
+      "wiki_id": "2212 B2",
+      "aliases": [
+        "2212B2"
+      ],
+      "name_ko": "【기간 한정 임무】 날아라! 세계의 게타바키(수상기)!",
+      "name_jp": "【期間限定任務】飛べ！世界の下駄履き機！",
+      "description": "수상기모함을 기함으로 하고, 수반 호위함에 구축함 또는 해방함을 2척 이상 포함하는 수상기 운용 함대로 남서제도 방어선, 동부 오룔 해, 오키노시마 해역으로 전개! 적 함대를 수색 포착하여 이를 격멸하라!",
+      "desc_ko": "수상기모함을 기함으로 하고, 수반 호위함에 구축함 또는 해방함을 2척 이상 포함하는 수상기 운용 함대로 남서제도 방어선, 동부 오룔 해, 오키노시마 해역으로 전개! 적 함대를 수색 포착하여 이를 격멸하라!",
+      "desc_jp": "水上機母艦を旗艦とし、随伴護衛艦に駆逐艦または海防艦を2隻以上含む水上機運用艦隊で、<br>南西諸島防衛線、東部オリョール海、沖ノ島海域へ展開！敵艦隊を捜索捕捉、これを撃滅せよ！",
+      "category": "sortie",
+      "frequency": "onetime",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "수상기모함을 기함으로 하고, 수반 호위함에 구축함 또는 해방함을 2척 이상 포함하는 수상기 운용 함대로 남서제도 방어선, 동부 오룔 해, 오키노시마 해역으로 전개! 적 함대를 수색 포착하여 이를 격멸하라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": []
+    },
+    {
+      "game_id": 932,
+      "wiki_id": "2103 B5",
+      "aliases": [
+        "2103B5"
+      ],
+      "name_ko": "【봄 한정】 봄의 아마츠카제!",
+      "name_jp": "【春限定】春の天津風！",
+      "description": "【봄 한정】 제16구축대 「아마츠카제」를 기함으로 하고, 2번함에 요함 「유키카제」, 「토키츠카제」, 「하츠카제」 중 1척을 배치, 남서제도 해역 바시 해협, 동부 오룔 해, 말라카 해협 페낭섬 앞바다 심부에 복수 횟수 출격! 적을 격파하라!",
+      "desc_ko": "【봄 한정】 제16구축대 「아마츠카제」를 기함으로 하고, 2번함에 요함 「유키카제」, 「토키츠카제」, 「하츠카제」 중 1척을 배치, 남서제도 해역 바시 해협, 동부 오룔 해, 말라카 해협 페낭섬 앞바다 심부에 복수 횟수 출격! 적을 격파하라!",
+      "desc_jp": "【春限定】第十六駆逐隊「天津風」を旗艦に、二番艦に僚艦「雪風」「時津風」「初風」から1隻配備、<br>南西諸島海域バシー海峡、東部オリョール海、マラッカ海峡ペナン島沖深部に複数回出撃！敵を撃破せよ！",
+      "category": "sortie",
+      "frequency": "onetime",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "【봄 한정】 제16구축대 「아마츠카제」를 기함으로 하고, 2번함에 요함 「유키카제」, 「토키츠카제」, 「하츠카제」 중 1척을 배치, 남서제도 해역 바시 해협, 동부 오룔 해, 말라카 해협 페낭섬 앞바다 심부에 복수 횟수 출격! 적을 격파하라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": [
+        "「天津風」",
+        "「雪風」",
+        "「時津風」",
+        "「初風」"
+      ]
+    },
+    {
+      "game_id": 950,
+      "wiki_id": "2107 LB1",
+      "aliases": [
+        "2107LB1"
+      ],
+      "name_ko": "【하계 한정】 「물가의 머메이드」 작전!",
+      "name_jp": "【夏季限定】「渚のマーメイド」作戦！",
+      "description": "「제7구축대」 4척, 또는 「시라츠유 개2」, 「시구레 개2」, 「무라사메 개2」, 「유다치 개2」 4척을 포함한 함대로 여름의 남서제도 방어선, 동부 오룔 해, 키스섬 앞바다에 복수 횟수 출격하여 적 함대를 포착 격멸하라!",
+      "desc_ko": "「제7구축대」 4척, 또는 「시라츠유 개2」, 「시구레 개2」, 「무라사메 개2」, 「유다치 개2」 4척을 포함한 함대로 여름의 남서제도 방어선, 동부 오룔 해, 키스섬 앞바다에 복수 횟수 출격하여 적 함대를 포착 격멸하라!",
+      "desc_jp": "「第七駆逐隊」4隻、または「白露改二」「時雨改二」「村雨改二」「夕立改二」4隻を含む艦隊で、<br>夏の南西諸島防衛線、東部オリョール海、キス島沖に複数回出撃、敵艦隊を捕捉撃滅せよ！",
+      "category": "sortie",
+      "frequency": "onetime",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "「제7구축대」 4척, 또는 「시라츠유 개2」, 「시구레 개2」, 「무라사메 개2」, 「유다치 개2」 4척을 포함한 함대로 여름의 남서제도 방어선, 동부 오룔 해, 키스섬 앞바다에 복수 횟수 출격하여 적 함대를 포착 격멸하라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": [
+        "「第七駆逐隊」",
+        "「白露改二」",
+        "「時雨改二」",
+        "「村雨改二」",
+        "「夕立改二」"
+      ]
+    },
+    {
+      "game_id": 951,
+      "wiki_id": "2107 LB2",
+      "aliases": [
+        "2107LB2"
+      ],
+      "name_ko": "【하계 한정】 「물가의 시레나」 유럽 작전!",
+      "name_jp": "【夏季限定】「渚のシレーナ」欧州作戦！",
+      "description": "이탈리아 구축함, 독일 구축함, 미국 구축함, 프랑스 함정, 「Littorio(Italia)」, 「U-511(로500)」, 「Houston」, 「Gotland」 중 총 5척 이상인 함대로 여름의 잼섬 앞바다, 리랑카섬, 카스가다마섬에 반복 출격! 적을 격멸하라!",
+      "desc_ko": "이탈리아 구축함, 독일 구축함, 미국 구축함, 프랑스 함정, 「Littorio(Italia)」, 「U-511(로500)」, 「Houston」, 「Gotland」 중 총 5척 이상인 함대로 여름의 잼섬 앞바다, 리랑카섬, 카스가다마섬에 반복 출격! 적을 격멸하라!",
+      "desc_jp": "伊駆逐、独駆逐、米駆逐、仏艦艇、「Littorio(Italia)」「U-511(呂500)」「Houston」「Gotland」<br>計5隻以上の艦隊で、夏のジャム島沖、リランカ島、カスガダマ島に反復出撃！敵を撃滅せよ！",
+      "category": "sortie",
+      "frequency": "onetime",
+      "limited": true,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "이탈리아 구축함, 독일 구축함, 미국 구축함, 프랑스 함정, 「Littorio(Italia)」, 「U-511(로500)」, 「Houston」, 「Gotland」 중 총 5척 이상인 함대로 여름의 잼섬 앞바다, 리랑카섬, 카스가다마섬에 반복 출격! 적을 격멸하라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": [
+        "「Littorio(Italia)」",
+        "「U-511(呂500)」",
+        "「Houston」",
+        "「Gotland」"
+      ]
+    },
+    {
+      "game_id": 1152,
+      "wiki_id": "F132",
+      "aliases": [
+        "F132"
+      ],
+      "name_ko": "【대잠 전력 강화】 해방함 대잠 병장의 강화",
+      "name_jp": "【対潜戦力強化】海防艦対潜兵装の強化",
+      "description": "기함 해방함의 제1 장비 슬롯에 「3식 폭뢰투사기」(★+3 이상)를 장착. 해당 제2 및 제3 슬롯에도 각각 동일한 장비(★ 무관)를 장착. 개발자재 32개를 준비. 「94식 폭뢰투사기」 4개를 폐기하라!",
+      "desc_ko": "기함 해방함의 제1 장비 슬롯에 「3식 폭뢰투사기」(★+3 이상)를 장착. 해당 제2 및 제3 슬롯에도 각각 동일한 장비(★ 무관)를 장착. 개발자재 32개를 준비. 「94식 폭뢰투사기」 4개를 폐기하라!",
+      "desc_jp": "旗艦海防艦の第一装備スロットに「三式爆雷投射機」(★+3以上)を装備。同第二及び第三スロット<br>にもそれぞれ同装備(★不問)を装備。開発資材x32を準備。「九四式爆雷投射機」x4を廃棄せよ！",
+      "category": "factory",
+      "frequency": "onetime",
+      "limited": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "기함 해방함의 제1 장비 슬롯에 「3식 폭뢰투사기」(★+3 이상)를 장착. 해당 제2 및 제3 슬롯에도 각각 동일한 장비(★ 무관)를 장착. 개발자재 32개를 준비. 「94식 폭뢰투사기」 4개를 폐기하라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": [
+        "「三式爆雷投射機」",
+        "「九四式爆雷投射機」"
+      ]
+    },
+    {
+      "game_id": 1164,
+      "wiki_id": "F142",
+      "aliases": [
+        "F142"
+      ],
+      "name_ko": "[공창 임무] 수뢰전대 신개장함, 개장 준비!",
+      "name_jp": "【工廠任務】水雷戦隊新改装艦、改装準備！",
+      "description": "제1함대 기함에 「타마나미」를 배치하고, 동료함에 「후지나미」「키타카미」를 배치하라. 「3식 폭뢰투사기」 8개, 「3식 수중탐신의」 4개, 「12.7cm 연장고각포」 8개를 폐기하고, 「신형 병장 자재」 1개와 「15.2cm 연장포」 4개를 준비하라!",
+      "desc_ko": "제1함대 기함에 「타마나미」를 배치하고, 동료함에 「후지나미」「키타카미」를 배치하라. 「3식 폭뢰투사기」 8개, 「3식 수중탐신의」 4개, 「12.7cm 연장고각포」 8개를 폐기하고, 「신형 병장 자재」 1개와 「15.2cm 연장포」 4개를 준비하라!",
+      "desc_jp": "第一艦隊に旗艦「玉波」。僚艦に「藤波」「北上」を配備して「三式爆雷投射機」x8、「三式水中<br>探信儀」x4、「12.7cm連装高角砲」x8廃棄。「新型兵装資材」x1及び「15.2cm連装砲」x4用意！",
+      "category": "factory",
+      "frequency": "onetime",
+      "limited": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "translation_only": true,
+      "prereqs": [],
+      "requirements": {},
+      "requirements_ko": [
+        "제1함대 기함에 「타마나미」를 배치하고, 동료함에 「후지나미」「키타카미」를 배치하라. 「3식 폭뢰투사기」 8개, 「3식 수중탐신의」 4개, 「12.7cm 연장고각포」 8개를 폐기하고, 「신형 병장 자재」 1개와 「15.2cm 연장포」 4개를 준비하라!"
+      ],
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": []
+      },
+      "search_ship_mentions": [
+        "「玉波」",
+        "「藤波」",
+        "「北上」",
+        "「三式爆雷投射機」",
+        "「三式水中<br>探信儀」",
+        "「12.7cm連装高角砲」",
+        "「新型兵装資材」",
+        "「15.2cm連装砲」"
+      ]
+    }
+  ]
+}
