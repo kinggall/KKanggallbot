@@ -2,7 +2,7 @@
 
 ## 신규 장비 자동 보완
 
-`equipment-update.yml`은 6시간마다 공개 게임 마스터(Tibowl/api_start2,
+`equipment-update.yml`은 하루 한 번(한국시간 오전 9시 17분 예정) 공개 게임 마스터(Tibowl/api_start2,
 kcwiki/kancolle-data)와 EO 한국어 장비 번역을 검사합니다. GitHub Actions가
 활성화되고 main에 봇 푸시가 허용되어야 합니다. 수동 실행도 가능합니다.
 `python scripts/update_equipment.py --check`는 저장 없이 확인합니다.
