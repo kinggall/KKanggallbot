@@ -12,7 +12,6 @@ import sqlite3
 
 from equipment_lookup import normalize
 from initial_equipment import InitialEquipmentCatalog
-from quests import SHIP_TYPES
 
 ROOT = Path(__file__).resolve().parent
 KST = timezone(timedelta(hours=9))  # Windows does not require a tzdata install.
@@ -21,6 +20,18 @@ NATIONS = {1: '일본', 2: '독일', 3: '이탈리아', 4: '미국', 5: '영국'
 STATS = [('火力最大', '화력'), ('雷装最大', '뇌장'), ('対空最大', '대공'),
          ('装甲最大', '장갑'), ('対潜最大', '대잠'), ('索敵最大', '색적')]
 COMMANDS = {'!퀴즈', '!정답', '!퀴즈점수'}
+QUIZ_TYPES = {
+    1: '해방', 2: '구축',
+    3: '경순', 4: '경순', 21: '경순',
+    5: '중순', 6: '중순',
+    7: '항모', 11: '항모', 18: '항모',
+    8: '전함', 9: '전함', 10: '전함', 12: '전함',
+    13: '잠수', 14: '잠수',
+}
+
+
+def quiz_type(ship_type):
+    return QUIZ_TYPES.get(ship_type, '기타함종')
 
 
 def stage_label(row):
@@ -71,7 +82,7 @@ class QuizCatalog:
             info = meta[str(sid)]
             try:
                 stats = {label:int(row[field]) for field,label in STATS}
-                common = (SHIP_TYPES.get(info['type'], '기타'), NATIONS.get(info['nationality']),
+                common = (quiz_type(info['type']), NATIONS.get(info['nationality']),
                           stage_label(row), int(row['運初期']))
             except ValueError:
                 continue
@@ -96,7 +107,7 @@ class QuizCatalog:
                 continue
             candidates.append(dict(sid=sid, family=info['base'], name=self.names[sid],
                 base_name=base_name, nation=NATIONS[info['nationality']],
-                kind=SHIP_TYPES.get(info['type'], '기타'), stage=stage, stats=stats, luck=luck,
+                kind=quiz_type(info['type']), stage=stage, stats=stats, luck=luck,
                 equipment=[equipment.equipment.items[i]['name'] + (f' ★{s}' if s else '') for i, s in entries],
                 helpers=[equipment.equipment.items[i]['name'] for i in sorted(helper_items[sid])]))
         # Two stats + luck + type/nation/stage must identify one family among ALL

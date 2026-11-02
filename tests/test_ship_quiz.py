@@ -10,7 +10,7 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 from equipment_lookup import normalize
-from ship_quiz import QuizCatalog, QuizService, render
+from ship_quiz import QuizCatalog, QuizService, render, quiz_type, NATIONS, STATS, stage_label
 
 ROOT = Path(__file__).resolve().parents[1]
 KST = ZoneInfo('Asia/Seoul')
@@ -48,6 +48,38 @@ class QuizTests(unittest.TestCase):
             self.assertEqual(len(question['stats']),2)
             self.assertTrue(question['equipment'])
             self.assertTrue(question['helpers'])
+
+    def test_broad_ship_categories(self):
+        groups = {'전함':[8,9,10,12], '항모':[7,11,18], '중순':[5,6],
+                  '경순':[3,4,21], '구축':[2], '잠수':[13,14], '해방':[1],
+                  '기타함종':[0,15,16,17,19,20,22,999]}
+        for name, types in groups.items():
+            for ship_type in types:
+                self.assertEqual(quiz_type(ship_type),name)
+        self.assertTrue({q['kind'] for q in self.catalog.questions} <= set(groups))
+
+    def test_questions_still_unique_after_broad_grouping(self):
+        import csv
+        from collections import defaultdict
+        from itertools import combinations
+        meta=json.loads((ROOT/'data/fit_metadata.json').read_text())['ships']
+        signatures=defaultdict(set)
+        with (ROOT/'ships.csv').open(encoding='cp932',newline='') as stream:
+            for row in csv.DictReader(stream):
+                info=meta.get(row['艦船ID'])
+                if not info:
+                    continue
+                try:
+                    stats={label:int(row[field]) for field,label in STATS}
+                    common=(quiz_type(info['type']),NATIONS.get(info['nationality']),stage_label(row),int(row['運初期']))
+                except ValueError:
+                    continue
+                for a,b in combinations(stats,2):
+                    signatures[(*common,a,stats[a],b,stats[b])].add(info['base'])
+        for question in self.catalog.questions:
+            (a,x),(b,y)=question['stats'].items()
+            key=(question['kind'],question['nation'],question['stage'],question['luck'],a,x,b,y)
+            self.assertEqual(signatures[key],{question['family']})
 
     def test_active_question_cannot_be_replaced_or_cost_another_turn(self):
         first = self.send('!퀴즈')
