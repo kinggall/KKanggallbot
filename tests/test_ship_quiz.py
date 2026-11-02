@@ -93,7 +93,8 @@ class QuizTests(unittest.TestCase):
     def test_hints_at_three_five_seven_and_repeated_wrong_dedup(self):
         self.send('!퀴즈')
         self.assertIn('오답 1회',self.send('!정답 모르겠음'))
-        self.assertIn('이미 제출',self.send('!정답 모 르겠음!'))
+        self.assertEqual(self.send('!정답 모 르겠음!'),
+                         '✔️ 이미 제출한 오답입니다.\n✔️ 오답 횟수는 늘어나지 않습니다.')
         self.assertIn('오답 2회',self.send('!정답 모르겠음',player='u2'))
         third=self.send('!정답 틀린답3')
         self.assertIn('개수 2번함 담당',third)
@@ -163,7 +164,8 @@ class QuizTests(unittest.TestCase):
     def test_correct_replay_no_extra_point_and_name_change_keeps_identity(self):
         self.send('!퀴즈')
         self.send('!정답 단양',name='이전이름')
-        self.assertIn('진행 중인 문제가 없습니다',self.send('!정답 유키카제'))
+        self.assertEqual(self.send('!정답 유키카제'),
+                         '✔️ 진행 중인 문제가 없습니다.\n✔️ !퀴즈로 시작해 주세요.')
         self.send('!퀴즈')
         self.send('!정답 유키카제 개2',name='새이름')
         board=self.send('!퀴즈점수')

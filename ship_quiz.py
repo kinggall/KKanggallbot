@@ -193,7 +193,7 @@ class QuizService:
             state['active'] = dict(question=question, number=state['count'], wrong=0, seen=[])
             return render(state['active'])
         if not active:
-            return '진행 중인 문제가 없습니다. !퀴즈로 시작해 주세요.'
+            return '✔️ 진행 중인 문제가 없습니다.\n✔️ !퀴즈로 시작해 주세요.'
         q = active['question']
         if not answer or not normalize(answer):
             return '사용법: !정답 [함선명/별명]'
@@ -212,7 +212,7 @@ class QuizService:
             return f"🎉 {name[:100]}님 정답!\n정답: {q['name']}\n\n+1점 · 누적 {points}점\n다음 문제: !퀴즈"
         attempt = [player, key[:200]]
         if attempt in active['seen']:
-            return '이미 제출한 오답입니다. 오답 횟수는 늘어나지 않습니다.'
+            return '✔️ 이미 제출한 오답입니다.\n✔️ 오답 횟수는 늘어나지 않습니다.'
         active['seen'].append(attempt)
         active['wrong'] += 1
         if active['wrong'] in (3,5,7):
