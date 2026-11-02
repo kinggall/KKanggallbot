@@ -20,7 +20,7 @@ NATIONS = {1: '일본', 2: '독일', 3: '이탈리아', 4: '미국', 5: '영국'
            6: '프랑스', 7: '소련', 8: '심해', 9: '호주', 10: '스웨덴', 11: '네덜란드'}
 STATS = [('火力最大', '화력'), ('雷装最大', '뇌장'), ('対空最大', '대공'),
          ('装甲最大', '장갑'), ('対潜最大', '대잠'), ('索敵最大', '색적')]
-COMMANDS = {'!퀴즈', '!정답', '!힌트', '!포기', '!퀴즈점수'}
+COMMANDS = {'!퀴즈', '!정답', '!퀴즈점수'}
 
 
 def stage_label(row):
@@ -122,9 +122,9 @@ class QuizCatalog:
 def render(active):
     q = active['question']
     lines = [f"[칸무스 퀴즈 · {active['number']}/10]", '',
-             f"· 함종: {q['kind']}", f"· 국적: {q['nation']}", f"· 개장: {q['stage']}",
-             '· ' + ' / '.join(f'{k}: {v}' for k,v in q['stats'].items()), f"· 운: {q['luck']}",
-             '※ 스탯은 최대치, 운은 초기값 기준입니다.']
+             f"· 함종: {q['kind']} / 국적: {q['nation']}",
+             f"· ({q['stage']}) " + ' / '.join(f'{k}: {v}' for k,v in q['stats'].items()),
+             f"· 운: {q['luck']}"]
     wrong = active['wrong']
     if wrong >= 3:
         lines += ['', '💡 개수 2번함 담당: ' + ' / '.join(q['helpers'][:3])]
@@ -132,7 +132,7 @@ def render(active):
         lines += ['💡 초기 장비: ' + ' / '.join(q['equipment'])]
     if wrong >= 7:
         lines += ['💡 초성: ' + initials(q['base_name'])]
-    lines += ['', f'누적 오답: {wrong}회', '정답: !정답 [함선명/별명]', '!힌트 / !포기 / !퀴즈점수']
+    lines += ['', f'누적 오답: {wrong}회']
     return '\n'.join(lines)
 
 
@@ -173,7 +173,7 @@ class QuizService:
             return '[칸무스 퀴즈 순위]\n\n' + ('\n'.join(f'{i}. {n} · {p}점' for i,(n,p) in enumerate(rows,1)) or '아직 정답자가 없습니다.')
         if command == '!퀴즈':
             if active:
-                return '진행 중인 문제입니다.\n\n' + render(active)
+                return render(active)
             if state['count'] >= 10:
                 return '오늘의 퀴즈 10회를 모두 사용했습니다. 한국시간 자정에 초기화됩니다.'
             question = self.catalog.choose(state['recent'])
@@ -183,12 +183,7 @@ class QuizService:
             return render(state['active'])
         if not active:
             return '진행 중인 문제가 없습니다. !퀴즈로 시작해 주세요.'
-        if command == '!힌트':
-            return render(active)
         q = active['question']
-        if command == '!포기':
-            state['active'] = None
-            return f"정답: {q['name']}\n같은 함선의 기본형·개장형·개명·별명도 정답입니다.\n다음 문제: !퀴즈"
         if not answer or not normalize(answer):
             return '사용법: !정답 [함선명/별명]'
         if not player:

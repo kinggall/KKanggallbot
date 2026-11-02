@@ -54,8 +54,8 @@ class QuizTests(unittest.TestCase):
         self.assertIn('1/10',first)
         self.assertNotIn('유키카제',first)
         self.assertIn(first,self.send('!퀴즈'))
-        self.assertIn('1/10',self.send('!힌트'))
-        self.send('!포기')
+        self.assertIn('1/10',self.send('!퀴즈'))
+        self.send('!정답 단양')
         self.assertIn('2/10',self.send('!퀴즈'))
 
     def test_hints_at_three_five_seven_and_repeated_wrong_dedup(self):
@@ -79,7 +79,7 @@ class QuizTests(unittest.TestCase):
     def test_quota_room_isolation_and_midnight(self):
         for n in range(1,11):
             self.assertIn(f'{n}/10',self.send('!퀴즈'))
-            self.send('!포기')
+            self.send('!정답 단양')
         self.assertIn('모두 사용',self.send('!퀴즈'))
         self.assertIn('1/10',self.send('!퀴즈',room='r2'))
         self.date = datetime(2026,11,3,0,0,tzinfo=KST)
@@ -89,8 +89,8 @@ class QuizTests(unittest.TestCase):
         self.send('!퀴즈')
         self.send('!정답 오답')
         self.date = datetime(2026,11,3,0,0,tzinfo=KST)
-        self.assertIn('진행 중',self.send('!퀴즈'))
-        self.assertIn('누적 오답: 1회',self.send('!힌트'))
+        self.assertIn('1/10',self.send('!퀴즈'))
+        self.assertIn('누적 오답: 1회',self.send('!퀴즈'))
         self.send('!정답 단양')
         self.assertIn('1/10',self.send('!퀴즈'))
 
@@ -101,7 +101,7 @@ class QuizTests(unittest.TestCase):
         self.send('!정답 틀림')
         self.service=QuizService(self.catalog,self.database,lambda:self.date)
         self.assertIn('2/10',self.send('!퀴즈'))
-        self.assertIn('누적 오답: 1회',self.send('!힌트'))
+        self.assertIn('누적 오답: 1회',self.send('!퀴즈'))
         self.assertIn('참가자 · 1점',self.send('!퀴즈점수'))
         self.assertNotIn('참가자 · 1점',self.send('!퀴즈점수',room='r2'))
 
@@ -112,7 +112,7 @@ class QuizTests(unittest.TestCase):
         self.assertIn('사용법',self.send('!정답'))
         with patch.dict(self.catalog.answers,{normalize('모호함'):{20,30}}):
             self.assertIn('정확한 함선명',self.send('!정답 모호함'))
-        self.assertIn('누적 오답: 0회',self.send('!힌트'))
+        self.assertIn('누적 오답: 0회',self.send('!퀴즈'))
 
     def test_concurrent_correct_awards_exactly_one_point(self):
         self.send('!퀴즈')
@@ -125,7 +125,7 @@ class QuizTests(unittest.TestCase):
     def test_concurrent_starts_use_one_question(self):
         with ThreadPoolExecutor(max_workers=2) as executor:
             list(executor.map(lambda _:self.send('!퀴즈'),range(2)))
-        self.send('!포기')
+        self.send('!정답 단양')
         self.assertIn('2/10',self.send('!퀴즈'))
 
     def test_correct_replay_no_extra_point_and_name_change_keeps_identity(self):
@@ -148,7 +148,7 @@ class QuizTests(unittest.TestCase):
     def test_utc_date_crosses_korean_midnight(self):
         from datetime import timezone
         self.send('!퀴즈')
-        self.send('!포기')
+        self.send('!정답 단양')
         self.date=datetime(2026,11,2,15,0,tzinfo=timezone.utc)
         self.assertIn('1/10',self.send('!퀴즈'))
 
@@ -162,6 +162,24 @@ class QuizTests(unittest.TestCase):
             self.assertIn('테스터 · 1점',post.call_args.kwargs['json']['data'])
         with sqlite3.connect(self.database) as db:
             self.assertEqual(db.execute('SELECT player FROM scores').fetchone()[0],'stable-id')
+
+    def test_compact_layout_and_removed_commands_leave_problem_unchanged(self):
+        text=self.send('!퀴즈')
+        expected='[칸무스 퀴즈 · 1/10]\n\n· 함종: 구축 / 국적: 일본\n· (개2 이상) 화력: 66 / 뇌장: 90\n· 운: 63\n\n누적 오답: 0회'
+        self.assertEqual(text,expected)
+        self.assertIsNone(self.send('!힌트'))
+        self.assertIsNone(self.send('!포기'))
+        self.assertIn(text,self.send('!퀴즈'))
+        import bot
+        help_text=bot.COMMANDS['!도움말']
+        self.assertIn('!퀴즈 | !정답 | !퀴즈점수',help_text)
+        self.assertNotIn('!힌트',help_text)
+        self.assertNotIn('!포기',help_text)
+        with patch.object(bot.ship_quiz,'service') as service, patch.object(bot.requests,'post') as post:
+            for message in ['!힌트','!포기']:
+                bot.app.test_client().post('/webhook',json={'msg':message,'json':{'chat_id':'web'}})
+            service.assert_not_called()
+            post.assert_not_called()
 
 
 if __name__=='__main__':
