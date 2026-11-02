@@ -23,6 +23,7 @@ import kanlog_drops
 import expeditions
 import quests
 import experience
+import ship_quiz
 import senka
 import guide_lookup
 from stockbot import stock_commands
@@ -1438,6 +1439,9 @@ COMMANDS = {
         "!슬롯 [함선명]\n"
         "!초기장비 [함선명]\n"
         "!경험치 [현재레벨] [목표레벨]\n\n"
+        "━━━━ 칸무스 퀴즈 ━━━━\n"
+        "!퀴즈 | !정답 [함선명/별명]\n"
+        "!힌트 | !포기 | !퀴즈점수\n\n"
         "━━━━ 장비 · 공창 ━━━━\n"
         "!장비 [장비명]\n"
         "!개발 [장비명]\n"
@@ -1534,6 +1538,18 @@ def webhook():
     chat_id = metadata.get("chat_id", room)
 
     print(f"[받은 메시지] 방={room}, 내용={message}")
+
+    if message.partition(' ')[0] in ship_quiz.COMMANDS:
+        sender = data.get('sender', '')
+        name = sender if isinstance(sender, str) else ''
+        player = metadata.get('user_id') or data.get('sender_id') or ('name:' + name if name else '')
+        try:
+            reply = ship_quiz.service().handle(message, chat_id, player, name)
+        except Exception as exc:
+            print(f'[퀴즈 처리 실패] {type(exc).__name__}')
+            reply = '퀴즈 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+        requests.post(IRIS_REPLY_URL, json={'type':'text', 'room':str(chat_id), 'data':reply}, timeout=10)
+        return jsonify({'status':'ok'})
 
     stock_result = stock_commands.handle(message, chat_id, IRIS_REPLY_URL)
     if stock_result is not None:

@@ -4,3 +4,6 @@
 # Python runtime caches stay local.
 __pycache__/
 *.py[cod]
+
+# Private, PC-local quiz progress and room/user scores (never sync across PCs).
+/.quiz/
