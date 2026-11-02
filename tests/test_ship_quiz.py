@@ -109,20 +109,20 @@ class QuizTests(unittest.TestCase):
         self.assertIn('오답 8회',self.send('!정답 틀린답8'))
         self.assertIn('정답!',self.send('!정답 단양'))
 
-    def test_quota_room_isolation_and_midnight(self):
+    def test_quota_room_isolation_and_morning_reset(self):
         for n in range(1,11):
             self.assertIn(f'{n}/10',self.send('!퀴즈'))
             self.send('!정답 단양')
         self.assertEqual(self.send('!퀴즈'),
-                         '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 한국시간 자정에 초기화됩니다.')
+                         '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.')
         self.assertIn('1/10',self.send('!퀴즈',room='r2'))
-        self.date = datetime(2026,11,3,0,0,tzinfo=KST)
+        self.date = datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
 
-    def test_midnight_retains_active_question_but_resets_quota(self):
+    def test_period_change_retains_active_question_but_resets_quota(self):
         self.send('!퀴즈')
         self.send('!정답 오답')
-        self.date = datetime(2026,11,3,0,0,tzinfo=KST)
+        self.date = datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
         self.assertIn('누적 오답: 1회',self.send('!퀴즈'))
         self.send('!정답 단양')
@@ -189,11 +189,42 @@ class QuizTests(unittest.TestCase):
                 self.send('!퀴즈')
         self.assertIn('1/10',self.send('!퀴즈'))
 
-    def test_utc_date_crosses_korean_midnight(self):
+    def test_utc_date_crosses_korean_morning_reset(self):
         from datetime import timezone
         self.send('!퀴즈')
         self.send('!정답 단양')
-        self.date=datetime(2026,11,2,15,0,tzinfo=timezone.utc)
+        self.date=datetime(2026,11,2,18,0,tzinfo=timezone.utc)
+        self.assertIn('1/10',self.send('!퀴즈'))
+
+    def test_no_reset_at_midnight_and_reset_at_both_boundaries(self):
+        from ship_quiz import quota_period
+        self.send('!퀴즈')
+        self.send('!정답 단양')
+        self.date=datetime(2026,11,3,0,0,tzinfo=KST)
+        self.assertIn('2/10',self.send('!퀴즈'))
+        self.send('!정답 단양')
+        self.date=datetime(2026,11,3,2,59,tzinfo=KST)
+        self.assertIn('3/10',self.send('!퀴즈'))
+        self.send('!정답 단양')
+        self.date=datetime(2026,11,3,3,0,tzinfo=KST)
+        self.assertIn('1/10',self.send('!퀴즈'))
+        self.send('!정답 단양')
+        self.date=datetime(2026,11,3,14,59,tzinfo=KST)
+        self.assertIn('2/10',self.send('!퀴즈'))
+        self.send('!정답 단양')
+        self.date=datetime(2026,11,3,15,0,tzinfo=KST)
+        self.assertIn('1/10',self.send('!퀴즈'))
+        self.assertIn('참가자 · 5점',self.send('!퀴즈점수'))
+        self.assertEqual(quota_period(datetime(2026,11,3,0,0,tzinfo=KST)),'2026-11-02:15')
+
+    def test_old_daily_state_migrates_without_erasing_used_quota(self):
+        state={'day':'2026-11-02','count':10,'active':None,'recent':[20]}
+        with sqlite3.connect(self.database) as db:
+            db.execute('INSERT INTO rooms VALUES (?,?)',('r1',json.dumps(state)))
+        self.assertIn('모두 사용',self.send('!퀴즈'))
+        self.date=datetime(2026,11,3,0,0,tzinfo=KST)
+        self.assertIn('모두 사용',self.send('!퀴즈'))
+        self.date=datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
 
     def test_webhook_routes_and_sender_identity(self):

@@ -34,6 +34,11 @@ def quiz_type(ship_type):
     return QUIZ_TYPES.get(ship_type, '기타함종')
 
 
+def quota_period(now):
+    shifted = now.astimezone(KST) - timedelta(hours=3)
+    return f"{shifted.date().isoformat()}:{'03' if shifted.hour < 12 else '15'}"
+
+
 def stage_label(row):
     stage = int(row['改装段階'])
     return '미개장' if stage == 0 else '개1' if stage == 1 else '개2 이상'
@@ -167,10 +172,17 @@ class QuizService:
             db.execute('BEGIN IMMEDIATE')
             row = db.execute('SELECT state FROM rooms WHERE room=?', (room,)).fetchone()
             state = json.loads(row[0]) if row else {'day':'', 'count':0, 'active':None, 'recent':[]}
-            day = self.now().astimezone(KST).date().isoformat()
-            if state['day'] != day:
-                state['day'], state['count'] = day, 0
-                # Midnight resets only the daily quota, never an active question.
+            now = self.now().astimezone(KST)
+            period = quota_period(now)
+            if 'period' not in state:
+                # Preserve today's existing quota during deployment migration.
+                if state.get('day') not in {now.date().isoformat(), period[:10]}:
+                    state['count'] = 0
+                state['period'] = period
+            elif state['period'] != period:
+                state['period'], state['count'] = period, 0
+            state['day'] = now.date().isoformat()
+            # 03:00/15:00 reset only quota, never an active question or scores.
             display_name = ' '.join(str(name or '').split())[:100]
             if display_name == '참가자':
                 display_name = ''
@@ -193,7 +205,7 @@ class QuizService:
             if active:
                 return render(active)
             if state['count'] >= 10:
-                return '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 한국시간 자정에 초기화됩니다.'
+                return '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.'
             question = self.catalog.choose(state['recent'])
             state['count'] += 1
             state['recent'] = [*state['recent'], question['family']][-30:]
