@@ -171,7 +171,14 @@ class QuizService:
             if state['day'] != day:
                 state['day'], state['count'] = day, 0
                 # Midnight resets only the daily quota, never an active question.
-            display_name = ' '.join(str(name or '참가자').split())[:100] or '참가자'
+            display_name = ' '.join(str(name or '').split())[:100]
+            if display_name == '참가자':
+                display_name = ''
+            if player and display_name:
+                db.execute('UPDATE scores SET name=? WHERE room=? AND player=?', (display_name,room,str(player)))
+            if not display_name:
+                saved = db.execute('SELECT name FROM scores WHERE room=? AND player=?', (room,str(player or ''))).fetchone()
+                display_name = saved[0] if saved else '참가자'
             reply = self.dispatch(db, command, argument.strip(), room, str(player or ''), display_name, state)
             db.execute('INSERT INTO rooms VALUES (?,?) ON CONFLICT(room) DO UPDATE SET state=excluded.state',
                        (room, json.dumps(state, ensure_ascii=False)))

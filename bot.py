@@ -24,6 +24,7 @@ import expeditions
 import quests
 import experience
 import ship_quiz
+import iris_identity
 import senka
 import guide_lookup
 from stockbot import stock_commands
@@ -1539,10 +1540,8 @@ def webhook():
     print(f"[받은 메시지] 방={room}, 내용={message}")
 
     if message.partition(' ')[0] in ship_quiz.COMMANDS:
-        sender = data.get('sender', '')
-        name = sender if isinstance(sender, str) else ''
-        player = metadata.get('user_id') or data.get('sender_id') or ('name:' + name if name else '')
         try:
+            player, name = iris_identity.identity(data, IRIS_REPLY_URL)
             reply = ship_quiz.service().handle(message, chat_id, player, name)
         except Exception as exc:
             print(f'[퀴즈 처리 실패] {type(exc).__name__}')

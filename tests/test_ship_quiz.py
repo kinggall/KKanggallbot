@@ -172,6 +172,15 @@ class QuizTests(unittest.TestCase):
         self.assertIn('새이름 · 2점',board)
         self.assertNotIn('이전이름',board)
 
+    def test_recovered_nickname_repairs_existing_score_without_reset(self):
+        self.send('!퀴즈')
+        self.send('!정답 단양',name='')
+        self.assertIn('참가자 · 1점',self.send('!퀴즈점수',name=''))
+        self.assertIn('복구된닉 · 1점',self.send('!퀴즈점수',name='복구된닉'))
+        self.send('!퀴즈',name='')
+        self.assertIn('복구된닉님 정답!',self.send('!정답 단양',name=''))
+        self.assertIn('복구된닉 · 2점',self.send('!퀴즈점수',name=''))
+
     def test_unrelated_message_and_failed_start_do_not_consume_quota(self):
         self.assertIsNone(self.send('안녕'))
         with patch.object(self.catalog,'choose',side_effect=ValueError('no question')):
