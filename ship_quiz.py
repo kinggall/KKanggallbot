@@ -135,7 +135,7 @@ def render(active):
     lines = [f"[칸무스 퀴즈 · {active['number']}/10]", '',
              f"· 함종: {q['kind']} / 국적: {q['nation']}",
              f"· ({q['stage']}) " + ' / '.join(f'{k}: {v}' for k,v in q['stats'].items()),
-             f"· 운: {q['luck']}"]
+             f"· 운: {q['luck']} (Lv 99 기준)"]
     wrong = active['wrong']
     if wrong >= 3:
         lines += ['', '💡 개수 2번함 담당: ' + ' / '.join(q['helpers'][:3])]
