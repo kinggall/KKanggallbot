@@ -41,3 +41,23 @@ class IdentityTests(unittest.TestCase):
             self.assertEqual(identity({'json':{'user_id':'../other'}},URL),('../other',''))
             get.assert_not_called()
             post.assert_not_called()
+
+    def test_direct_chat_friend_name_when_openchat_has_no_member(self):
+        profile=Mock()
+        profile.json.return_value={'payload':{'name':None}}
+        empty=Mock()
+        empty.json.return_value={'data':[]}
+        friend=Mock()
+        friend.json.return_value={'data':[{'name':'OSH','enc':'31'}]}
+        with patch('iris_identity.requests.get',return_value=profile), patch('iris_identity.requests.post',side_effect=[empty,friend]) as post:
+            self.assertEqual(identity({'sender':None,'room':'햄찌','json':{'user_id':'123'}},URL),('123','OSH'))
+            self.assertIn('db2.friends',post.call_args.kwargs['json']['query'])
+            self.assertEqual(post.call_args.kwargs['json']['bind'],['123'])
+
+    def test_removed_friends_table_falls_back_to_recommended_name(self):
+        empty=Mock()
+        empty.json.return_value={'data':[]}
+        recommended=Mock()
+        recommended.json.return_value={'data':[{'nick_name':'OSH','enc':'31'}]}
+        with patch('iris_identity.requests.get',side_effect=requests.HTTPError), patch('iris_identity.requests.post',side_effect=[empty,requests.HTTPError(),recommended]):
+            self.assertEqual(identity({'json':{'user_id':'123'}},URL),('123','OSH'))

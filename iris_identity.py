@@ -34,17 +34,31 @@ def identity(data, reply_url):
                     name = clean_name(profile.get('name'))
         except (requests.RequestException, ValueError, TypeError):
             pass
-        if not name:
-            # Older Iris versions expose /query but not /user/name.
+        # OpenChat and normal friends use different tables. Do not infer a
+        # participant's name from the room title (in a DM it can be the bot).
+        queries = [
+            ('open_chat_member', 'SELECT nickname, enc FROM db2.open_chat_member WHERE user_id = ? ORDER BY _id DESC LIMIT 1', 'nickname'),
+            ('friends', 'SELECT name, enc FROM db2.friends WHERE id = ? LIMIT 1', 'name'),
+            ('recommended_friends', 'SELECT nick_name, enc FROM db2.recommended_friends WHERE user_id = ? LIMIT 1', 'nick_name'),
+        ]
+        failures = []
+        for table, query, field in queries:
+            if name:
+                break
             try:
                 response = requests.post(f'{base}/query', json={
-                    'query': 'SELECT nickname, enc FROM db2.open_chat_member WHERE user_id = ? ORDER BY _id DESC LIMIT 1',
+                    'query': query,
                     'bind': [str(player)]}, timeout=2)
                 response.raise_for_status()
                 document = response.json()
                 rows = document.get('data', []) if isinstance(document, dict) else []
                 if isinstance(rows, list) and len(rows) == 1 and isinstance(rows[0], dict):
-                    name = clean_name(rows[0].get('nickname'))
-            except (requests.RequestException, ValueError, TypeError):
-                pass
+                    name = clean_name(rows[0].get(field))
+                if not name:
+                    failures.append(table + (':query-error' if isinstance(document,dict) and document.get('error') else ':empty-name'))
+            except (requests.RequestException, ValueError, TypeError) as exc:
+                failures.append(table + ':' + type(exc).__name__)
+        if not name:
+            # No profile contents, user IDs, names, or SQL error text in logs.
+            print('[Iris 닉네임 조회 실패] ' + ', '.join(failures))
     return str(player or ('name:' + name if name else '')), name
