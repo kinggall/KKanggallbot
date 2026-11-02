@@ -193,7 +193,7 @@ class QuizService:
             if active:
                 return render(active)
             if state['count'] >= 10:
-                return '오늘의 퀴즈 10회를 모두 사용했습니다. 한국시간 자정에 초기화됩니다.'
+                return '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 한국시간 자정에 초기화됩니다.'
             question = self.catalog.choose(state['recent'])
             state['count'] += 1
             state['recent'] = [*state['recent'], question['family']][-30:]

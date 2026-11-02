@@ -113,7 +113,8 @@ class QuizTests(unittest.TestCase):
         for n in range(1,11):
             self.assertIn(f'{n}/10',self.send('!퀴즈'))
             self.send('!정답 단양')
-        self.assertIn('모두 사용',self.send('!퀴즈'))
+        self.assertEqual(self.send('!퀴즈'),
+                         '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 한국시간 자정에 초기화됩니다.')
         self.assertIn('1/10',self.send('!퀴즈',room='r2'))
         self.date = datetime(2026,11,3,0,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
