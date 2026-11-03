@@ -16,6 +16,30 @@ def overseas(symbol):
 
 
 class StockAliasTests(unittest.TestCase):
+    def test_leveraged_etf_nicknames_route_to_exact_us_ticker(self):
+        cases=[('속슬','SOXL'),('속쓸','SOXL'),('속스','SOXS'),('속쓰','SOXS'),
+               ('코루','KORU'),('램','RAM'),('디램','DRAM')]
+        for nickname,symbol in cases:
+            with self.subTest(nickname=nickname):
+                us=Mock(side_effect=overseas)
+                domestic_catalog=Mock(side_effect=AssertionError('US nickname must not search domestic listings'))
+                service=StockService(codes_loader=domestic_catalog,us_loader=us)
+                self.assertIn('✔️ 현재가:',service.reply(nickname))
+                us.assert_called_once_with(symbol)
+                domestic_catalog.assert_not_called()
+                self.assertEqual(lookup(nickname)[1],symbol)
+        self.assertIsNone(lookup('램테크놀러지'))
+        self.assertIsNone(lookup('디램반도체'))
+
+    def test_sol_top_two_nickname_uses_exact_listed_etf(self):
+        quote=Mock(side_effect=domestic)
+        us=Mock()
+        service=StockService(codes_loader=lambda:{'SOL AI반도체TOP2플러스':'KRX:0167A0',
+                'KODEX AI반도체TOP2플러스':'KRX:000001'},quote_loader=quote,us_loader=us,basic_loader=lambda c:{})
+        self.assertIn('✔️ 현재가:',service.reply('솔탑투'))
+        quote.assert_called_once_with('0167A0')
+        us.assert_not_called()
+
     def test_name_to_ticker_requires_exact_unique_listing(self):
         service=StockService(codes_loader=lambda:{'가상ETF':'KRX:000001','가상ETF레버리지':'KRX:000002'})
         self.assertEqual(service.ticker_for_name('가상ETF','KRW'),'000001')

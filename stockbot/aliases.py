@@ -38,6 +38,22 @@ for market, symbol, name, alternatives in STOCKS:
     if market == 'US':
         US_NAMES[symbol] = name
 
+# Exact ETF nicknames only; do not replace the provider's official fund names.
+ETF_NICKNAMES = (
+    ('SOXL', ('속슬', '속쓸')),
+    ('SOXS', ('속스', '속쓰')),
+    ('KORU', ('코루',)),
+    ('RAM', ('램',)),
+    ('DRAM', ('디램',)),
+)
+for symbol, nicknames in ETF_NICKNAMES:
+    for nickname in nicknames:
+        normalized = key(nickname)
+        target = ('US', symbol, symbol)
+        if normalized in ALIASES and ALIASES[normalized] != target:
+            raise ValueError('Duplicate ETF nickname')
+        ALIASES[normalized] = target
+
 
 def lookup(value):
     return ALIASES.get(key(value))
@@ -46,6 +62,7 @@ def lookup(value):
 # Resolve these against the live/local listing catalog, never guessed codes.
 # Multiple names can be former/current spellings or genuinely ambiguous targets.
 DOMESTIC_GROUPS = (
+    (('솔탑투',), ('SOL AI반도체TOP2플러스',)),
     (('삼바',), ('삼성바이오로직스',)),
     (('삼스',), ('삼성에스디에스', '삼성SDS')),
     (('삼에스디아이', '삼SDI'), ('삼성SDI',)),
