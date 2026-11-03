@@ -45,7 +45,7 @@ def quota_limit(now):
     if quota_period(local).endswith(':03'):
         return 10
     hour = local.hour if local.hour >= 15 else local.hour + 24
-    return 10 + 5 * max(0, min(hour, 24) - 17)
+    return 10 + 5 * max(0, (min(hour, 24) - 16) // 2)
 
 
 def stage_label(row):
@@ -194,7 +194,7 @@ class QuizService:
             state['day'] = now.date().isoformat()
             if state['active']:
                 if state['active']['quota_period'] == period:
-                    state['active']['limit'] = quota_limit(now)
+                    state['active']['limit'] = max(state['active']['number'],quota_limit(now))
                 question = state['active']['question']
                 detail = getattr(self.catalog,'details',{}).get(question['sid'])
                 if detail:
@@ -225,7 +225,7 @@ class QuizService:
             limit = quota_limit(self.now())
             if state['count'] >= limit:
                 return (f'✔️ 퀴즈 {limit}회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n'
-                        '✔️ 핫타임(18~24) 정각에 5회씩 추가됩니다.')
+                        '✔️ 18·20·22·24시에 5회씩 추가됩니다.')
             question = self.catalog.choose(state['recent'])
             state['count'] += 1
             state['recent'] = [*state['recent'], question['family']][-30:]

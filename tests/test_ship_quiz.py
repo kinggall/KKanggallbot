@@ -113,7 +113,7 @@ class QuizTests(unittest.TestCase):
             self.assertIn(f'{n}/10',self.send('!퀴즈'))
             self.send('!정답 단양')
         self.assertEqual(self.send('!퀴즈'),
-                         '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n✔️ 핫타임(18~24) 정각에 5회씩 추가됩니다.')
+                         '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n✔️ 18·20·22·24시에 5회씩 추가됩니다.')
         self.assertIn('1/10',self.send('!퀴즈',room='r2'))
         self.date = datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
@@ -244,10 +244,10 @@ class QuizTests(unittest.TestCase):
         self.send('!퀴즈')
         self.send('!정답 단양')
         self.date=datetime(2026,11,3,0,0,tzinfo=KST)
-        self.assertIn('2/45',self.send('!퀴즈'))
+        self.assertIn('2/30',self.send('!퀴즈'))
         self.send('!정답 단양')
         self.date=datetime(2026,11,3,2,59,tzinfo=KST)
-        self.assertIn('3/45',self.send('!퀴즈'))
+        self.assertIn('3/30',self.send('!퀴즈'))
         self.send('!정답 단양')
         self.date=datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
@@ -266,7 +266,7 @@ class QuizTests(unittest.TestCase):
             db.execute('INSERT INTO rooms VALUES (?,?)',('r1',json.dumps(state)))
         self.assertIn('모두 사용',self.send('!퀴즈'))
         self.date=datetime(2026,11,3,0,0,tzinfo=KST)
-        self.assertIn('11/45',self.send('!퀴즈'))
+        self.assertIn('11/30',self.send('!퀴즈'))
         self.send('!정답 단양')
         self.date=datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
@@ -274,23 +274,25 @@ class QuizTests(unittest.TestCase):
     def test_hot_time_limits_at_exact_boundaries_in_kst(self):
         from ship_quiz import quota_limit
         for day,hour,minute,limit in [(2,15,0,10),(2,17,59,10),(2,18,0,15),
-                (2,19,0,20),(2,20,0,25),(2,21,0,30),(2,22,0,35),
-                (2,23,0,40),(3,0,0,45),(3,1,0,45),(3,2,59,45),
+                (2,19,0,15),(2,20,0,20),(2,21,0,20),(2,22,0,25),
+                (2,23,0,25),(3,0,0,30),(3,1,0,30),(3,2,59,30),
                 (3,3,0,10),(3,14,59,10),(3,15,0,10)]:
             with self.subTest(day=day,hour=hour,minute=minute):
                 self.assertEqual(quota_limit(datetime(2026,11,day,hour,minute,tzinfo=KST)),limit)
         from datetime import timezone
-        self.assertEqual(quota_limit(datetime(2026,11,2,15,0,tzinfo=timezone.utc)),45)
+        self.assertEqual(quota_limit(datetime(2026,11,2,15,0,tzinfo=timezone.utc)),30)
 
-    def test_unused_fifteen_at_eighteen_then_five_more_at_nineteen(self):
+    def test_unused_fifteen_at_eighteen_then_five_more_at_twenty(self):
         self.date=datetime(2026,11,2,18,0,tzinfo=KST)
         for n in range(1,16):
             self.assertIn(f'{n}/15',self.send('!퀴즈'))
             self.send('!정답 단양')
         exhausted=self.send('!퀴즈')
         self.assertIn('퀴즈 15회를 모두 사용',exhausted)
-        self.assertIn('핫타임(18~24) 정각에 5회씩 추가됩니다.',exhausted)
+        self.assertIn('18·20·22·24시에 5회씩 추가됩니다.',exhausted)
         self.date=datetime(2026,11,2,19,0,tzinfo=KST)
+        self.assertIn('퀴즈 15회를 모두 사용',self.send('!퀴즈'))
+        self.date=datetime(2026,11,2,20,0,tzinfo=KST)
         self.assertIn('16/20',self.send('!퀴즈'))
         self.date=datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('16/20',self.send('!퀴즈'))
@@ -308,8 +310,20 @@ class QuizTests(unittest.TestCase):
         self.assertIn('11/15',self.send('!퀴즈'))
         self.send('!정답 단양')
         self.date=datetime(2026,11,2,21,0,tzinfo=KST)
-        self.assertIn('12/30',self.send('!퀴즈'))
-        self.assertIn('1/30',self.send('!퀴즈',room='r2'))
+        self.assertIn('12/20',self.send('!퀴즈'))
+        self.assertIn('1/20',self.send('!퀴즈',room='r2'))
+
+    def test_lower_limit_preserves_existing_progress_and_used_count(self):
+        self.date=datetime(2026,11,2,23,0,tzinfo=KST)
+        state={'day':'2026-11-02','period':'2026-11-02:15','count':35,'recent':[20],
+               'active':dict(question=self.question,number=35,wrong=0,seen=[],limit=40,quota_period='2026-11-02:15')}
+        with sqlite3.connect(self.database) as db:
+            db.execute('INSERT INTO rooms VALUES (?,?)',('r1',json.dumps(state)))
+        self.assertIn('35/35',self.send('!퀴즈'))
+        self.send('!정답 단양')
+        self.assertIn('퀴즈 25회를 모두 사용',self.send('!퀴즈'))
+        self.date=datetime(2026,11,3,3,0,tzinfo=KST)
+        self.assertIn('1/10',self.send('!퀴즈'))
 
     def test_webhook_routes_and_sender_identity(self):
         import bot
