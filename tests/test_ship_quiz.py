@@ -49,8 +49,8 @@ class QuizTests(unittest.TestCase):
         self.assertNotIn('고틀란드',text)
         for question in self.catalog.questions:
             self.assertEqual(len(question['stats']),2)
-            self.assertTrue(question['equipment'])
-            self.assertTrue(question['helpers'])
+            self.assertIsInstance(question['equipment'],list)
+            self.assertIsInstance(question['helpers'],list)
             self.assertTrue(set(question['stats']) <= {'화력','뇌장','대공','장갑'})
             self.assertTrue(all(v>0 for v in question['stats'].values()))
 
@@ -62,6 +62,36 @@ class QuizTests(unittest.TestCase):
             for ship_type in types:
                 self.assertEqual(quiz_type(ship_type),name)
         self.assertTrue({q['kind'] for q in self.catalog.questions} <= set(groups))
+
+    def test_all_csv_families_and_forms_are_included_without_hint_exclusions(self):
+        meta=json.loads((ROOT/'data/fit_metadata.json').read_text())['ships']
+        self.assertEqual({q['family'] for q in self.catalog.questions},{r['base'] for r in meta.values()})
+        self.assertEqual(set(self.catalog.details),{int(sid) for sid in meta})
+        self.assertTrue(any(not q['helpers'] for q in self.catalog.questions))
+        self.assertTrue(any(not q['equipment'] and not q['equipment_unknown'] for q in self.catalog.questions))
+        with patch('ship_quiz.InitialEquipmentCatalog.starting_items',return_value=[None]):
+            unverified=QuizCatalog(ROOT)
+        self.assertEqual(set(unverified.details),set(self.catalog.details))
+        self.assertTrue(all(q['equipment_unknown'] for q in unverified.questions))
+        self.assertEqual(NATIONS[8],'태국')
+        self.assertEqual(NATIONS[9],'노르웨이')
+        self.assertEqual(NATIONS[12],'호주')
+
+    def test_missing_hints_are_explicit_without_revealing_untranslated_name(self):
+        question={**self.question,'equipment':[],'helpers':[],'base_name':'Norge','class_hint':None}
+        text=render({'question':question,'wrong':10,'number':1})
+        self.assertIn('💡 초기 장비: 없음',text)
+        self.assertIn('💡 개수 2번함 담당: 등록된 장비 없음',text)
+        self.assertIn('💡 함급: 미확인',text)
+        self.assertIn('💡 이름 힌트: 원문 5글자',text)
+        self.assertNotIn('Norge',text)
+        self.assertNotIn('💡 함재기 슬롯',text)
+        question['equipment_unknown']=True
+        text=render({'question':question,'wrong':3,'number':1})
+        self.assertIn('💡 초기 장비: 미확인',text)
+        question['equipment']=['테스트 장비']
+        text=render({'question':question,'wrong':3,'number':1})
+        self.assertIn('💡 초기 장비: 테스트 장비 / 일부 미확인',text)
 
     def test_overlapping_starting_clues_are_allowed_and_all_pairs_included(self):
         from collections import defaultdict

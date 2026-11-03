@@ -17,7 +17,8 @@ from initial_equipment import InitialEquipmentCatalog
 ROOT = Path(__file__).resolve().parent
 KST = timezone(timedelta(hours=9))  # Windows does not require a tzdata install.
 NATIONS = {1: '일본', 2: '독일', 3: '이탈리아', 4: '미국', 5: '영국',
-           6: '프랑스', 7: '소련', 8: '심해', 9: '호주', 10: '스웨덴', 11: '네덜란드'}
+           6: '프랑스', 7: '소련', 8: '태국', 9: '노르웨이', 10: '스웨덴',
+           11: '네덜란드', 12: '호주'}
 STATS = [('火力最大', '화력'), ('雷装最大', '뇌장'), ('対空最大', '대공'),
          ('装甲最大', '장갑')]
 COMMANDS = {'!퀴즈', '!정답', '!퀴즈점수'}
@@ -95,14 +96,8 @@ class QuizCatalog:
         candidates = []
         for sid, row in ships.items():
             info = meta[str(sid)]
-            if not helper_items[sid] or info['nationality'] not in NATIONS or info['nationality'] == 8:
-                continue
             entries = equipment.starting_items(row)
-            if not entries or None in entries:
-                continue
-            base_name = self.names.get(info['base'], '')
-            if not any('가' <= c <= '힣' for c in base_name):
-                continue
+            base_name = self.names.get(info['base'], self.names[sid])
             try:
                 stats = {label: int(row[field]) for field, label in STATS if int(row[field]) > 0}
                 luck = int(row['運初期'])
@@ -111,13 +106,13 @@ class QuizCatalog:
             except ValueError:
                 continue
             ship_class = classes.get(str(info['ship_class']))
-            if info['type'] in (1,2) and not ship_class:
-                continue  # Never invent a class hint for an unmapped new class.
             candidates.append(dict(sid=sid, family=info['base'], name=self.names[sid],
-                base_name=base_name, nation=NATIONS[info['nationality']],
+                base_name=base_name, nation=NATIONS.get(info['nationality'],'미확인'),
                 kind=quiz_type(info['type']), stage=stage, stats=stats, luck=luck,
                 class_hint=ship_class if info['type'] in (1,2) else None, slots=slots,
-                equipment=[equipment.equipment.items[i]['name'] + (f' ★{s}' if s else '') for i, s in entries],
+                equipment=[equipment.equipment.items[entry[0]]['name'] + (f' ★{entry[1]}' if entry[1] else '')
+                           for entry in entries if entry is not None],
+                equipment_unknown=None in entries,
                 helpers=[equipment.equipment.items[i]['name'] for i in sorted(helper_items[sid])]))
         # Shared starting clues are allowed; subsequent hints narrow the answer.
         self.questions = []
@@ -143,17 +138,24 @@ def render(active):
              f"· 운: {q['luck']} (Lv 99 기준)"]
     wrong = active['wrong']
     if wrong >= 3:
-        lines += ['', '💡 초기 장비: ' + ' / '.join(q['equipment'])]
+        equipment = ' / '.join(q['equipment'])
+        if q.get('equipment_unknown'):
+            equipment += ' / 일부 미확인' if equipment else '미확인'
+        lines += ['', '💡 초기 장비: ' + (equipment or '없음')]
     if wrong >= 5:
-        lines += ['💡 개수 2번함 담당: ' + ' / '.join(q['helpers'][:3])]
+        lines += ['💡 개수 2번함 담당: ' + (' / '.join(q['helpers'][:3]) or '등록된 장비 없음')]
     if wrong >= 7:
-        if q.get('class_hint'):
-            lines += ['💡 함급: ' + q['class_hint'].split('(특',1)[0]]
+        if q['kind'] in ('구축','해방'):
+            lines += ['💡 함급: ' + (q.get('class_hint') or '미확인').split('(특',1)[0]]
         elif 'slots' in q:
             slots = q['slots']
             lines += ['💡 함재기 슬롯: ' + (' / '.join(map(str, slots)) if slots else '없음')]
     if wrong >= 10:
-        lines += ['💡 초성: ' + initials(q['base_name'])]
+        if any('가'<=c<='힣' for c in q['base_name']):
+            lines += ['💡 초성: ' + initials(q['base_name'])]
+        else:
+            length = sum(c.isalnum() for c in q['base_name'])
+            lines += [f'💡 이름 힌트: 원문 {length}글자']
     lines += ['', f'누적 오답: {wrong}회']
     return '\n'.join(lines)
 
