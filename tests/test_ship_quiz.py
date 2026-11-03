@@ -199,8 +199,28 @@ class QuizTests(unittest.TestCase):
         self.date+=timedelta(seconds=1)
         self.assertIn('정답!',answer('단양'))
         self.send('!퀴즈')
-        self.assertIn('30초 후',answer('단양'))
-        self.assertIn('참가자 · 1점',self.send('!퀴즈점수'))
+        self.assertIn('정답!',answer('단양'))
+        self.assertIn('참가자 · 2점',self.send('!퀴즈점수'))
+
+    def test_new_question_clears_cooldowns_for_every_player(self):
+        self.send('!퀴즈')
+        def answer(text,player):
+            return self.service.handle('!정답 '+text,'r1',player,player)
+        self.assertIn('오답 1회',answer('첫답오답','a'))
+        self.assertIn('오답 2회',answer('둘째오답','b'))
+        self.assertIn('30초 후',answer('재시도','a'))
+        self.assertIn('정답!',answer('단양','winner'))
+        self.send('!퀴즈')
+        self.assertIn('오답 1회',answer('첫답오답','a'))
+        self.assertIn('오답 2회',answer('둘째오답','b'))
+        self.assertIn('정답!',answer('단양','winner'))
+
+    def test_legacy_room_wide_cooldown_does_not_block_new_questions(self):
+        with sqlite3.connect(self.database) as db:
+            db.execute('CREATE TABLE IF NOT EXISTS attempts (room TEXT,player TEXT,submitted REAL,PRIMARY KEY(room,player))')
+            db.execute('INSERT INTO attempts VALUES (?,?,?)',('r1','u1',self.date.timestamp()))
+        self.send('!퀴즈')
+        self.assertIn('정답!',self.service.handle('!정답 단양','r1','u1','참가자'))
 
     def test_seventh_hint_classes_special_destroyers_and_aircraft_slots(self):
         for cid,label in [(12,'후부키형'),(1,'아야나미형'),(5,'아카츠키형'),(117,'우쿠루형')]:

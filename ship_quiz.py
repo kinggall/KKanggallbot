@@ -166,7 +166,6 @@ class QuizService:
         with closing(sqlite3.connect(self.database)) as db, db:
             db.execute('CREATE TABLE IF NOT EXISTS rooms (room TEXT PRIMARY KEY, state TEXT NOT NULL)')
             db.execute('CREATE TABLE IF NOT EXISTS scores (room TEXT, player TEXT, name TEXT, points INTEGER, PRIMARY KEY(room,player))')
-            db.execute('CREATE TABLE IF NOT EXISTS attempts (room TEXT, player TEXT, submitted REAL, PRIMARY KEY(room,player))')
 
     def handle(self, message, room, player='', name=''):
         command, _, argument = message.strip().partition(' ')
@@ -230,7 +229,7 @@ class QuizService:
             question = self.catalog.choose(state['recent'])
             state['count'] += 1
             state['recent'] = [*state['recent'], question['family']][-30:]
-            state['active'] = dict(question=question, number=state['count'], wrong=0, seen=[],
+            state['active'] = dict(question=question, number=state['count'], wrong=0, seen=[], cooldowns={},
                                    limit=limit, quota_period=state['period'])
             return render(state['active'])
         if not active:
@@ -243,9 +242,10 @@ class QuizService:
         if len(answer) > 100:
             return '함선명 또는 등록된 별명을 100자 이내로 입력해 주세요.'
         timestamp = self.now().timestamp()
-        last = db.execute('SELECT submitted FROM attempts WHERE room=? AND player=?',(room,player)).fetchone()
-        if last and timestamp-last[0] < 30:
-            remaining = min(30,math.ceil(30-(timestamp-last[0])))
+        cooldowns = active.setdefault('cooldowns', {})
+        last = cooldowns.get(player)
+        if last is not None and timestamp-last < 30:
+            remaining = min(30,math.ceil(30-(timestamp-last)))
             return f'✔️ 정답 제출은 30초마다 가능합니다.\n✔️ {remaining}초 후 다시 시도해 주세요.'
         key = normalize(answer)
         families = self.catalog.answers.get(key, set())
@@ -254,8 +254,7 @@ class QuizService:
         attempt = [player, key[:200]]
         if attempt in active['seen']:
             return '✔️ 이미 제출한 오답입니다.\n✔️ 오답 횟수는 늘어나지 않습니다.'
-        db.execute('INSERT INTO attempts VALUES (?,?,?) ON CONFLICT(room,player) DO UPDATE SET submitted=excluded.submitted',
-                   (room,player,timestamp))
+        cooldowns[player] = timestamp
         if q['family'] in families:
             db.execute('INSERT INTO scores VALUES (?,?,?,1) ON CONFLICT(room,player) DO UPDATE SET points=points+1,name=excluded.name', (room,player,name[:100]))
             points = db.execute('SELECT points FROM scores WHERE room=? AND player=?', (room,player)).fetchone()[0]
