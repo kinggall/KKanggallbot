@@ -25,6 +25,7 @@ import quests
 import experience
 import ship_quiz
 import iris_identity
+import command_aliases
 import senka
 import guide_lookup
 from stockbot import stock_commands
@@ -1425,6 +1426,7 @@ COMMANDS = {
     "!도움말": (
         "[깡갤봇 사용법]" + "\u200b" * 4000 + "\n\n"
         "💡 명령어 앞에 느낌표(!)를 붙여주세요.\n"
+        "💡 아래 명령어는 초성으로도 입력할 수 있어요.\n"
         "💡 함선·장비는 등록된 별명으로도 검색할 수 있어요.\n\n"
         "━━━━ 공지 · 안내 ━━━━\n"
         "!공지 | !통합공략 | !반복퀘\n"
@@ -1532,6 +1534,7 @@ def webhook():
     data = data if isinstance(data, dict) else {}
 
     message = str(data.get("msg", "")).strip()
+    message = command_aliases.expand(message)
     room = data.get("room", "")
     metadata = data.get("json")
     metadata = metadata if isinstance(metadata, dict) else {}
