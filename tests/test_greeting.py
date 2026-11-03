@@ -9,8 +9,6 @@ import bot
 class GreetingTests(unittest.TestCase):
     def test_profanity_keywords_reply_inside_longer_messages(self):
         cases = {
-            "진짜 시발 뭐야": "욕하지 마세요",
-            "씨발": "욕하지 마세요",
             "애미라고 쓰지 마": "바르고 고운 말 써요~",
             "좆같네": "바르고 고운 말 써요~",
         }
@@ -24,6 +22,13 @@ class GreetingTests(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             post.assert_called_once()
             self.assertEqual(post.call_args.kwargs["json"]["data"], expected)
+
+    def test_removed_profanity_triggers_do_not_reply(self):
+        for message in ('시발','씨발','진짜 시발 뭐야','씨발 이거 왜 이래'):
+            with self.subTest(message=message), patch.object(bot.requests,'post') as post:
+                response=bot.app.test_client().post('/webhook',json={'msg':message,'json':{'chat_id':'greeting-room'}})
+                self.assertEqual(response.status_code,200)
+                post.assert_not_called()
 
     def test_profanity_replies_do_not_trigger_again(self):
         for message in ("욕하지 마세요", "바르고 고운 말 써요~"):
