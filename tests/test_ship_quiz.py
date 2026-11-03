@@ -35,7 +35,7 @@ class QuizTests(unittest.TestCase):
     def send(self, msg, room='r1', player='u1', name='참가자'):
         reply=self.service.handle(msg,room,player,name)
         if msg.startswith('!정답 '):
-            self.date += timedelta(seconds=60)
+            self.date += timedelta(seconds=30)
         return reply
 
     def test_real_renames_remodels_aliases_and_stage_mask(self):
@@ -190,13 +190,15 @@ class QuizTests(unittest.TestCase):
         self.assertIn('복구된닉님 정답!',self.send('!정답 단양',name=''))
         self.assertIn('복구된닉 · 2점',self.send('!퀴즈점수',name=''))
 
-    def test_cooldown_is_per_room_player_persistent_and_exactly_sixty_seconds(self):
+    def test_cooldown_is_per_room_player_persistent_and_exactly_thirty_seconds(self):
         self.send('!퀴즈')
         def answer(text,player='u1',room='r1'):
             return self.service.handle('!정답 '+text,room,player,'참가자')
         self.assertIn('오답 1회',answer('오답첫번째'))
-        self.assertIn('60초 후',answer('단양'))
-        self.date+=timedelta(seconds=59)
+        self.assertIn('30초 후',answer('단양'))
+        self.date+=timedelta(seconds=1)
+        self.assertEqual(answer('단양'),'✔️ 정답은 30초마다 제출할 수 있습니다.\n✔️ 29초 후 다시 시도해 주세요.')
+        self.date+=timedelta(seconds=28)
         self.service=QuizService(self.catalog,self.database,lambda:self.date)
         self.assertIn('1초 후',answer('단양'))
         self.assertIn('누적 오답: 1회',self.send('!퀴즈'))
@@ -206,7 +208,7 @@ class QuizTests(unittest.TestCase):
         self.date+=timedelta(seconds=1)
         self.assertIn('정답!',answer('단양'))
         self.send('!퀴즈')
-        self.assertIn('60초 후',answer('단양'))
+        self.assertIn('30초 후',answer('단양'))
         self.assertIn('참가자 · 1점',self.send('!퀴즈점수'))
 
     def test_seventh_hint_classes_special_destroyers_and_aircraft_slots(self):
@@ -224,7 +226,7 @@ class QuizTests(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=2) as executor:
             replies=list(executor.map(lambda text:self.service.handle('!정답 '+text,'r1','u1','참가자'),['첫오답','둘째오답']))
         self.assertEqual(sum('오답 1회' in reply for reply in replies),1)
-        self.assertEqual(sum('60초 후' in reply for reply in replies),1)
+        self.assertEqual(sum('30초 후' in reply for reply in replies),1)
         self.assertIn('누적 오답: 1회',self.send('!퀴즈'))
 
     def test_unrelated_message_and_failed_start_do_not_consume_quota(self):

@@ -260,9 +260,9 @@ class QuizService:
             return '함선명 또는 등록된 별명을 100자 이내로 입력해 주세요.'
         timestamp = self.now().timestamp()
         last = db.execute('SELECT submitted FROM attempts WHERE room=? AND player=?',(room,player)).fetchone()
-        if last and timestamp-last[0] < 60:
-            remaining = min(60,math.ceil(60-(timestamp-last[0])))
-            return f'✔️ 정답은 1분에 한 번 제출할 수 있습니다.\n✔️ {remaining}초 후 다시 시도해 주세요.'
+        if last and timestamp-last[0] < 30:
+            remaining = min(30,math.ceil(30-(timestamp-last[0])))
+            return f'✔️ 정답은 30초마다 제출할 수 있습니다.\n✔️ {remaining}초 후 다시 시도해 주세요.'
         key = normalize(answer)
         families = self.catalog.answers.get(key, set())
         if len(families) > 1:
