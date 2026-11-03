@@ -92,17 +92,6 @@ class QuizCatalog:
                         for sid in helper['ship_ids']:
                             helper_items[sid].add(row['eq_id'])
         equipment = InitialEquipmentCatalog(root)
-        fingerprints = defaultdict(set)
-        for sid, row in ships.items():
-            info = meta[str(sid)]
-            try:
-                stats = {label:int(row[field]) for field,label in STATS if int(row[field]) > 0}
-                common = (quiz_type(info['type']), NATIONS.get(info['nationality']),
-                          stage_label(row), int(row['運初期']))
-            except ValueError:
-                continue
-            for a,b in combinations(stats, 2):
-                fingerprints[(*common, a, stats[a], b, stats[b])].add(info['base'])
         candidates = []
         for sid, row in ships.items():
             info = meta[str(sid)]
@@ -130,19 +119,14 @@ class QuizCatalog:
                 class_hint=ship_class if info['type'] in (1,2) else None, slots=slots,
                 equipment=[equipment.equipment.items[i]['name'] + (f' ★{s}' if s else '') for i, s in entries],
                 helpers=[equipment.equipment.items[i]['name'] for i in sorted(helper_items[sid])]))
-        # Two stats + luck + type/nation/stage must identify one family among ALL
-        # known CSV forms, including ships not eligible for hint-based selection.
+        # Shared starting clues are allowed; subsequent hints narrow the answer.
         self.questions = []
         self.details = {q['sid']:q for q in candidates}
         for q in candidates:
             for pair in combinations(q['stats'], 2):
-                a,b = pair
-                other_families = fingerprints[(q['kind'], q['nation'], q['stage'], q['luck'],
-                                               a, q['stats'][a], b, q['stats'][b])]
-                if other_families == {q['family']}:
-                    self.questions.append({**q, 'stats': {label:q['stats'][label] for label in pair}})
+                self.questions.append({**q, 'stats': {label:q['stats'][label] for label in pair}})
         if not self.questions:
-            raise ValueError('No unambiguous ship quiz questions')
+            raise ValueError('No eligible ship quiz questions')
 
     def choose(self, recent):
         pool = [q for q in self.questions if q['family'] not in recent] or self.questions

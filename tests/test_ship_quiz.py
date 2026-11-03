@@ -63,28 +63,19 @@ class QuizTests(unittest.TestCase):
                 self.assertEqual(quiz_type(ship_type),name)
         self.assertTrue({q['kind'] for q in self.catalog.questions} <= set(groups))
 
-    def test_questions_still_unique_after_broad_grouping(self):
-        import csv
+    def test_overlapping_starting_clues_are_allowed_and_all_pairs_included(self):
         from collections import defaultdict
         from itertools import combinations
-        meta=json.loads((ROOT/'data/fit_metadata.json').read_text())['ships']
         signatures=defaultdict(set)
-        with (ROOT/'ships.csv').open(encoding='cp932',newline='') as stream:
-            for row in csv.DictReader(stream):
-                info=meta.get(row['艦船ID'])
-                if not info:
-                    continue
-                try:
-                    stats={label:int(row[field]) for field,label in STATS}
-                    common=(quiz_type(info['type']),NATIONS.get(info['nationality']),stage_label(row),int(row['運初期']))
-                except ValueError:
-                    continue
-                for a,b in combinations(stats,2):
-                    signatures[(*common,a,stats[a],b,stats[b])].add(info['base'])
+        actual=defaultdict(set)
         for question in self.catalog.questions:
             (a,x),(b,y)=question['stats'].items()
             key=(question['kind'],question['nation'],question['stage'],question['luck'],a,x,b,y)
-            self.assertEqual(signatures[key],{question['family']})
+            signatures[key].add(question['family'])
+            actual[question['sid']].add((a,b))
+        self.assertTrue(any(len(families)>1 for families in signatures.values()))
+        for sid,detail in self.catalog.details.items():
+            self.assertEqual(actual[sid],set(combinations(detail['stats'],2)))
 
     def test_active_question_cannot_be_replaced_or_cost_another_turn(self):
         first = self.send('!퀴즈')
