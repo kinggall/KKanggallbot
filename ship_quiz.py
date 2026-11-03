@@ -40,6 +40,14 @@ def quota_period(now):
     return f"{shifted.date().isoformat()}:{'03' if shifted.hour < 12 else '15'}"
 
 
+def quota_limit(now):
+    local = now.astimezone(KST)
+    if quota_period(local).endswith(':03'):
+        return 10
+    hour = local.hour if local.hour >= 15 else local.hour + 24
+    return 10 + 5 * max(0, min(hour, 24) - 17)
+
+
 def stage_label(row):
     stage = int(row['改装段階'])
     return '미개장' if stage == 0 else '개1' if stage == 1 else '개2 이상'
@@ -145,7 +153,7 @@ class QuizCatalog:
 
 def render(active):
     q = active['question']
-    lines = [f"[칸무스 퀴즈 · {active['number']}/10]", '',
+    lines = [f"[칸무스 퀴즈 · {active['number']}/{active.get('limit',10)}]", '',
              f"· 함종: {q['kind']} / 국적: {q['nation']}",
              f"· ({q['stage']}) " + ' / '.join(f'{k}: {v}' for k,v in q['stats'].items()),
              f"· 운: {q['luck']} (Lv 99 기준)"]
@@ -190,6 +198,9 @@ class QuizService:
             state = json.loads(row[0]) if row else {'day':'', 'count':0, 'active':None, 'recent':[]}
             now = self.now().astimezone(KST)
             period = quota_period(now)
+            if state['active']:
+                state['active'].setdefault('quota_period', state.get('period',period))
+                state['active'].setdefault('limit',max(10,state['active']['number']))
             if 'period' not in state:
                 # Preserve today's existing quota during deployment migration.
                 if state.get('day') not in {now.date().isoformat(), period[:10]}:
@@ -199,6 +210,8 @@ class QuizService:
                 state['period'], state['count'] = period, 0
             state['day'] = now.date().isoformat()
             if state['active']:
+                if state['active']['quota_period'] == period:
+                    state['active']['limit'] = quota_limit(now)
                 question = state['active']['question']
                 detail = getattr(self.catalog,'details',{}).get(question['sid'])
                 if detail:
@@ -226,12 +239,15 @@ class QuizService:
         if command == '!퀴즈':
             if active:
                 return render(active)
-            if state['count'] >= 10:
-                return '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.'
+            limit = quota_limit(self.now())
+            if state['count'] >= limit:
+                return (f'✔️ 퀴즈 {limit}회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n'
+                        '✔️ 핫타임(18~24) 정각에 5회씩 추가됩니다.')
             question = self.catalog.choose(state['recent'])
             state['count'] += 1
             state['recent'] = [*state['recent'], question['family']][-30:]
-            state['active'] = dict(question=question, number=state['count'], wrong=0, seen=[])
+            state['active'] = dict(question=question, number=state['count'], wrong=0, seen=[],
+                                   limit=limit, quota_period=state['period'])
             return render(state['active'])
         if not active:
             return '✔️ 진행 중인 문제가 없습니다.\n✔️ !퀴즈로 시작해 주세요.'

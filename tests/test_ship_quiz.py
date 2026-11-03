@@ -26,7 +26,7 @@ class QuizTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.database = Path(self.temp.name)/'quiz.sqlite3'
-        self.date = datetime(2026,11,2,23,59,tzinfo=KST)
+        self.date = datetime(2026,11,2,16,0,tzinfo=KST)
         self.service = QuizService(self.catalog, self.database, lambda:self.date)
         self.chooser = patch.object(self.catalog, 'choose', return_value=dict(self.question))
         self.chooser.start()
@@ -122,7 +122,7 @@ class QuizTests(unittest.TestCase):
             self.assertIn(f'{n}/10',self.send('!퀴즈'))
             self.send('!정답 단양')
         self.assertEqual(self.send('!퀴즈'),
-                         '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.')
+                         '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n✔️ 핫타임(18~24) 정각에 5회씩 추가됩니다.')
         self.assertIn('1/10',self.send('!퀴즈',room='r2'))
         self.date = datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
@@ -246,10 +246,10 @@ class QuizTests(unittest.TestCase):
         self.send('!퀴즈')
         self.send('!정답 단양')
         self.date=datetime(2026,11,3,0,0,tzinfo=KST)
-        self.assertIn('2/10',self.send('!퀴즈'))
+        self.assertIn('2/45',self.send('!퀴즈'))
         self.send('!정답 단양')
         self.date=datetime(2026,11,3,2,59,tzinfo=KST)
-        self.assertIn('3/10',self.send('!퀴즈'))
+        self.assertIn('3/45',self.send('!퀴즈'))
         self.send('!정답 단양')
         self.date=datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
@@ -268,9 +268,50 @@ class QuizTests(unittest.TestCase):
             db.execute('INSERT INTO rooms VALUES (?,?)',('r1',json.dumps(state)))
         self.assertIn('모두 사용',self.send('!퀴즈'))
         self.date=datetime(2026,11,3,0,0,tzinfo=KST)
-        self.assertIn('모두 사용',self.send('!퀴즈'))
+        self.assertIn('11/45',self.send('!퀴즈'))
+        self.send('!정답 단양')
         self.date=datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
+
+    def test_hot_time_limits_at_exact_boundaries_in_kst(self):
+        from ship_quiz import quota_limit
+        for day,hour,minute,limit in [(2,15,0,10),(2,17,59,10),(2,18,0,15),
+                (2,19,0,20),(2,20,0,25),(2,21,0,30),(2,22,0,35),
+                (2,23,0,40),(3,0,0,45),(3,1,0,45),(3,2,59,45),
+                (3,3,0,10),(3,14,59,10),(3,15,0,10)]:
+            with self.subTest(day=day,hour=hour,minute=minute):
+                self.assertEqual(quota_limit(datetime(2026,11,day,hour,minute,tzinfo=KST)),limit)
+        from datetime import timezone
+        self.assertEqual(quota_limit(datetime(2026,11,2,15,0,tzinfo=timezone.utc)),45)
+
+    def test_unused_fifteen_at_eighteen_then_five_more_at_nineteen(self):
+        self.date=datetime(2026,11,2,18,0,tzinfo=KST)
+        for n in range(1,16):
+            self.assertIn(f'{n}/15',self.send('!퀴즈'))
+            self.send('!정답 단양')
+        exhausted=self.send('!퀴즈')
+        self.assertIn('퀴즈 15회를 모두 사용',exhausted)
+        self.assertIn('핫타임(18~24) 정각에 5회씩 추가됩니다.',exhausted)
+        self.date=datetime(2026,11,2,19,0,tzinfo=KST)
+        self.assertIn('16/20',self.send('!퀴즈'))
+        self.date=datetime(2026,11,3,3,0,tzinfo=KST)
+        self.assertIn('16/20',self.send('!퀴즈'))
+        self.send('!정답 단양')
+        self.assertIn('1/10',self.send('!퀴즈'))
+        self.assertIn('참가자 · 16점',self.send('!퀴즈점수'))
+
+    def test_accumulation_without_messages_and_restart_has_no_double_grant(self):
+        for _ in range(10):
+            self.send('!퀴즈')
+            self.send('!정답 단양')
+        self.date=datetime(2026,11,2,18,0,tzinfo=KST)
+        self.assertIn('11/15',self.send('!퀴즈'))
+        self.service=QuizService(self.catalog,self.database,lambda:self.date)
+        self.assertIn('11/15',self.send('!퀴즈'))
+        self.send('!정답 단양')
+        self.date=datetime(2026,11,2,21,0,tzinfo=KST)
+        self.assertIn('12/30',self.send('!퀴즈'))
+        self.assertIn('1/30',self.send('!퀴즈',room='r2'))
 
     def test_webhook_routes_and_sender_identity(self):
         import bot

@@ -8,7 +8,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from ship_quiz import quota_period, KST
+from ship_quiz import quota_period, quota_limit, KST
 
 
 def reset(db, room, day):
@@ -27,7 +27,9 @@ def main():
     path=ROOT/'.quiz/quiz.sqlite3'
     if not path.is_file():
         raise SystemExit('Quiz database not found on this PC.')
-    day=quota_period(datetime.now(KST))
+    now=datetime.now(KST)
+    day=quota_period(now)
+    limit=quota_limit(now)
     with closing(sqlite3.connect(path,timeout=15)) as db:
         rooms=[]
         for room,raw in db.execute('SELECT room,state FROM rooms ORDER BY room'):
@@ -35,7 +37,7 @@ def main():
             if state.get('period')==day and state.get('count',0)>0:
                 names=[r[0] for r in db.execute('SELECT name FROM scores WHERE room=? ORDER BY points DESC LIMIT 3',(room,))]
                 rooms.append(room)
-                print(f"{len(rooms)}. Room {room} | used {state['count']}/10 | players: {', '.join(names) or '-'}")
+                print(f"{len(rooms)}. Room {room} | used {state['count']}/{limit} | players: {', '.join(names) or '-'}")
         if not rooms:
             print('No quota used this period. Nothing changed.')
             return
@@ -46,7 +48,7 @@ def main():
             raise SystemExit('Invalid selection. Nothing changed.')
         with db:
             reset(db,rooms[int(choice)-1],day)
-        print('Reset complete: 0/10 this period. Scores and active question preserved.')
+        print(f'Reset complete: 0/{limit} this period. Scores and active question preserved.')
 
 
 if __name__=='__main__':
