@@ -6,6 +6,7 @@ from functools import lru_cache
 from itertools import combinations
 import csv
 import json
+import math
 from pathlib import Path
 import random
 import sqlite3
@@ -18,7 +19,7 @@ KST = timezone(timedelta(hours=9))  # Windows does not require a tzdata install.
 NATIONS = {1: '일본', 2: '독일', 3: '이탈리아', 4: '미국', 5: '영국',
            6: '프랑스', 7: '소련', 8: '심해', 9: '호주', 10: '스웨덴', 11: '네덜란드'}
 STATS = [('火力最大', '화력'), ('雷装最大', '뇌장'), ('対空最大', '대공'),
-         ('装甲最大', '장갑'), ('対潜最大', '대잠'), ('索敵最大', '색적')]
+         ('装甲最大', '장갑')]
 COMMANDS = {'!퀴즈', '!정답', '!퀴즈점수'}
 QUIZ_TYPES = {
     1: '해방', 2: '구축',
@@ -54,6 +55,7 @@ class QuizCatalog:
         meta = json.loads((root/'data/fit_metadata.json').read_text())['ships']
         labels = json.loads((root/'data/quests.json').read_text())['labels']['ships']
         aliases = json.loads((root/'data/ship_aliases.json').read_text())
+        classes = json.loads((root/'data/quiz_ship_classes.json').read_text())['classes']
         self.answers = defaultdict(set)
         self.names = {}
         with (root/'ships.csv').open(encoding='cp932', newline='') as stream:
@@ -86,7 +88,7 @@ class QuizCatalog:
         for sid, row in ships.items():
             info = meta[str(sid)]
             try:
-                stats = {label:int(row[field]) for field,label in STATS}
+                stats = {label:int(row[field]) for field,label in STATS if int(row[field]) > 0}
                 common = (quiz_type(info['type']), NATIONS.get(info['nationality']),
                           stage_label(row), int(row['運初期']))
             except ValueError:
@@ -105,19 +107,25 @@ class QuizCatalog:
             if not any('가' <= c <= '힣' for c in base_name):
                 continue
             try:
-                stats = {label: int(row[field]) for field, label in STATS}
+                stats = {label: int(row[field]) for field, label in STATS if int(row[field]) > 0}
                 luck = int(row['運初期'])
                 stage = stage_label(row)
+                slots = [int(row[f'搭載機数{i}']) for i in range(1,int(row['スロット数'])+1)]
             except ValueError:
                 continue
+            ship_class = classes.get(str(info['ship_class']))
+            if info['type'] in (1,2) and not ship_class:
+                continue  # Never invent a class hint for an unmapped new class.
             candidates.append(dict(sid=sid, family=info['base'], name=self.names[sid],
                 base_name=base_name, nation=NATIONS[info['nationality']],
                 kind=quiz_type(info['type']), stage=stage, stats=stats, luck=luck,
+                class_hint=ship_class if info['type'] in (1,2) else None, slots=slots,
                 equipment=[equipment.equipment.items[i]['name'] + (f' ★{s}' if s else '') for i, s in entries],
                 helpers=[equipment.equipment.items[i]['name'] for i in sorted(helper_items[sid])]))
         # Two stats + luck + type/nation/stage must identify one family among ALL
         # known CSV forms, including ships not eligible for hint-based selection.
         self.questions = []
+        self.details = {q['sid']:q for q in candidates}
         for q in candidates:
             for pair in combinations(q['stats'], 2):
                 a,b = pair
@@ -143,10 +151,17 @@ def render(active):
              f"· 운: {q['luck']} (Lv 99 기준)"]
     wrong = active['wrong']
     if wrong >= 3:
-        lines += ['', '💡 개수 2번함 담당: ' + ' / '.join(q['helpers'][:3])]
+        lines += ['', '💡 초기 장비: ' + ' / '.join(q['equipment'])]
     if wrong >= 5:
-        lines += ['💡 초기 장비: ' + ' / '.join(q['equipment'])]
+        lines += ['💡 개수 2번함 담당: ' + ' / '.join(q['helpers'][:3])]
     if wrong >= 7:
+        if q.get('class_hint'):
+            lines += ['💡 함급: ' + q['class_hint']]
+        elif 'slots' in q:
+            slots = q['slots']
+            lines += ['💡 함재기 슬롯: ' + (' / '.join(map(str, slots)) if slots else '없음') +
+                      (f' (총 {sum(slots)}기)' if slots else '')]
+    if wrong >= 10:
         lines += ['💡 초성: ' + initials(q['base_name'])]
     lines += ['', f'누적 오답: {wrong}회']
     return '\n'.join(lines)
@@ -160,6 +175,7 @@ class QuizService:
         with closing(sqlite3.connect(self.database)) as db, db:
             db.execute('CREATE TABLE IF NOT EXISTS rooms (room TEXT PRIMARY KEY, state TEXT NOT NULL)')
             db.execute('CREATE TABLE IF NOT EXISTS scores (room TEXT, player TEXT, name TEXT, points INTEGER, PRIMARY KEY(room,player))')
+            db.execute('CREATE TABLE IF NOT EXISTS attempts (room TEXT, player TEXT, submitted REAL, PRIMARY KEY(room,player))')
 
     def handle(self, message, room, player='', name=''):
         command, _, argument = message.strip().partition(' ')
@@ -182,6 +198,12 @@ class QuizService:
             elif state['period'] != period:
                 state['period'], state['count'] = period, 0
             state['day'] = now.date().isoformat()
+            if state['active']:
+                question = state['active']['question']
+                detail = getattr(self.catalog,'details',{}).get(question['sid'])
+                if detail:
+                    for field in ('class_hint','slots'):
+                        question.setdefault(field,detail[field])
             # 03:00/15:00 reset only quota, never an active question or scores.
             display_name = ' '.join(str(name or '').split())[:100]
             if display_name == '참가자':
@@ -220,21 +242,28 @@ class QuizService:
             return '참가자 정보를 확인할 수 없어 정답을 처리하지 못했습니다.'
         if len(answer) > 100:
             return '함선명 또는 등록된 별명을 100자 이내로 입력해 주세요.'
+        timestamp = self.now().timestamp()
+        last = db.execute('SELECT submitted FROM attempts WHERE room=? AND player=?',(room,player)).fetchone()
+        if last and timestamp-last[0] < 60:
+            remaining = min(60,math.ceil(60-(timestamp-last[0])))
+            return f'✔️ 정답은 1분에 한 번 제출할 수 있습니다.\n✔️ {remaining}초 후 다시 시도해 주세요.'
         key = normalize(answer)
         families = self.catalog.answers.get(key, set())
         if len(families) > 1:
             return '여러 함선에 해당하는 이름입니다. 정확한 함선명으로 답해 주세요.'
+        attempt = [player, key[:200]]
+        if attempt in active['seen']:
+            return '✔️ 이미 제출한 오답입니다.\n✔️ 오답 횟수는 늘어나지 않습니다.'
+        db.execute('INSERT INTO attempts VALUES (?,?,?) ON CONFLICT(room,player) DO UPDATE SET submitted=excluded.submitted',
+                   (room,player,timestamp))
         if q['family'] in families:
             db.execute('INSERT INTO scores VALUES (?,?,?,1) ON CONFLICT(room,player) DO UPDATE SET points=points+1,name=excluded.name', (room,player,name[:100]))
             points = db.execute('SELECT points FROM scores WHERE room=? AND player=?', (room,player)).fetchone()[0]
             state['active'] = None
             return f"🎉 {name[:100]}님 정답!\n정답: {q['name']}\n\n+1점 · 누적 {points}점\n다음 문제: !퀴즈"
-        attempt = [player, key[:200]]
-        if attempt in active['seen']:
-            return '✔️ 이미 제출한 오답입니다.\n✔️ 오답 횟수는 늘어나지 않습니다.'
         active['seen'].append(attempt)
         active['wrong'] += 1
-        if active['wrong'] in (3,5,7):
+        if active['wrong'] in (3,5,7,10):
             return '• 틀렸습니다! 새 힌트를 공개합니다.\n\n' + render(active)
         return f"• 틀렸습니다! · 오답 {active['wrong']}회"
 

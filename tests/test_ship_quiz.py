@@ -1,6 +1,6 @@
 """Real data eligibility, persistent room state and concurrent scoring."""
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 from pathlib import Path
 import sqlite3
@@ -33,7 +33,10 @@ class QuizTests(unittest.TestCase):
         self.addCleanup(self.chooser.stop)
 
     def send(self, msg, room='r1', player='u1', name='참가자'):
-        return self.service.handle(msg,room,player,name)
+        reply=self.service.handle(msg,room,player,name)
+        if msg.startswith('!정답 '):
+            self.date += timedelta(seconds=60)
+        return reply
 
     def test_real_renames_remodels_aliases_and_stage_mask(self):
         for answer in ['유키카제', '단양', '유키카제 개2', '雪風', '丹陽']:
@@ -48,6 +51,8 @@ class QuizTests(unittest.TestCase):
             self.assertEqual(len(question['stats']),2)
             self.assertTrue(question['equipment'])
             self.assertTrue(question['helpers'])
+            self.assertTrue(set(question['stats']) <= {'화력','뇌장','대공','장갑'})
+            self.assertTrue(all(v>0 for v in question['stats'].values()))
 
     def test_broad_ship_categories(self):
         groups = {'전함':[8,9,10,12], '항모':[7,11,18], '중순':[5,6],
@@ -90,23 +95,26 @@ class QuizTests(unittest.TestCase):
         self.send('!정답 단양')
         self.assertIn('2/10',self.send('!퀴즈'))
 
-    def test_hints_at_three_five_seven_and_repeated_wrong_dedup(self):
+    def test_hints_at_three_five_seven_ten_and_repeated_wrong_dedup(self):
         self.send('!퀴즈')
         self.assertIn('오답 1회',self.send('!정답 모르겠음'))
         self.assertEqual(self.send('!정답 모 르겠음!'),
                          '✔️ 이미 제출한 오답입니다.\n✔️ 오답 횟수는 늘어나지 않습니다.')
         self.assertIn('오답 2회',self.send('!정답 모르겠음',player='u2'))
         third=self.send('!정답 틀린답3')
-        self.assertIn('개수 2번함 담당',third)
-        self.assertNotIn('💡 초기 장비',third)
+        self.assertIn('💡 초기 장비',third)
+        self.assertNotIn('개수 2번함 담당',third)
         self.send('!정답 틀린답4')
         fifth=self.send('!정답 틀린답5')
-        self.assertIn('💡 초기 장비',fifth)
+        self.assertIn('개수 2번함 담당',fifth)
         self.assertNotIn('💡 초성',fifth)
         self.send('!정답 틀린답6')
         seventh=self.send('!정답 틀린답7')
-        self.assertIn('💡 초성: ㅇㅋㅋㅈ',seventh)
+        self.assertIn('💡 함급: 카게로형',seventh)
+        self.assertNotIn('💡 초성',seventh)
         self.assertIn('오답 8회',self.send('!정답 틀린답8'))
+        self.send('!정답 틀린답9')
+        self.assertIn('💡 초성: ㅇㅋㅋㅈ',self.send('!정답 틀린답10'))
         self.assertIn('정답!',self.send('!정답 단양'))
 
     def test_quota_room_isolation_and_morning_reset(self):
@@ -181,6 +189,43 @@ class QuizTests(unittest.TestCase):
         self.send('!퀴즈',name='')
         self.assertIn('복구된닉님 정답!',self.send('!정답 단양',name=''))
         self.assertIn('복구된닉 · 2점',self.send('!퀴즈점수',name=''))
+
+    def test_cooldown_is_per_room_player_persistent_and_exactly_sixty_seconds(self):
+        self.send('!퀴즈')
+        def answer(text,player='u1',room='r1'):
+            return self.service.handle('!정답 '+text,room,player,'참가자')
+        self.assertIn('오답 1회',answer('오답첫번째'))
+        self.assertIn('60초 후',answer('단양'))
+        self.date+=timedelta(seconds=59)
+        self.service=QuizService(self.catalog,self.database,lambda:self.date)
+        self.assertIn('1초 후',answer('단양'))
+        self.assertIn('누적 오답: 1회',self.send('!퀴즈'))
+        self.assertIn('오답 2회',answer('다른사람답',player='u2'))
+        self.send('!퀴즈',room='r2')
+        self.assertIn('오답 1회',answer('다른방답',room='r2'))
+        self.date+=timedelta(seconds=1)
+        self.assertIn('정답!',answer('단양'))
+        self.send('!퀴즈')
+        self.assertIn('60초 후',answer('단양'))
+        self.assertIn('참가자 · 1점',self.send('!퀴즈점수'))
+
+    def test_seventh_hint_classes_special_destroyers_and_aircraft_slots(self):
+        for cid,label in [(12,'후부키형(특Ⅰ형)'),(1,'아야나미형(특Ⅱ형)'),(5,'아카츠키형(특Ⅲ형)'),(117,'우쿠루형')]:
+            classes=json.loads((ROOT/'data/quiz_ship_classes.json').read_text())['classes']
+            self.assertEqual(classes[str(cid)],label)
+        cruiser=next(q for q in self.catalog.questions if q['sid']==630)
+        text=render({'question':cruiser,'wrong':7,'number':1})
+        self.assertIn('💡 함재기 슬롯: 2 / 2 / 3 / 7 (총 14기)',text)
+        self.assertNotIn('💡 초성',text)
+        self.assertNotIn('💡 함급',text)
+
+    def test_concurrent_wrong_answers_share_one_cooldown(self):
+        self.send('!퀴즈')
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            replies=list(executor.map(lambda text:self.service.handle('!정답 '+text,'r1','u1','참가자'),['첫오답','둘째오답']))
+        self.assertEqual(sum('오답 1회' in reply for reply in replies),1)
+        self.assertEqual(sum('60초 후' in reply for reply in replies),1)
+        self.assertIn('누적 오답: 1회',self.send('!퀴즈'))
 
     def test_unrelated_message_and_failed_start_do_not_consume_quota(self):
         self.assertIsNone(self.send('안녕'))
