@@ -197,7 +197,7 @@ class QuizTests(unittest.TestCase):
         self.assertIn('오답 1회',answer('오답첫번째'))
         self.assertIn('30초 후',answer('단양'))
         self.date+=timedelta(seconds=1)
-        self.assertEqual(answer('단양'),'✔️ 정답은 30초마다 제출할 수 있습니다.\n✔️ 29초 후 다시 시도해 주세요.')
+        self.assertEqual(answer('단양'),'✔️ 정답 제출은 30초마다 가능합니다.\n✔️ 29초 후 다시 시도해 주세요.')
         self.date+=timedelta(seconds=28)
         self.service=QuizService(self.catalog,self.database,lambda:self.date)
         self.assertIn('1초 후',answer('단양'))
@@ -212,7 +212,7 @@ class QuizTests(unittest.TestCase):
         self.assertIn('참가자 · 1점',self.send('!퀴즈점수'))
 
     def test_seventh_hint_classes_special_destroyers_and_aircraft_slots(self):
-        for cid,label in [(12,'후부키형(특Ⅰ형)'),(1,'아야나미형(특Ⅱ형)'),(5,'아카츠키형(특Ⅲ형)'),(117,'우쿠루형')]:
+        for cid,label in [(12,'후부키형'),(1,'아야나미형'),(5,'아카츠키형'),(117,'우쿠루형')]:
             classes=json.loads((ROOT/'data/quiz_ship_classes.json').read_text())['classes']
             self.assertEqual(classes[str(cid)],label)
         cruiser=next(q for q in self.catalog.questions if q['sid']==630)
@@ -220,6 +220,10 @@ class QuizTests(unittest.TestCase):
         self.assertIn('💡 함재기 슬롯: 2 / 2 / 3 / 7 (총 14기)',text)
         self.assertNotIn('💡 초성',text)
         self.assertNotIn('💡 함급',text)
+        legacy={**self.question,'class_hint':'후부키형(특Ⅰ형)'}
+        legacy_text=render({'question':legacy,'wrong':7,'number':1})
+        self.assertIn('💡 함급: 후부키형\n',legacy_text)
+        self.assertNotIn('(특',legacy_text)
 
     def test_concurrent_wrong_answers_share_one_cooldown(self):
         self.send('!퀴즈')

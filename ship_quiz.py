@@ -164,7 +164,7 @@ def render(active):
         lines += ['💡 개수 2번함 담당: ' + ' / '.join(q['helpers'][:3])]
     if wrong >= 7:
         if q.get('class_hint'):
-            lines += ['💡 함급: ' + q['class_hint']]
+            lines += ['💡 함급: ' + q['class_hint'].split('(특',1)[0]]
         elif 'slots' in q:
             slots = q['slots']
             lines += ['💡 함재기 슬롯: ' + (' / '.join(map(str, slots)) if slots else '없음') +
@@ -262,7 +262,7 @@ class QuizService:
         last = db.execute('SELECT submitted FROM attempts WHERE room=? AND player=?',(room,player)).fetchone()
         if last and timestamp-last[0] < 30:
             remaining = min(30,math.ceil(30-(timestamp-last[0])))
-            return f'✔️ 정답은 30초마다 제출할 수 있습니다.\n✔️ {remaining}초 후 다시 시도해 주세요.'
+            return f'✔️ 정답 제출은 30초마다 가능합니다.\n✔️ {remaining}초 후 다시 시도해 주세요.'
         key = normalize(answer)
         families = self.catalog.answers.get(key, set())
         if len(families) > 1:
