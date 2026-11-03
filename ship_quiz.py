@@ -225,7 +225,8 @@ class QuizService:
             limit = quota_limit(self.now())
             if state['count'] >= limit:
                 return (f'✔️ 퀴즈 {limit}회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n'
-                        '✔️ 18·20·22·24시에 5회씩 추가됩니다.')
+                        '✔️ 핫타임에 5회씩 추가됩니다.\n'
+                        '    (18·20·22·24시에 각 5회 추가)')
             question = self.catalog.choose(state['recent'])
             state['count'] += 1
             state['recent'] = [*state['recent'], question['family']][-30:]

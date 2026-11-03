@@ -113,7 +113,7 @@ class QuizTests(unittest.TestCase):
             self.assertIn(f'{n}/10',self.send('!퀴즈'))
             self.send('!정답 단양')
         self.assertEqual(self.send('!퀴즈'),
-                         '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n✔️ 18·20·22·24시에 5회씩 추가됩니다.')
+                         '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n✔️ 핫타임에 5회씩 추가됩니다.\n    (18·20·22·24시에 각 5회 추가)')
         self.assertIn('1/10',self.send('!퀴즈',room='r2'))
         self.date = datetime(2026,11,3,3,0,tzinfo=KST)
         self.assertIn('1/10',self.send('!퀴즈'))
@@ -289,7 +289,7 @@ class QuizTests(unittest.TestCase):
             self.send('!정답 단양')
         exhausted=self.send('!퀴즈')
         self.assertIn('퀴즈 15회를 모두 사용',exhausted)
-        self.assertIn('18·20·22·24시에 5회씩 추가됩니다.',exhausted)
+        self.assertIn('✔️ 핫타임에 5회씩 추가됩니다.\n    (18·20·22·24시에 각 5회 추가)',exhausted)
         self.date=datetime(2026,11,2,19,0,tzinfo=KST)
         self.assertIn('퀴즈 15회를 모두 사용',self.send('!퀴즈'))
         self.date=datetime(2026,11,2,20,0,tzinfo=KST)
