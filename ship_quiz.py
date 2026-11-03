@@ -167,8 +167,7 @@ def render(active):
             lines += ['💡 함급: ' + q['class_hint'].split('(특',1)[0]]
         elif 'slots' in q:
             slots = q['slots']
-            lines += ['💡 함재기 슬롯: ' + (' / '.join(map(str, slots)) if slots else '없음') +
-                      (f' (총 {sum(slots)}기)' if slots else '')]
+            lines += ['💡 함재기 슬롯: ' + (' / '.join(map(str, slots)) if slots else '없음')]
     if wrong >= 10:
         lines += ['💡 초성: ' + initials(q['base_name'])]
     lines += ['', f'누적 오답: {wrong}회']

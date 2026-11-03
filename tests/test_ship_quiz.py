@@ -217,7 +217,8 @@ class QuizTests(unittest.TestCase):
             self.assertEqual(classes[str(cid)],label)
         cruiser=next(q for q in self.catalog.questions if q['sid']==630)
         text=render({'question':cruiser,'wrong':7,'number':1})
-        self.assertIn('💡 함재기 슬롯: 2 / 2 / 3 / 7 (총 14기)',text)
+        self.assertIn('💡 함재기 슬롯: 2 / 2 / 3 / 7\n',text)
+        self.assertNotIn('(총 ',text)
         self.assertNotIn('💡 초성',text)
         self.assertNotIn('💡 함급',text)
         legacy={**self.question,'class_hint':'후부키형(특Ⅰ형)'}
