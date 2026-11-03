@@ -83,7 +83,7 @@ class QuizTests(unittest.TestCase):
         self.assertIn('💡 초기 장비: 없음',text)
         self.assertIn('💡 개수 2번함 담당: 등록된 장비 없음',text)
         self.assertIn('💡 함급: 미확인',text)
-        self.assertIn('💡 이름 힌트: 원문 5글자',text)
+        self.assertIn('💡 첫 알파벳: N',text)
         self.assertNotIn('Norge',text)
         self.assertNotIn('💡 함재기 슬롯',text)
         question['equipment_unknown']=True
@@ -92,6 +92,17 @@ class QuizTests(unittest.TestCase):
         question['equipment']=['테스트 장비']
         text=render({'question':question,'wrong':3,'number':1})
         self.assertIn('💡 초기 장비: 테스트 장비 / 일부 미확인',text)
+
+    def test_latin_name_hint_reveals_only_one_letter_at_ten_misses(self):
+        for name,letter in [('Scamp','S'),('Z1','Z'),('U-511','U'),('Algérie','A'),
+                            ('Béarn','B'),('Éclair','E'),('C.Cappellini','C')]:
+            question={**self.question,'base_name':name}
+            text=render({'question':question,'wrong':10,'number':1})
+            self.assertIn(f'💡 첫 알파벳: {letter}\n',text)
+            self.assertNotIn('원문 ',text)
+            self.assertNotIn(name,text)
+            self.assertNotIn('💡 초성:',text)
+            self.assertNotIn('💡 첫 알파벳:',render({'question':question,'wrong':9,'number':1}))
 
     def test_overlapping_starting_clues_are_allowed_and_all_pairs_included(self):
         from collections import defaultdict

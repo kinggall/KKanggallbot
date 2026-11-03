@@ -10,6 +10,7 @@ import math
 from pathlib import Path
 import random
 import sqlite3
+import unicodedata
 
 from equipment_lookup import normalize
 from initial_equipment import InitialEquipmentCatalog
@@ -154,8 +155,9 @@ def render(active):
         if any('가'<=c<='힣' for c in q['base_name']):
             lines += ['💡 초성: ' + initials(q['base_name'])]
         else:
-            length = sum(c.isalnum() for c in q['base_name'])
-            lines += [f'💡 이름 힌트: 원문 {length}글자']
+            latin = unicodedata.normalize('NFKD',q['base_name'])
+            first = next((c.upper() for c in latin if c.isascii() and c.isalpha()),'')
+            lines += ['💡 첫 알파벳: ' + (first or '미확인')]
     lines += ['', f'누적 오답: {wrong}회']
     return '\n'.join(lines)
 
