@@ -262,9 +262,9 @@ class QuizService:
         timestamp = self.now().timestamp()
         cooldowns = active.setdefault('cooldowns', {})
         last = cooldowns.get(player)
-        if last is not None and timestamp-last < 30:
-            remaining = min(30,math.ceil(30-(timestamp-last)))
-            return f'✔️ 정답 제출은 30초마다 가능합니다.\n✔️ {remaining}초 후 다시 시도해 주세요.'
+        if last is not None and timestamp-last < 20:
+            remaining = min(20,math.ceil(20-(timestamp-last)))
+            return f'✔️ 정답 제출은 20초마다 가능합니다.\n✔️ {remaining}초 후 다시 시도해 주세요.'
         key = normalize(answer)
         families = self.catalog.answers.get(key, set())
         if len(families) > 1:
