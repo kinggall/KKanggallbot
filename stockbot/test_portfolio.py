@@ -25,7 +25,7 @@ class PortfolioTests(unittest.TestCase):
         data['quotes_read_at'] = '2026-10-29T16:00:00Z'
         data['holdings'][0].update(return_pct='-4.92257686628113218442957671', average_at='2026-10-28T22:01:19Z')
         service = PortfolioService(lambda: data, quote_loader=lambda ticker,currency:dict(price='100',change='1',percent='1.01',fetched_at='2026-10-29T16:00:00Z'))
-        expected = '[가상회사]\n✔️ 평균 매입가: 1,234.5원\n✔️ 수익률: -4.92%\n✔️ 현재가: 100원\n✔️ 전일대비: +1원 (▲1.01%)\n\n갱신 일자: 2026-10-29\n시세 기준: 2026-10-30'
+        expected = '[가상회사]\n✔️ 평균 매입가: 1,234.5원\n✔️ 수익률: -91.90%\n✔️ 현재가: 100원\n✔️ 전일대비: +1원 (▲1.01%)\n\n갱신 일자: 2026-10-29\n시세 기준: 2026-10-30'
         self.assertEqual(service.reply('보유', '가상회사'), expected)
         self.assertEqual(service.reply('실현', '가상회사'), '[실현 수익률]\n· 가상회사: ▼2.30%\n\n최종 거래일 : 미확인\n갱신 일자: 2026-10-29')
         for command in ('보유', '실현'):
@@ -38,7 +38,8 @@ class PortfolioTests(unittest.TestCase):
         self.assertIn('가상회사(000001)', s.reply('보유'))
         self.assertIn('1,234.5원', s.reply('보유', '가상회사'))
         self.assertIn('10.12 USD', s.reply('보유', 'FAKE'))
-        self.assertIn('4.05%', s.reply('보유', '가상회사'))
+        self.assertIn('수익률: 미확인', s.reply('보유', '가상회사'))
+        self.assertNotIn('4.05%', s.reply('보유', '가상회사'))
         self.assertIn('미확인', s.reply('보유', 'FAKE'))
         self.assertIn('가상회사(000001)', s.reply('실현'))
         text = s.reply('실현', '가상회사')

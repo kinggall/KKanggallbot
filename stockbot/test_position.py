@@ -28,12 +28,12 @@ class PositionTests(unittest.TestCase):
             self.assertIn('✔️ '+label+':',text)
         quote.assert_called_once_with('KRX:000001','KRW')
 
-    def test_live_price_and_change_share_one_quote_but_domino_return_is_preserved(self):
+    def test_live_price_and_change_share_one_quote_and_return_uses_displayed_price(self):
         quote=Mock(return_value=dict(price=Decimal('101'),change=Decimal('-2'),percent=Decimal('-1.9417'),fetched_at='2026-10-29T11:01:00Z'))
         service=PortfolioService(snapshot,quote_loader=quote)
         text=service.reply('보유','가상회사')
         self.assertIn('평균 매입가: 120원',text)
-        self.assertIn('수익률: -16.67%',text)
+        self.assertIn('수익률: -15.83%',text)
         self.assertIn('현재가: 101원',text)
         self.assertIn('전일대비: -2원 (▼1.94%)',text)
         self.assertNotIn('secret-account',text)
@@ -44,7 +44,37 @@ class PositionTests(unittest.TestCase):
         text=service.reply('보유','가상회사')
         self.assertIn('현재가: 100원',text)
         self.assertIn('전일대비: 미확인',text)
+        self.assertIn('수익률: -16.67%',text)
         self.assertNotIn('secret-token',text)
+
+    def test_stored_previous_close_return_is_not_shown_with_live_price(self):
+        from copy import deepcopy
+        data=snapshot()
+        data['holdings'][0].update(average='200',current_price='100',return_pct='-50')
+        original=deepcopy(data)
+        quote=Mock(return_value=dict(price='80',change='-20',percent='-20'))
+        text=PortfolioService(lambda:data,quote_loader=quote).reply('보유','가상회사')
+        self.assertIn('수익률: -60.00%',text)
+        self.assertIn('현재가: 80원',text)
+        self.assertNotIn('수익률: -50.00%',text)
+        self.assertEqual(data,original)
+
+    def test_missing_price_and_zero_or_missing_average_do_not_reuse_old_return(self):
+        for average,price in [('0','80'),(None,'80'),('-1','80'),('NaN','80'),('200',None),('200','NaN')]:
+            with self.subTest(average=average,price=price):
+                data=snapshot()
+                data['holdings'][0].update(average=average,current_price=price,return_pct='-50')
+                text=PortfolioService(lambda:data).reply('보유','가상회사')
+                self.assertIn('수익률: 미확인',text)
+
+    def test_usd_return_uses_usd_average_and_price(self):
+        data=snapshot()
+        data['holdings'][0].update(name='가상미국',ticker='NAS:TEST',currency='USD',average='2',return_pct='-50')
+        quote=Mock(return_value=dict(price='2.5'))
+        text=PortfolioService(lambda:data,quote_loader=quote).reply('보유','가상미국')
+        self.assertIn('평균 매입가: 2 USD',text)
+        self.assertIn('현재가: 2.5 USD',text)
+        self.assertIn('수익률: 25.00%',text)
 
     def test_alias_matches_held_symbol_and_unknown_holding_does_not_fetch_quotes(self):
         data=snapshot(); data['holdings'][0].update(name='삼성전자',ticker='KRX:005930')

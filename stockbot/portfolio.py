@@ -6,7 +6,7 @@ import threading
 import time
 import re
 from datetime import datetime
-from decimal import ROUND_HALF_UP, localcontext
+from decimal import DecimalException, ROUND_HALF_UP, localcontext
 
 from .stock_quotes import normalize, number, KST
 from .security_names import USSecurityNames, KNOWN_US_SYMBOLS
@@ -46,6 +46,19 @@ def percent_text(value):
     with localcontext() as context:
         context.rounding = ROUND_HALF_UP
         return f'{parsed:.2f}%'
+
+
+def price_return_pct(price, average):
+    """Price-only return in the holding currency; never mix stored return_pct."""
+    price, average = number(price), number(average)
+    if price is None or average is None or price < 0 or average <= 0:
+        return None
+    try:
+        with localcontext() as context:
+            context.prec = 28
+            return (price - average) / average * 100
+    except DecimalException:
+        return None
 
 
 def arrow_percent(value):
@@ -136,7 +149,7 @@ class PortfolioService:
             blocks.append('\n'.join([
                 '[' + row['name'] + ']',
                 '✔️ 평균 매입가: ' + display(row.get('average'), unit),
-                '✔️ 수익률: ' + percent_text(row.get('return_pct')),
+                '✔️ 수익률: ' + percent_text(price_return_pct(price, row.get('average'))),
                 '✔️ 현재가: ' + display(price, unit),
                 '✔️ 전일대비: ' + daily,
                 '', '갱신 일자: ' + date_text(data['generated_at']),
