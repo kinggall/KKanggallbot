@@ -53,6 +53,41 @@ class QuizTests(unittest.TestCase):
             self.assertIsInstance(question['helpers'],list)
             self.assertTrue(set(question['stats']) <= {'화력','뇌장','대공','장갑'})
             self.assertTrue(all(v>0 for v in question['stats'].values()))
+            self.assertGreater(question['hp'],0)
+            self.assertIn(question['speed'],('저속','고속','고속+','최속','육상'))
+
+    def test_foreign_nationality_is_hidden_for_new_and_saved_questions(self):
+        for original in ['미국','독일','영국','이탈리아','프랑스','태국','노르웨이','스웨덴','호주','네덜란드','소련']:
+            text=render({'question':{**self.question,'nation':original},'number':1,'wrong':0})
+            self.assertIn('국적: 해외',text)
+            self.assertNotIn(original,text)
+        self.assertIn('국적: 일본',render({'question':self.question,'number':1,'wrong':0}))
+
+    def test_luck_hp_speed_are_selected_at_question_creation(self):
+        for extra in [('운',63),('내구',35),('속력','고속')]:
+            with patch('ship_quiz.random.choice',side_effect=[self.question['family'],self.question,extra]):
+                selected=QuizCatalog.choose(self.catalog,[])
+            self.assertEqual(selected['extra'],extra)
+            self.assertNotIn('extra',self.question)
+            text=render({'question':selected,'number':1,'wrong':0})
+            self.assertIn(f'· {extra[0]}: {extra[1]} (Lv 99 기준)',text)
+            if extra[0]!='운':
+                self.assertNotIn('· 운:',text)
+
+    def test_selected_extra_clue_does_not_reroll_on_review_or_restart(self):
+        selected={**self.question,'extra':('내구',35)}
+        with patch.object(self.catalog,'choose',return_value=selected):
+            first=self.send('!퀴즈')
+        self.assertEqual(first,self.send('!퀴즈'))
+        self.service=QuizService(self.catalog,self.database,lambda:self.date)
+        self.assertEqual(first,self.send('!퀴즈'))
+        self.assertIn('· 내구: 35',first)
+
+    def test_speed_and_hp_use_base_data_not_equipment_or_marriage(self):
+        self.assertEqual(self.catalog.details[656]['hp'],35)
+        self.assertEqual(self.catalog.details[656]['speed'],'고속')
+        self.assertEqual(self.catalog.details[131]['speed'],'저속')
+        self.assertEqual(self.catalog.details[299]['speed'],'저속')
 
     def test_broad_ship_categories(self):
         groups = {'전함':[8,9,10,12], '항모':[7,11,18], '중순':[5,6],

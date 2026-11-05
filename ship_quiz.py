@@ -23,6 +23,7 @@ NATIONS = {1: '일본', 2: '독일', 3: '이탈리아', 4: '미국', 5: '영국'
 STATS = [('火力最大', '화력'), ('雷装最大', '뇌장'), ('対空最大', '대공'),
          ('装甲最大', '장갑')]
 COMMANDS = {'!퀴즈', '!정답', '!퀴즈점수'}
+SPEEDS = {0:'육상', 5:'저속', 10:'고속', 15:'고속+', 20:'최속'}
 QUIZ_TYPES = {
     1: '해방', 2: '구축',
     3: '경순', 4: '경순', 21: '경순',
@@ -66,6 +67,10 @@ class QuizCatalog:
         labels = json.loads((root/'data/quests.json').read_text())['labels']['ships']
         aliases = json.loads((root/'data/ship_aliases.json').read_text())
         classes = json.loads((root/'data/quiz_ship_classes.json').read_text())['classes']
+        speed_data = json.loads((root/'data/quiz_ship_speeds.json').read_text())
+        if speed_data.get('schema') != 1:
+            raise ValueError('Invalid quiz speed data')
+        speeds = speed_data['speeds']
         self.answers = defaultdict(set)
         self.names = {}
         with (root/'ships.csv').open(encoding='cp932', newline='') as stream:
@@ -102,6 +107,7 @@ class QuizCatalog:
             try:
                 stats = {label: int(row[field]) for field, label in STATS if int(row[field]) > 0}
                 luck = int(row['運初期'])
+                hp = int(row['耐久初期'])
                 stage = stage_label(row)
                 slots = [int(row[f'搭載機数{i}']) for i in range(1,int(row['スロット数'])+1)]
             except ValueError:
@@ -110,6 +116,7 @@ class QuizCatalog:
             candidates.append(dict(sid=sid, family=info['base'], name=self.names[sid],
                 base_name=base_name, nation=NATIONS.get(info['nationality'],'미확인'),
                 kind=quiz_type(info['type']), stage=stage, stats=stats, luck=luck,
+                hp=hp, speed=SPEEDS.get(speeds.get(str(sid))),
                 class_hint=ship_class if info['type'] in (1,2) else None, slots=slots,
                 equipment=[equipment.equipment.items[entry[0]]['name'] + (f' ★{entry[1]}' if entry[1] else '')
                            for entry in entries if entry is not None],
@@ -128,15 +135,22 @@ class QuizCatalog:
         pool = [q for q in self.questions if q['family'] not in recent] or self.questions
         families = sorted({q['family'] for q in pool})
         family = random.choice(families)
-        return dict(random.choice([q for q in pool if q['family'] == family]))
+        question = dict(random.choice([q for q in pool if q['family'] == family]))
+        choices = [('운',question['luck']),('내구',question['hp'])]
+        if question.get('speed'):
+            choices.append(('속력',question['speed']))
+        question['extra'] = random.choice(choices)
+        return question
 
 
 def render(active):
     q = active['question']
+    label, value = q.get('extra', ('운',q['luck']))
+    nation = '일본' if q['nation'] == '일본' else '해외'
     lines = [f"[칸무스 퀴즈 · {active['number']}/{active.get('limit',10)}]", '',
-             f"· 함종: {q['kind']} / 국적: {q['nation']}",
+             f"· 함종: {q['kind']} / 국적: {nation}",
              f"· ({q['stage']}) " + ' / '.join(f'{k}: {v}' for k,v in q['stats'].items()),
-             f"· 운: {q['luck']} (Lv 99 기준)"]
+             f"· {label}: {value} (Lv 99 기준)"]
     wrong = active['wrong']
     if wrong >= 3:
         equipment = ' / '.join(q['equipment'])
