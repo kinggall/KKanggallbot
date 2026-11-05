@@ -44,7 +44,7 @@ class PublicWebExportTests(unittest.TestCase):
             self.assertEqual(actual,set(self.catalog.search_keys(query)),query)
 
     def test_public_directory_has_no_cache_or_credentials(self):
-        allowed={'index.html','style.css','navigation.css','app.js','_headers','data/quests.json','LICENSE','THIRD_PARTY_NOTICES.md'}
+        allowed={'index.html','privacy.html','privacy.css','style.css','navigation.css','app.js','_headers','data/quests.json','LICENSE','THIRD_PARTY_NOTICES.md'}
         self.assertEqual({p.relative_to(ROOT/'web').as_posix() for p in (ROOT/'web').rglob('*') if p.is_file()},allowed)
         for row in self.data['quests']:
             if row['guideUrl']:
@@ -54,3 +54,38 @@ class PublicWebExportTests(unittest.TestCase):
         text=(ROOT/'web/data/quests.json').read_text(encoding='utf-8')
         for marker in ['refresh_token','client_secret','127.0.0.1','C:\\KakaoBot','/workspace/','<script','<img']:
             self.assertNotIn(marker,text)
+
+    def test_public_privacy_policy_is_linked_and_available_without_login_or_script(self):
+        policy=(ROOT/'web/privacy.html').read_text(encoding='utf-8')
+        home=(ROOT/'web/index.html').read_text(encoding='utf-8')
+        self.assertIn('href="privacy.html"',home)
+        self.assertIn('Google Drive 연동 도구',home)
+        self.assertIn('<h1>개인정보처리방침</h1>',policy)
+        for section in ('처리하는 정보','Google Drive 권한','보관 기간','공유와 외부 서비스',
+                        '보호 조치','접근권한 철회','Limited Use','kinggall','2026년 11월 5일'):
+            self.assertIn(section,policy)
+        self.assertIn('https://www.googleapis.com/auth/drive',policy)
+        self.assertIn('https://myaccount.google.com/connections',policy)
+        self.assertIn('https://developers.google.com/terms/api-services-user-data-policy',policy)
+        self.assertNotIn('<script',policy)
+        self.assertNotIn('<iframe',policy)
+        self.assertNotIn('gmail.com',policy)
+
+    def test_privacy_local_links_resolve_to_public_assets(self):
+        class LinkParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.links=[]
+            def handle_starttag(self,tag,attrs):
+                values=dict(attrs)
+                for field in ('href','src'):
+                    if values.get(field): self.links.append(values[field])
+        parser=LinkParser()
+        parser.feed((ROOT/'web/privacy.html').read_text(encoding='utf-8'))
+        for link in parser.links:
+            parsed=urlparse(link)
+            if parsed.scheme or parsed.netloc or link.startswith('#'):
+                continue
+            path=parsed.path
+            if path=='./': path='index.html'
+            self.assertTrue((ROOT/'web'/path).is_file(),link)

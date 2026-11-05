@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="깡갤봇 웹사이트와 Google Drive 연동 도구의 데이터 접근, 이용, 보관, 공유 및 삭제에 관한 개인정보처리방침입니다.">
+  <title>개인정보처리방침 · 깡갤봇</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="privacy.css">
+</head>
+<body>
+  <header class="top"><a class="brand" href="./"><span class="brand-icon" aria-hidden="true">⚓</span><span>깡갤봇<small>KANCOLLE FIELD NOTES</small></span></a><a class="github" href="./">홈으로 돌아가기</a></header>
+  <main class="policy">
+    <article>
+      <p class="eyebrow">PRIVACY POLICY</p>
+      <h1>개인정보처리방침</h1>
+      <p class="policy-date">시행일 및 최종 수정일: 2026년 11월 5일</p>
+      <p>깡갤봇 운영자 <strong>kinggall</strong>은 깡갤봇(KKanggallbot) 웹사이트, 채팅 봇 및 운영용 Google Drive 연동 도구에서 처리하는 정보를 아래와 같이 안내합니다. 이 서비스는 비공식 개인 운영 도구이며 Google이나 게임 제작사의 공식 서비스가 아닙니다.</p>
+      <nav class="policy-index" aria-label="방침 목차"><a href="#data">처리 항목·목적</a><a href="#google">Google Drive 접근</a><a href="#storage">보관·삭제</a><a href="#sharing">공유</a><a href="#rights">권리·문의</a></nav>
+
+      <section id="data">
+        <h2>1. 처리하는 정보와 이용 목적</h2>
+        <ul>
+          <li><strong>공개 웹사이트:</strong> 임무 검색은 브라우저에서 공개 데이터로 수행합니다. 현재 웹사이트에는 Google 로그인, 회원가입, 검색어를 별도 수집 서버로 전송하는 기능이나 광고·분석용 추적 스크립트를 두고 있지 않습니다.</li>
+          <li><strong>Google Drive 연동:</strong> 파일·폴더 이름과 ID, 형식, 수정 정보, 동기화에 필요한 메타데이터 및 사용자가 접근을 승인한 파일의 내용을 처리합니다. 봇 운영 자료 조회, 데이터 갱신, 선택된 파일의 동기화·백업 및 사용자가 요청한 응답 제공에 사용합니다.</li>
+          <li><strong>인증정보:</strong> Google이 발급하는 OAuth 접근 토큰·갱신 토큰 및 연동 설정을 API 인증과 승인된 연결 유지에 사용합니다. Google 계정 비밀번호를 직접 입력받거나 저장하지 않습니다.</li>
+          <li><strong>채팅 봇:</strong> 명령 처리와 퀴즈 진행·점수 집계를 위해 메시지 내용, 방 식별자, 참가자 식별자·표시 이름, 제출 시각 및 진행 기록을 처리합니다. 운영 로그에는 명령 메시지가 포함될 수 있습니다.</li>
+        </ul>
+      </section>
+
+      <section id="google">
+        <h2>2. Google Drive 권한과 데이터 사용</h2>
+        <p>Drive 연동은 승인된 계정에 대해 <code>https://www.googleapis.com/auth/drive</code> 범위를 요청할 수 있습니다. 이 범위에는 계정의 Drive 파일 조회·다운로드·생성·수정·삭제 권한이 포함됩니다. 특정 폴더만 접근 가능한 권한이라고 설명하지 않으며, 실제 작업은 사용자가 선택한 자료와 요청한 운영·동기화 작업을 위해 수행합니다.</p>
+        <p>파일 내용은 사용자가 승인한 PC 또는 클라우드 작업환경에서 처리될 수 있습니다. 단순히 공개 웹사이트를 방문하는 이용자에게 Drive 접근을 요구하지 않습니다. 개인 파일, 인증 토큰과 거래·운영 원본을 공개 웹페이지나 공개 소스 저장소에 자동으로 게시하지 않습니다.</p>
+        <p>Google API에서 받은 정보를 판매하거나 광고 타기팅에 사용하지 않으며, 일반화된 인공지능·머신러닝 모델의 학습용으로 사용하거나 제공하지 않습니다.</p>
+        <p>깡갤봇의 Google API에서 받은 정보 사용 및 다른 앱으로의 전송은 제한적 사용(Limited Use) 요건을 포함한 <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Google API 서비스 사용자 데이터 정책</a>을 준수합니다.</p>
+      </section>
+
+      <section id="storage">
+        <h2>3. 보관 기간과 삭제</h2>
+        <p>자료는 승인된 기능 제공에 필요한 동안 운영자가 관리하는 PC·클라우드 작업환경 또는 사용자의 Drive에 보관될 수 있습니다. 데이터 종류별로 자동 삭제 기간이 설정되어 있지는 않으며, 운영 종료·자료 정리·삭제 요청에 따라 운영자가 원본, 로컬 파일, 캐시, 로그와 백업의 보관 필요성을 확인하고 불필요한 자료를 삭제합니다.</p>
+        <p>일부 조회 값은 잠시 메모리에 캐시됩니다. 퀴즈 진행과 점수는 재시작 후에도 유지할 수 있도록 운영 PC의 데이터베이스에 저장합니다. Google OAuth 인증정보는 PC의 인증 파일 또는 클라우드의 비밀값 설정으로 관리합니다.</p>
+        <p>Google 접근권한을 철회해도 이미 내려받은 자료, 별도 백업 또는 사용자의 Drive 원본이 자동으로 삭제되는 것은 아닙니다. 저장된 자료의 삭제는 운영자에게 별도로 요청할 수 있습니다. 공개 채팅방에 이미 전송된 응답이나 다른 참가자가 보관한 복사본은 운영자의 저장 자료와 별개입니다.</p>
+      </section>
+
+      <section id="sharing">
+        <h2>4. 공유와 외부 서비스</h2>
+        <p>데이터를 판매하지 않습니다. 서비스 제공에 필요한 범위에서 Google(인증·Drive), Cloudflare(웹 호스팅), 사용자가 승인한 클라우드 작업환경, 채팅 플랫폼·봇 연결 도구를 통해 데이터가 처리될 수 있습니다. 공개 소스와 공개 웹 데이터의 배포에는 GitHub 및 Cloudflare를 사용합니다.</p>
+        <p>채팅 명령으로 요청한 정보는 해당 채팅방으로 전송되므로 다른 참가자가 볼 수 있습니다. 비공개 자료와 관련된 명령은 신뢰할 수 있는 대화방에서만 사용해야 합니다. 별도 공개나 다른 서비스 전송이 필요한 작업은 사용자가 요청·승인한 범위에서 수행합니다.</p>
+        <p>호스팅 제공자는 서비스 운영·보안을 위해 IP 주소, 접속 시각, 요청 경로 등의 접속 정보를 처리할 수 있습니다. 페이지에 사용하는 Google Fonts를 불러올 때 Google에 요청 정보가 전달될 수 있으며, 외부 링크를 방문하면 해당 서비스의 정책이 적용됩니다.</p>
+      </section>
+
+      <section id="security">
+        <h2>5. 보호 조치</h2>
+        <p>Google API와 공개 웹사이트 연결에는 HTTPS를 사용합니다. 인증정보를 공개 저장소·웹 출력에 포함하지 않도록 관리하고, 웹 빌드에서 허용된 공개 파일만 배포하며 인증정보 형태의 내용이 포함되는지 검사합니다. 접근 가능한 운영 환경과 백업은 운영자가 관리합니다. 모든 저장 파일이 별도로 암호화되어 있다고 보장하는 것은 아닙니다.</p>
+        <p>이 웹사이트 자체에는 광고·분석용 쿠키를 설정하는 기능이 없습니다. 호스팅·인증·외부 링크 서비스가 사용하는 기술과 보관 방식에는 각 제공자의 정책이 적용됩니다.</p>
+      </section>
+
+      <section id="rights">
+        <h2>6. 접근권한 철회와 문의</h2>
+        <p><a href="https://myaccount.google.com/connections" target="_blank" rel="noopener noreferrer">Google 계정의 서드 파티 연결 관리</a>에서 이 앱의 접근권한을 철회할 수 있습니다. 이후 Drive 연동을 다시 사용하려면 재인증이 필요할 수 있습니다.</p>
+        <p>정보 확인·정정·삭제 또는 연동 중단은 깡갤봇 운영자 kinggall에게 요청할 수 있습니다. 기존에 연결된 운영자 1:1 연락 경로를 이용하거나, <a href="https://github.com/kinggall/KKanggallbot/issues/new" target="_blank" rel="noopener noreferrer">공개 GitHub 이슈에서 비공개 문의 접수 방법</a>을 요청해 주세요. 요청자와 대상 자료를 확인한 후 처리합니다.</p>
+        <p class="policy-warning"><strong>공개 이슈나 채팅방에 비밀번호, OAuth 토큰, 인증 파일, 개인 Drive 파일 원문 또는 다른 사람의 개인정보를 올리지 마세요.</strong></p>
+      </section>
+
+      <section id="changes">
+        <h2>7. 방침 변경</h2>
+        <p>처리 방식이나 기능이 변경되면 이 페이지의 내용과 최종 수정일을 갱신합니다. 이 방침은 페이지와 실제 연동 기능에 적용되며, Google의 앱 심사 완료 또는 인증 승인을 의미하지 않습니다.</p>
+      </section>
+      <a class="policy-back" href="./">← 깡갤봇 홈페이지</a>
+    </article>
+  </main>
+</body>
+</html>

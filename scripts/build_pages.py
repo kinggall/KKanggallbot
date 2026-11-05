@@ -9,7 +9,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from scripts import build_web
 
-PUBLIC_FILES={'index.html','style.css','navigation.css','app.js','_headers','data/quests.json','LICENSE','THIRD_PARTY_NOTICES.md'}
+PUBLIC_FILES={'index.html','privacy.html','privacy.css','style.css','navigation.css','app.js','_headers','data/quests.json','LICENSE','THIRD_PARTY_NOTICES.md'}
 PUBLIC_FIELDS={'id','code','aliases','title','titleJp','category','frequency','frequencyLabel','ended','limited','releaseDate','isNew','detail','maps','guideUrl','before','after'}
 
 def unique_keys(pairs):
