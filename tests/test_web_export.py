@@ -1,4 +1,5 @@
 import json
+from html.parser import HTMLParser
 from pathlib import Path
 import unittest
 from urllib.parse import urlparse
@@ -11,6 +12,21 @@ class PublicWebExportTests(unittest.TestCase):
     def setUpClass(cls):
         cls.data=json.loads((ROOT/'web/data/quests.json').read_text(encoding='utf-8'))
         cls.catalog=quests.catalog()
+
+    def test_google_verification_tag_is_in_static_html_head(self):
+        class MetaParser(HTMLParser):
+            in_head=False
+            values=[]
+            def handle_starttag(self,tag,attrs):
+                if tag=='head': self.in_head=True
+                attributes=dict(attrs)
+                if tag=='meta' and self.in_head and attributes.get('name')=='google-site-verification':
+                    self.values.append(attributes.get('content'))
+            def handle_endtag(self,tag):
+                if tag=='head': self.in_head=False
+        parser=MetaParser()
+        parser.feed((ROOT/'web/index.html').read_text(encoding='utf-8'))
+        self.assertEqual(parser.values,['w5wlBP9_Tr3GfutbOTsvySRRIB2qvtBJwd-SGm5O2n0'])
 
     def test_public_rows_match_bot_details(self):
         self.assertEqual(len(self.data['quests']),len(self.catalog.items))
