@@ -15,5 +15,7 @@ HTML의 스크립트·스타일은 실행하거나 값으로 사용하지 않는
 - 매 요청마다 최근 게시된 overview를 읽는다. 거래소 실시간 자료가 아니다.
 - KAKAO_STOCK_OVERVIEW_FILE_ID로 overview Drive 파일 ID를 변경할 수 있다.
 
-모의 검증은 완료했으나 클라우드 Drive 인증 오류로 실제 overview 파싱 및
-PC 카카오톡 응답은 미검증이다. 인증 복구 후 실데이터 검증이 필요하다.
+Drive 인증 복구 후 내장 DATA와 DOMINO_SNAPSHOT_QUOTES JSON 읽기 및 실데이터 계산을 검증했다.
+JavaScript는 실행하지 않고 전체계좌 화면 계산식을 적용한다. 예수금·기타자산·환율·
+시세 제외 원가·공모가 평가·순입금 기준을 반영하며 불완전 자료는 계산하지 않는다.
+PC 카카오톡 응답은 별도 확인이 필요하다.

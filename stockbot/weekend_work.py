@@ -30,6 +30,9 @@ class OverviewText(HTMLParser):
 
 
 def overview_profit(html):
+    if re.search(r'\bconst\s+DATA\s*=', html):
+        from .overview_data import total_profit
+        return total_profit(html)
     parser = OverviewText()
     parser.feed(html)
     text = ' '.join(parser.parts).replace('\u2212', '-')
