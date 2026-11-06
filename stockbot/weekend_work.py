@@ -1,6 +1,6 @@
 """Read the Domino overview's total investment profit, not position P/L."""
 from html.parser import HTMLParser
-from decimal import Decimal, ROUND_CEILING
+from decimal import Decimal, ROUND_CEILING, ROUND_HALF_UP
 import os
 from pathlib import Path
 import re
@@ -57,15 +57,12 @@ def render(profit):
     if profit is None:
         raise ValueError('Invalid investment profit')
     if profit > 0:
-        return '왜함?'
+        return '✔️ 주말출근: 왜 함?'
     count = int((-profit / Decimal(150000)).to_integral_value(rounding=ROUND_CEILING))
-    years = format(Decimal(count) / 20, 'f')
+    years = format((Decimal(count) / 20).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP), 'f')
     if '.' in years:
         years = years.rstrip('0').rstrip('.')
-    return ('[주말출근]\n'
-            f'✔️ 총투자수익: {profit:,.0f}원\n'
-            f'✔️ 주말출근: {count:,}번\n'
-            f'✔️ 연 20번 기준: {years}년')
+    return f'✔️ 주말출근: {years}년'
 
 
 def reply(loader=load_profit):
