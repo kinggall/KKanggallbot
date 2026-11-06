@@ -9,6 +9,7 @@ from .portfolio import PortfolioService
 from .market_data import MarketService, MarketProvider, GROUPS
 from .night_futures import KISNightFutures
 from .investor_flows import InvestorFlows, KISFlowLoader
+from . import weekend_work
 
 SERVICE = stock_quotes.StockService()
 MARKETS = MarketService(MarketProvider(night_loader=KISNightFutures(SERVICE)))
@@ -39,6 +40,7 @@ INVESTMENT_HELP = (
     "━━━━ 보유 · 평가 ━━━━\n"
     "!보유 — 보유 종목 목록\n"
     "!보유 [종목명/티커] — 평균 매입가·수익률·현재가\n\n"
+    "!주말출근 — 총투자손실 기준 주말출근 횟수\n\n"
     "━━━━ 실현 · 손익 ━━━━\n"
     "!실현 — 실현 종목 목록\n"
     "!실현 [종목명/티커] — 실현 수익률\n\n"
@@ -53,8 +55,9 @@ def handle(message, chat_id, reply_url):
     investment_help = message.strip() == '!주갤'
     private = re.fullmatch(r'!(보유|실현)(?:\s+(.*))?', message)
     flows = message.strip() == '!수급'
+    weekend = message.strip() == '!주말출근'
     market = message.strip()[1:] if message.strip().startswith('!') and message.strip()[1:] in GROUPS else None
-    if not match and not investment_help and not private and not market and not flows:
+    if not match and not investment_help and not private and not market and not flows and not weekend:
         return None
     if chat_id is None or str(chat_id) == '':
         return {'ok': False, 'error': 'chat_id missing'}, 400
@@ -69,6 +72,7 @@ def handle(message, chat_id, reply_url):
     def send():
         try:
             text = (INVESTMENT_HELP if investment_help else
+                    weekend_work.reply() if weekend else
                     FLOWS.reply() if flows else
                     MARKETS.reply(market) if market else
                     PORTFOLIO.reply(private.group(1), private.group(2) or '') if private else
