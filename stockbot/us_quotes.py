@@ -8,6 +8,27 @@ from .us_catalog import display_name
 
 PATH = '/uapi/overseas-price/v1/quotations/price-detail'
 EXCHANGE_NAMES = {'NAS': '나스닥', 'NYS': '뉴욕', 'AMS': '아멕스'}
+DAY_EXCHANGES = {'NAS': 'BAQ', 'NYS': 'BAY', 'AMS': 'BAA'}
+
+
+def is_daymarket(when):
+    # Overnight US session runs on Korean weekdays; derive DST from US session.
+    korea = when.astimezone(KST)
+    # At 09:00 KST in winter the US after-market is still open.
+    return korea.weekday() < 5 and us_session(when) == '장외' and 9 <= korea.hour < 18
+
+
+def load_daymarket(client, endpoint, symbol, regular):
+    exchange = regular['exchange']
+    venue = DAY_EXCHANGES[exchange]
+    result = client.query(overseas_spec(endpoint), {'AUTH': '', 'EXCD': venue, 'SYMB': symbol})
+    if not isinstance(result, dict) or result.get('curr') != 'USD' or str(result.get('rsym', '')).upper() not in {p + venue + symbol for p in ('R', 'D')}:
+        raise QuoteError('Daymarket symbol/currency mismatch')
+    price, close = number(result.get('last')), number(regular.get('last'))
+    if price is None or price <= 0 or close is None or close <= 0:
+        raise QuoteError('Daymarket price/regular close unavailable')
+    return result | {'exchange': exchange, 'rsym': 'D' + exchange + symbol,
+                     'base': str(close), 'market_session': 'daymarket'}
 
 
 def overseas_spec(endpoint):
@@ -81,9 +102,9 @@ def format_us(output, symbol, when):
     label = f'{name} ({symbol})' if name != symbol else symbol
     lines = [f'{color} {label} 주가 {color}',
              f'✔️ 현재가: {price:,.4f}'.rstrip('0').rstrip('.') + f' USD ({pct})',
-             '✔️ 전일대비: ' + delta,
+             ('✔️ 정규장 종가대비: ' if output.get('market_session') == 'daymarket' else '✔️ 전일대비: ') + delta,
              '✔️ 거래량: ' + (integer(volume) + '주' if volume is not None and volume >= 0 else '—'),
              '✔️ 거래대금: ' + (f'{turnover:,.2f} USD' if turnover is not None and turnover >= 0 else '—'),
-             f'🕒 {when.astimezone(KST):%m.%d. %H:%M:%S} 조회 · {us_session(when)}',
+             f'🕒 {when.astimezone(KST):%m.%d. %H:%M:%S} 조회 · ' + ('데이마켓' if output.get('market_session') == 'daymarket' else us_session(when)),
              '출처: 한국투자증권 · 미국 ' + EXCHANGE_NAMES[output['exchange']]]
     return '\n'.join(lines)

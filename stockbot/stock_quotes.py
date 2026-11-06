@@ -215,11 +215,19 @@ class StockService:
         return self.client.query(kis.DOMESTIC, {'FID_COND_MRKT_DIV_CODE': 'UN', 'FID_INPUT_ISCD': code})
 
     def _load_us(self, symbol):
-        from .us_quotes import load_us
+        from .us_quotes import load_us, load_daymarket, is_daymarket
         kis, _ = self._modules()
         if self.client is None:
             self.client = kis.Client(self.data_home)
-        return load_us(self.client, getattr(kis, 'OVERSEAS', None), symbol)
+        endpoint = getattr(kis, 'OVERSEAS', None)
+        regular = load_us(self.client, endpoint, symbol)
+        if is_daymarket(datetime.now(KST)):
+            try:
+                return load_daymarket(self.client, endpoint, symbol, regular)
+            except Exception:
+                # Never label a regular close as a received daytime quote.
+                pass
+        return regular
 
     def _catalog(self):
         if self.codes_loaded_at is None or self.monotonic() - self.codes_loaded_at >= 86400:
