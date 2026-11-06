@@ -443,7 +443,7 @@ def stock_sync_plan(root, remote):
     return {'skip':set(),'advance':True,'current':current,'target':target,'names':names}
 
 
-def pull(drive, root, state_path):
+def pull(drive, root, state_path, verbose=False):
     _, remote = drive.head()
     if not remote:
         print('Waiting for initial data index.', flush=True)
@@ -454,13 +454,15 @@ def pull(drive, root, state_path):
     code_plan=stock_sync_plan(root,remote)
     changed = []
     observed = {}
-    for name, item in remote['files'].items():
+    for index, (name, item) in enumerate(remote['files'].items(), 1):
         if not allowed(name):
             raise RuntimeError('Excluded file in index')
         if code_plan and name in code_plan['skip']:continue
         path = root / name
         if not path.resolve().is_relative_to(root.resolve()):
             raise RuntimeError('Destination escapes sync root')
+        if verbose:
+            print(f'Checking {index}/{len(remote["files"])}: {name}', flush=True)
         actual = digest(path) if path.exists() else None
         if actual == item['sha256']:
             continue
@@ -536,6 +538,7 @@ def main():
     parser.add_argument('--token-file', type=Path)
     parser.add_argument('--include', action='append', help='Relative data path; repeat as needed')
     parser.add_argument('--interval', type=int, default=120)
+    parser.add_argument('--verbose', action='store_true', help='Show each local file before reading it during pull')
     args = parser.parse_args()
     root = args.root.resolve()
     includes = args.include or DEFAULT_INCLUDES
@@ -552,7 +555,7 @@ def main():
     elif args.action in {'bootstrap', 'push'}:
         push(drive, root, state, includes, args.action == 'bootstrap')
     elif args.action == 'pull':
-        pull(drive, root, state)
+        pull(drive, root, state, verbose=args.verbose)
     else:
         watch(drive, root, state, args.interval)
 
