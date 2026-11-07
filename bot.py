@@ -1545,7 +1545,8 @@ def webhook():
     if message.partition(' ')[0] in ship_quiz.COMMANDS:
         try:
             player, name = iris_identity.identity(data, IRIS_REPLY_URL)
-            reply = ship_quiz.service().handle(message, chat_id, player, name)
+            room_name = metadata.get('chat_name') or metadata.get('room_name') or data.get('room_name') or room
+            reply = ship_quiz.service().handle(message, chat_id, player, name, room_name=room_name)
         except Exception as exc:
             print(f'[퀴즈 처리 실패] {type(exc).__name__}')
             reply = '퀴즈 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'

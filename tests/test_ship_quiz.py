@@ -257,15 +257,15 @@ class QuizTests(unittest.TestCase):
         self.assertIn('복구된닉님 정답!',self.send('!정답 단양',name=''))
         self.assertIn('복구된닉 · 2점',self.send('!퀴즈점수',name=''))
 
-    def test_cooldown_is_per_room_player_persistent_and_exactly_twenty_seconds(self):
+    def test_cooldown_is_per_room_player_persistent_and_exactly_fifteen_seconds(self):
         self.send('!퀴즈')
         def answer(text,player='u1',room='r1'):
             return self.service.handle('!정답 '+text,room,player,'참가자')
         self.assertIn('오답 1회',answer('오답첫번째'))
-        self.assertIn('20초 후',answer('단양'))
+        self.assertIn('15초 후',answer('단양'))
         self.date+=timedelta(seconds=1)
-        self.assertEqual(answer('단양'),'✔️ 정답 제출은 20초마다 가능합니다.\n✔️ 19초 후 다시 시도해 주세요.')
-        self.date+=timedelta(seconds=18)
+        self.assertEqual(answer('단양'),'✔️ 정답 제출은 15초마다 가능합니다.\n✔️ 14초 후 다시 시도해 주세요.')
+        self.date+=timedelta(seconds=13)
         self.service=QuizService(self.catalog,self.database,lambda:self.date)
         self.assertIn('1초 후',answer('단양'))
         self.assertIn('누적 오답: 1회',self.send('!퀴즈'))
@@ -284,12 +284,55 @@ class QuizTests(unittest.TestCase):
             return self.service.handle('!정답 '+text,'r1',player,player)
         self.assertIn('오답 1회',answer('첫답오답','a'))
         self.assertIn('오답 2회',answer('둘째오답','b'))
-        self.assertIn('20초 후',answer('재시도','a'))
+        self.assertIn('15초 후',answer('재시도','a'))
         self.assertIn('정답!',answer('단양','winner'))
         self.send('!퀴즈')
         self.assertIn('오답 1회',answer('첫답오답','a'))
         self.assertIn('오답 2회',answer('둘째오답','b'))
         self.assertIn('정답!',answer('단양','winner'))
+
+    def test_target_room_rank_cooldowns_and_exact_boundaries(self):
+        title = '칸코레 진수부에 어서오세요'
+        for player, points, seconds in [('first',9,60),('second',7,40),('third',5,30),('fourth',2,15),('zero',0,15)]:
+            room = 'rank-' + player
+            with sqlite3.connect(self.database) as db:
+                db.executemany('INSERT INTO scores VALUES (?,?,?,?)',
+                    [(room,p,p,n) for p,n in [('first',9),('second',7),('third',5),('fourth',2),('zero',0)]])
+            self.service.handle('!퀴즈', room, player, player, room_name=title)
+            self.service.handle('!정답 틀린답', room, player, player)
+            reply = self.service.handle('!정답 단양', room, player, player)
+            self.assertIn(f'{seconds}초마다', reply)
+            self.date += timedelta(seconds=seconds-1)
+            self.assertIn('1초 후', self.service.handle('!정답 단양',room,player,player))
+            self.date += timedelta(seconds=1)
+            self.assertIn('정답!', self.service.handle('!정답 단양',room,player,player))
+            self.service.handle('!퀴즈',room,player,player)
+            self.assertIn('정답!',self.service.handle('!정답 단양',room,player,player))
+
+    def test_ties_room_scope_zero_scores_and_rank_changes(self):
+        from ship_quiz import answer_cooldown, RANKED_COOLDOWN_ROOM
+        with sqlite3.connect(self.database) as db:
+            db.executemany('INSERT INTO scores VALUES (?,?,?,?)',
+                [('r1',p,p,n) for p,n in [('a',8),('b',8),('c',7),('d',0)]])
+            self.assertEqual(answer_cooldown(db,'r1','a',RANKED_COOLDOWN_ROOM),60)
+            self.assertEqual(answer_cooldown(db,'r1','b',RANKED_COOLDOWN_ROOM),60)
+            self.assertEqual(answer_cooldown(db,'r1','c',RANKED_COOLDOWN_ROOM),30)
+            self.assertEqual(answer_cooldown(db,'r1','d',RANKED_COOLDOWN_ROOM),15)
+            self.assertEqual(answer_cooldown(db,'r1','a','다른 방'),15)
+            self.assertEqual(answer_cooldown(db,'r2','a',RANKED_COOLDOWN_ROOM),15)
+            db.execute('UPDATE scores SET points=0 WHERE room=?',('r1',))
+            self.assertEqual(answer_cooldown(db,'r1','a',RANKED_COOLDOWN_ROOM),15)
+            db.execute('UPDATE scores SET points=1 WHERE player=?',('c',))
+            self.assertEqual(answer_cooldown(db,'r1','c',RANKED_COOLDOWN_ROOM),60)
+
+    def test_webhook_passes_room_title_with_numeric_chat_id(self):
+        import bot
+        title = '칸코레 진수부에 어서오세요'
+        with patch.object(bot.ship_quiz, 'service') as factory, patch.object(bot.iris_identity, 'identity', return_value=('u1','닉')), patch.object(bot.requests, 'post'):
+            factory.return_value.handle.return_value = '퀴즈'
+            response = bot.app.test_client().post('/webhook', json={'msg':'!퀴즈','room':title,'json':{'chat_id':'12345'}})
+            self.assertEqual(response.status_code,200)
+            factory.return_value.handle.assert_called_once_with('!퀴즈','12345','u1','닉',room_name=title)
 
     def test_legacy_room_wide_cooldown_does_not_block_new_questions(self):
         with sqlite3.connect(self.database) as db:
@@ -318,7 +361,7 @@ class QuizTests(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=2) as executor:
             replies=list(executor.map(lambda text:self.service.handle('!정답 '+text,'r1','u1','참가자'),['첫오답','둘째오답']))
         self.assertEqual(sum('오답 1회' in reply for reply in replies),1)
-        self.assertEqual(sum('20초 후' in reply for reply in replies),1)
+        self.assertEqual(sum('15초 후' in reply for reply in replies),1)
         self.assertIn('누적 오답: 1회',self.send('!퀴즈'))
 
     def test_unrelated_message_and_failed_start_do_not_consume_quota(self):

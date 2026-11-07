@@ -23,6 +23,18 @@ NATIONS = {1: '일본', 2: '독일', 3: '이탈리아', 4: '미국', 5: '영국'
 STATS = [('火力最大', '화력'), ('雷装最大', '뇌장'), ('対空最大', '대공'),
          ('装甲最大', '장갑')]
 COMMANDS = {'!퀴즈', '!정답', '!퀴즈점수'}
+RANKED_COOLDOWN_ROOM = '칸코레 진수부에 어서오세요'
+
+
+def answer_cooldown(db, room, player, room_name):
+    if room_name != RANKED_COOLDOWN_ROOM:
+        return 15
+    score = db.execute('SELECT points FROM scores WHERE room=? AND player=?', (room, player)).fetchone()
+    if not score or score[0] <= 0:
+        return 15
+    # Competition ranking: ties share a rank (1, 1, 3), scoped to this room.
+    rank = 1 + db.execute('SELECT COUNT(*) FROM scores WHERE room=? AND points>?', (room, score[0])).fetchone()[0]
+    return {1: 60, 2: 40, 3: 30}.get(rank, 15)
 SPEEDS = {0:'육상', 5:'저속', 10:'고속', 15:'고속+', 20:'최속'}
 QUIZ_TYPES = {
     1: '해방', 2: '구축',
@@ -185,7 +197,7 @@ class QuizService:
             db.execute('CREATE TABLE IF NOT EXISTS rooms (room TEXT PRIMARY KEY, state TEXT NOT NULL)')
             db.execute('CREATE TABLE IF NOT EXISTS scores (room TEXT, player TEXT, name TEXT, points INTEGER, PRIMARY KEY(room,player))')
 
-    def handle(self, message, room, player='', name=''):
+    def handle(self, message, room, player='', name='', room_name=None):
         command, _, argument = message.strip().partition(' ')
         if command not in COMMANDS:
             return None
@@ -196,6 +208,9 @@ class QuizService:
             db.execute('BEGIN IMMEDIATE')
             row = db.execute('SELECT state FROM rooms WHERE room=?', (room,)).fetchone()
             state = json.loads(row[0]) if row else {'day':'', 'count':0, 'active':None, 'recent':[]}
+            title = str(room_name if room_name is not None else room if room == RANKED_COOLDOWN_ROOM else '').strip()
+            if title and not title.isdecimal():
+                state['room_name'] = title
             now = self.now().astimezone(KST)
             period = quota_period(now)
             if state['active']:
@@ -235,7 +250,13 @@ class QuizService:
         active = state['active']
         if command == '!퀴즈점수':
             rows = db.execute('SELECT name,points FROM scores WHERE room=? ORDER BY points DESC,name,player LIMIT 20', (room,)).fetchall()
-            return '[칸무스 퀴즈 순위]\n\n' + ('\n'.join(f'{i}. {n} · {p}점' for i,(n,p) in enumerate(rows,1)) or '아직 정답자가 없습니다.')
+            lines, previous, rank = [], None, 0
+            for i, (n, p) in enumerate(rows, 1):
+                if p != previous:
+                    rank = i
+                lines.append(f'{rank}. {n} · {p}점')
+                previous = p
+            return '[칸무스 퀴즈 순위]\n\n' + ('\n'.join(lines) or '아직 정답자가 없습니다.')
         if command == '!퀴즈':
             if active:
                 return render(active)
@@ -262,9 +283,10 @@ class QuizService:
         timestamp = self.now().timestamp()
         cooldowns = active.setdefault('cooldowns', {})
         last = cooldowns.get(player)
-        if last is not None and timestamp-last < 20:
-            remaining = min(20,math.ceil(20-(timestamp-last)))
-            return f'✔️ 정답 제출은 20초마다 가능합니다.\n✔️ {remaining}초 후 다시 시도해 주세요.'
+        seconds = answer_cooldown(db, room, player, state.get('room_name', ''))
+        if last is not None and timestamp-last < seconds:
+            remaining = min(seconds,math.ceil(seconds-(timestamp-last)))
+            return f'✔️ 정답 제출은 {seconds}초마다 가능합니다.\n✔️ {remaining}초 후 다시 시도해 주세요.'
         key = normalize(answer)
         families = self.catalog.answers.get(key, set())
         if len(families) > 1:
