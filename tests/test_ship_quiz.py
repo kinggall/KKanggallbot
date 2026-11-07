@@ -291,6 +291,15 @@ class QuizTests(unittest.TestCase):
         self.assertIn('오답 2회',answer('둘째오답','b'))
         self.assertIn('정답!',answer('단양','winner'))
 
+    def test_ranking_command_aliases(self):
+        for command in ('!퀴즈순위','!퀴즈랭킹'):
+            self.assertEqual(self.send(command),self.send('!퀴즈점수'))
+        self.send('!퀴즈')
+        self.send('!정답 단양')
+        for command in ('!퀴즈순위','!퀴즈랭킹'):
+            self.assertEqual(self.send(command),self.send('!퀴즈점수'))
+            self.assertNotIn('참가자 · 1점', self.send(command,room='other'))
+
     def test_target_room_rank_cooldowns_and_exact_boundaries(self):
         title = '칸코레 진수부에 어서오세요'
         for player, points, seconds in [('first',9,60),('second',7,40),('third',5,30),('fourth',2,15),('zero',0,15)]:

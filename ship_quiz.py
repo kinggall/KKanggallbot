@@ -22,7 +22,7 @@ NATIONS = {1: '일본', 2: '독일', 3: '이탈리아', 4: '미국', 5: '영국'
            11: '네덜란드', 12: '호주'}
 STATS = [('火力最大', '화력'), ('雷装最大', '뇌장'), ('対空最大', '대공'),
          ('装甲最大', '장갑')]
-COMMANDS = {'!퀴즈', '!정답', '!퀴즈점수'}
+COMMANDS = {'!퀴즈', '!정답', '!퀴즈점수', '!퀴즈순위', '!퀴즈랭킹'}
 RANKED_COOLDOWN_ROOM = '칸코레 진수부에 어서오세요'
 RANKED_COOLDOWN_ROOM_ID = '18182686594126049'
 
@@ -249,7 +249,7 @@ class QuizService:
 
     def dispatch(self, db, command, answer, room, player, name, state):
         active = state['active']
-        if command == '!퀴즈점수':
+        if command in ('!퀴즈점수', '!퀴즈순위', '!퀴즈랭킹'):
             rows = db.execute('SELECT name,points FROM scores WHERE room=? ORDER BY points DESC,name,player LIMIT 20', (room,)).fetchall()
             lines, previous, rank = [], None, 0
             for i, (n, p) in enumerate(rows, 1):
