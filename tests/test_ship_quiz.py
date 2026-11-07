@@ -294,8 +294,10 @@ class QuizTests(unittest.TestCase):
     def test_target_room_rank_cooldowns_and_exact_boundaries(self):
         title = '칸코레 진수부에 어서오세요'
         for player, points, seconds in [('first',9,60),('second',7,40),('third',5,30),('fourth',2,15),('zero',0,15)]:
-            room = 'rank-' + player
+            room = '18182686594126049'
             with sqlite3.connect(self.database) as db:
+                db.execute('DELETE FROM rooms WHERE room=?', (room,))
+                db.execute('DELETE FROM scores WHERE room=?', (room,))
                 db.executemany('INSERT INTO scores VALUES (?,?,?,?)',
                     [(room,p,p,n) for p,n in [('first',9),('second',7),('third',5),('fourth',2),('zero',0)]])
             self.service.handle('!퀴즈', room, player, player, room_name=title)
@@ -311,19 +313,23 @@ class QuizTests(unittest.TestCase):
 
     def test_ties_room_scope_zero_scores_and_rank_changes(self):
         from ship_quiz import answer_cooldown, RANKED_COOLDOWN_ROOM
+        room = '18182686594126049'
         with sqlite3.connect(self.database) as db:
             db.executemany('INSERT INTO scores VALUES (?,?,?,?)',
-                [('r1',p,p,n) for p,n in [('a',8),('b',8),('c',7),('d',0)]])
-            self.assertEqual(answer_cooldown(db,'r1','a',RANKED_COOLDOWN_ROOM),60)
-            self.assertEqual(answer_cooldown(db,'r1','b',RANKED_COOLDOWN_ROOM),60)
-            self.assertEqual(answer_cooldown(db,'r1','c',RANKED_COOLDOWN_ROOM),30)
-            self.assertEqual(answer_cooldown(db,'r1','d',RANKED_COOLDOWN_ROOM),15)
-            self.assertEqual(answer_cooldown(db,'r1','a','다른 방'),15)
+                [(room,p,p,n) for p,n in [('a',8),('b',8),('c',7),('d',0)]])
+            self.assertEqual(answer_cooldown(db,room,'a',RANKED_COOLDOWN_ROOM),60)
+            self.assertEqual(answer_cooldown(db,room,'b',RANKED_COOLDOWN_ROOM),60)
+            self.assertEqual(answer_cooldown(db,room,'c',RANKED_COOLDOWN_ROOM),30)
+            self.assertEqual(answer_cooldown(db,room,'d',RANKED_COOLDOWN_ROOM),15)
+            self.assertEqual(answer_cooldown(db,room,'a',''),60)
+            self.assertEqual(answer_cooldown(db,room,'a','변경된 이름'),60)
             self.assertEqual(answer_cooldown(db,'r2','a',RANKED_COOLDOWN_ROOM),15)
-            db.execute('UPDATE scores SET points=0 WHERE room=?',('r1',))
-            self.assertEqual(answer_cooldown(db,'r1','a',RANKED_COOLDOWN_ROOM),15)
+            db.execute('INSERT INTO scores VALUES (?,?,?,?)',('r2','a','a',99))
+            self.assertEqual(answer_cooldown(db,'r2','a',RANKED_COOLDOWN_ROOM),15)
+            db.execute('UPDATE scores SET points=0 WHERE room=?',(room,))
+            self.assertEqual(answer_cooldown(db,room,'a',RANKED_COOLDOWN_ROOM),15)
             db.execute('UPDATE scores SET points=1 WHERE player=?',('c',))
-            self.assertEqual(answer_cooldown(db,'r1','c',RANKED_COOLDOWN_ROOM),60)
+            self.assertEqual(answer_cooldown(db,room,'c',RANKED_COOLDOWN_ROOM),60)
 
     def test_webhook_passes_room_title_with_numeric_chat_id(self):
         import bot

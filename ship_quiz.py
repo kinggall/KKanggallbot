@@ -24,10 +24,11 @@ STATS = [('火力最大', '화력'), ('雷装最大', '뇌장'), ('対空最大'
          ('装甲最大', '장갑')]
 COMMANDS = {'!퀴즈', '!정답', '!퀴즈점수'}
 RANKED_COOLDOWN_ROOM = '칸코레 진수부에 어서오세요'
+RANKED_COOLDOWN_ROOM_ID = '18182686594126049'
 
 
 def answer_cooldown(db, room, player, room_name):
-    if room_name != RANKED_COOLDOWN_ROOM:
+    if str(room) != RANKED_COOLDOWN_ROOM_ID:
         return 15
     score = db.execute('SELECT points FROM scores WHERE room=? AND player=?', (room, player)).fetchone()
     if not score or score[0] <= 0:
