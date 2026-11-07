@@ -5,13 +5,16 @@ import json
 from pathlib import Path
 import sqlite3
 import sys
+import argparse
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from ship_quiz import quota_period, quota_limit, KST
 
 
-def reset(db, room, day):
+def reset(db, room, day, restore=None):
+    if restore is not None and (not isinstance(restore, int) or isinstance(restore, bool) or restore <= 0):
+        raise ValueError('Restore amount must be a positive integer')
     db.execute('BEGIN IMMEDIATE')
     row = db.execute('SELECT state FROM rooms WHERE room=?', (room,)).fetchone()
     if not row:
@@ -19,11 +22,17 @@ def reset(db, room, day):
     state = json.loads(row[0])
     if state.get('period',state.get('day')) != day:
         raise ValueError('Selected room has no quota used in this period')
-    state['count'] = 0
+    state['count'] = 0 if restore is None else max(0, state['count'] - restore)
     db.execute('UPDATE rooms SET state=? WHERE room=?', (json.dumps(state,ensure_ascii=False),room))
+    return state['count']
 
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--restore',type=int,help='Restore only this many used attempts instead of resetting all')
+    args=parser.parse_args()
+    if args.restore is not None and args.restore<=0:
+        parser.error('--restore must be positive')
     path=ROOT/'.quiz/quiz.sqlite3'
     if not path.is_file():
         raise SystemExit('Quiz database not found on this PC.')
@@ -37,18 +46,18 @@ def main():
             if state.get('period')==day and state.get('count',0)>0:
                 names=[r[0] for r in db.execute('SELECT name FROM scores WHERE room=? ORDER BY points DESC LIMIT 3',(room,))]
                 rooms.append(room)
-                print(f"{len(rooms)}. Room {room} | used {state['count']}/{limit} | players: {', '.join(names) or '-'}")
+                print(f"{len(rooms)}. Room {room} | {state.get('room_name','')} | used {state['count']}/{limit} | players: {', '.join(names) or '-'}")
         if not rooms:
             print('No quota used this period. Nothing changed.')
             return
-        choice=input('Reset which room? Enter its list number (blank cancels): ').strip()
+        choice=input('Select room number (blank cancels): ').strip()
         if not choice:
             return
         if not choice.isdecimal() or not 1<=int(choice)<=len(rooms):
             raise SystemExit('Invalid selection. Nothing changed.')
         with db:
-            reset(db,rooms[int(choice)-1],day)
-        print(f'Reset complete: 0/{limit} this period. Scores and active question preserved.')
+            count=reset(db,rooms[int(choice)-1],quota_period(datetime.now(KST)),restore=args.restore)
+        print(f'Complete: used {count}/{quota_limit(datetime.now(KST))}. Scores and active question preserved.')
 
 
 if __name__=='__main__':

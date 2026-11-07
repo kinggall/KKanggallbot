@@ -5,6 +5,22 @@ from scripts.reset_quiz_quota import reset
 
 
 class ResetQuizTests(unittest.TestCase):
+    def test_restore_five_preserves_other_state_and_rooms(self):
+        with sqlite3.connect(':memory:') as db:
+            db.execute('CREATE TABLE rooms (room TEXT PRIMARY KEY,state TEXT)')
+            state={'period':'2026-11-07:15','count':25,'active':{'wrong':3,'cooldowns':{'u':1}},'recent':[20]}
+            db.executemany('INSERT INTO rooms VALUES (?,?)',[(r,json.dumps(state)) for r in ('chosen','other')])
+            db.commit()
+            with db:
+                self.assertEqual(reset(db,'chosen','2026-11-07:15',restore=5),20)
+            got=json.loads(db.execute('SELECT state FROM rooms WHERE room=?',('chosen',)).fetchone()[0])
+            self.assertEqual(got,{**state,'count':20})
+            self.assertEqual(json.loads(db.execute('SELECT state FROM rooms WHERE room=?',('other',)).fetchone()[0]),state)
+            with db:
+                self.assertEqual(reset(db,'chosen','2026-11-07:15',restore=30),0)
+            with self.assertRaises(ValueError), db:
+                reset(db,'chosen','2026-11-07:15',restore=-1)
+
     def test_only_selected_room_daily_count_changes(self):
         db=sqlite3.connect(':memory:')
         self.addCleanup(db.close)
