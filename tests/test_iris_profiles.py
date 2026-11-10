@@ -145,18 +145,18 @@ class ProfileTests(unittest.TestCase):
         tick[0]=103.0
         self.assertTrue(s.reserve())
 
-    def test_named_rooms_use_their_own_destination_and_cooldown(self):
+    def test_confirmed_room_ids_use_their_own_destination_and_cooldown(self):
         s=self.service([]);s.photo=Mock(return_value=PHOTO)
         with patch.object(profiles,'SERVICE',s):
-            for room,title in [('111','왕갤의 둥지'),('222','니나브귀여워')]:
+            for room,title in [('18250420501835535',''),('18335522977842954','이름 변경')]:
                 profiles.handle('!프사 닉',room,'http://local/reply',Inline(),room_name=title)
                 s.photo.assert_called_with('닉','http://local/reply',room)
                 self.assertEqual(s.post.call_args.kwargs['json']['room'],room)
                 self.assertEqual(s.post.call_args.kwargs['json']['type'],'image')
             self.assertEqual(s.photo.call_count,2)
-            profiles.handle('!프사 닉','111','http://local/reply',Inline(),room_name='왕갤의 둥지')
+            profiles.handle('!프사 닉','18250420501835535','http://local/reply',Inline(),room_name='왕갤의 둥지')
             self.assertIn('3초',s.post.call_args.kwargs['json']['data'])
-            profiles.handle('!프사 닉','333','http://local/reply',Inline(),room_name='다른 방')
+            profiles.handle('!프사 닉','333','http://local/reply',Inline(),room_name='왕갤의 둥지')
             self.assertEqual(s.photo.call_count,2)
 
     def test_member_and_high_resolution_queries_use_requested_room(self):

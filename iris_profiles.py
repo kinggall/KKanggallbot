@@ -9,7 +9,11 @@ from urllib.parse import urljoin, urlsplit
 import requests
 
 ROOM_ID = '18182686594126049'
-ROOM_NAMES = {'왕갤의 둥지', '니나브귀여워'}
+ROOM_IDS = {
+    ROOM_ID,                # 칸코레 진수부에 어서오세요
+    '18250420501835535',     # 왕갤의 둥지
+    '18335522977842954',     # 니나브귀여워
+}
 MAX_BYTES = 8 * 1024 * 1024
 SLOTS = threading.BoundedSemaphore(2)
 
@@ -187,7 +191,7 @@ def handle(message, room, reply_url, executor, room_name=''):
     if not match:
         return None
     room = str(room)
-    if not room.isdecimal() or (room != ROOM_ID and str(room_name).strip() not in ROOM_NAMES):
+    if room not in ROOM_IDS:
         return {'ok': True}, 200  # Do not query or reply outside the allowed room.
     name = (match.group(1) or '').strip()
 
