@@ -189,6 +189,25 @@ def render(active):
     return '\n'.join(lines)
 
 
+class QuizReply(str):
+    """Primary text plus ordered follow-up messages, without shared pending state."""
+    def __new__(cls, text, followups=()):
+        value = super().__new__(cls, text)
+        value.followups = tuple(followups)
+        return value
+
+
+def next_quiz_hour(when):
+    local = when.astimezone(KST)
+    for hour in (3, 15, 18, 20, 22, 24):
+        candidate = local.replace(hour=hour % 24, minute=0, second=0, microsecond=0)
+        if hour == 24:
+            candidate += timedelta(days=1)
+        if candidate > local:
+            return f'{hour:02d}'
+    return '03'
+
+
 def ranking_text(db, room):
     rows = db.execute('SELECT name,points FROM scores WHERE room=? ORDER BY points DESC,name,player LIMIT 20', (room,)).fetchall()
     lines, previous, rank = [], None, 0
@@ -305,8 +324,12 @@ class QuizService:
             points = db.execute('SELECT points FROM scores WHERE room=? AND player=?', (room,player)).fetchone()[0]
             state['active'] = None
             reply = f"🎉 {name[:100]}님 정답!\n정답: {q['name']}\n\n+1점 · 누적 {points}점"
-            if state['count'] >= quota_limit(self.now()):
-                return reply + '\n\n' + ranking_text(db, room)
+            now = self.now()
+            if state['count'] >= quota_limit(now):
+                notice = ('퀴즈가 소진되었습니다.\n'
+                          f'다음 퀴즈시간은 {next_quiz_hour(now)}시 입니다.\n\n'
+                          + ranking_text(db, room))
+                return QuizReply(reply, (notice,))
             return reply + '\n다음 문제: !퀴즈'
         active['seen'].append(attempt)
         active['wrong'] += 1

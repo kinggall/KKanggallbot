@@ -1551,7 +1551,9 @@ def webhook():
         except Exception as exc:
             print(f'[퀴즈 처리 실패] {type(exc).__name__}')
             reply = '퀴즈 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
-        requests.post(IRIS_REPLY_URL, json={'type':'text', 'room':str(chat_id), 'data':reply}, timeout=10)
+        replies = (str(reply), *reply.followups) if isinstance(reply, ship_quiz.QuizReply) else (reply,)
+        for text in replies:
+            requests.post(IRIS_REPLY_URL, json={'type':'text', 'room':str(chat_id), 'data':text}, timeout=10).raise_for_status()
         return jsonify({'status':'ok'})
 
     profile_room_name = metadata.get('chat_name') or metadata.get('room_name') or data.get('room_name') or room

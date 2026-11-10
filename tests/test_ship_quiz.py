@@ -307,10 +307,29 @@ class QuizTests(unittest.TestCase):
             for n in range(1,limit+1):
                 self.send('!퀴즈',room=room)
                 reply=self.send('!정답 단양',room=room,name='정답자')
-                self.assertEqual('[칸무스 퀴즈 순위]' in reply,n==limit)
-            self.assertIn(f'정답자 · {limit}점',reply)
+                self.assertEqual(bool(getattr(reply,'followups',())),n==limit)
+            self.assertIn(f'정답자 · {limit}점',reply.followups[0])
             self.assertNotIn('다음 문제:',reply)
-            self.assertEqual(reply.split('\n\n[칸무스 퀴즈 순위]')[1],self.send('!퀴즈순위',room=room,name='정답자').split('[칸무스 퀴즈 순위]')[1])
+            self.assertNotIn('[칸무스 퀴즈 순위]',reply)
+            self.assertIn('퀴즈가 소진되었습니다.\n다음 퀴즈시간은 ',reply.followups[0])
+            self.assertEqual(reply.followups[0].split('\n\n[칸무스 퀴즈 순위]')[1],self.send('!퀴즈순위',room=room,name='정답자').split('[칸무스 퀴즈 순위]')[1])
+
+    def test_next_quiz_time_including_midnight_and_exact_boundary(self):
+        from ship_quiz import next_quiz_hour
+        for hour,minute,wanted in [(0,17,'03'),(2,59,'03'),(3,0,'15'),(14,59,'15'),(15,0,'18'),(18,0,'20'),(20,0,'22'),(22,0,'24'),(23,59,'24')]:
+            self.assertEqual(next_quiz_hour(datetime(2026,11,2,hour,minute,tzinfo=KST)),wanted)
+
+    def test_webhook_sends_answer_then_exhaustion_as_two_messages(self):
+        import bot
+        from ship_quiz import QuizReply
+        notice='퀴즈가 소진되었습니다.\n다음 퀴즈시간은 03시 입니다.\n\n[칸무스 퀴즈 순위]\n\n1. 정답자 · 1점'
+        answer='🎉 정답자님 정답!\n정답: 이나기\n\n+1점 · 누적 1점'
+        with patch.object(bot.ship_quiz,'service') as factory,patch.object(bot.iris_identity,'identity',return_value=('u1','정답자')),patch.object(bot.requests,'post') as post:
+            factory.return_value.handle.return_value=QuizReply(answer,(notice,))
+            response=bot.app.test_client().post('/webhook',json={'msg':'!정답 이나기','room':'r1'})
+            self.assertEqual(response.status_code,200)
+            self.assertEqual([call.kwargs['json']['data'] for call in post.call_args_list],[answer,notice])
+            self.assertTrue(all(call.kwargs['json']['room']=='r1' for call in post.call_args_list))
 
     def test_refill_before_answer_does_not_report_premature_completion(self):
         self.date=datetime(2026,11,2,17,0,tzinfo=KST)
