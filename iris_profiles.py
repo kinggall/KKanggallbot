@@ -9,6 +9,7 @@ from urllib.parse import urljoin, urlsplit
 import requests
 
 ROOM_ID = '18182686594126049'
+ROOM_NAMES = {'왕갤의 둥지', '니나브귀여워'}
 MAX_BYTES = 8 * 1024 * 1024
 SLOTS = threading.BoundedSemaphore(2)
 
@@ -42,25 +43,25 @@ def image_bytes(data):
 class ProfileService:
     def __init__(self, get=requests.get, post=requests.post, clock=time.monotonic):
         self.get, self.post, self.clock = get, post, clock
-        self.lock, self.next_request = threading.Lock(), 0
+        self.lock, self.next_requests = threading.Lock(), {}
 
-    def reserve(self):
+    def reserve(self, room=ROOM_ID):
         with self.lock:
             now = self.clock()
-            if now < self.next_request:
+            if now < self.next_requests.get(str(room), 0):
                 return False
-            self.next_request = now + 3
+            self.next_requests[str(room)] = now + 3
             return True
 
-    def photo_candidates(self, name, reply_url):
+    def photo_candidates(self, name, reply_url, room=ROOM_ID):
         base = reply_url.rsplit('/', 1)[0]
-        response = self.get(f'{base}/room/{ROOM_ID}/members', timeout=(2, 5))
+        response = self.get(f'{base}/room/{room}/members', timeout=(2, 5))
         if response.status_code == 404:
             # Older Iris: constrain the encrypted member query to this room's
             # link_id. Never fall back to /user or a normal friends profile.
             response = self.post(base + '/query', json={
                 'query': 'SELECT m.user_id, m.nickname, m.profile_image_url, m.enc FROM db2.open_chat_member m JOIN db1.chat_rooms c ON c.link_id = m.link_id WHERE c.id = ? ORDER BY m._id DESC',
-                'bind': [ROOM_ID]}, timeout=(2, 5))
+                'bind': [str(room)]}, timeout=(2, 5))
             response.raise_for_status()
             document = response.json()
             if isinstance(document, dict) and document.get('error'):
@@ -101,7 +102,7 @@ class ProfileService:
                 try:
                     result = self.post(base + '/query', json={
                         'query': f'SELECT m.user_id, m.nickname, m.{field}, m.enc FROM db2.open_chat_member m JOIN db1.chat_rooms c ON c.link_id = m.link_id WHERE c.id = ? AND m.user_id = ? ORDER BY m._id DESC LIMIT 1',
-                        'bind': [ROOM_ID, uid]}, timeout=(2, 3))
+                        'bind': [str(room), uid]}, timeout=(2, 3))
                     result.raise_for_status()
                     document = result.json()
                     rows = document.get('data') if isinstance(document, dict) and not document.get('error') else None
@@ -126,11 +127,11 @@ class ProfileService:
             raise ProfileError('해당 참가자의 프로필 사진이 없거나 사진 주소를 조회할 수 없습니다.')
         return candidates
 
-    def photo_url(self, name, reply_url):
-        return self.photo_candidates(name, reply_url)[0]
+    def photo_url(self, name, reply_url, room=ROOM_ID):
+        return self.photo_candidates(name, reply_url, room)[0]
 
-    def photo(self, name, reply_url):
-        for url in self.photo_candidates(name, reply_url):
+    def photo(self, name, reply_url, room=ROOM_ID):
+        for url in self.photo_candidates(name, reply_url, room):
             try:
                 return self.download(url)
             except (requests.RequestException, ProfileError):
@@ -165,16 +166,17 @@ class ProfileService:
 SERVICE = ProfileService()
 
 
-def handle(message, room, reply_url, executor):
+def handle(message, room, reply_url, executor, room_name=''):
     match = re.fullmatch(r'!프사(?:\s+(.*))?', message, re.DOTALL)
     if not match:
         return None
-    if str(room) != ROOM_ID:
+    room = str(room)
+    if not room.isdecimal() or (room != ROOM_ID and str(room_name).strip() not in ROOM_NAMES):
         return {'ok': True}, 200  # Do not query or reply outside the allowed room.
     name = (match.group(1) or '').strip()
 
     def text(value):
-        SERVICE.post(reply_url, json={'type': 'text', 'room': ROOM_ID, 'data': value}, timeout=10).raise_for_status()
+        SERVICE.post(reply_url, json={'type': 'text', 'room': room, 'data': value}, timeout=10).raise_for_status()
 
     if not name or len(name) > 100 or any(ord(c) < 32 for c in name):
         text('사용법: !프사 [정확한 닉네임]')
@@ -182,15 +184,15 @@ def handle(message, room, reply_url, executor):
     if not SLOTS.acquire(blocking=False):
         text('프로필 사진을 처리 중입니다. 잠시 후 다시 시도해 주세요.')
         return {'ok': True}, 200
-    if not SERVICE.reserve():
+    if not SERVICE.reserve(room):
         SLOTS.release()
         text('프로필 사진은 3초 간격으로 조회할 수 있습니다.')
         return {'ok': True}, 200
 
     def send():
         try:
-            data = SERVICE.photo(name, reply_url)
-            SERVICE.post(reply_url, json={'type': 'image', 'room': ROOM_ID,
+            data = SERVICE.photo(name, reply_url, room)
+            SERVICE.post(reply_url, json={'type': 'image', 'room': room,
                          'data': base64.b64encode(data).decode('ascii')}, timeout=20).raise_for_status()
         except ProfileError as error:
             text(str(error))

@@ -1554,7 +1554,8 @@ def webhook():
         requests.post(IRIS_REPLY_URL, json={'type':'text', 'room':str(chat_id), 'data':reply}, timeout=10)
         return jsonify({'status':'ok'})
 
-    profile_result = iris_profiles.handle(message, chat_id, IRIS_REPLY_URL, IMAGE_SEND_EXECUTOR)
+    profile_room_name = metadata.get('chat_name') or metadata.get('room_name') or data.get('room_name') or room
+    profile_result = iris_profiles.handle(message, chat_id, IRIS_REPLY_URL, IMAGE_SEND_EXECUTOR, room_name=profile_room_name)
     if profile_result is not None:
         body, status = profile_result
         return jsonify(body), status
