@@ -1,0 +1,163 @@
+"""Room-scoped OpenChat profile photos; no general user/friend lookup or disk cache."""
+import base64
+import re
+import threading
+import time
+import unicodedata
+from urllib.parse import urljoin, urlsplit
+
+import requests
+
+ROOM_ID = '18182686594126049'
+MAX_BYTES = 8 * 1024 * 1024
+SLOTS = threading.BoundedSemaphore(2)
+
+
+class ProfileError(ValueError):
+    pass
+
+
+def nickname(value):
+    return ' '.join(unicodedata.normalize('NFKC', str(value or '')).split()).casefold()
+
+
+def checked_url(value):
+    try:
+        parts = urlsplit(value)
+        host = (parts.hostname or '').lower()
+        if (parts.scheme != 'https' or parts.username or parts.password or parts.port not in (None, 443)
+                or not any(host == domain or host.endswith('.' + domain) for domain in ('kakaocdn.net', 'kakao.com'))):
+            raise ValueError
+    except (ValueError, TypeError):
+        raise ProfileError('프로필 사진 주소를 확인할 수 없습니다.') from None
+    return value
+
+
+def image_bytes(data):
+    return (data.startswith(b'\xff\xd8\xff') or data.startswith(b'\x89PNG\r\n\x1a\n')
+            or data[:6] in (b'GIF87a', b'GIF89a')
+            or data[:4] == b'RIFF' and data[8:12] == b'WEBP')
+
+
+class ProfileService:
+    def __init__(self, get=requests.get, post=requests.post, clock=time.monotonic):
+        self.get, self.post, self.clock = get, post, clock
+        self.lock, self.next_request = threading.Lock(), 0
+
+    def reserve(self):
+        with self.lock:
+            now = self.clock()
+            if now < self.next_request:
+                return False
+            self.next_request = now + 5
+            return True
+
+    def photo_url(self, name, reply_url):
+        base = reply_url.rsplit('/', 1)[0]
+        response = self.get(f'{base}/room/{ROOM_ID}/members', timeout=(2, 5))
+        if response.status_code == 404:
+            # Older Iris: constrain the encrypted member query to this room's
+            # link_id. Never fall back to /user or a normal friends profile.
+            response = self.post(base + '/query', json={
+                'query': 'SELECT m.user_id, m.nickname, m.profile_image_url, m.enc FROM db2.open_chat_member m JOIN db1.chat_rooms c ON c.link_id = m.link_id WHERE c.id = ? ORDER BY m._id DESC',
+                'bind': [ROOM_ID]}, timeout=(2, 5))
+            response.raise_for_status()
+            document = response.json()
+            if isinstance(document, dict) and document.get('error'):
+                raise ProfileError('이 방의 참가자 정보를 조회하지 못했습니다.')
+            rows = document.get('data') if isinstance(document, dict) else None
+        else:
+            response.raise_for_status()
+            document = response.json()
+            if isinstance(document, dict) and document.get('error'):
+                raise ProfileError('이 방의 참가자 정보를 조회하지 못했습니다.')
+            payload = document.get('payload', document) if isinstance(document, dict) else None
+            rows = payload.get('members') if isinstance(payload, dict) else None
+        if not isinstance(rows, list):
+            raise ProfileError('이 방의 참가자 정보를 조회하지 못했습니다.')
+        # Iris returns newest records first; one result per member identity.
+        unique = {}
+        for index, row in enumerate(rows):
+            if not isinstance(row, dict):
+                continue
+            key = str(row.get('user_id') or row.get('id') or 'row:' + str(index))
+            unique.setdefault(key, row)
+        matches = [r for r in unique.values() if nickname(r.get('nickname') or r.get('name')) == nickname(name)]
+        if not matches:
+            raise ProfileError('해당 닉네임을 조회된 방 참가자 목록에서 찾지 못했습니다. 정확한 닉네임을 입력해 주세요.')
+        if len(matches) != 1:
+            raise ProfileError('같은 닉네임의 참가자가 여러 명이라 사진을 선택할 수 없습니다.')
+        url = matches[0].get('profile_image_url')
+        if not isinstance(url, str) or not url.strip():
+            raise ProfileError('해당 참가자의 프로필 사진이 없거나 사진 주소를 조회할 수 없습니다.')
+        return checked_url(url.strip())
+
+    def download(self, url):
+        for _ in range(4):
+            url = checked_url(url)
+            with self.get(url, timeout=(3, 8), stream=True, allow_redirects=False) as response:
+                if response.status_code in (301, 302, 303, 307, 308):
+                    url = checked_url(urljoin(url, response.headers.get('Location', '')))
+                    continue
+                response.raise_for_status()
+                mime = response.headers.get('Content-Type', '').split(';')[0].strip().lower()
+                if mime not in ('image/jpeg', 'image/png', 'image/gif', 'image/webp'):
+                    raise ProfileError('프로필 사진이 지원되는 이미지 형식이 아닙니다.')
+                size = response.headers.get('Content-Length')
+                if size and (not size.isdecimal() or int(size) > MAX_BYTES):
+                    raise ProfileError('프로필 사진 파일이 너무 큽니다.')
+                data = bytearray()
+                for block in response.iter_content(64 * 1024):
+                    data.extend(block)
+                    if len(data) > MAX_BYTES:
+                        raise ProfileError('프로필 사진 파일이 너무 큽니다.')
+                if not image_bytes(data):
+                    raise ProfileError('프로필 사진 데이터를 확인할 수 없습니다.')
+                return bytes(data)
+        raise ProfileError('프로필 사진 주소 이동이 너무 많습니다.')
+
+
+SERVICE = ProfileService()
+
+
+def handle(message, room, reply_url, executor):
+    match = re.fullmatch(r'!프사(?:\s+(.*))?', message, re.DOTALL)
+    if not match:
+        return None
+    if str(room) != ROOM_ID:
+        return {'ok': True}, 200  # Do not query or reply outside the allowed room.
+    name = (match.group(1) or '').strip()
+
+    def text(value):
+        SERVICE.post(reply_url, json={'type': 'text', 'room': ROOM_ID, 'data': value}, timeout=10).raise_for_status()
+
+    if not name or len(name) > 100 or any(ord(c) < 32 for c in name):
+        text('사용법: !프사 [정확한 닉네임]')
+        return {'ok': True}, 200
+    if not SLOTS.acquire(blocking=False):
+        text('프로필 사진을 처리 중입니다. 잠시 후 다시 시도해 주세요.')
+        return {'ok': True}, 200
+    if not SERVICE.reserve():
+        SLOTS.release()
+        text('프로필 사진은 5초 간격으로 조회할 수 있습니다.')
+        return {'ok': True}, 200
+
+    def send():
+        try:
+            url = SERVICE.photo_url(name, reply_url)
+            data = SERVICE.download(url)
+            SERVICE.post(reply_url, json={'type': 'image', 'room': ROOM_ID,
+                         'data': base64.b64encode(data).decode('ascii')}, timeout=20).raise_for_status()
+        except ProfileError as error:
+            text(str(error))
+        except (requests.RequestException, ValueError, TypeError):
+            text('프로필 사진 조회·다운로드·전송에 실패했습니다. Iris 연결을 확인해 주세요.')
+        finally:
+            SLOTS.release()
+
+    try:
+        executor.submit(send)
+    except Exception:
+        SLOTS.release()
+        return {'ok': False, 'error': 'profile_worker_unavailable'}, 503
+    return {'ok': True}, 200

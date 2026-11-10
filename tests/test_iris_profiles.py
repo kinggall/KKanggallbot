@@ -1,0 +1,119 @@
+import base64
+import unittest
+from unittest.mock import Mock, patch
+import requests
+import iris_profiles as profiles
+
+
+PHOTO = b'\x89PNG\r\n\x1a\n' + b'fake-test-image'
+URL = 'https://k.kakaocdn.net/test/profile.png'
+
+
+def response(rows=None, status=200, data=PHOTO, mime='image/png'):
+    r=Mock(status_code=status, headers={'Content-Type':mime})
+    r.json.return_value={'payload':{'members':rows if rows is not None else []}}
+    r.iter_content.return_value=iter([data])
+    r.__enter__=Mock(return_value=r)
+    r.__exit__=Mock(return_value=False)
+    return r
+
+
+class Inline:
+    def submit(self, fn):
+        fn()
+
+
+class ProfileTests(unittest.TestCase):
+    def service(self,rows):
+        return profiles.ProfileService(get=Mock(return_value=response(rows)),post=Mock(),clock=lambda:100)
+
+    def test_exact_nickname_and_openchat_photo(self):
+        s=self.service([{'user_id':'1','nickname':'테스트 닉','profile_image_url':URL}])
+        self.assertEqual(s.photo_url('테스트  닉','http://127.0.0.1:3000/reply'),URL)
+        self.assertIn('/room/'+profiles.ROOM_ID+'/members',s.get.call_args.args[0])
+        s.post.assert_not_called()
+
+    def test_duplicate_nickname_is_not_arbitrarily_chosen(self):
+        s=self.service([{'user_id':str(i),'nickname':'동명','profile_image_url':URL} for i in (1,2)])
+        with self.assertRaises(profiles.ProfileError):s.photo_url('동명','http://local/reply')
+
+    def test_latest_record_per_user(self):
+        s=self.service([{'user_id':'1','nickname':'새닉','profile_image_url':URL},
+                        {'user_id':'1','nickname':'옛닉','profile_image_url':URL}])
+        with self.assertRaises(profiles.ProfileError):s.photo_url('옛닉','http://local/reply')
+
+    def test_missing_name_photo_and_bad_payload(self):
+        for rows in ([],[{'nickname':'닉','profile_image_url':''}]):
+            with self.assertRaises(profiles.ProfileError):self.service(rows).photo_url('닉','http://local/reply')
+        s=self.service([]);s.get.return_value.json.return_value={'payload':None}
+        with self.assertRaises(profiles.ProfileError):s.photo_url('닉','http://local/reply')
+        s=self.service([]);s.get.return_value.json.return_value={'error':'private server error','payload':{'members':[]}}
+        with self.assertRaises(profiles.ProfileError) as error:s.photo_url('닉','http://local/reply')
+        self.assertNotIn('private server error',str(error.exception))
+
+    def test_old_iris_query_is_scoped_to_room(self):
+        s=self.service([]);s.get.return_value.status_code=404
+        s.post.return_value.json.return_value={'data':[{'user_id':'1','nickname':'닉','profile_image_url':URL}]}
+        self.assertEqual(s.photo_url('닉','http://local/reply'),URL)
+        body=s.post.call_args.kwargs['json']
+        self.assertEqual(body['bind'],[profiles.ROOM_ID])
+        self.assertIn('c.id = ?',body['query'])
+        self.assertIn('c.link_id = m.link_id',body['query'])
+        self.assertNotIn('friends',body['query'])
+
+    def test_only_https_kakao_image_hosts(self):
+        for url in ('http://k.kakaocdn.net/a','https://127.0.0.1/a','https://kakaocdn.net.attacker.test/a',
+                    'https://evil.test/a','file:///tmp/a','https://u:p@k.kakaocdn.net/a',
+                    'https://k.kakaocdn.net:3000/a'):
+            with self.subTest(url=url),self.assertRaises(profiles.ProfileError):profiles.checked_url(url)
+
+    def test_image_download_and_size_limits(self):
+        s=self.service([]);s.get.return_value=response()
+        self.assertEqual(s.download(URL),PHOTO)
+        self.assertFalse(s.get.call_args.kwargs['allow_redirects'])
+        for r in (response(mime='text/html'),response(data=b'not an image')):
+            s.get.return_value=r
+            with self.assertRaises(profiles.ProfileError):s.download(URL)
+        with patch.object(profiles,'MAX_BYTES',10):
+            s.get.return_value=response()
+            with self.assertRaises(profiles.ProfileError):s.download(URL)
+
+    def test_redirect_to_local_address_blocked(self):
+        r=response(status=302);r.headers['Location']='http://127.0.0.1:3000/query'
+        s=self.service([]);s.get.return_value=r
+        with self.assertRaises(profiles.ProfileError):s.download(URL)
+        self.assertEqual(s.get.call_count,1)
+
+    def test_handler_room_gate_and_usage(self):
+        s=self.service([])
+        with patch.object(profiles,'SERVICE',s):
+            self.assertIsNone(profiles.handle('!퀴즈',profiles.ROOM_ID,'http://local/reply',Inline()))
+            profiles.handle('!프사 닉','other','http://local/reply',Inline())
+            s.get.assert_not_called();s.post.assert_not_called()
+            profiles.handle('!프사',profiles.ROOM_ID,'http://local/reply',Inline())
+            self.assertIn('사용법',s.post.call_args.kwargs['json']['data'])
+
+    def test_sends_base64_photo_and_throttles(self):
+        s=self.service([]);s.photo_url=Mock(return_value=URL);s.download=Mock(return_value=PHOTO)
+        with patch.object(profiles,'SERVICE',s):
+            profiles.handle('!프사 닉',profiles.ROOM_ID,'http://local/reply',Inline())
+            body=s.post.call_args.kwargs['json']
+            self.assertEqual(body['type'],'image')
+            self.assertEqual(base64.b64decode(body['data']),PHOTO)
+            self.assertEqual(body['room'],profiles.ROOM_ID)
+            profiles.handle('!프사 닉',profiles.ROOM_ID,'http://local/reply',Inline())
+            self.assertIn('5초',s.post.call_args.kwargs['json']['data'])
+            self.assertEqual(s.download.call_count,1)
+
+    def test_download_failure_is_sanitized(self):
+        s=self.service([]);s.photo_url=Mock(side_effect=requests.RequestException('private-url-secret'))
+        with patch.object(profiles,'SERVICE',s):
+            profiles.handle('!프사 닉',profiles.ROOM_ID,'http://local/reply',Inline())
+        self.assertNotIn('private-url-secret',s.post.call_args.kwargs['json']['data'])
+
+    def test_webhook_routes_profiles_with_numeric_room(self):
+        import bot
+        with patch.object(bot.iris_profiles,'handle',return_value=({'ok':True},200)) as handle:
+            result=bot.app.test_client().post('/webhook',json={'msg':'!프사 닉','room':'방 이름','json':{'chat_id':profiles.ROOM_ID}})
+            self.assertEqual(result.status_code,200)
+            self.assertEqual(handle.call_args.args[:2],('!프사 닉',profiles.ROOM_ID))

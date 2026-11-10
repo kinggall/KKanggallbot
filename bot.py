@@ -25,6 +25,7 @@ import quests
 import experience
 import ship_quiz
 import iris_identity
+import iris_profiles
 import command_aliases
 import senka
 import guide_lookup
@@ -1552,6 +1553,11 @@ def webhook():
             reply = '퀴즈 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
         requests.post(IRIS_REPLY_URL, json={'type':'text', 'room':str(chat_id), 'data':reply}, timeout=10)
         return jsonify({'status':'ok'})
+
+    profile_result = iris_profiles.handle(message, chat_id, IRIS_REPLY_URL, IMAGE_SEND_EXECUTOR)
+    if profile_result is not None:
+        body, status = profile_result
+        return jsonify(body), status
 
     stock_result = stock_commands.handle(message, chat_id, IRIS_REPLY_URL)
     if stock_result is not None:
