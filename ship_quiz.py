@@ -189,6 +189,17 @@ def render(active):
     return '\n'.join(lines)
 
 
+def ranking_text(db, room):
+    rows = db.execute('SELECT name,points FROM scores WHERE room=? ORDER BY points DESC,name,player LIMIT 20', (room,)).fetchall()
+    lines, previous, rank = [], None, 0
+    for i, (name, points) in enumerate(rows, 1):
+        if points != previous:
+            rank = i
+        lines.append(f'{rank}. {name} · {points}점')
+        previous = points
+    return '[칸무스 퀴즈 순위]\n\n' + ('\n'.join(lines) or '아직 정답자가 없습니다.')
+
+
 class QuizService:
     def __init__(self, catalog, database, now=None):
         self.catalog, self.database = catalog, Path(database)
@@ -250,14 +261,7 @@ class QuizService:
     def dispatch(self, db, command, answer, room, player, name, state):
         active = state['active']
         if command in ('!퀴즈점수', '!퀴즈순위', '!퀴즈랭킹'):
-            rows = db.execute('SELECT name,points FROM scores WHERE room=? ORDER BY points DESC,name,player LIMIT 20', (room,)).fetchall()
-            lines, previous, rank = [], None, 0
-            for i, (n, p) in enumerate(rows, 1):
-                if p != previous:
-                    rank = i
-                lines.append(f'{rank}. {n} · {p}점')
-                previous = p
-            return '[칸무스 퀴즈 순위]\n\n' + ('\n'.join(lines) or '아직 정답자가 없습니다.')
+            return ranking_text(db, room)
         if command == '!퀴즈':
             if active:
                 return render(active)
@@ -300,7 +304,10 @@ class QuizService:
             db.execute('INSERT INTO scores VALUES (?,?,?,1) ON CONFLICT(room,player) DO UPDATE SET points=points+1,name=excluded.name', (room,player,name[:100]))
             points = db.execute('SELECT points FROM scores WHERE room=? AND player=?', (room,player)).fetchone()[0]
             state['active'] = None
-            return f"🎉 {name[:100]}님 정답!\n정답: {q['name']}\n\n+1점 · 누적 {points}점\n다음 문제: !퀴즈"
+            reply = f"🎉 {name[:100]}님 정답!\n정답: {q['name']}\n\n+1점 · 누적 {points}점"
+            if state['count'] >= quota_limit(self.now()):
+                return reply + '\n\n' + ranking_text(db, room)
+            return reply + '\n다음 문제: !퀴즈'
         active['seen'].append(attempt)
         active['wrong'] += 1
         if active['wrong'] in (3,5,7,10):

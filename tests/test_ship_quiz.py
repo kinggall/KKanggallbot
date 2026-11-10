@@ -300,6 +300,28 @@ class QuizTests(unittest.TestCase):
             self.assertEqual(self.send(command),self.send('!퀴즈점수'))
             self.assertNotIn('참가자 · 1점', self.send(command,room='other'))
 
+    def test_final_correct_answer_includes_current_room_ranking_after_award(self):
+        for day,hour,limit in [(2,3,10),(2,15,10),(2,18,15),(2,20,20),(2,22,25),(3,0,30)]:
+            self.date=datetime(2026,11,day,hour,0,tzinfo=KST)
+            room=f'final-{day}-{hour}'
+            for n in range(1,limit+1):
+                self.send('!퀴즈',room=room)
+                reply=self.send('!정답 단양',room=room,name='정답자')
+                self.assertEqual('[칸무스 퀴즈 순위]' in reply,n==limit)
+            self.assertIn(f'정답자 · {limit}점',reply)
+            self.assertNotIn('다음 문제:',reply)
+            self.assertEqual(reply.split('\n\n[칸무스 퀴즈 순위]')[1],self.send('!퀴즈순위',room=room,name='정답자').split('[칸무스 퀴즈 순위]')[1])
+
+    def test_refill_before_answer_does_not_report_premature_completion(self):
+        self.date=datetime(2026,11,2,17,0,tzinfo=KST)
+        for _ in range(9):
+            self.send('!퀴즈');self.send('!정답 단양')
+        self.send('!퀴즈')
+        self.date=datetime(2026,11,2,18,0,tzinfo=KST)
+        reply=self.send('!정답 단양')
+        self.assertNotIn('[칸무스 퀴즈 순위]',reply)
+        self.assertIn('다음 문제:',reply)
+
     def test_resolved_nickname_replaces_saved_iris_without_score_reset(self):
         with sqlite3.connect(self.database) as db:
             db.execute('INSERT INTO scores VALUES (?,?,?,?)',('r1','u1','Iris',9))
