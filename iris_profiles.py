@@ -52,7 +52,7 @@ class ProfileService:
             self.next_request = now + 5
             return True
 
-    def photo_url(self, name, reply_url):
+    def photo_candidates(self, name, reply_url):
         base = reply_url.rsplit('/', 1)[0]
         response = self.get(f'{base}/room/{ROOM_ID}/members', timeout=(2, 5))
         if response.status_code == 404:
@@ -87,10 +87,55 @@ class ProfileService:
             raise ProfileError('해당 닉네임을 조회된 방 참가자 목록에서 찾지 못했습니다. 정확한 닉네임을 입력해 주세요.')
         if len(matches) != 1:
             raise ProfileError('같은 닉네임의 참가자가 여러 명이라 사진을 선택할 수 없습니다.')
-        url = matches[0].get('profile_image_url')
-        if not isinstance(url, str) or not url.strip():
+        member = matches[0]
+        fields = ('original_profile_image_url', 'full_profile_image_url', 'profile_image_url')
+        addresses = {field: member.get(field) for field in fields}
+        uid = str(member.get('user_id') or member.get('id') or '')
+        # The members API normally exposes only the thumbnail. Ask the same
+        # room's OpenChat record for optional high-resolution columns. Older
+        # schemas may lack one or both columns; never query friends or /user.
+        if uid.isdecimal():
+            for field in fields[:2]:
+                if addresses[field]:
+                    continue
+                try:
+                    result = self.post(base + '/query', json={
+                        'query': f'SELECT m.user_id, m.nickname, m.{field}, m.enc FROM db2.open_chat_member m JOIN db1.chat_rooms c ON c.link_id = m.link_id WHERE c.id = ? AND m.user_id = ? ORDER BY m._id DESC LIMIT 1',
+                        'bind': [ROOM_ID, uid]}, timeout=(2, 3))
+                    result.raise_for_status()
+                    document = result.json()
+                    rows = document.get('data') if isinstance(document, dict) and not document.get('error') else None
+                    if isinstance(rows, list) and len(rows) == 1 and isinstance(rows[0], dict):
+                        row = rows[0]
+                        if str(row.get('user_id')) == uid and nickname(row.get('nickname')) == nickname(name):
+                            addresses[field] = row.get(field)
+                except (requests.RequestException, ValueError, TypeError):
+                    pass
+        candidates = []
+        for field in fields:
+            url = addresses[field]
+            if not isinstance(url, str) or not url.strip():
+                continue
+            try:
+                url = checked_url(url.strip())
+            except ProfileError:
+                continue
+            if url not in candidates:
+                candidates.append(url)
+        if not candidates:
             raise ProfileError('해당 참가자의 프로필 사진이 없거나 사진 주소를 조회할 수 없습니다.')
-        return checked_url(url.strip())
+        return candidates
+
+    def photo_url(self, name, reply_url):
+        return self.photo_candidates(name, reply_url)[0]
+
+    def photo(self, name, reply_url):
+        for url in self.photo_candidates(name, reply_url):
+            try:
+                return self.download(url)
+            except (requests.RequestException, ProfileError):
+                continue
+        raise ProfileError('원본·큰 사진·기본 사진을 모두 다운로드하지 못했습니다.')
 
     def download(self, url):
         for _ in range(4):
@@ -144,8 +189,7 @@ def handle(message, room, reply_url, executor):
 
     def send():
         try:
-            url = SERVICE.photo_url(name, reply_url)
-            data = SERVICE.download(url)
+            data = SERVICE.photo(name, reply_url)
             SERVICE.post(reply_url, json={'type': 'image', 'room': ROOM_ID,
                          'data': base64.b64encode(data).decode('ascii')}, timeout=20).raise_for_status()
         except ProfileError as error:

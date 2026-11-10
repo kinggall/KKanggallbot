@@ -31,7 +31,7 @@ class ProfileTests(unittest.TestCase):
         s=self.service([{'user_id':'1','nickname':'테스트 닉','profile_image_url':URL}])
         self.assertEqual(s.photo_url('테스트  닉','http://127.0.0.1:3000/reply'),URL)
         self.assertIn('/room/'+profiles.ROOM_ID+'/members',s.get.call_args.args[0])
-        s.post.assert_not_called()
+        self.assertTrue(all(c.kwargs['json']['bind']==[profiles.ROOM_ID,'1'] for c in s.post.call_args_list))
 
     def test_duplicate_nickname_is_not_arbitrarily_chosen(self):
         s=self.service([{'user_id':str(i),'nickname':'동명','profile_image_url':URL} for i in (1,2)])
@@ -55,7 +55,7 @@ class ProfileTests(unittest.TestCase):
         s=self.service([]);s.get.return_value.status_code=404
         s.post.return_value.json.return_value={'data':[{'user_id':'1','nickname':'닉','profile_image_url':URL}]}
         self.assertEqual(s.photo_url('닉','http://local/reply'),URL)
-        body=s.post.call_args.kwargs['json']
+        body=s.post.call_args_list[0].kwargs['json']
         self.assertEqual(body['bind'],[profiles.ROOM_ID])
         self.assertIn('c.id = ?',body['query'])
         self.assertIn('c.link_id = m.link_id',body['query'])
@@ -94,7 +94,7 @@ class ProfileTests(unittest.TestCase):
             self.assertIn('사용법',s.post.call_args.kwargs['json']['data'])
 
     def test_sends_base64_photo_and_throttles(self):
-        s=self.service([]);s.photo_url=Mock(return_value=URL);s.download=Mock(return_value=PHOTO)
+        s=self.service([]);s.photo=Mock(return_value=PHOTO)
         with patch.object(profiles,'SERVICE',s):
             profiles.handle('!프사 닉',profiles.ROOM_ID,'http://local/reply',Inline())
             body=s.post.call_args.kwargs['json']
@@ -103,13 +103,53 @@ class ProfileTests(unittest.TestCase):
             self.assertEqual(body['room'],profiles.ROOM_ID)
             profiles.handle('!프사 닉',profiles.ROOM_ID,'http://local/reply',Inline())
             self.assertIn('5초',s.post.call_args.kwargs['json']['data'])
-            self.assertEqual(s.download.call_count,1)
+            self.assertEqual(s.photo.call_count,1)
 
     def test_download_failure_is_sanitized(self):
-        s=self.service([]);s.photo_url=Mock(side_effect=requests.RequestException('private-url-secret'))
+        s=self.service([]);s.photo=Mock(side_effect=requests.RequestException('private-url-secret'))
         with patch.object(profiles,'SERVICE',s):
             profiles.handle('!프사 닉',profiles.ROOM_ID,'http://local/reply',Inline())
         self.assertNotIn('private-url-secret',s.post.call_args.kwargs['json']['data'])
+
+    def test_original_then_full_then_thumbnail(self):
+        original='https://k.kakaocdn.net/original.png'
+        full='https://k.kakaocdn.net/full.png'
+        s=self.service([{'user_id':'1','nickname':'닉','profile_image_url':URL,
+                        'original_profile_image_url':original,'full_profile_image_url':full}])
+        self.assertEqual(s.photo_candidates('닉','http://local/reply'),[original,full,URL])
+        s.post.assert_not_called()
+        s.download=Mock(return_value=PHOTO)
+        self.assertEqual(s.photo('닉','http://local/reply'),PHOTO)
+        s.download.assert_called_once_with(original)
+
+    def test_high_resolution_query_checks_room_user_and_nickname(self):
+        s=self.service([{'user_id':'42','nickname':'닉','profile_image_url':URL}])
+        original='https://k.kakaocdn.net/original.png'
+        good=response();good.json.return_value={'data':[{'user_id':'42','nickname':'닉','original_profile_image_url':original}]}
+        missing=response();missing.json.return_value={'error':'no such column'}
+        s.post.side_effect=[good,missing]
+        self.assertEqual(s.photo_candidates('닉','http://local/reply'),[original,URL])
+        for call in s.post.call_args_list:
+            self.assertEqual(call.kwargs['json']['bind'],[profiles.ROOM_ID,'42'])
+            self.assertIn('m.user_id = ?',call.kwargs['json']['query'])
+        s.post.side_effect=None
+        good.json.return_value={'data':[{'user_id':'99','nickname':'닉','original_profile_image_url':original}]}
+        s.post.return_value=good
+        self.assertEqual(s.photo_candidates('닉','http://local/reply'),[URL])
+
+    def test_large_download_failure_falls_back_without_resize(self):
+        s=self.service([])
+        original='https://k.kakaocdn.net/original.png'
+        full='https://k.kakaocdn.net/full.png'
+        s.photo_candidates=Mock(return_value=[original,full,URL])
+        s.download=Mock(side_effect=[requests.HTTPError(),PHOTO])
+        self.assertEqual(s.photo('닉','http://local/reply'),PHOTO)
+        self.assertEqual([c.args[0] for c in s.download.call_args_list],[original,full])
+
+    def test_optional_columns_unavailable_keeps_working_thumbnail(self):
+        s=self.service([{'user_id':'1','nickname':'닉','profile_image_url':URL}])
+        s.post.side_effect=requests.Timeout()
+        self.assertEqual(s.photo_candidates('닉','http://local/reply'),[URL])
 
     def test_webhook_routes_profiles_with_numeric_room(self):
         import bot

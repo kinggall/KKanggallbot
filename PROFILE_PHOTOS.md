@@ -4,6 +4,9 @@
 메인 도움말·초성 명령어에는 추가하지 않는다.
 
 - Iris `/room/{id}/members`의 nickname/profile_image_url로 조회한다.
+- 사진은 original_profile_image_url → full_profile_image_url → profile_image_url 순으로 시도한다.
+- members 응답에 큰 주소가 없으면 같은 방·같은 사용자 ID의 open_chat_member만 추가 조회한다.
+- 구버전 DB에 큰 사진 컬럼이 없거나 다운로드 실패하면 기존 사진 전송을 유지한다. 단순 확대는 하지 않는다.
 - 구버전에서 404면 `/query`로 이 방의 link_id에 연결된 open_chat_member만 조회한다.
 - 일반 친구·개인 프로필(`/user`, friends)로 대체하지 않는다.
 - 동명이인은 선택하지 않고 안내한다. 조회 목록에 없으면 정확한 닉네임 확인을 안내한다.
