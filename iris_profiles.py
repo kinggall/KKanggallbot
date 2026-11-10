@@ -85,6 +85,17 @@ class ProfileService:
             unique.setdefault(key, row)
         matches = [r for r in unique.values() if nickname(r.get('nickname') or r.get('name')) == nickname(name)]
         if not matches:
+            candidates = []
+            for row in unique.values():
+                full_name = row.get('nickname') or row.get('name')
+                if isinstance(full_name, str) and nickname(name) in nickname(full_name) and full_name not in candidates:
+                    candidates.append(full_name)
+            if candidates:
+                lines = ['[닉네임 검색]', '', *('!프사 ' + full_name for full_name in candidates[:20])]
+                if len(candidates) > 20:
+                    lines += ['', '검색 결과가 많습니다. 닉네임을 더 길게 입력해 주세요.']
+                lines += ['', '위 명령어를 복사해 다시 입력해 주세요.']
+                raise ProfileError('\n'.join(lines))
             raise ProfileError('해당 닉네임을 조회된 방 참가자 목록에서 찾지 못했습니다. 정확한 닉네임을 입력해 주세요.')
         if len(matches) != 1:
             raise ProfileError('같은 닉네임의 참가자가 여러 명이라 사진을 선택할 수 없습니다.')

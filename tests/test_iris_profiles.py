@@ -37,6 +37,31 @@ class ProfileTests(unittest.TestCase):
         s=self.service([{'user_id':str(i),'nickname':'동명','profile_image_url':URL} for i in (1,2)])
         with self.assertRaises(profiles.ProfileError):s.photo_url('동명','http://local/reply')
 
+    def test_partial_name_suggests_copyable_commands_with_special_characters(self):
+        s=self.service([{'user_id':'1','nickname':'🍬사탕주며따라가요☆','profile_image_url':URL},
+                        {'user_id':'2','nickname':'사탕 좋아','profile_image_url':URL}])
+        with self.assertRaises(profiles.ProfileError) as caught:
+            s.photo_candidates('사탕','http://local/reply')
+        self.assertIn('!프사 🍬사탕주며따라가요☆',str(caught.exception))
+        self.assertIn('!프사 사탕 좋아',str(caught.exception))
+        s.post.assert_not_called()
+
+    def test_one_partial_candidate_still_suggests_instead_of_sending(self):
+        s=self.service([{'user_id':'1','nickname':'사탕주며따라가요','profile_image_url':URL}])
+        with self.assertRaises(profiles.ProfileError) as caught:s.photo_url('사탕','http://local/reply')
+        self.assertIn('!프사 사탕주며따라가요',str(caught.exception))
+
+    def test_exact_match_takes_precedence_over_partial_names(self):
+        s=self.service([{'user_id':'1','nickname':'사탕','profile_image_url':URL},
+                        {'user_id':'2','nickname':'사탕주며따라가요','profile_image_url':URL}])
+        self.assertEqual(s.photo_url('사탕','http://local/reply'),URL)
+
+    def test_partial_suggestions_are_bounded(self):
+        s=self.service([{'user_id':str(i),'nickname':'사탕'+str(i),'profile_image_url':URL} for i in range(25)])
+        with self.assertRaises(profiles.ProfileError) as caught:s.photo_url('사탕','http://local/reply')
+        self.assertEqual(str(caught.exception).count('!프사 '),20)
+        self.assertIn('더 길게',str(caught.exception))
+
     def test_latest_record_per_user(self):
         s=self.service([{'user_id':'1','nickname':'새닉','profile_image_url':URL},
                         {'user_id':'1','nickname':'옛닉','profile_image_url':URL}])
