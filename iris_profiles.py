@@ -91,10 +91,10 @@ class ProfileService:
                 if isinstance(full_name, str) and nickname(name) in nickname(full_name) and full_name not in candidates:
                     candidates.append(full_name)
             if candidates:
-                lines = ['[닉네임 검색]', '', *('!프사 ' + full_name for full_name in candidates[:20])]
+                lines = ['[닉네임 검색]', '아래 명령어를 복사해 다시 입력해 주세요.']
                 if len(candidates) > 20:
-                    lines += ['', '검색 결과가 많습니다. 닉네임을 더 길게 입력해 주세요.']
-                lines += ['', '위 명령어를 복사해 다시 입력해 주세요.']
+                    lines += ['검색 결과가 많습니다. 닉네임을 더 길게 입력해 주세요.']
+                lines += ['', *('!프사 ' + full_name for full_name in candidates[:20])]
                 raise ProfileError('\n'.join(lines))
             raise ProfileError('해당 닉네임을 조회된 방 참가자 목록에서 찾지 못했습니다. 정확한 닉네임을 입력해 주세요.')
         if len(matches) != 1:
