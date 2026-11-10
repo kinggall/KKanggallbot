@@ -40,7 +40,7 @@ INVESTMENT_HELP = (
     "━━━━ 보유 · 평가 ━━━━\n"
     "!보유 — 보유 종목 목록\n"
     "!보유 [종목명/티커] — 평균 매입가·수익률·현재가\n\n"
-    "!주말출근 — 총투자손실 기준 주말출근 횟수\n\n"
+    "!주말출근 — 현재가 기준 추정 주말출근 연수\n\n"
     "━━━━ 실현 · 손익 ━━━━\n"
     "!실현 — 실현 종목 목록\n"
     "!실현 [종목명/티커] — 실현 수익률\n\n"
@@ -72,7 +72,8 @@ def handle(message, chat_id, reply_url):
     def send():
         try:
             text = (INVESTMENT_HELP if investment_help else
-                    weekend_work.reply() if weekend else
+                    weekend_work.reply(quote_loader=SERVICE.details,
+                                       fx_loader=lambda: MARKETS.provider.load(GROUPS['환율'][0]).value) if weekend else
                     FLOWS.reply() if flows else
                     MARKETS.reply(market) if market else
                     PORTFOLIO.reply(private.group(1), private.group(2) or '') if private else

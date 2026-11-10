@@ -43,7 +43,7 @@ def overview_profit(html):
     return values.pop()
 
 
-def load_profit():
+def load_overview():
     from scripts.sync_drive_data import Drive, API
     token = os.environ.get('KAKAO_STOCK_DRIVE_TOKEN_FILE')
     default = Path(__file__).resolve().parents[1] / 'cloud' / 'token.json'
@@ -52,7 +52,16 @@ def load_profit():
     drive = Drive(os.environ.get('GOOGLE_DRIVE_FOLDER_ID', ''), token)
     response = drive.call('GET', API + '/' + os.environ.get('KAKAO_STOCK_OVERVIEW_FILE_ID', OVERVIEW_FILE_ID),
                           params={'alt': 'media'})
-    return overview_profit(response.content.decode('utf-8-sig'))
+    return response.content.decode('utf-8-sig')
+
+
+def load_profit():
+    return overview_profit(load_overview())
+
+
+def load_current_profit(quote_loader, fx_loader):
+    from .overview_data import current_profit
+    return current_profit(load_overview(), quote_loader, fx_loader)
 
 
 def render(profit):
@@ -68,8 +77,10 @@ def render(profit):
     return f'✔️ 주말출근: {years}년'
 
 
-def reply(loader=load_profit):
+def reply(loader=None, quote_loader=None, fx_loader=None):
     try:
-        return render(loader())
+        if loader is not None:
+            return render(loader())
+        return render(load_current_profit(quote_loader, fx_loader))
     except Exception:
-        return '총투자수익을 읽지 못했습니다. Domino overview·Drive 연결을 확인해 주세요.'
+        return '현재가 기준 총투자수익을 계산하지 못했습니다. Domino·시세·환율 연결을 확인해 주세요.'
