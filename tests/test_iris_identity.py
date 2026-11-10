@@ -7,6 +7,33 @@ URL='http://127.0.0.1:3000/reply'
 
 
 class IdentityTests(unittest.TestCase):
+    def test_iris_default_sender_uses_current_room_nickname_and_same_player(self):
+        response=Mock()
+        response.json.return_value={'data':[{'user_id':'123','nickname':'OSH','enc':31}]}
+        with patch('iris_identity.requests.post',return_value=response) as post, patch('iris_identity.requests.get') as get:
+            self.assertEqual(identity({'sender':'Iris','json':{'user_id':'123','chat_id':'456'}},URL),('123','OSH'))
+            self.assertEqual(post.call_args.kwargs['json']['bind'],['456','123'])
+            self.assertIn('c.link_id = m.link_id',post.call_args.kwargs['json']['query'])
+            get.assert_not_called()
+
+    def test_real_metadata_name_preferred_to_iris_placeholder(self):
+        with patch('iris_identity.requests.post') as post, patch('iris_identity.requests.get') as get:
+            self.assertEqual(identity({'sender':'Iris','json':{'user_id':'123','sender_name':'OSH'}},URL),('123','OSH'))
+            get.assert_not_called();post.assert_not_called()
+
+    def test_default_iris_from_user_api_does_not_stop_real_name_lookup(self):
+        response=Mock();response.json.return_value={'payload':{'name':'Iris'}}
+        member=Mock();member.json.return_value={'data':[{'nickname':'OSH','enc':31}]}
+        with patch('iris_identity.requests.get',return_value=response),patch('iris_identity.requests.post',return_value=member):
+            self.assertEqual(identity({'sender':'Iris','json':{'user_id':'123'}},URL),('123','OSH'))
+
+    def test_room_lookup_rejects_other_user_and_keeps_stable_id_on_failure(self):
+        response=Mock();response.json.return_value={'data':[{'user_id':'999','nickname':'다른사람'}]}
+        empty=Mock();empty.json.return_value={'data':[]}
+        profile=Mock();profile.json.return_value={'payload':{'name':'Iris'}}
+        with patch('iris_identity.requests.post',side_effect=[response,empty,empty]),patch('iris_identity.requests.get',return_value=profile):
+            self.assertEqual(identity({'sender':'Iris','json':{'user_id':'123','chat_id':'456'}},URL),('123',''))
+
     def test_payload_name_variants_and_stable_id(self):
         for fields in [{'sender':'OSH'}, {'sender':{'nickname':'OSH','id':999}},
                        {'sender':None,'nickname':'OSH'}, {'json':{'user_id':'123','sender_name':'OSH'}}]:
