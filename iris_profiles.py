@@ -49,7 +49,7 @@ class ProfileService:
             now = self.clock()
             if now < self.next_request:
                 return False
-            self.next_request = now + 5
+            self.next_request = now + 3
             return True
 
     def photo_candidates(self, name, reply_url):
@@ -184,7 +184,7 @@ def handle(message, room, reply_url, executor):
         return {'ok': True}, 200
     if not SERVICE.reserve():
         SLOTS.release()
-        text('프로필 사진은 5초 간격으로 조회할 수 있습니다.')
+        text('프로필 사진은 3초 간격으로 조회할 수 있습니다.')
         return {'ok': True}, 200
 
     def send():

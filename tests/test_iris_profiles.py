@@ -102,7 +102,7 @@ class ProfileTests(unittest.TestCase):
             self.assertEqual(base64.b64decode(body['data']),PHOTO)
             self.assertEqual(body['room'],profiles.ROOM_ID)
             profiles.handle('!프사 닉',profiles.ROOM_ID,'http://local/reply',Inline())
-            self.assertIn('5초',s.post.call_args.kwargs['json']['data'])
+            self.assertIn('3초',s.post.call_args.kwargs['json']['data'])
             self.assertEqual(s.photo.call_count,1)
 
     def test_download_failure_is_sanitized(self):
@@ -110,6 +110,15 @@ class ProfileTests(unittest.TestCase):
         with patch.object(profiles,'SERVICE',s):
             profiles.handle('!프사 닉',profiles.ROOM_ID,'http://local/reply',Inline())
         self.assertNotIn('private-url-secret',s.post.call_args.kwargs['json']['data'])
+
+    def test_reserve_allows_exactly_three_seconds(self):
+        tick=[100.0]
+        s=profiles.ProfileService(clock=lambda:tick[0])
+        self.assertTrue(s.reserve())
+        tick[0]=102.99
+        self.assertFalse(s.reserve())
+        tick[0]=103.0
+        self.assertTrue(s.reserve())
 
     def test_original_then_full_then_thumbnail(self):
         original='https://k.kakaocdn.net/original.png'
