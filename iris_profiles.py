@@ -85,6 +85,10 @@ class ProfileService:
             unique.setdefault(key, row)
         matches = [r for r in unique.values() if nickname(r.get('nickname') or r.get('name')) == nickname(name)]
         if not matches:
+            partial = [r for r in unique.values() if nickname(name) in nickname(r.get('nickname') or r.get('name'))]
+            if len(partial) == 1:
+                matches = partial
+        if not matches:
             candidates = []
             for row in unique.values():
                 full_name = row.get('nickname') or row.get('name')
@@ -100,6 +104,7 @@ class ProfileService:
         if len(matches) != 1:
             raise ProfileError('같은 닉네임의 참가자가 여러 명이라 사진을 선택할 수 없습니다.')
         member = matches[0]
+        matched_name = member.get('nickname') or member.get('name')
         fields = ('original_profile_image_url', 'full_profile_image_url', 'profile_image_url')
         addresses = {field: member.get(field) for field in fields}
         uid = str(member.get('user_id') or member.get('id') or '')
@@ -119,7 +124,7 @@ class ProfileService:
                     rows = document.get('data') if isinstance(document, dict) and not document.get('error') else None
                     if isinstance(rows, list) and len(rows) == 1 and isinstance(rows[0], dict):
                         row = rows[0]
-                        if str(row.get('user_id')) == uid and nickname(row.get('nickname')) == nickname(name):
+                        if str(row.get('user_id')) == uid and nickname(row.get('nickname')) == nickname(matched_name):
                             addresses[field] = row.get(field)
                 except (requests.RequestException, ValueError, TypeError):
                     pass

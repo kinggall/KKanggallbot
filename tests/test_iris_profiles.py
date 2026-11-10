@@ -47,10 +47,9 @@ class ProfileTests(unittest.TestCase):
         self.assertEqual(str(caught.exception), '[닉네임 검색]\n아래 명령어를 복사해 다시 입력해 주세요.\n\n!프사 🍬사탕주며따라가요☆\n!프사 사탕 좋아')
         s.post.assert_not_called()
 
-    def test_one_partial_candidate_still_suggests_instead_of_sending(self):
+    def test_one_partial_candidate_selects_photo_directly(self):
         s=self.service([{'user_id':'1','nickname':'사탕주며따라가요','profile_image_url':URL}])
-        with self.assertRaises(profiles.ProfileError) as caught:s.photo_url('사탕','http://local/reply')
-        self.assertIn('!프사 사탕주며따라가요',str(caught.exception))
+        self.assertEqual(s.photo_url('사탕','http://local/reply'),URL)
 
     def test_exact_match_takes_precedence_over_partial_names(self):
         s=self.service([{'user_id':'1','nickname':'사탕','profile_image_url':URL},
