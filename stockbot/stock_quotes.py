@@ -287,10 +287,15 @@ class StockService:
             return USAGE
         with self.lock:
             try:
+                explicit_kr = keyword.startswith('국내 ')
+                if explicit_kr:
+                    keyword = keyword[3:].strip()
+                    if not keyword:
+                        return USAGE
                 explicit_us = re.fullmatch(r'미국\s+([A-Za-z]{1,6}(?:[.\-/][A-Za-z])?)', keyword)
-                if explicit_us:
+                if explicit_us and not explicit_kr:
                     return self._us_reply(us_symbol(explicit_us.group(1)))
-                if normalize(keyword) == '마이크론':
+                if normalize(keyword) == '마이크론' and not explicit_kr:
                     korean = '하나마이크론 (국내)'
                     try:
                         codes = self._catalog().get(normalize('하나마이크론'), set())
@@ -301,6 +306,8 @@ class StockService:
                     return ('여러 종목이 검색됐습니다.\n종목명·티커로 입력해 주세요.\n\n'
                             '· 마이크론 테크놀로지 (MU · 미국)\n· ' + korean)
                 alias = stock_alias(keyword)
+                if explicit_kr and alias and alias[0] == 'US':
+                    alias = None
                 targets = name_targets(keyword)
                 if re.fullmatch(r'[A-Za-z]{1,4}', keyword):
                     try:
@@ -313,10 +320,11 @@ class StockService:
                     for target in targets:
                         domestic.update(catalog.get(normalize(target), set()))
                     symbol = us_symbol(keyword)
-                    if domestic and get_record(symbol):
+                    if domestic and get_record(symbol) and not explicit_kr:
                         lines = ['여러 종목이 검색됐습니다.', '종목명·티커로 입력해 주세요.', '']
                         for code in sorted(domestic)[:10]:
-                            lines += [f'· {self.code_names[code]} ({code} · 국내)', f'  !주가 {code}']
+                            selection = keyword.upper() if len(domestic) == 1 else self.code_names[code]
+                            lines += [f'· {self.code_names[code]} ({code} · 국내)', f'  !주가 국내 {selection}']
                         lines += [f'· {us_display_name(symbol)} ({symbol} · 미국)', f'  !주가 미국 {symbol}']
                         return '\n'.join(lines)
                     if domestic:
@@ -326,7 +334,7 @@ class StockService:
                         alias = ('KR', code, self.code_names[code])
                 literal_us_ticker = bool(re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', keyword)
                                          and get_record(us_symbol(keyword)))
-                if not alias and not targets and not literal_us_ticker:
+                if not alias and not targets and not literal_us_ticker and not explicit_kr:
                     matches = find_names(keyword, exact_only=True)
                     if len(matches) > 1:
                         return self._us_candidate_reply(matches)
@@ -368,7 +376,7 @@ class StockService:
                             alias = ('KR', code, self.code_names[code])
                 if alias and alias[0] == 'US':
                     keyword = alias[1]
-                if not (alias and alias[0] == 'KR') and re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', keyword):
+                if not explicit_kr and not (alias and alias[0] == 'KR') and re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', keyword):
                     return self._us_reply(us_symbol(keyword))
                 if alias and alias[0] == 'KR':
                     code, name = alias[1], alias[2]
@@ -384,6 +392,8 @@ class StockService:
                     if not found:
                         found = {c for n, codes in catalog.items() if query in n for c in codes}
                     if not found:
+                        if explicit_kr:
+                            return '일치하는 국내 종목을 찾지 못했습니다.\n국내 종목명·티커로 입력해 주세요.'
                         matches = find_names(keyword)
                         if len(matches) == 1:
                             return self._us_reply(matches[0])

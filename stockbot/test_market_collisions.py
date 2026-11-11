@@ -23,6 +23,7 @@ class MarketCollisionTests(unittest.TestCase):
                 self.assertIn('NC · 미국',text)
                 self.assertIn('NACCO',text)
                 self.assertIn('!주가 미국 NC',text)
+                self.assertIn('!주가 국내 NC',text)
             us.assert_not_called();kr.assert_not_called()
 
     def test_one_through_four_english_letters_are_checked(self):
@@ -46,6 +47,15 @@ class MarketCollisionTests(unittest.TestCase):
         self.assertIn('✔️ 현재가:',service.reply('036570'))
         kr.assert_called_once_with('036570')
 
+    def test_explicit_domestic_name_or_alias_does_not_call_us(self):
+        for keyword in ('국내 nc','국내 NC','국내 엔씨소프트','국내 036570'):
+            service,us,kr=self.service({'엔씨소프트':'KRX:036570'})
+            self.assertIn('✔️ 현재가:',service.reply(keyword))
+            kr.assert_called_once_with('036570');us.assert_not_called()
+        service,us,kr=self.service({})
+        self.assertIn('국내 종목을 찾지 못했습니다',service.reply('국내 AAPL'))
+        us.assert_not_called();kr.assert_not_called()
+
     def test_no_domestic_collision_keeps_us_and_etf_partial_is_not_collision(self):
         service,us,kr=self.service({'SOL 글로벌DRAM반도체플러스':'KRX:0246X0'})
         self.assertIn('✔️ 현재가:',service.reply('DRAM'))
@@ -62,3 +72,12 @@ class MarketCollisionTests(unittest.TestCase):
         self.assertIn('✔️ 현재가:',service.reply('미국 NC'))
         service.codes_loader.assert_not_called()
         self.assertIn('✔️ 현재가:',service.reply('AAPL'))
+
+    def test_collision_counter_uses_listing_and_registered_aliases(self):
+        from .verify_market_collisions import collisions
+        service,us,kr=self.service({'nc':'KRX:036570','엔씨소프트':'KRX:036570','KB금융':'KRX:105560',
+                                    'GS':'KRX:078930','HLB':'KOSDAQ:028300'})
+        rows=collisions(service)
+        self.assertEqual({r[0] for r in rows},{'NC','KB','GS'})
+        self.assertEqual(len(next(r[1] for r in rows if r[0]=='NC')),1)
+        us.assert_not_called();kr.assert_not_called()
