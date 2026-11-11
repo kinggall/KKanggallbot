@@ -124,13 +124,13 @@ class QuoteExtensionTests(unittest.TestCase):
     def test_us_ticker_precedes_domestic_partial_search_and_caches(self):
         output = {'exchange':'AMS','rsym':'DAMSDRAM','curr':'USD','last':'20.12','base':'20','tvol':'5','tamt':'100.6'}
         loader = Mock(return_value=output)
-        catalog = Mock(side_effect=AssertionError('no domestic lookup'))
+        catalog = Mock(return_value={'SOL 글로벌DRAM반도체플러스':'KRX:0246X0'})
         s = stock_quotes.StockService(codes_loader=catalog, us_loader=loader)
         first = s.reply('DRAM')
         self.assertIn('20.12 USD', first)
         self.assertIn('DRAM', first)
         self.assertEqual(s.reply('dram'), first)
-        loader.assert_called_once_with('DRAM'); catalog.assert_not_called()
+        loader.assert_called_once_with('DRAM'); catalog.assert_called_once()
 
     def test_overseas_endpoint_uses_domino_allowed_path_and_validates_symbol(self):
         spec = '/uapi/overseas-price/v1/quotations/price-detail'

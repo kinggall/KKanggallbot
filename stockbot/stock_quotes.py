@@ -287,6 +287,9 @@ class StockService:
             return USAGE
         with self.lock:
             try:
+                explicit_us = re.fullmatch(r'미국\s+([A-Za-z]{1,6}(?:[.\-/][A-Za-z])?)', keyword)
+                if explicit_us:
+                    return self._us_reply(us_symbol(explicit_us.group(1)))
                 if normalize(keyword) == '마이크론':
                     korean = '하나마이크론 (국내)'
                     try:
@@ -299,6 +302,28 @@ class StockService:
                             '· 마이크론 테크놀로지 (MU · 미국)\n· ' + korean)
                 alias = stock_alias(keyword)
                 targets = name_targets(keyword)
+                if re.fullmatch(r'[A-Za-z]{1,4}', keyword):
+                    try:
+                        catalog = self._catalog()
+                    except Exception:
+                        # A listing-service outage must not break an otherwise
+                        # valid US quote; retain any already loaded KR names.
+                        catalog = self.codes
+                    domestic = set(catalog.get(normalize(keyword), set()))
+                    for target in targets:
+                        domestic.update(catalog.get(normalize(target), set()))
+                    symbol = us_symbol(keyword)
+                    if domestic and get_record(symbol):
+                        lines = ['여러 종목이 검색됐습니다.', '종목명·티커로 입력해 주세요.', '']
+                        for code in sorted(domestic)[:10]:
+                            lines += [f'· {self.code_names[code]} ({code} · 국내)', f'  !주가 {code}']
+                        lines += [f'· {us_display_name(symbol)} ({symbol} · 미국)', f'  !주가 미국 {symbol}']
+                        return '\n'.join(lines)
+                    if domestic:
+                        if len(domestic) > 1:
+                            return self._candidate_reply(domestic)
+                        code = next(iter(domestic))
+                        alias = ('KR', code, self.code_names[code])
                 literal_us_ticker = bool(re.fullmatch(r'[A-Za-z]{1,6}(?:[.\-/][A-Za-z])?', keyword)
                                          and get_record(us_symbol(keyword)))
                 if not alias and not targets and not literal_us_ticker:

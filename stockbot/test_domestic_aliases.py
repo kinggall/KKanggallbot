@@ -1,8 +1,10 @@
 import unittest
+import re
 from unittest.mock import Mock
 
 from stockbot.aliases import DOMESTIC_GROUPS
 from stockbot.stock_quotes import StockService
+from stockbot.us_catalog import get_record
 
 
 def output(code):
@@ -21,6 +23,10 @@ class DomesticNicknameTests(unittest.TestCase):
             for alias in aliases:
                 with self.subTest(alias=alias):
                     service, quote, us = self.service({targets[0]:'KRX:000001'})
+                    if re.fullmatch('[A-Za-z]{1,4}',alias) and get_record(alias.upper()):
+                        self.assertIn('여러 종목',service.reply(alias))
+                        quote.assert_not_called();us.assert_not_called()
+                        continue
                     self.assertIn('✔️ 현재가:', service.reply(alias))
                     quote.assert_called_once_with('000001'); us.assert_not_called()
 
