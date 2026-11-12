@@ -230,14 +230,14 @@ class ProfileTests(unittest.TestCase):
         s.get.side_effect=[response([member]),config]
         db=response();db.json.return_value={'data':[member]};s.post.return_value=db
         self.assertEqual(s.photo_url('깡갤봇','http://local/reply','222'),URL)
-        self.assertEqual(s.post.call_args.kwargs['json']['bind'],['222'])
+        self.assertEqual(s.post.call_args.kwargs['json']['bind'],['222','42'])
 
     def test_missing_self_record_is_not_replaced_by_personal_or_other_room_profile(self):
         s=self.service([])
         config=response();config.json.return_value={'bot_name':'깡갤봇','bot_id':42}
         s.get.side_effect=[response([]),config]
         empty=response();empty.json.return_value={'data':[]};s.post.return_value=empty
-        with self.assertRaisesRegex(profiles.ProfileError,'봇 오픈채팅 프로필'):
+        with self.assertRaisesRegex(profiles.ProfileError,'선택된 봇 프로필'):
             s.photo_url('깡갤봇','http://local/reply','222')
         self.assertEqual(s.post.call_args.kwargs['json']['bind'],['222','42'])
         for call in s.post.call_args_list:
@@ -251,8 +251,8 @@ class ProfileTests(unittest.TestCase):
         s.get.side_effect=[response([]),config]
         empty=response();empty.json.return_value={'data':[]}
         wrong=response();wrong.json.return_value={'data':[{'user_id':'99','nickname':'다른 사람','profile_image_url':URL}]}
-        s.post.side_effect=[empty,wrong]
-        with self.assertRaisesRegex(profiles.ProfileError,'봇 오픈채팅 프로필'):
+        s.post.side_effect=[empty,wrong,wrong]
+        with self.assertRaisesRegex(profiles.ProfileError,'선택된 봇 프로필'):
             s.photo_url('깡갤봇','http://local/reply')
 
     def test_exact_other_member_name_is_not_overridden_by_bot_label(self):
@@ -285,6 +285,7 @@ class ProfileTests(unittest.TestCase):
         output=io.StringIO()
         with patch('sys.argv',['verify_room_profile','--room',profiles.ROOM_ID]), \
                 patch.object(verify_room_profile.requests,'get',return_value=config), \
+                patch.object(verify_room_profile.ProfileService,'room_bot_profile',return_value=None), \
                 patch.object(verify_room_profile.ProfileService,'room_rows',return_value=rows),redirect_stdout(output):
             verify_room_profile.main()
         text=output.getvalue()

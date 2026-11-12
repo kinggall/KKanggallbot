@@ -1,4 +1,4 @@
-"""Room-scoped OpenChat profile photos; no general user/friend lookup or disk cache."""
+"""Room-selected photos for members and the bot; no unscoped lookup or disk cache."""
 import base64
 import re
 import threading
@@ -74,6 +74,34 @@ class ProfileService:
             raise ProfileError('이 방의 참가자 정보를 조회하지 못했습니다.')
         return rows
 
+    def room_bot_profile(self, base, room, uid):
+        """The logged-in account's selected profile, linked to this room only.
+
+        open_profile has no enc/_id columns. Its actual full/original field
+        names differ from open_chat_member (confirmed on the user's device).
+        """
+        response = self.post(base + '/query', json={
+            'query': ('SELECT c.id AS room_id, p.user_id, p.nickname, p.profile_type, p.link_member_type, '
+                      'p.profile_image_url, p.f_profile_image_url AS full_profile_image_url, '
+                      'p.o_profile_image_url AS original_profile_image_url '
+                      'FROM db2.open_profile p JOIN db1.chat_rooms c ON c.link_id = p.link_id '
+                      'WHERE c.id = ? AND p.user_id = ?'),
+            'bind': [str(room), str(uid)]}, timeout=(2, 5))
+        response.raise_for_status()
+        document = response.json()
+        if not isinstance(document, dict) or document.get('error'):
+            return None  # Older schema: keep the existing member lookup.
+        rows = document.get('data')
+        if not isinstance(rows, list):
+            return None
+        verified = [r for r in rows if isinstance(r, dict)
+                    and str(r.get('room_id')) == str(room) and str(r.get('user_id')) == str(uid)]
+        if len(verified) > 1:
+            raise ProfileError('이 방에 선택된 봇 프로필이 여러 개라 사진을 선택할 수 없습니다.')
+        if not verified:
+            return None
+        return {**verified[0], '_profile_source': 'open_profile'}
+
     def bot_member(self, name, base, room, members):
         """Configured bot label is an alias only for this room's proven self ID."""
         try:
@@ -83,10 +111,23 @@ class ProfileService:
             if isinstance(document, dict) and document.get('error'):
                 return None
             config = document.get('payload', document) if isinstance(document, dict) else None
-            if not isinstance(config, dict) or nickname(config.get('bot_name')) != nickname(name):
+            if not isinstance(config, dict):
                 return None
             uid = str(config.get('bot_id', ''))
             if not uid.isdecimal() or int(uid) == 0:
+                return None
+            requested_alias = nickname(config.get('bot_name')) == nickname(name)
+            try:
+                selected = self.room_bot_profile(base, room, uid)
+            except ProfileError:
+                if requested_alias:
+                    raise
+                return None
+            except requests.RequestException:
+                selected = None
+            if selected is not None:
+                return selected if requested_alias or nickname(selected.get('nickname')) == nickname(name) else None
+            if not requested_alias:
                 return None
             own = next((m for m in members if str(m.get('user_id') or m.get('id')) == uid), None)
             if own is None:
@@ -94,7 +135,7 @@ class ProfileService:
                 own = next((m for m in rows if isinstance(m, dict) and str(m.get('user_id')) == uid), None)
             if own and nickname(own.get('nickname') or own.get('name')):
                 return own
-            raise ProfileError('이 방의 봇 오픈채팅 프로필을 Iris 참가자 정보에서 확인하지 못했습니다.')
+            raise ProfileError('이 방에 선택된 봇 프로필을 Iris에서 확인하지 못했습니다.')
         except (requests.RequestException, TypeError, ValueError) as error:
             if isinstance(error, ProfileError):
                 raise
@@ -165,7 +206,7 @@ class ProfileService:
         # The members API normally exposes only the thumbnail. Ask the same
         # room's OpenChat record for optional high-resolution columns. Older
         # schemas may lack one or both columns; never query friends or /user.
-        if uid.isdecimal():
+        if uid.isdecimal() and member.get('_profile_source') != 'open_profile':
             for field in fields[:2]:
                 if addresses[field]:
                     continue

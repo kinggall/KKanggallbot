@@ -19,6 +19,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--room', choices=sorted(ROOM_IDS), help='Default: all three permitted rooms')
     parser.add_argument('--name', default='깡갤봇')
+    parser.add_argument('--show-self-name', action='store_true', help="Print only the bot's selected room nickname")
     args = parser.parse_args()
     response = requests.get(BASE + '/config', timeout=(2, 5))
     response.raise_for_status()
@@ -43,10 +44,19 @@ def main():
             print('Member identities:', len(unique))
             print('Exact nickname matches:', matches)
             print('Bot present in this room:', own is not None)
+            selected = service.room_bot_profile(BASE, room, uid) if uid.isdecimal() and int(uid) > 0 else None
+            print('Selected bot room profile found:', selected is not None)
+            if selected is not None:
+                print('Selected profile type:', selected.get('profile_type'))
+                print('Selected profile nickname matches request:', nickname(selected.get('nickname')) == nickname(args.name))
+                print('Selected profile photo present:', any(selected.get(field) for field in
+                      ('profile_image_url', 'full_profile_image_url', 'original_profile_image_url')))
+                if args.show_self_name:
+                    print('Selected bot room nickname:', ' '.join(str(selected.get('nickname') or '(미확인)').split())[:100])
             if own:
                 print('Bot room nickname matches requested name:', nickname(own.get('nickname')) == nickname(args.name))
                 print('Bot room photo present:', bool(own.get('profile_image_url')))
-            else:
+            elif selected is None:
                 missing_self = True
         except (requests.RequestException, ValueError, TypeError) as error:
             print('Room lookup failed:', type(error).__name__)
