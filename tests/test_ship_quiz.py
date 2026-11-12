@@ -51,7 +51,7 @@ class QuizTests(unittest.TestCase):
             self.assertEqual(len(question['stats']),2)
             self.assertIsInstance(question['equipment'],list)
             self.assertIsInstance(question['helpers'],list)
-            self.assertTrue(set(question['stats']) <= {'화력','뇌장','대공','장갑'})
+            self.assertTrue(set(question['stats']) <= {'화력','뇌장','대공','장갑','운','내구'})
             self.assertTrue(all(v>0 for v in question['stats'].values()))
             self.assertGreater(question['hp'],0)
             self.assertIn(question['speed'],('저속','고속','고속+','최속','육상'))
@@ -83,6 +83,8 @@ class QuizTests(unittest.TestCase):
         self.assertIn('💡 초기 장비:',first)
 
     def test_speed_and_hp_use_base_data_not_equipment_or_marriage(self):
+        self.assertEqual(self.catalog.details[656]['stats']['운'],63)
+        self.assertEqual(self.catalog.details[656]['stats']['내구'],35)
         self.assertEqual(self.catalog.details[656]['hp'],35)
         self.assertEqual(self.catalog.details[656]['speed'],'고속')
         self.assertEqual(self.catalog.details[131]['speed'],'저속')
