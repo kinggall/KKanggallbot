@@ -52,7 +52,7 @@ class EquipmentTests(unittest.TestCase):
             counts[capacity] += 1
             with self.subTest(item_id=item_id):
                 self.assertIn(f"보키 {values['配置コスト'] * capacity}", self.catalog.describe(item_id))
-        self.assertEqual(counts, {4: 37, 9: 2, 18: 224})
+        self.assertEqual(counts, {4: 37, 9: 2, 18: 225})
 
     def test_unknown_deployment_category_does_not_guess_bauxite(self):
         with patch.dict(self.catalog.items[169]["values"], {"装備種3": 999}):
@@ -150,10 +150,10 @@ class EquipmentTests(unittest.TestCase):
         self.assertEqual(self.catalog.search("35.6연장개3"), [502, 530])
         self.assertIn("검색 결과", self.catalog.reply("35.6연장개3"))
 
-    def test_all_584_normal_items_use_csv_values_and_remain_searchable(self):
+    def test_all_585_normal_items_use_csv_values_and_remain_searchable(self):
         with (ROOT / "equipments.csv").open(encoding="cp932", newline="") as file:
             rows = [r for r in csv.DictReader(file) if 0 < int(r["装備ID"]) < 1500]
-        self.assertEqual(len(rows), 584)
+        self.assertEqual(len(rows), 585)
         self.assertEqual({int(r["装備ID"]) for r in rows}, set(self.catalog.items))
         for row in rows:
             item_id = int(row["装備ID"])

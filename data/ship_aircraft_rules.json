@@ -2,7 +2,7 @@
   "schema_version": 1,
   "source_url": "https://github.com/kcwiki/kancolle-data/blob/7b92cdb8e4601fdec45ddd00489c7c6da9fa346d/api/api_start2.json",
   "source_revision": "7b92cdb8e4601fdec45ddd00489c7c6da9fa346d",
-  "csv_sha256": "f141ff8ad57f7a0c0aed1ed25a7ca317dac295cdabe280a1af7ace34d629b629",
+  "csv_sha256": "7e9f280405619afbb27dad313cb5ffe3dd0b6c0654e094f3543065f2800bd868",
   "verified_csv_forms": 866,
   "aircraft_categories": {
     "6": "艦上戦闘機",

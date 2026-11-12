@@ -1,0 +1,4 @@
+# EO CSV exports use CP932 and CRLF; preserve source bytes and accept CRLF.
+/equipments.csv -text whitespace=cr-at-eol
+/ships.csv -text whitespace=cr-at-eol
+/data/observer_source/ships.csv -text whitespace=cr-at-eol

@@ -98,10 +98,10 @@ def extract(html, root=ROOT):
     expected = json.loads((root/'data/new_quest_review.json').read_text(encoding='utf-8'))
     ship_ids = {}
     with (root/'ships.csv').open(encoding='cp932', newline='') as stream:
-        reader = csv.reader(stream)
+        reader = csv.DictReader(stream)
         for row in reader:
-            if row and row[0].isdigit():
-                ship_ids[row[4]] = int(row[0])
+            if row.get('艦船ID', '').isdigit():
+                ship_ids[row['艦名']] = int(row['艦船ID'])
     result = []
     for code, (title, ko, pool, count, flagship) in SPECS.items():
         cells = rows[code]
