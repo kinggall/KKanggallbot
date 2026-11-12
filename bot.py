@@ -22,6 +22,7 @@ import remodel_materials
 import kanlog_drops
 import expeditions
 import quests
+import maintenance
 import experience
 import ship_quiz
 import iris_identity
@@ -1489,10 +1490,6 @@ COMMANDS = {
         "2PACX-1vQTE6zVuatTYjaQosoy_wlxLgaCj_QK5SBgODuZEQEvT_fINDhGpeGrqPg72KqZDJ0JnYmjQZCZ5Z5e/pub"
     ),
 
-    "!멘테": (
-        "https://gall.dcinside.com/board/view/?id=kancolle_new1&no=979074"
-    ),
-
     "!월간원정": (
         "https://docs.google.com/spreadsheets/d/e/"
         "2PACX-1vQrecPNerTyhxYFnL5hBh4ehbfetRkyD1twDM5jyJOp5ZQ6vW9fOTrJIdcg_HQmIHubay2ad-PbhB6g/pubhtml"
@@ -1928,6 +1925,15 @@ def webhook():
             timeout=10,
         )
         print(f"[좋은 아침 답변] 상태 코드={response.status_code}")
+        return jsonify({"ok": True})
+
+    if message == "!멘테":
+        response = requests.post(
+            IRIS_REPLY_URL,
+            json={"type": "text", "room": str(chat_id), "data": maintenance.reply()},
+            timeout=10,
+        )
+        response.raise_for_status()
         return jsonify({"ok": True})
 
     if message in COMMANDS or message in ("!도움", "!명령어", "!명령"):
