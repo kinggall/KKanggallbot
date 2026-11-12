@@ -148,36 +148,30 @@ class QuizCatalog:
         pool = [q for q in self.questions if q['family'] not in recent] or self.questions
         families = sorted({q['family'] for q in pool})
         family = random.choice(families)
-        question = dict(random.choice([q for q in pool if q['family'] == family]))
-        choices = [('운',question['luck']),('내구',question['hp'])]
-        if question.get('speed'):
-            choices.append(('속력',question['speed']))
-        question['extra'] = random.choice(choices)
-        return question
+        return dict(random.choice([q for q in pool if q['family'] == family]))
 
 
 def render(active):
     q = active['question']
-    label, value = q.get('extra', ('운',q['luck']))
     nation = '일본' if q['nation'] == '일본' else '해외'
     lines = [f"[칸무스 퀴즈 · {active['number']}/{active.get('limit',10)}]", '',
              f"· 함종: {q['kind']} / 국적: {nation}",
-             f"· ({q['stage']}) " + ' / '.join(f'{k}: {v}' for k,v in q['stats'].items()),
-             f"· {label}: {value} (Lv 99 기준)"]
+             f"· 개장: {q['stage']}"]
+    equipment = ' / '.join(q['equipment'])
+    if q.get('equipment_unknown'):
+        equipment += ' / 일부 미확인' if equipment else '미확인'
+    lines += ['', '💡 초기 장비: ' + (equipment or '없음')]
     wrong = active['wrong']
     if wrong >= 3:
-        equipment = ' / '.join(q['equipment'])
-        if q.get('equipment_unknown'):
-            equipment += ' / 일부 미확인' if equipment else '미확인'
-        lines += ['', '💡 초기 장비: ' + (equipment or '없음')]
-    if wrong >= 5:
-        lines += ['💡 개수 2번함 담당: ' + (' / '.join(q['helpers'][:3]) or '등록된 장비 없음')]
-    if wrong >= 7:
         if q['kind'] in ('구축','해방'):
             lines += ['💡 함급: ' + (q.get('class_hint') or '미확인').split('(특',1)[0]]
         elif 'slots' in q:
             slots = q['slots']
             lines += ['💡 함재기 슬롯: ' + (' / '.join(map(str, slots)) if slots else '없음')]
+    if wrong >= 5:
+        lines += ['💡 개수 2번함 담당: ' + (' / '.join(q['helpers'][:3]) or '등록된 장비 없음')]
+    if wrong >= 7:
+        lines += ['💡 스탯: ' + ' / '.join(f'{k}: {v}' for k,v in q['stats'].items())]
     if wrong >= 10:
         if any('가'<=c<='힣' for c in q['base_name']):
             lines += ['💡 초성: ' + initials(q['base_name'])]

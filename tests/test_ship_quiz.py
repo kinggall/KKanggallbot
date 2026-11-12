@@ -63,25 +63,24 @@ class QuizTests(unittest.TestCase):
             self.assertNotIn(original,text)
         self.assertIn('국적: 일본',render({'question':self.question,'number':1,'wrong':0}))
 
-    def test_luck_hp_speed_are_selected_at_question_creation(self):
-        for extra in [('운',63),('내구',35),('속력','고속')]:
-            with patch('ship_quiz.random.choice',side_effect=[self.question['family'],self.question,extra]):
-                selected=QuizCatalog.choose(self.catalog,[])
-            self.assertEqual(selected['extra'],extra)
-            self.assertNotIn('extra',self.question)
-            text=render({'question':selected,'number':1,'wrong':0})
-            self.assertIn(f'· {extra[0]}: {extra[1]} (Lv 99 기준)',text)
-            if extra[0]!='운':
-                self.assertNotIn('· 운:',text)
+    def test_luck_hp_speed_are_not_added_to_new_questions_or_shown(self):
+        with patch('ship_quiz.random.choice',side_effect=[self.question['family'],self.question]):
+            selected=QuizCatalog.choose(self.catalog,[])
+        self.assertNotIn('extra',selected)
+        for wrong in (0,3,5,7,10):
+            text=render({'question':selected,'number':1,'wrong':wrong})
+            for label in ('· 운:','· 내구:','· 속력:','Lv 99 기준'):
+                self.assertNotIn(label,text)
 
-    def test_selected_extra_clue_does_not_reroll_on_review_or_restart(self):
+    def test_legacy_extra_clue_is_hidden_without_reset_on_review_or_restart(self):
         selected={**self.question,'extra':('내구',35)}
         with patch.object(self.catalog,'choose',return_value=selected):
             first=self.send('!퀴즈')
         self.assertEqual(first,self.send('!퀴즈'))
         self.service=QuizService(self.catalog,self.database,lambda:self.date)
         self.assertEqual(first,self.send('!퀴즈'))
-        self.assertIn('· 내구: 35',first)
+        self.assertNotIn('· 내구:',first)
+        self.assertIn('💡 초기 장비:',first)
 
     def test_speed_and_hp_use_base_data_not_equipment_or_marriage(self):
         self.assertEqual(self.catalog.details[656]['hp'],35)
@@ -170,14 +169,18 @@ class QuizTests(unittest.TestCase):
         self.assertIn('오답 2회',self.send('!정답 모르겠음',player='u2'))
         third=self.send('!정답 틀린답3')
         self.assertIn('💡 초기 장비',third)
+        self.assertIn('💡 함급: 카게로형',third)
+        self.assertNotIn('💡 스탯',third)
         self.assertNotIn('개수 2번함 담당',third)
         self.send('!정답 틀린답4')
         fifth=self.send('!정답 틀린답5')
         self.assertIn('개수 2번함 담당',fifth)
+        self.assertNotIn('💡 스탯',fifth)
         self.assertNotIn('💡 초성',fifth)
         self.send('!정답 틀린답6')
         seventh=self.send('!정답 틀린답7')
         self.assertIn('💡 함급: 카게로형',seventh)
+        self.assertIn('💡 스탯: 화력: 66 / 뇌장: 90',seventh)
         self.assertNotIn('💡 초성',seventh)
         self.assertIn('오답 8회',self.send('!정답 틀린답8'))
         self.send('!정답 틀린답9')
@@ -404,18 +407,18 @@ class QuizTests(unittest.TestCase):
         self.send('!퀴즈')
         self.assertIn('정답!',self.service.handle('!정답 단양','r1','u1','참가자'))
 
-    def test_seventh_hint_classes_special_destroyers_and_aircraft_slots(self):
+    def test_third_hint_classes_special_destroyers_and_aircraft_slots(self):
         for cid,label in [(12,'후부키형'),(1,'아야나미형'),(5,'아카츠키형'),(117,'우쿠루형')]:
             classes=json.loads((ROOT/'data/quiz_ship_classes.json').read_text())['classes']
             self.assertEqual(classes[str(cid)],label)
         cruiser=next(q for q in self.catalog.questions if q['sid']==630)
-        text=render({'question':cruiser,'wrong':7,'number':1})
+        text=render({'question':cruiser,'wrong':3,'number':1})
         self.assertIn('💡 함재기 슬롯: 2 / 2 / 3 / 7\n',text)
         self.assertNotIn('(총 ',text)
         self.assertNotIn('💡 초성',text)
         self.assertNotIn('💡 함급',text)
         legacy={**self.question,'class_hint':'후부키형(특Ⅰ형)'}
-        legacy_text=render({'question':legacy,'wrong':7,'number':1})
+        legacy_text=render({'question':legacy,'wrong':3,'number':1})
         self.assertIn('💡 함급: 후부키형\n',legacy_text)
         self.assertNotIn('(특',legacy_text)
 
@@ -540,7 +543,7 @@ class QuizTests(unittest.TestCase):
 
     def test_compact_layout_and_removed_commands_leave_problem_unchanged(self):
         text=self.send('!퀴즈')
-        expected='[칸무스 퀴즈 · 1/10]\n\n· 함종: 구축 / 국적: 일본\n· (개2 이상) 화력: 66 / 뇌장: 90\n· 운: 63 (Lv 99 기준)\n\n누적 오답: 0회'
+        expected='[칸무스 퀴즈 · 1/10]\n\n· 함종: 구축 / 국적: 일본\n· 개장: 개2 이상\n\n💡 초기 장비: 10cm 연장고각포+고사장치 ★4 / 12.7cm 단장고각포 개2 ★4\n\n누적 오답: 0회'
         self.assertEqual(text,expected)
         self.assertIsNone(self.send('!힌트'))
         self.assertIsNone(self.send('!포기'))
