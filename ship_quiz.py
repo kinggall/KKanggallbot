@@ -155,8 +155,7 @@ def render(active):
     q = active['question']
     nation = '일본' if q['nation'] == '일본' else '해외'
     lines = [f"[칸무스 퀴즈 · {active['number']}/{active.get('limit',10)}]", '',
-             f"· 함종: {q['kind']} / 국적: {nation}",
-             f"· 개장: {q['stage']}"]
+             f"· ({q['stage']})함종: {q['kind']} / 국적: {nation}"]
     equipment = ' / '.join(q['equipment'])
     if q.get('equipment_unknown'):
         equipment += ' / 일부 미확인' if equipment else '미확인'

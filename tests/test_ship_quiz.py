@@ -545,7 +545,7 @@ class QuizTests(unittest.TestCase):
 
     def test_compact_layout_and_removed_commands_leave_problem_unchanged(self):
         text=self.send('!퀴즈')
-        expected='[칸무스 퀴즈 · 1/10]\n\n· 함종: 구축 / 국적: 일본\n· 개장: 개2 이상\n\n💡 초기 장비: 10cm 연장고각포+고사장치 ★4 / 12.7cm 단장고각포 개2 ★4\n\n누적 오답: 0회'
+        expected='[칸무스 퀴즈 · 1/10]\n\n· (개2 이상)함종: 구축 / 국적: 일본\n\n💡 초기 장비: 10cm 연장고각포+고사장치 ★4 / 12.7cm 단장고각포 개2 ★4\n\n누적 오답: 0회'
         self.assertEqual(text,expected)
         self.assertIsNone(self.send('!힌트'))
         self.assertIsNone(self.send('!포기'))
