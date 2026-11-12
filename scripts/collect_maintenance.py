@@ -1,6 +1,7 @@
-"""Collect numbered maintenance posts from the official public X quote chain.
+"""Collect numbered maintenance posts from the official X account timeline.
 
-No login, private endpoint, API token, or third-party mirror is used.
+Scroll visible posts and open their official URLs, even without quote links.
+Quote-chain collection is an explicit diagnostic fallback only.
 """
 from __future__ import annotations
 
@@ -82,7 +83,56 @@ def source_hash(posts):
     return hashlib.sha256(json.dumps(posts, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
 
 
-def collect(fetch, date=None, max_pages=20):
+def collect_timeline(fetch, page, date=None, max_scrolls=80):
+    """Read the visible timeline; quote relationships are never traversed."""
+    initial = extract_posts(fetch(PROFILE))
+    date = date or max((p['date'] for p in initial), default=None)
+    found = {p['number']: p for p in initial if p['date'] == date}
+    last = max(found, default=0)
+    visited = {p['url'] for p in initial}
+    page.goto(PROFILE, wait_until='domcontentloaded', timeout=45000)
+    page.wait_for_timeout(2000)
+    idle = 0
+    for scroll in range(max_scrolls + 1):
+        urls = page.locator('a[href]').evaluate_all('(links) => links.map(a => a.href)')
+        fresh = []
+        for url in urls:
+            if re.fullmatch(re.escape(PROFILE) + r'/status/\d+', url) and url not in visited:
+                visited.add(url)
+                fresh.append(url)
+        for url in fresh:
+            # Fetch each independently discovered post. Never assume that a
+            # visible preview or the preceding post's quote is its full text.
+            items = extract_posts(fetch(url))
+            if date is None and items:
+                date = max(p['date'] for p in items)
+            for item in items:
+                if item['date'] == date:
+                    previous = found.get(item['number'])
+                    if previous and previous['id'] != item['id']:
+                        raise ValueError(f'Ambiguous official post number {item["number"]}')
+                    found[item['number']] = item
+                    last = max(last, item['number'])
+        missing = sorted(set(range(1, last + 1)) - found.keys())
+        if found and not missing:
+            ordered = [found[n] for n in sorted(found)]
+            return {'date': date, 'account': ACCOUNT, 'last_number': last,
+                    'missing_numbers': [], 'collection_method': 'timeline_scroll',
+                    'posts': ordered, 'source_sha256': source_hash(ordered)}
+        idle = idle + 1 if not fresh else 0
+        if idle >= 4 or scroll == max_scrolls:
+            text = page.locator('body').inner_text()
+            reason = ('login required' if 'Continue to X' in text or 'Log in or sign up for X' in text
+                      else 'timeline stopped loading')
+            raise ValueError(f'Incomplete timeline: {reason}; missing {missing}. Existing data was kept.')
+        page.mouse.wheel(0, 1500)
+        page.wait_for_timeout(2000)
+
+
+def collect(fetch, date=None, max_pages=20, extra_urls=()):
+    for url in extra_urls:
+        if not re.fullmatch(re.escape(PROFILE) + r'/status/\d+', url):
+            raise ValueError('Additional sources must be official KanColle_STAFF post URLs')
     posts = extract_posts(fetch(PROFILE))
     if not posts:
         raise ValueError('Official profile returned no numbered posts')
@@ -91,11 +141,22 @@ def collect(fetch, date=None, max_pages=20):
     if not found:
         raise ValueError(f'No official maintenance posts for {date}')
     last = max(found)
+    retained_urls = []
+    for url in dict.fromkeys(extra_urls):
+        additions = [p for p in extract_posts(fetch(url)) if p['date'] == date and 1 <= p['number'] <= last]
+        if additions:
+            retained_urls.append(url)
+        for item in additions:
+            previous = found.get(item['number'])
+            if previous and previous['id'] != item['id']:
+                raise ValueError(f'Ambiguous official post number {item["number"]}')
+            found[item['number']] = item
     visited = set()
 
     def result():
         ordered = [found[n] for n in sorted(found)]
         return {'date': date, 'account': ACCOUNT, 'last_number': last,
+                'additional_source_urls': retained_urls,
                 'missing_numbers': sorted(set(range(1, last + 1)) - found.keys()),
                 'posts': ordered, 'source_sha256': source_hash(ordered)}
 
@@ -124,6 +185,11 @@ def collect(fetch, date=None, max_pages=20):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--date', help='KST maintenance date, YYYY-MM-DD; default latest numbered date')
+    parser.add_argument('--post-url', action='append', default=[], help='Official post URL missing from the quote chain; repeatable')
+    parser.add_argument('--quote-only', action='store_true', help='Diagnostic quote-chain collector, not a complete timeline scan')
+    parser.add_argument('--session-dir', type=Path, help='Private Playwright session directory outside the repository')
+    parser.add_argument('--login', action='store_true', help='Open a visible browser for manual X sign-in; no password is read by this script')
+    parser.add_argument('--chromium', help='Optional installed Chromium executable path')
     parser.add_argument('--output', type=Path, default=Path(__file__).resolve().parents[1] / 'data' / 'maintenance_posts.json')
     args = parser.parse_args()
     if args.date:
@@ -143,9 +209,35 @@ def main():
         print(f'Collected {url}', flush=True)
         return response.text
 
-    result = collect(fetch, args.date)
+    previous = json.loads(args.output.read_text(encoding='utf-8')) if args.output.exists() else {}
+    extra_urls = args.post_url + previous.get('additional_source_urls', [])
+    if args.quote_only:
+        result = collect(fetch, args.date, extra_urls=extra_urls)
+    else:
+        try:
+            from playwright.sync_api import sync_playwright
+        except ImportError as error:
+            raise SystemExit('Timeline collection needs Playwright: pip install playwright; python -m playwright install chromium') from error
+        import os
+        session_dir = args.session_dir or Path(os.environ.get('LOCALAPPDATA', Path.home() / '.cache')) / 'KKanggallbot' / 'x-session'
+        session_dir = session_dir.resolve()
+        repository = Path(__file__).resolve().parents[1]
+        if session_dir == repository or repository in session_dir.parents:
+            raise ValueError('X session cookies must be kept outside the repository')
+        with sync_playwright() as playwright:
+            options = {'headless': not args.login}
+            if args.chromium:
+                options['executable_path'] = args.chromium
+            context = playwright.chromium.launch_persistent_context(str(session_dir), **options)
+            try:
+                page = context.new_page()
+                if args.login:
+                    page.goto(PROFILE)
+                    input('Sign in in the browser, then press Enter here. Do not paste credentials. ')
+                result = collect_timeline(fetch, page, args.date)
+            finally:
+                context.close()
     if args.output.exists():
-        previous = json.loads(args.output.read_text(encoding='utf-8'))
         if previous.get('source_sha256') == result['source_sha256']:
             print(f'Unchanged: {result["date"]}, 01–{result["last_number"]:02d}')
             return
