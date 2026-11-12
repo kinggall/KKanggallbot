@@ -45,7 +45,7 @@ class ProfileTests(unittest.TestCase):
         self.assertIn('!프사 🍬사탕주며따라가요☆',str(caught.exception))
         self.assertIn('!프사 사탕 좋아',str(caught.exception))
         self.assertEqual(str(caught.exception), '[닉네임 검색]\n아래 명령어를 복사해 다시 입력해 주세요.\n\n!프사 🍬사탕주며따라가요☆\n!프사 사탕 좋아')
-        s.post.assert_not_called()
+        self.assertTrue(all(c.kwargs['json']['bind']==[profiles.ROOM_ID] for c in s.post.call_args_list))
 
     def test_one_partial_candidate_selects_photo_directly(self):
         s=self.service([{'user_id':'1','nickname':'사탕주며따라가요','profile_image_url':URL}])
@@ -212,3 +212,82 @@ class ProfileTests(unittest.TestCase):
             result=bot.app.test_client().post('/webhook',json={'msg':'!프사 닉','room':'방 이름','json':{'chat_id':profiles.ROOM_ID}})
             self.assertEqual(result.status_code,200)
             self.assertEqual(handle.call_args.args[:2],('!프사 닉',profiles.ROOM_ID))
+
+    def test_api_missing_new_profile_is_rechecked_in_same_room_database(self):
+        s=self.service([])
+        db=response();db.json.return_value={'data':[{'user_id':'42','nickname':'새 프로필',
+            'profile_image_url':URL,'original_profile_image_url':URL,'full_profile_image_url':URL}]}
+        s.post.return_value=db
+        self.assertEqual(s.photo_url('새 프로필','http://local/reply','222'),URL)
+        self.assertEqual(s.post.call_args.kwargs['json']['bind'],['222'])
+        self.assertIn('c.link_id = m.link_id',s.post.call_args.kwargs['json']['query'])
+
+    def test_configured_bot_label_uses_its_actual_openchat_profile_only(self):
+        member={'user_id':'42','nickname':'오픈채팅 전용 닉','profile_image_url':URL,
+                'original_profile_image_url':URL,'full_profile_image_url':URL}
+        s=self.service([member])
+        config=response();config.json.return_value={'bot_name':'깡갤봇','bot_id':42}
+        s.get.side_effect=[response([member]),config]
+        db=response();db.json.return_value={'data':[member]};s.post.return_value=db
+        self.assertEqual(s.photo_url('깡갤봇','http://local/reply','222'),URL)
+        self.assertEqual(s.post.call_args.kwargs['json']['bind'],['222'])
+
+    def test_missing_self_record_is_not_replaced_by_personal_or_other_room_profile(self):
+        s=self.service([])
+        config=response();config.json.return_value={'bot_name':'깡갤봇','bot_id':42}
+        s.get.side_effect=[response([]),config]
+        empty=response();empty.json.return_value={'data':[]};s.post.return_value=empty
+        with self.assertRaisesRegex(profiles.ProfileError,'봇 오픈채팅 프로필'):
+            s.photo_url('깡갤봇','http://local/reply','222')
+        self.assertEqual(s.post.call_args.kwargs['json']['bind'],['222','42'])
+        for call in s.post.call_args_list:
+            self.assertIn('c.id = ?',call.kwargs['json']['query'])
+            self.assertNotIn('friends',call.kwargs['json']['query'])
+        self.assertTrue(all('/user' not in c.args[0] for c in s.get.call_args_list))
+
+    def test_self_query_response_with_wrong_user_id_is_rejected(self):
+        s=self.service([])
+        config=response();config.json.return_value={'bot_name':'깡갤봇','bot_id':42}
+        s.get.side_effect=[response([]),config]
+        empty=response();empty.json.return_value={'data':[]}
+        wrong=response();wrong.json.return_value={'data':[{'user_id':'99','nickname':'다른 사람','profile_image_url':URL}]}
+        s.post.side_effect=[empty,wrong]
+        with self.assertRaisesRegex(profiles.ProfileError,'봇 오픈채팅 프로필'):
+            s.photo_url('깡갤봇','http://local/reply')
+
+    def test_exact_other_member_name_is_not_overridden_by_bot_label(self):
+        member={'user_id':'99','nickname':'깡갤봇','profile_image_url':URL,
+                'original_profile_image_url':URL,'full_profile_image_url':URL}
+        s=self.service([member])
+        self.assertEqual(s.photo_url('깡갤봇','http://local/reply'),URL)
+        self.assertNotIn('/config',s.get.call_args.args[0])
+
+    def test_empty_refresh_keeps_valid_api_partial_candidate(self):
+        member={'user_id':'42','nickname':'부분 닉네임','profile_image_url':URL,
+                'original_profile_image_url':URL,'full_profile_image_url':URL}
+        s=self.service([member]);empty=response();empty.json.return_value={'data':[]};s.post.return_value=empty
+        self.assertEqual(s.photo_url('부분','http://local/reply'),URL)
+
+    def test_missing_config_endpoint_does_not_break_existing_partial_lookup(self):
+        member={'user_id':'42','nickname':'부분 닉네임','profile_image_url':URL,
+                'original_profile_image_url':URL,'full_profile_image_url':URL}
+        s=self.service([member]);s.get.side_effect=[response([member]),requests.Timeout()]
+        s.post.side_effect=requests.Timeout()
+        self.assertEqual(s.photo_url('부분','http://local/reply'),URL)
+
+    def test_diagnostic_never_prints_other_members_urls_ids_or_full_config(self):
+        import io
+        from contextlib import redirect_stdout
+        from scripts import verify_room_profile
+        config=response();config.json.return_value={'bot_id':42424242,'bot_name':'깡갤봇','web_server_endpoint':'PRIVATE_CONFIG'}
+        rows=[{'user_id':'42424242','nickname':'개인 닉','profile_image_url':'PRIVATE_PHOTO_URL'},
+              {'user_id':'99999999','nickname':'OTHER_PARTICIPANT','profile_image_url':'OTHER_URL'}]
+        output=io.StringIO()
+        with patch('sys.argv',['verify_room_profile','--room',profiles.ROOM_ID]), \
+                patch.object(verify_room_profile.requests,'get',return_value=config), \
+                patch.object(verify_room_profile.ProfileService,'room_rows',return_value=rows),redirect_stdout(output):
+            verify_room_profile.main()
+        text=output.getvalue()
+        self.assertIn('Bot present in this room: True',text)
+        for value in ('42424242','99999999','개인 닉','OTHER_PARTICIPANT','PRIVATE_PHOTO_URL','OTHER_URL','PRIVATE_CONFIG'):
+            self.assertNotIn(value,text)

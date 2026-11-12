@@ -57,20 +57,57 @@ class ProfileService:
             self.next_requests[str(room)] = now + 3
             return True
 
-    def photo_candidates(self, name, reply_url, room=ROOM_ID):
-        base = reply_url.rsplit('/', 1)[0]
-        response = self.get(f'{base}/room/{room}/members', timeout=(2, 5))
-        if response.status_code == 404:
-            # Older Iris: constrain the encrypted member query to this room's
-            # link_id. Never fall back to /user or a normal friends profile.
-            response = self.post(base + '/query', json={
-                'query': 'SELECT m.user_id, m.nickname, m.profile_image_url, m.enc FROM db2.open_chat_member m JOIN db1.chat_rooms c ON c.link_id = m.link_id WHERE c.id = ? ORDER BY m._id DESC',
-                'bind': [str(room)]}, timeout=(2, 5))
+    def room_rows(self, base, room, uid=None):
+        query = ('SELECT m.user_id, m.nickname, m.profile_image_url, m.enc '
+                 'FROM db2.open_chat_member m JOIN db1.chat_rooms c ON c.link_id = m.link_id '
+                 'WHERE c.id = ?')
+        bind = [str(room)]
+        if uid is not None:
+            query += ' AND m.user_id = ?'
+            bind.append(str(uid))
+        query += ' ORDER BY m._id DESC' + (' LIMIT 1' if uid is not None else '')
+        response = self.post(base + '/query', json={'query': query, 'bind': bind}, timeout=(2, 5))
+        response.raise_for_status()
+        document = response.json()
+        rows = document.get('data') if isinstance(document, dict) and not document.get('error') else None
+        if not isinstance(rows, list):
+            raise ProfileError('이 방의 참가자 정보를 조회하지 못했습니다.')
+        return rows
+
+    def bot_member(self, name, base, room, members):
+        """Configured bot label is an alias only for this room's proven self ID."""
+        try:
+            response = self.get(base + '/config', timeout=(2, 3))
             response.raise_for_status()
             document = response.json()
             if isinstance(document, dict) and document.get('error'):
-                raise ProfileError('이 방의 참가자 정보를 조회하지 못했습니다.')
-            rows = document.get('data') if isinstance(document, dict) else None
+                return None
+            config = document.get('payload', document) if isinstance(document, dict) else None
+            if not isinstance(config, dict) or nickname(config.get('bot_name')) != nickname(name):
+                return None
+            uid = str(config.get('bot_id', ''))
+            if not uid.isdecimal() or int(uid) == 0:
+                return None
+            own = next((m for m in members if str(m.get('user_id') or m.get('id')) == uid), None)
+            if own is None:
+                rows = self.room_rows(base, room, uid)
+                own = next((m for m in rows if isinstance(m, dict) and str(m.get('user_id')) == uid), None)
+            if own and nickname(own.get('nickname') or own.get('name')):
+                return own
+            raise ProfileError('이 방의 봇 오픈채팅 프로필을 Iris 참가자 정보에서 확인하지 못했습니다.')
+        except (requests.RequestException, TypeError, ValueError) as error:
+            if isinstance(error, ProfileError):
+                raise
+            return None
+
+    def photo_candidates(self, name, reply_url, room=ROOM_ID):
+        base = reply_url.rsplit('/', 1)[0]
+        response = self.get(f'{base}/room/{room}/members', timeout=(2, 5))
+        legacy = response.status_code == 404
+        if legacy:
+            # Older Iris: constrain the encrypted member query to this room's
+            # link_id. Never fall back to /user or a normal friends profile.
+            rows = self.room_rows(base, room)
         else:
             response.raise_for_status()
             document = response.json()
@@ -80,6 +117,15 @@ class ProfileService:
             rows = payload.get('members') if isinstance(payload, dict) else None
         if not isinstance(rows, list):
             raise ProfileError('이 방의 참가자 정보를 조회하지 못했습니다.')
+        # The endpoint can be capped at 256 rows. On a miss, re-read the same
+        # room rather than treating an incomplete API list as authoritative.
+        if not legacy and not any(isinstance(r, dict) and nickname(r.get('nickname') or r.get('name')) == nickname(name) for r in rows):
+            try:
+                refreshed = self.room_rows(base, room)
+                if refreshed:
+                    rows = refreshed
+            except (requests.RequestException, ValueError, TypeError):
+                pass
         # Iris returns newest records first; one result per member identity.
         unique = {}
         for index, row in enumerate(rows):
@@ -88,6 +134,10 @@ class ProfileService:
             key = str(row.get('user_id') or row.get('id') or 'row:' + str(index))
             unique.setdefault(key, row)
         matches = [r for r in unique.values() if nickname(r.get('nickname') or r.get('name')) == nickname(name)]
+        if not matches:
+            own = self.bot_member(name, base, room, unique.values())
+            if own:
+                matches = [own]
         if not matches:
             partial = [r for r in unique.values() if nickname(name) in nickname(r.get('nickname') or r.get('name'))]
             if len(partial) == 1:
