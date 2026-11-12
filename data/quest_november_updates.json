@@ -1,0 +1,383 @@
+{
+  "schema": 1,
+  "source": {
+    "url": "https://wikiwiki.jp/kancolle/任務/フロントページ#New",
+    "html_sha256": "eb0367ad7fd597570da2fe14752552582c0f6ab99dd52f06d007dacc8d7f50cf",
+    "reviewed_date": "2026-11-12",
+    "code_reference": "ElectronicObserverEN/Data@1b8d0b9e8f6cff3aee1f27dd7e920c2c2bb2a35d:Data/Quests.json",
+    "eo_sha256": "30c3a8e6a4154fe47c21723aba829648a7c2978ae757e8107c1b2861bfaeba15",
+    "code_policy": "EO canonical codes and API IDs; reviewed wiki codes retained as aliases",
+    "conditions_and_rewards": "User-provided HAR response HTML; headers, cookies and other requests are not retained"
+  },
+  "quests": [
+    {
+      "wiki_id": "2611 Cw1",
+      "source_wiki_id": "2611 C1",
+      "game_api_id": 381,
+      "name_jp": "【期間限定任務】秋月型演習任務2026",
+      "name_ko": "【기간한정임무】아키즈키급 연습 임무 2026",
+      "aliases": [
+        "2611 Cw1",
+        "2611Cw1",
+        "2611 C1",
+        "2611C1"
+      ],
+      "category": "exercise",
+      "frequency": "weekly",
+      "limited": true,
+      "release_date": "2026-11-11",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_incomplete": true,
+      "prerequisite_codes": [
+        "Cd1"
+      ],
+      "requirements": {
+        "category": "exercise",
+        "comp": [
+          {
+            "ship_id": [
+              132,
+              330,
+              346,
+              357,
+              421,
+              422,
+              423,
+              445,
+              532,
+              533,
+              537,
+              538,
+              625,
+              963,
+              968,
+              1041,
+              1046
+            ],
+            "amount": 3
+          }
+        ],
+        "result": "A",
+        "times": 3,
+        "daily": true
+      },
+      "requirements_ko": [
+        "아키즈키급/아키구모/아키시모/아키츠시마 중 3 이상 + 자유 0~3",
+        "오늘 중 연습 A승 이상 3회"
+      ],
+      "description": "아키즈키급/아키구모/아키시모/아키츠시마 중 3 이상 + 자유 0~3 / 오늘 중 연습 A승 이상 3회",
+      "rewards": {
+        "resources": [
+          100,
+          200,
+          100,
+          200
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 4
+              },
+              {
+                "category": "named",
+                "name": "25mm 단장기총",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "공창자원",
+                "amount": 1
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "고속수복재",
+                "amount": 4
+              },
+              {
+                "category": "named",
+                "name": "개수자재",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "장비 운용 슬롯",
+                "amount": 2
+              }
+            ]
+          }
+        ]
+      },
+      "source_row": [
+        "2611 C1",
+        "【期間限定任務】秋月型演習任務2026",
+        "【期間限定演習】秋月型または「秋雲」「秋霜」「秋津洲」の計3隻以上を含む演習艦隊を編成。同艦隊で本日中に演習【A判定】勝利3回以上を達成せよ！秋月型駆逐艦他、この秋も、演習始めっ！ ※指定艦から3隻以上を含んだ艦隊で3回 A勝利 で達成。 ※任務進捗変化 50%(1/3)→80%(2/3)→達成(3/3)",
+        "100",
+        "200",
+        "100",
+        "200",
+        "選択報酬1 ・開発資材 x4 ・ 25mm単装機銃 x2 ・ 工廠資源 x1 選択報酬2 ・ 高速修復材 x4 ・ 改修資材 x2 ・ 装備運用枠 +2 装備分",
+        "期間限定 ウィークリー 【 検証中 】 (Cd1)「演習」で練度向上！ 及び () 達成後",
+        "2026 11/11 ~ 20** **/**"
+      ],
+      "source_sha256": "e4280d9fcc780d4428f9fca87dc059bcfaff72b4dffbaefa36093bd809d5c533"
+    },
+    {
+      "wiki_id": "2611 Cw2",
+      "source_wiki_id": "2611 C2",
+      "game_api_id": 386,
+      "name_jp": "【期間限定任務】秋刀魚祭り準備演習！",
+      "name_ko": "【기간한정임무】꽁치 축제 준비 연습!",
+      "aliases": [
+        "2611 Cw2",
+        "2611Cw2",
+        "2611 C2",
+        "2611C2"
+      ],
+      "category": "exercise",
+      "frequency": "weekly",
+      "limited": true,
+      "release_date": "2026-11-11",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_incomplete": true,
+      "prerequisite_codes": [
+        "Bd5"
+      ],
+      "requirements": {
+        "category": "exercise",
+        "comp": [
+          {
+            "ship_id": [
+              15,
+              479,
+              44,
+              96,
+              943,
+              900,
+              637,
+              931,
+              941
+            ],
+            "amount": 4
+          },
+          {
+            "ship_id": [
+              15,
+              479,
+              44,
+              96,
+              943,
+              900,
+              637,
+              931,
+              941
+            ],
+            "position": 1,
+            "amount": 1
+          }
+        ],
+        "result": "S",
+        "times": 3,
+        "daily": true
+      },
+      "requirements_ko": [
+        "아케보노/아마기리/무라사메/오오시오/쿠마노마루/야마시오마루/제4호 해방함/Ranger/Heywood L.E. 중 4 이상(기함 포함) + 자유 0~2",
+        "오늘 중 연습 S승 3회"
+      ],
+      "description": "아케보노/아마기리/무라사메/오오시오/쿠마노마루/야마시오마루/제4호 해방함/Ranger/Heywood L.E. 중 4 이상(기함 포함) + 자유 0~2 / 오늘 중 연습 S승 3회",
+      "rewards": {
+        "resources": [
+          0,
+          280,
+          280,
+          280
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 4
+              },
+              {
+                "category": "named",
+                "name": "3식 수중탐신의",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "탐조등",
+                "amount": 1
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "숙련견시원",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "장비 운용 슬롯",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 1
+              }
+            ]
+          }
+        ]
+      },
+      "source_row": [
+        "2611 C2",
+        "【期間限定任務】秋刀魚祭り準備演習！",
+        "【秋刀魚祭り準備演習】「曙」「天霧」「村雨」「大潮」「熊野丸」「山汐丸」「第四号海防艦」「Ranger」「Heywood L.E.」の旗艦を含む計4隻以上の艦隊で、本日中に演習【S判定】勝利3回以上を達成せよ！ ※指定艦から 旗艦 含み4隻以上の艦隊で3回 S勝利 で達成。 ※任務進捗変化 50%(1/3)→80%(2/3)→達成(3/3)",
+        "0",
+        "280",
+        "280",
+        "280",
+        "選択報酬1 ・開発資材 x4 ・ 三式水中探信儀 x1 ・ 探照灯 x1 選択報酬2 ・ 熟練見張員 x1 ・ 装備運用枠 +1 装備分 ・ 勲章 x1",
+        "期間限定 ウィークリー 【 検証中 】 (Bd5)敵補給艦を3隻撃沈せよ！ 及び () 達成後",
+        "2026 11/11 ~ 20** **/**"
+      ],
+      "source_sha256": "b3c5f934f74fb9ae71c13a3529be0c868db1e89b63ac1bd9e1884629d9f38419"
+    },
+    {
+      "wiki_id": "2611 F1",
+      "source_wiki_id": "F144",
+      "game_api_id": 1172,
+      "name_jp": "【雷装強化工廠任務】夜戦突撃装備の強化【I】",
+      "name_ko": "【뇌장강화공창임무】야전 돌격 장비 강화 【I】",
+      "aliases": [
+        "2611 F1",
+        "2611F1",
+        "F144"
+      ],
+      "category": "factory",
+      "frequency": "onetime",
+      "limited": false,
+      "release_date": "2026-11-11",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_incomplete": true,
+      "prerequisite_codes": [
+        "Fd5"
+      ],
+      "requirements": {
+        "category": "equipexchange",
+        "slots": [
+          {
+            "id": 58,
+            "slot": 1
+          },
+          {
+            "id": 58,
+            "slot": 2
+          },
+          {
+            "id": 15,
+            "slot": 3,
+            "stars": 10
+          }
+        ],
+        "scrap": [
+          {
+            "category": "equipment",
+            "id": 14,
+            "amount": 10
+          }
+        ],
+        "consume": [
+          {
+            "category": "inventory",
+            "id": 3,
+            "amount": 60
+          },
+          {
+            "category": "inventory",
+            "id": 94,
+            "amount": 2
+          },
+          {
+            "category": "inventory",
+            "id": 104,
+            "amount": 2
+          }
+        ]
+      },
+      "requirements_ko": [
+        "임무 수락 후 기함 1·2번 슬롯에 61cm 오연장(산소)어뢰 각 1개 장착(개수치 무관)",
+        "기함 3번 슬롯에 61cm 사연장(산소)어뢰 ★MAX 장착",
+        "폐기: 61cm 사연장어뢰 x10(산소어뢰가 아닌 일반 어뢰)",
+        "준비·소모: 개발자재 x60 / 신형병장자재 x2 / 공창자원 x2",
+        "주의: 장착한 사연장(산소)어뢰 ★MAX는 소멸하며, 오연장(산소)어뢰 2개는 ★MAX 장비로 교체됨"
+      ],
+      "description": "임무 수락 후 기함 1·2번 슬롯에 61cm 오연장(산소)어뢰 각 1개 장착(개수치 무관) / 기함 3번 슬롯에 61cm 사연장(산소)어뢰 ★MAX 장착 / 폐기: 61cm 사연장어뢰 x10(산소어뢰가 아닌 일반 어뢰) / 준비·소모: 개발자재 x60 / 신형병장자재 x2 / 공창자원 x2 / 주의: 장착한 사연장(산소)어뢰 ★MAX는 소멸하며, 오연장(산소)어뢰 2개는 ★MAX 장비로 교체됨",
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "장비 운용 슬롯",
+                "amount": 6
+              },
+              {
+                "category": "named",
+                "name": "61cm 사연장(산소)어뢰 후기형",
+                "amount": 1,
+                "stars": 4
+              },
+              {
+                "category": "named",
+                "name": "개발자재",
+                "amount": 28
+              }
+            ]
+          },
+          {
+            "category": "named",
+            "name": "61cm 오연장(산소)어뢰",
+            "amount": 2,
+            "stars": 10
+          }
+        ]
+      },
+      "source_row": [
+        "F144",
+        "【雷装強化工廠任務】夜戦突撃装備の強化【I】",
+        "旗艦第一及び第二装備スロに「61cm五連装(酸素)魚雷(★不問)」、同第三スロに「61cm四連装(酸素)魚雷(★max)」装備して「61cm四連装魚雷」x10を廃棄。開発資材x60、新型兵装資材x2、工廠資源x2を準備！ ※任務受注後 ・ 旗艦 の第一及び第二スロットに 61cm五連装(酸素)魚雷 (改修値不問)を装備 ・ 旗艦 の第三スロットに 61cm四連装(酸素)魚雷 ★max を装備 ・ 61cm四連装魚雷 を10個廃棄 ・開発資材x60、 新型兵装資材 x2、 工廠資源 x2を準備 ※ 61cm四連装(酸素)魚雷 ★max は 消滅する。 装備した 61cm五連装(酸素)魚雷 は ★max のものと入れ替わる。 ※任務進捗変化",
+        "0",
+        "0",
+        "0",
+        "0",
+        "選択報酬1 ・ 装備運用枠 +6 装備分 ・ 61cm四連装(酸素)魚雷後期型 ★+4 x1 ・開発資材 x28 確定報酬 ・ 61cm五連装(酸素)魚雷 ★max x2",
+        "【 検証中 】 (Fd5)軍縮条約対応！ 及び () 達成後",
+        "2026 11/11"
+      ],
+      "source_sha256": "166b48fa34617d456293538752723b0677c8c2ccd8076c64aea9c2597bd8c61a"
+    }
+  ]
+}

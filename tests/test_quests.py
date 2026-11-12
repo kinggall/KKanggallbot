@@ -164,7 +164,7 @@ Bw5 + B98'''
 
     def test_every_quest_renders_offline_and_external_code_returns_same_record(self):
         with patch.object(requests, "get", side_effect=AssertionError("Quest lookup must stay offline")):
-            self.assertEqual(len(self.catalog.items), 678)
+            self.assertEqual(len(self.catalog.items), 681)
             for key, row in self.catalog.items.items():
                 with self.subTest(code=row["wiki_id"]):
                     result = self.catalog.reply(row["wiki_id"].lower())

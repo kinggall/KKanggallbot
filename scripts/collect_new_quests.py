@@ -30,7 +30,9 @@ def read_source(path):
     har = json.loads(path.read_text(encoding='utf-8-sig'))
     entries = [e for e in har.get('log', {}).get('entries', [])
                if is_page(e.get('request', {}).get('url', ''))
-               and e.get('response', {}).get('status') == 200
+               # Browser HAR exports can include the cached HTML body on a
+               # 304 entry. A bodyless 304 remains invalid.
+               and e.get('response', {}).get('status') in (200, 304)
                and e.get('response', {}).get('content', {}).get('text')]
     if not entries:
         raise ValueError('HAR에 신규 임무 페이지의 정상 HTML 응답이 없습니다.')

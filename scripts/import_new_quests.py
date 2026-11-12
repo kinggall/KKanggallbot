@@ -49,7 +49,8 @@ REWARD_NAMES = {
 }
 
 
-def rewards(cell):
+def rewards(cell, names=None):
+    names = REWARD_NAMES if names is None else names
     # Split on semantic list bullets, not DOM text boundaries inside item links.
     text = cell.get_text('', strip=True)
     chunks = re.split(r'(選択報酬[12]?|確定報酬)', text)
@@ -65,9 +66,9 @@ def rewards(cell):
                 items.append({'category':'named', 'name':'장비 운용 슬롯', 'amount':amount})
                 continue
             match = re.fullmatch(r'(.+?)(?:★\+?(\d+|max))?x(\d+)', value)
-            if not match or match[1] not in REWARD_NAMES:
+            if not match or match[1] not in names:
                 raise ValueError('Unreviewed reward: ' + raw)
-            item = {'category':'named', 'name':REWARD_NAMES[match[1]], 'amount':int(match[3])}
+            item = {'category':'named', 'name':names[match[1]], 'amount':int(match[3])}
             if match[2]:
                 item['stars'] = 10 if match[2]=='max' else int(match[2])
             items.append(item)

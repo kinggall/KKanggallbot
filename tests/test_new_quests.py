@@ -39,7 +39,10 @@ class NewQuestTests(unittest.TestCase):
                 self.assertLess(len(text), 4000)
 
     def test_new_list_only_titles_and_numbers(self):
-        text = self.catalog.new_quests_reply()
+        # Preserve the October regression independently of newer overlays.
+        october = {k: r for k, r in self.catalog.items.items() if r.get('release_date') == '2026-10-14'}
+        with patch.object(self.catalog, 'items', october):
+            text = self.catalog.new_quests_reply()
         self.assertIn('2026-10-14 점검 신규 임무 (12개)', text)
         for row in self.update['quests']:
             self.assertIn(f'· {row["wiki_id"]}: {row["name_ko"]}', text)
@@ -58,11 +61,11 @@ class NewQuestTests(unittest.TestCase):
     def test_new_list_changes_to_latest_maintenance(self):
         from copy import deepcopy
         future = deepcopy(self.update['quests'][0])
-        future.update(release_date='2026-11-01', wiki_id='2611 B1', name_ko='다음 점검 임무')
+        future.update(release_date='2026-12-01', wiki_id='2612 B1', name_ko='다음 점검 임무')
         with patch.object(self.catalog, 'items', {**self.catalog.items, 'future':future}):
             text = self.catalog.new_quests_reply()
-            self.assertIn('2026-11-01 점검 신규 임무 (1개)', text)
-            self.assertIn('2611 B1', text)
+            self.assertIn('2026-12-01 점검 신규 임무 (1개)', text)
+            self.assertIn('2612 B1', text)
             self.assertNotIn('2610 B1', text)
         with patch.object(self.catalog, 'items', {}):
             self.assertEqual(self.catalog.new_quests_reply(), '등록된 신규 임무가 없습니다.')
@@ -186,9 +189,11 @@ class NewQuestTests(unittest.TestCase):
                 patch.object(collect_zekamashi, 'Fetcher', side_effect=AssertionError('No network')), \
                 redirect_stdout(output):
             collect_zekamashi.main()
-        self.assertIn('Targets: 12', output.getvalue())
+        self.assertIn('Targets: 15', output.getvalue())
         for row in self.update['quests']:
             self.assertIn(row['name_jp'], output.getvalue())
+        for code in ('2611 Cw1', '2611 Cw2', '2611 F1'):
+            self.assertIn(code + ':', output.getvalue())
 
     def test_repair_scope_includes_factory_and_exercise(self):
         output=io.StringIO()
@@ -196,7 +201,7 @@ class NewQuestTests(unittest.TestCase):
                 patch.object(collect_zekamashi,'Fetcher',side_effect=AssertionError('No network')), \
                 redirect_stdout(output):
             collect_zekamashi.main()
-        self.assertIn('Targets: 290',output.getvalue())
+        self.assertIn('Targets: 293',output.getvalue())
         self.assertIn('2610 Fm1:',output.getvalue())
         self.assertIn('2610 Cw1:',output.getvalue())
 

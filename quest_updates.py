@@ -51,6 +51,11 @@ def apply_updates(data, root):
         return data
     data = deepcopy(data)
     update = json.loads(path.read_text(encoding='utf-8'))
+    november_path = root / 'data/quest_november_updates.json'
+    if november_path.exists():
+        november = json.loads(november_path.read_text(encoding='utf-8'))
+        update['quests'].extend(november['quests'])
+        data['sources']['wiki_november_quests'] = november['source']
     by_code = {q['wiki_id'].replace(' ', '').casefold(): key for key, q in data['quests'].items()}
     keys = {}
     for row in update['quests']:
