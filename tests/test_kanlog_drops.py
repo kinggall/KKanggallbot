@@ -81,6 +81,45 @@ class KanlogTests(unittest.TestCase):
         )
         self.assertEqual(text, drops.USAGE)
 
+    def test_ooi_ship_query_distinguishes_both_73_bosses_with_original_rates(self):
+        bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
+        snapshot = {'maps': {'7-3': bundle['maps']['7-3']}}
+        original = copy.deepcopy(snapshot)
+        with patch.object(requests, 'get', side_effect=AssertionError('Commands must be offline')):
+            text = drops.format_reply('!드랍 오오이', snapshot, lambda i,n:n, lambda _: {24})
+        self.assertIn('· 7-3-1 Boss - S 2.12%', text)
+        self.assertIn('· 7-3-2 Boss - S 1.92% / A 2.00%', text)
+        self.assertNotIn('· 7-3 Boss', text)
+        self.assertEqual(snapshot, original)
+
+    def test_ship_query_labels_all_multi_boss_maps_by_node_not_result_order(self):
+        for map_name, labels in drops.BOSS_STAGES.items():
+            cells = {str(i): {'label': label, 'boss': True} for i,label in enumerate(labels,1)}
+            rows = [{'cell': str(i), 'ship_id': 24, 'limited': False,
+                     'ranks': {'s': {'count': i, 'rate': float(i)}}} for i in reversed(range(1,len(labels)+1))]
+            snapshot = {'maps': {map_name: {'cells': cells, 'rows': rows}}}
+            text = drops.format_reply('!드랍 오오이', snapshot, lambda i,n:n, lambda _: {24})
+            for stage in range(1,len(labels)+1):
+                self.assertIn(f'· {map_name}-{stage} Boss - S {stage:.2f}%', text)
+            self.assertNotIn(f'· {map_name} Boss', text)
+
+    def test_single_boss_and_normal_nodes_keep_existing_ship_query_labels(self):
+        snapshot = {'maps': {'2-3': {
+            'cells': {'1': {'label': 'N', 'boss': True}, '2': {'label': 'E', 'boss': False}},
+            'rows': [{'cell': str(i), 'ship_id': 24, 'limited': False,
+                      'ranks': {'s': {'count': 1, 'rate': 1.0}}} for i in (1,2)]}}}
+        text = drops.format_reply('!드랍 오오이', snapshot, lambda i,n:n, lambda _: {24})
+        self.assertIn('· 2-3 Boss - S 1.00%', text)
+        self.assertIn('· 2-3 E - S 1.00%', text)
+
+    def test_unknown_multi_boss_node_is_shown_explicitly_without_guessing_stage(self):
+        snapshot = {'maps': {'7-3': {'cells': {'1': {'label': 'X', 'boss': True}},
+                    'rows': [{'cell': '1', 'ship_id': 24, 'limited': False,
+                              'ranks': {'s': {'count': 1, 'rate': 1.0}}}]}}}
+        text = drops.format_reply('!드랍 오오이', snapshot, lambda i,n:n, lambda _: {24})
+        self.assertIn('· 7-3-X Boss - S 1.00%', text)
+        self.assertNotIn('· 7-3-1 Boss', text)
+
     def test_parser_denominators_and_structural_failure(self):
         html = '''<button data-cell-no="19" data-cell-label="S">S(Boss)</button>
         集計: 2026/10/15 ～ 更新: 2026/10/19 23:00:27

@@ -266,6 +266,10 @@ def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
     lines = [f"{keyword} Drop Table"]
     for item in found[:25]:
         location = f"{item['map']} Boss" if item['boss'] else f"{item['map']} {item['label']}"
+        if item['boss'] and item['map'] in BOSS_STAGES:
+            stages = BOSS_STAGES[item['map']]
+            stage = stages.index(item['label']) + 1 if item['label'] in stages else item['label']
+            location = f"{item['map']}-{stage} Boss"
         parts = []
         for rank in ('s', 'a'):
             value = item['ranks'].get(rank)
