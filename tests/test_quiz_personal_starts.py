@@ -35,21 +35,21 @@ class PersonalStartTests(unittest.TestCase):
             row = db.execute('SELECT state FROM rooms WHERE room=?', (room,)).fetchone()
             return json.loads(row[0]) if row else None
 
-    def test_four_issues_then_block_but_other_user_can_start_and_blocked_user_can_answer(self):
-        for _ in range(4):
+    def test_five_issues_then_block_but_other_user_can_start_and_blocked_user_can_answer(self):
+        for _ in range(5):
             self.assertIn('[칸무스 퀴즈', self.send('!퀴즈'))
             self.solve()
         self.assertEqual(self.send('!퀴즈', name='새 닉네임'),
-                         '✔️ 출제 횟수(4회) 소진')
-        self.assertIn('5/10', self.send('!퀴즈', player='b'))
+                         '✔️ 출제 횟수(5회) 소진')
+        self.assertIn('6/10', self.send('!퀴즈', player='b'))
         self.solve()
-        self.assertEqual(self.state()['personal_starts']['players'], {'a': 4, 'b': 1})
-        self.assertIn('5점', self.send('!퀴즈점수'))
+        self.assertEqual(self.state()['personal_starts']['players'], {'a': 5, 'b': 1})
+        self.assertIn('6점', self.send('!퀴즈점수'))
 
     def test_all_kst_windows_reset_to_their_own_limit_without_carryover(self):
-        windows = [(15, 2, 2, '03'), (15, 3, 4, '15'), (15, 15, 4, '18'),
-                   (15, 18, 2, '20'), (15, 20, 2, '22'), (15, 22, 2, '24'), (16, 0, 2, '03')]
-        for day, hour, limit, next_hour in windows:
+        windows = [(15, 2, 3), (15, 3, 5), (15, 15, 5),
+                   (15, 18, 3), (15, 20, 3), (15, 22, 3), (16, 0, 3)]
+        for day, hour, limit in windows:
             self.date = datetime(2026, 11, day, hour, tzinfo=KST)
             for _ in range(limit):
                 self.assertIn('[칸무스 퀴즈', self.send('!퀴즈'))
@@ -58,25 +58,26 @@ class PersonalStartTests(unittest.TestCase):
             self.assertEqual(blocked, f'✔️ 출제 횟수({limit}회) 소진')
             self.assertEqual(self.state()['personal_starts']['players'], {'a': limit})
         self.assertEqual(personal_start_period(datetime(2026, 11, 15, 15, tzinfo=timezone.utc)),
-                         ('2026-11-16:00', 2))
+                         ('2026-11-16:00', 3))
 
     def test_existing_problem_review_is_free_even_when_issuer_has_used_last_start(self):
         self.date = self.date.replace(hour=18)
-        self.send('!퀴즈'); self.solve()
+        for _ in range(2):
+            self.send('!퀴즈'); self.solve()
         current = self.send('!퀴즈')
         for player in ('a', 'b', ''):
             self.assertEqual(current, self.send('!퀴즈', player=player))
-        self.assertEqual(self.state()['personal_starts']['players'], {'a': 2})
-        self.assertEqual(self.state()['count'], 2)
+        self.assertEqual(self.state()['personal_starts']['players'], {'a': 3})
+        self.assertEqual(self.state()['count'], 3)
         self.solve()
-        self.assertEqual('✔️ 출제 횟수(2회) 소진', self.send('!퀴즈'))
+        self.assertEqual('✔️ 출제 횟수(3회) 소진', self.send('!퀴즈'))
 
     def test_usage_survives_restart_and_is_separate_per_room(self):
         self.date = self.date.replace(hour=18)
-        for _ in range(2):
+        for _ in range(3):
             self.send('!퀴즈'); self.solve()
         self.service = QuizService(self.catalog, self.path, lambda: self.date)
-        self.assertEqual('✔️ 출제 횟수(2회) 소진', self.send('!퀴즈'))
+        self.assertEqual('✔️ 출제 횟수(3회) 소진', self.send('!퀴즈'))
         self.assertIn('1/15', self.send('!퀴즈', room='other'))
         self.solve(room='other')
         for number in range(2,6):
@@ -117,7 +118,7 @@ class PersonalStartTests(unittest.TestCase):
 
     def test_room_title_alone_does_not_enable_limit_and_old_other_room_usage_is_ignored(self):
         state = dict(period='2026-11-15:15', day='2026-11-15', count=0, active=None, recent=[],
-                     personal_starts={'period':'2026-11-15:15','players':{'a': 4}})
+                     personal_starts={'period':'2026-11-15:15','players':{'a': 5}})
         with sqlite3.connect(self.path) as db:
             db.execute('INSERT INTO rooms VALUES (?,?)', ('other', json.dumps(state)))
         reply = self.service.handle('!퀴즈', 'other', 'a', '닉네임', room_name='칸코레 진수부에 어서오세요')

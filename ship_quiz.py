@@ -68,7 +68,7 @@ def quota_limit(now):
 def personal_start_period(now):
     local = now.astimezone(KST)
     hour = max(h for h in (0, 3, 15, 18, 20, 22) if h <= local.hour)
-    return f'{local.date().isoformat()}:{hour:02d}', 4 if hour in (3, 15) else 2
+    return f'{local.date().isoformat()}:{hour:02d}', 5 if hour in (3, 15) else 3
 
 
 def stage_label(row):
