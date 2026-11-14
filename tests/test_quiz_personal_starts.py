@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import Mock
 
 from equipment_lookup import normalize
-from ship_quiz import KST, QuizService, personal_start_period
+from ship_quiz import KST, QuizService, personal_start_period, PERSONAL_START_ROOM_ID
 
 
 class PersonalStartTests(unittest.TestCase):
@@ -24,13 +24,13 @@ class PersonalStartTests(unittest.TestCase):
         self.catalog.choose.return_value = question
         self.service = QuizService(self.catalog, self.path, lambda: self.date)
 
-    def send(self, command, player='a', room='r', name='닉네임'):
+    def send(self, command, player='a', room=PERSONAL_START_ROOM_ID, name='닉네임'):
         return self.service.handle(command, room, player, name)
 
-    def solve(self):
-        self.assertIn('정답!', self.send('!정답 정답함'))
+    def solve(self, room=PERSONAL_START_ROOM_ID):
+        self.assertIn('정답!', self.send('!정답 정답함', room=room))
 
-    def state(self, room='r'):
+    def state(self, room=PERSONAL_START_ROOM_ID):
         with sqlite3.connect(self.path) as db:
             row = db.execute('SELECT state FROM rooms WHERE room=?', (room,)).fetchone()
             return json.loads(row[0]) if row else None
@@ -40,7 +40,7 @@ class PersonalStartTests(unittest.TestCase):
             self.assertIn('[칸무스 퀴즈', self.send('!퀴즈'))
             self.solve()
         self.assertEqual(self.send('!퀴즈', name='새 닉네임'),
-                         '✔️ 이번 시간대 출제 4회 소진\n✔️ 다음 출제: 18시')
+                         '✔️ 출제 횟수(4회) 소진')
         self.assertIn('5/10', self.send('!퀴즈', player='b'))
         self.solve()
         self.assertEqual(self.state()['personal_starts']['players'], {'a': 4, 'b': 1})
@@ -55,8 +55,7 @@ class PersonalStartTests(unittest.TestCase):
                 self.assertIn('[칸무스 퀴즈', self.send('!퀴즈'))
                 self.solve()
             blocked = self.send('!퀴즈')
-            self.assertIn(f'출제 {limit}회 소진', blocked)
-            self.assertIn(f'{next_hour}시', blocked)
+            self.assertEqual(blocked, f'✔️ 출제 횟수({limit}회) 소진')
             self.assertEqual(self.state()['personal_starts']['players'], {'a': limit})
         self.assertEqual(personal_start_period(datetime(2026, 11, 15, 15, tzinfo=timezone.utc)),
                          ('2026-11-16:00', 2))
@@ -70,16 +69,20 @@ class PersonalStartTests(unittest.TestCase):
         self.assertEqual(self.state()['personal_starts']['players'], {'a': 2})
         self.assertEqual(self.state()['count'], 2)
         self.solve()
-        self.assertIn('출제 2회 소진', self.send('!퀴즈'))
+        self.assertEqual('✔️ 출제 횟수(2회) 소진', self.send('!퀴즈'))
 
     def test_usage_survives_restart_and_is_separate_per_room(self):
         self.date = self.date.replace(hour=18)
         for _ in range(2):
             self.send('!퀴즈'); self.solve()
         self.service = QuizService(self.catalog, self.path, lambda: self.date)
-        self.assertIn('출제 2회 소진', self.send('!퀴즈'))
+        self.assertEqual('✔️ 출제 횟수(2회) 소진', self.send('!퀴즈'))
         self.assertIn('1/15', self.send('!퀴즈', room='other'))
-        self.assertEqual(self.state('other')['personal_starts']['players'], {'a': 1})
+        self.solve(room='other')
+        for number in range(2,6):
+            self.assertIn(f'{number}/15', self.send('!퀴즈', room='other'))
+            self.solve(room='other')
+        self.assertNotIn('personal_starts', self.state('other'))
 
     def test_simultaneous_commands_charge_only_the_single_successful_issuer(self):
         with ThreadPoolExecutor(max_workers=2) as executor:
@@ -107,7 +110,16 @@ class PersonalStartTests(unittest.TestCase):
     def test_old_room_state_is_preserved_without_guessing_previous_issuers(self):
         state = dict(period='2026-11-15:15', day='2026-11-15', count=9, active=None, recent=[1])
         with sqlite3.connect(self.path) as db:
-            db.execute('INSERT INTO rooms VALUES (?,?)', ('r', json.dumps(state)))
+            db.execute('INSERT INTO rooms VALUES (?,?)', (PERSONAL_START_ROOM_ID, json.dumps(state)))
         self.assertIn('10/10', self.send('!퀴즈'))
         self.assertEqual(self.state()['count'], 10)
         self.assertEqual(self.state()['personal_starts']['players'], {'a': 1})
+
+    def test_room_title_alone_does_not_enable_limit_and_old_other_room_usage_is_ignored(self):
+        state = dict(period='2026-11-15:15', day='2026-11-15', count=0, active=None, recent=[],
+                     personal_starts={'period':'2026-11-15:15','players':{'a': 4}})
+        with sqlite3.connect(self.path) as db:
+            db.execute('INSERT INTO rooms VALUES (?,?)', ('other', json.dumps(state)))
+        reply = self.service.handle('!퀴즈', 'other', 'a', '닉네임', room_name='칸코레 진수부에 어서오세요')
+        self.assertIn('1/10', reply)
+        self.assertEqual(self.state('other')['personal_starts'], state['personal_starts'])

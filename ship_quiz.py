@@ -25,6 +25,7 @@ STATS = [('火力最大', '화력'), ('雷装最大', '뇌장'), ('対空最大'
 COMMANDS = {'!퀴즈', '!정답', '!퀴즈점수', '!퀴즈순위', '!퀴즈랭킹'}
 RANKED_COOLDOWN_ROOM = '칸코레 진수부에 어서오세요'
 RANKED_COOLDOWN_ROOM_ID = '18182686594126049'
+PERSONAL_START_ROOM_ID = '18182686594126049'  # 칸코레 진수부에 어서오세요
 
 
 def answer_cooldown(db, room, player, room_name):
@@ -289,19 +290,21 @@ class QuizService:
                 return (f'✔️ 퀴즈 {limit}회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n'
                         '✔️ 핫타임에 5회씩 추가됩니다.\n'
                         '    (18·20·22·24시에 각 5회 추가)')
-            if not player or player.startswith('name:'):
-                return '참가자 정보를 확인할 수 없어 새 문제를 출제하지 못했습니다.'
-            period, personal_limit = personal_start_period(now)
-            usage = state.get('personal_starts', {})
-            if usage.get('period') != period:
-                usage = {'period': period, 'players': {}}
-            used = usage['players'].get(player, 0)
-            if used >= personal_limit:
-                return (f'✔️ 이번 시간대 출제 {personal_limit}회 소진\n'
-                        f'✔️ 다음 출제: {next_quiz_hour(now)}시')
+            usage = None
+            if room == PERSONAL_START_ROOM_ID:
+                if not player or player.startswith('name:'):
+                    return '참가자 정보를 확인할 수 없어 새 문제를 출제하지 못했습니다.'
+                period, personal_limit = personal_start_period(now)
+                usage = state.get('personal_starts', {})
+                if usage.get('period') != period:
+                    usage = {'period': period, 'players': {}}
+                used = usage['players'].get(player, 0)
+                if used >= personal_limit:
+                    return f'✔️ 출제 횟수({personal_limit}회) 소진'
             question = self.catalog.choose(state['recent'])
-            usage['players'][player] = used + 1
-            state['personal_starts'] = usage
+            if usage is not None:
+                usage['players'][player] = used + 1
+                state['personal_starts'] = usage
             state['count'] += 1
             state['recent'] = [*state['recent'], question['family']][-30:]
             state['active'] = dict(question=question, number=state['count'], wrong=0, seen=[], cooldowns={},
