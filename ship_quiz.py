@@ -64,6 +64,12 @@ def quota_limit(now):
     return 10 + 5 * max(0, (min(hour, 24) - 16) // 2)
 
 
+def personal_start_period(now):
+    local = now.astimezone(KST)
+    hour = max(h for h in (0, 3, 15, 18, 20, 22) if h <= local.hour)
+    return f'{local.date().isoformat()}:{hour:02d}', 4 if hour in (3, 15) else 2
+
+
 def stage_label(row):
     stage = int(row['改装段階'])
     return '미개장' if stage == 0 else '개1' if stage == 1 else '개2 이상'
@@ -265,24 +271,37 @@ class QuizService:
             if not display_name:
                 saved = db.execute('SELECT name FROM scores WHERE room=? AND player=?', (room,str(player or ''))).fetchone()
                 display_name = saved[0] if saved else '참가자'
-            reply = self.dispatch(db, command, argument.strip(), room, str(player or ''), display_name, state)
+            reply = self.dispatch(db, command, argument.strip(), room, str(player or ''), display_name, state, now)
             db.execute('INSERT INTO rooms VALUES (?,?) ON CONFLICT(room) DO UPDATE SET state=excluded.state',
                        (room, json.dumps(state, ensure_ascii=False)))
             return reply
 
-    def dispatch(self, db, command, answer, room, player, name, state):
+    def dispatch(self, db, command, answer, room, player, name, state, now=None):
+        now = now or self.now()
         active = state['active']
         if command in ('!퀴즈점수', '!퀴즈순위', '!퀴즈랭킹'):
             return ranking_text(db, room)
         if command == '!퀴즈':
             if active:
                 return render(active)
-            limit = quota_limit(self.now())
+            limit = quota_limit(now)
             if state['count'] >= limit:
                 return (f'✔️ 퀴즈 {limit}회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n'
                         '✔️ 핫타임에 5회씩 추가됩니다.\n'
                         '    (18·20·22·24시에 각 5회 추가)')
+            if not player or player.startswith('name:'):
+                return '참가자 정보를 확인할 수 없어 새 문제를 출제하지 못했습니다.'
+            period, personal_limit = personal_start_period(now)
+            usage = state.get('personal_starts', {})
+            if usage.get('period') != period:
+                usage = {'period': period, 'players': {}}
+            used = usage['players'].get(player, 0)
+            if used >= personal_limit:
+                return (f'✔️ 이번 시간대 출제 {personal_limit}회 소진\n'
+                        f'✔️ 다음 출제: {next_quiz_hour(now)}시')
             question = self.catalog.choose(state['recent'])
+            usage['players'][player] = used + 1
+            state['personal_starts'] = usage
             state['count'] += 1
             state['recent'] = [*state['recent'], question['family']][-30:]
             state['active'] = dict(question=question, number=state['count'], wrong=0, seen=[], cooldowns={},

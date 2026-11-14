@@ -191,7 +191,7 @@ class QuizTests(unittest.TestCase):
 
     def test_quota_room_isolation_and_morning_reset(self):
         for n in range(1,11):
-            self.assertIn(f'{n}/10',self.send('!퀴즈'))
+            self.assertIn(f'{n}/10',self.send('!퀴즈',player=f'issuer-{n}'))
             self.send('!정답 단양')
         self.assertEqual(self.send('!퀴즈'),
                          '✔️ 퀴즈 10회를 모두 사용했습니다.\n✔️ 연습전 시간에 초기화됩니다.\n✔️ 핫타임에 5회씩 추가됩니다.\n    (18·20·22·24시에 각 5회 추가)')
@@ -310,7 +310,7 @@ class QuizTests(unittest.TestCase):
             self.date=datetime(2026,11,day,hour,0,tzinfo=KST)
             room=f'final-{day}-{hour}'
             for n in range(1,limit+1):
-                self.send('!퀴즈',room=room)
+                self.send('!퀴즈',room=room,player=f'issuer-{n}')
                 reply=self.send('!정답 단양',room=room,name='정답자')
                 self.assertEqual(bool(getattr(reply,'followups',())),n==limit)
             self.assertIn(f'정답자 · {limit}점',reply.followups[0])
@@ -338,8 +338,8 @@ class QuizTests(unittest.TestCase):
 
     def test_refill_before_answer_does_not_report_premature_completion(self):
         self.date=datetime(2026,11,2,17,0,tzinfo=KST)
-        for _ in range(9):
-            self.send('!퀴즈');self.send('!정답 단양')
+        for n in range(9):
+            self.send('!퀴즈',player=f'issuer-{n}');self.send('!정답 단양')
         self.send('!퀴즈')
         self.date=datetime(2026,11,2,18,0,tzinfo=KST)
         reply=self.send('!정답 단양')
@@ -492,7 +492,7 @@ class QuizTests(unittest.TestCase):
     def test_unused_fifteen_at_eighteen_then_five_more_at_twenty(self):
         self.date=datetime(2026,11,2,18,0,tzinfo=KST)
         for n in range(1,16):
-            self.assertIn(f'{n}/15',self.send('!퀴즈'))
+            self.assertIn(f'{n}/15',self.send('!퀴즈',player=f'issuer-{n}'))
             self.send('!정답 단양')
         exhausted=self.send('!퀴즈')
         self.assertIn('퀴즈 15회를 모두 사용',exhausted)
@@ -508,8 +508,8 @@ class QuizTests(unittest.TestCase):
         self.assertIn('참가자 · 16점',self.send('!퀴즈점수'))
 
     def test_accumulation_without_messages_and_restart_has_no_double_grant(self):
-        for _ in range(10):
-            self.send('!퀴즈')
+        for n in range(10):
+            self.send('!퀴즈',player=f'issuer-{n}')
             self.send('!정답 단양')
         self.date=datetime(2026,11,2,18,0,tzinfo=KST)
         self.assertIn('11/15',self.send('!퀴즈'))
