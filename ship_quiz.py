@@ -300,7 +300,7 @@ class QuizService:
                     usage = {'period': period, 'players': {}}
                 used = usage['players'].get(player, 0)
                 if used >= personal_limit:
-                    return f'✔️ 출제 횟수({personal_limit}회) 소진'
+                    return f'✔️ 개인 출제 횟수({personal_limit}회) 소진'
             question = self.catalog.choose(state['recent'])
             if usage is not None:
                 usage['players'][player] = used + 1

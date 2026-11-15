@@ -40,7 +40,7 @@ class PersonalStartTests(unittest.TestCase):
             self.assertIn('[칸무스 퀴즈', self.send('!퀴즈'))
             self.solve()
         self.assertEqual(self.send('!퀴즈', name='새 닉네임'),
-                         '✔️ 출제 횟수(5회) 소진')
+                         '✔️ 개인 출제 횟수(5회) 소진')
         self.assertIn('6/10', self.send('!퀴즈', player='b'))
         self.solve()
         self.assertEqual(self.state()['personal_starts']['players'], {'a': 5, 'b': 1})
@@ -55,7 +55,7 @@ class PersonalStartTests(unittest.TestCase):
                 self.assertIn('[칸무스 퀴즈', self.send('!퀴즈'))
                 self.solve()
             blocked = self.send('!퀴즈')
-            self.assertEqual(blocked, f'✔️ 출제 횟수({limit}회) 소진')
+            self.assertEqual(blocked, f'✔️ 개인 출제 횟수({limit}회) 소진')
             self.assertEqual(self.state()['personal_starts']['players'], {'a': limit})
         self.assertEqual(personal_start_period(datetime(2026, 11, 15, 15, tzinfo=timezone.utc)),
                          ('2026-11-16:00', 3))
@@ -70,14 +70,14 @@ class PersonalStartTests(unittest.TestCase):
         self.assertEqual(self.state()['personal_starts']['players'], {'a': 3})
         self.assertEqual(self.state()['count'], 3)
         self.solve()
-        self.assertEqual('✔️ 출제 횟수(3회) 소진', self.send('!퀴즈'))
+        self.assertEqual('✔️ 개인 출제 횟수(3회) 소진', self.send('!퀴즈'))
 
     def test_usage_survives_restart_and_is_separate_per_room(self):
         self.date = self.date.replace(hour=18)
         for _ in range(3):
             self.send('!퀴즈'); self.solve()
         self.service = QuizService(self.catalog, self.path, lambda: self.date)
-        self.assertEqual('✔️ 출제 횟수(3회) 소진', self.send('!퀴즈'))
+        self.assertEqual('✔️ 개인 출제 횟수(3회) 소진', self.send('!퀴즈'))
         self.assertIn('1/15', self.send('!퀴즈', room='other'))
         self.solve(room='other')
         for number in range(2,6):
