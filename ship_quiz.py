@@ -65,10 +65,10 @@ def quota_limit(now):
     return 10 + 5 * max(0, (min(hour, 24) - 16) // 2)
 
 
-def personal_start_period(now):
-    local = now.astimezone(KST)
-    hour = max(h for h in (0, 3, 15, 18, 20, 22) if h <= local.hour)
-    return f'{local.date().isoformat()}:{hour:02d}', 5 if hour in (3, 15) else 3
+def personal_start_period(now, issued_count):
+    """Charge the next issue to its actual ten/five-question allocation."""
+    first = 1 if issued_count < 10 else 11 + 5 * ((issued_count - 10) // 5)
+    return f'{quota_period(now)}:questions:{first}', 5 if first == 1 else 3
 
 
 def stage_label(row):
@@ -294,7 +294,7 @@ class QuizService:
             if room == PERSONAL_START_ROOM_ID:
                 if not player or player.startswith('name:'):
                     return '참가자 정보를 확인할 수 없어 새 문제를 출제하지 못했습니다.'
-                period, personal_limit = personal_start_period(now)
+                period, personal_limit = personal_start_period(now, state['count'])
                 usage = state.get('personal_starts', {})
                 if usage.get('period') != period:
                     usage = {'period': period, 'players': {}}
