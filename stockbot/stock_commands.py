@@ -20,6 +20,10 @@ PORTFOLIO = PortfolioService(quote_loader=SERVICE.details, symbol_names=SERVICE.
                              ticker_lookup=SERVICE.ticker_for_name)
 EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix='stock-reply')
 PENDING = threading.BoundedSemaphore(8)
+INDEX_COMMAND_ALIASES = {
+    '!국내': '!국내지수', '!국장': '!국내지수',
+    '!미장': '!미국지수', '!미국': '!미국지수',
+}
 INVESTMENT_HELP = (
     "[주갤봇 사용법]" + "\u200b" * 4000 + "\n\n"
     "💡 명령어 앞에 느낌표(!)를 붙여주세요.\n"
@@ -30,9 +34,11 @@ INVESTMENT_HELP = (
     "예: !주가 넵튠 / !주가 삼전 / !주가 NVDA\n\n"
     "━━━━ 지수 · 선물 ━━━━\n"
     "!국내지수 — 코스피·코스닥·코스피200\n"
+    "별칭: !국내 / !국장\n"
     "!시총 — 코스피·코스닥 시가총액 Top 8\n"
     "!수급 — 시장별 개인·외국인·기관 순매수\n"
     "!미국지수 — S&P500·나스닥·다우\n"
+    "별칭: !미장 / !미국\n"
     "!나선 — 나스닥100 선물\n"
     "!야선 — KOSPI200 야간선물\n\n"
     "━━━━ 환율 · 상품 · 금리 ━━━━\n"
@@ -54,6 +60,7 @@ INVESTMENT_HELP = (
 
 def handle(message, chat_id, reply_url):
     """Route investment commands without registering them in the main help list."""
+    message = INDEX_COMMAND_ALIASES.get(message.strip(), message)
     match = re.fullmatch(r'!주가(?:\s+(.*))?', message)
     investment_help = message.strip() == '!주갤'
     private = re.fullmatch(r'!(보유|실현)(?:\s+(.*))?', message)
