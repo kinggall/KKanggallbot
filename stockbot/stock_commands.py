@@ -9,11 +9,13 @@ from .portfolio import PortfolioService
 from .market_data import MarketService, MarketProvider, GROUPS
 from .night_futures import KISNightFutures
 from .investor_flows import InvestorFlows, KISFlowLoader
+from .market_caps import MarketCaps, KISMarketCapLoader
 from . import weekend_work
 
 SERVICE = stock_quotes.StockService()
 MARKETS = MarketService(MarketProvider(night_loader=KISNightFutures(SERVICE)))
 FLOWS = InvestorFlows(KISFlowLoader(MARKETS.provider.night_loader))
+CAPS = MarketCaps(KISMarketCapLoader(MARKETS.provider.night_loader))
 PORTFOLIO = PortfolioService(quote_loader=SERVICE.details, symbol_names=SERVICE.names_for_ticker,
                              ticker_lookup=SERVICE.ticker_for_name)
 EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix='stock-reply')
@@ -28,6 +30,7 @@ INVESTMENT_HELP = (
     "예: !주가 넵튠 / !주가 삼전 / !주가 NVDA\n\n"
     "━━━━ 지수 · 선물 ━━━━\n"
     "!국내지수 — 코스피·코스닥·코스피200\n"
+    "!시총 — 코스피·코스닥 시가총액 Top 8\n"
     "!수급 — 시장별 개인·외국인·기관 순매수\n"
     "!미국지수 — S&P500·나스닥·다우\n"
     "!나선 — 나스닥100 선물\n"
@@ -55,9 +58,10 @@ def handle(message, chat_id, reply_url):
     investment_help = message.strip() == '!주갤'
     private = re.fullmatch(r'!(보유|실현)(?:\s+(.*))?', message)
     flows = message.strip() == '!수급'
+    caps = message.strip() == '!시총'
     weekend = message.strip() == '!주말출근'
     market = message.strip()[1:] if message.strip().startswith('!') and message.strip()[1:] in GROUPS else None
-    if not match and not investment_help and not private and not market and not flows and not weekend:
+    if not match and not investment_help and not private and not market and not flows and not caps and not weekend:
         return None
     if chat_id is None or str(chat_id) == '':
         return {'ok': False, 'error': 'chat_id missing'}, 400
@@ -75,6 +79,7 @@ def handle(message, chat_id, reply_url):
                     weekend_work.reply(quote_loader=SERVICE.details,
                                        fx_loader=lambda: MARKETS.provider.load(GROUPS['환율'][0]).value) if weekend else
                     FLOWS.reply() if flows else
+                    CAPS.reply() if caps else
                     MARKETS.reply(market) if market else
                     PORTFOLIO.reply(private.group(1), private.group(2) or '') if private else
                     SERVICE.reply(match.group(1) or ''))
