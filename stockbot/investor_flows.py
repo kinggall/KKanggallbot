@@ -61,10 +61,14 @@ class KISFlowLoader:
         self.adapter=adapter
         self.now=now or (lambda:datetime.now(KST))
 
+    def fetch(self,market):
+        if market not in FLOW_MARKETS:
+            raise MarketDataError('Unsupported investor-flow market')
+        return query(self.adapter.client_instance(),INVESTOR,
+                     {'FID_INPUT_ISCD':market.market,'FID_INPUT_ISCD_2':market.sector})
+
     def __call__(self,market):
-        data=query(self.adapter.client_instance(),INVESTOR,
-                   {'FID_INPUT_ISCD':market.market,'FID_INPUT_ISCD_2':market.sector})
-        return parse_snapshot(data,self.now())
+        return parse_snapshot(self.fetch(market),self.now())
 
 
 def amount_text(value):
@@ -105,6 +109,6 @@ class InvestorFlows:
         available=[snapshot for snapshot in snapshots if snapshot]
         if available:
             latest=max(snapshot.retrieved_at for snapshot in available)
-            lines.extend(['조회 기준: '+latest.strftime('%Y-%m-%d. %H:%M'),'출처: 한국투자증권'])
+            lines.extend(['조회 시각(KST): '+latest.strftime('%Y-%m-%d. %H:%M'),'출처: 한국투자증권'])
         else:lines.append('데이터 연결을 확인해 주세요.')
         return '\n'.join(lines)

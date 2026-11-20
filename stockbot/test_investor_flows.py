@@ -53,7 +53,8 @@ class FlowTests(unittest.TestCase):
         self.assertIn('[투자자 순매수 · 억원]',text)
         self.assertIn('🇰🇷 코스피\n   개인 +1,234 / 외국인 -3,456\n   기관 +2,222',text)
         self.assertIn('풋옵션: 조회 불가',text)
-        self.assertIn('조회 기준: 2026-10-30. 10:25\n출처: 한국투자증권',text)
+        self.assertIn('조회 시각(KST): 2026-10-30. 10:25\n출처: 한국투자증권',text)
+        self.assertNotIn('조회 기준:',text)
         self.assertNotIn('secret-token',text)
 
     def test_no_expired_success_is_relabelled_current_after_failure(self):
@@ -77,6 +78,23 @@ class FlowTests(unittest.TestCase):
         import bot
         self.assertIn('!수급',stock_commands.INVESTMENT_HELP)
         for value in bot.COMMANDS.values():self.assertNotIn('!수급',value)
+
+    def test_diagnostic_reports_amount_arithmetic_without_private_values(self):
+        from stockbot.verify_flows import public_details
+        text='\n'.join(public_details({'access_token':'private-token','output':{
+            'prsn_ntby_tr_pbmn':'150','prsn_shnu_tr_pbmn':'250',
+            'prsn_seln_tr_pbmn':'100','prsn_ntby_qty':'999999',
+            'stck_bsop_date':'20261120','time':'private-time',
+            'unknown':'private-value'}}))
+        self.assertIn('net / 100 (억원): +1.5',text)
+        self.assertIn('net - (buy - sell): 0',text)
+        self.assertIn('stck_bsop_date=20261120',text)
+        for secret in ('private-token','private-time','private-value'):
+            self.assertNotIn(secret,text)
+
+    def test_diagnostic_does_not_invent_source_timestamp(self):
+        from stockbot.verify_flows import public_details
+        self.assertIn('원본 집계시각 필드: 미제공','\n'.join(public_details({'output':{}})))
 
 
 if __name__=='__main__':unittest.main()

@@ -29,11 +29,18 @@ https://github.com/koreainvestment/open-trading-api/blob/main/legacy/postman/실
 https://github.com/koreainvestment/open-trading-api/tree/main/examples_llm/domestic_stock/inquire_investor_time_by_market
 
 상단 현재 집계표를 읽으며, 일별 자료로 대체하거나 여러 행을 임의 합산하지 않습니다.
-원본 집계 시각을 명세에서 확인하지 못했으므로 footer는 요청한 한국시간입니다.
+원본 집계 시각을 명세에서 확인하지 못했으므로 footer는 `조회 시각(KST)`로
+요청한 한국시간만 표시합니다. 그 시각의 실시간 집계값이라는 뜻이 아닙니다.
 휴장/장외에 마지막 집계가 반환될 수 있으며 틱 실시간이라고 보장하지 않습니다.
 15초 성공 캐시·5초 실패 캐시를 사용하고, 실패한 시장은 다른 시장과 분리합니다.
 비어 있는 투자자 값은 0으로 채우지 않습니다. 실패 시 만료된 성공값을 재전송하지 않습니다.
 
 사용자 도움말은 !주갤에만 추가하고 공용 사용방법·대문에는 넣지 않습니다.
 PC 실조회는 python -m stockbot.verify_flows로 공개 수급 원자료와 성공 여부를 확인합니다.
+`python -m stockbot.verify_flows --details`는 동일 요청 한 번의 공개 금액·수량 필드,
+매수−매도와 순매수의 차이, 응답에 포함된 시간 필드를 비교합니다.
+인증 헤더·토큰·계좌 정보·API 전체 원문은 출력하지 않습니다.
+증권 앱과 대조할 때는 동시에 조회하고 거래소 범위(KRX/NXT/통합)와 해당 앱의
+수급 집계 시각을 확인해야 합니다. 공식 명세에 없는 NXT 시장 코드를 추정하거나
+화면 숫자에 맞춰 변환 배율을 임의 변경하지 않습니다.
 클라우드의 가상 응답 테스트는 실제 API 응답/권한/집계 단위 검증을 대신하지 않습니다.
