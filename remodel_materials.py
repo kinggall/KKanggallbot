@@ -45,9 +45,9 @@ def supplement_reference():
 
 def render_requirements(counts, equipment=()):
     counts = counts if isinstance(counts, dict) else dict(enumerate(counts))
-    parts = [f'{MATERIALS[index]} 미확인' if count is None else f'{MATERIALS[index]} {count}'
+    parts = [f'{MATERIALS[index]} {count}'
              for index,count in sorted(counts.items())
-             if index != 8 and (count is None or count)]
+             if index != 8 and count]
     required = list(equipment)
     if counts.get(8):
         # Column 15 of the legacy reference is a piece of equipment.

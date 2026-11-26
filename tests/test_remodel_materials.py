@@ -47,7 +47,7 @@ class RemodelMaterialsTests(unittest.TestCase):
             self.assertEqual(len(route["materials"]), 12)
             self.assertTrue(all(n is None or (type(n) is int and n >= 0) for n in route["materials"]))
             text = materials.material_text(source, None)
-            self.assertEqual(bool(text), any(n is None or n for n in route["materials"]))
+            self.assertEqual(bool(text), any(n for n in route["materials"]))
         self.assertEqual(materials.material_text(ships['503'], None), ' · 재료 : 설계도 1/자재 10/건조재 20')
         self.assertEqual(materials.material_text(ships['508'], None), ' · 재료 : 자재 10/건조재 20')
         for sid in ('622', '623', '624'):
@@ -102,8 +102,9 @@ class RemodelMaterialsTests(unittest.TestCase):
         self.assertNotIn('상보',tany)
         self.assertIn('병장자재 2',tany)
         unknown=materials.material_text(bot.SHIP_BY_GAME_ID[740],None)
-        self.assertIn('자재 미확인',unknown)
-        self.assertIn('건조재 미확인',unknown)
+        self.assertEqual(unknown, '')
+        self.assertIsNone(materials.convert_reference()['740']['materials'][6])
+        self.assertIsNone(materials.convert_reference()['740']['materials'][7])
 
     def test_convert_does_not_reuse_initial_blueprints(self):
         source = {"艦名": "大和改二重", "改装後": "大和改二", "改装Lv": "88"}
