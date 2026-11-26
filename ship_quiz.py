@@ -72,6 +72,8 @@ def personal_start_period(now, issued_count):
 
 
 def stage_label(row):
+    if row.get('艦名', '').endswith('改偵'):
+        return '개1'
     stage = int(row['改装段階'])
     return '미개장' if stage == 0 else '개1' if stage == 1 else '개2 이상'
 

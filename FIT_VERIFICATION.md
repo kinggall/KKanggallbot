@@ -2,13 +2,13 @@
 
 ## 데이터 출처
 
-- 원본 규칙: [ElectronicObserverEN/Data, Data/FitBonuses.json](https://github.com/ElectronicObserverEN/Data/blob/1603c0ac77fd57e7ee44f1ebc31dde84f74cd867/Data/FitBonuses.json). 장비·종류별 296개 묶음, 조건별 보정 1,721개입니다. `data/fit_bonuses.json`은 이 파일과 바이트 단위로 동일합니다.
+- 원본 규칙: [ElectronicObserverEN/Data, Data/FitBonuses.json](https://github.com/ElectronicObserverEN/Data/blob/09fa1df4367bb503b99646f99dd1ef1fb0962e1f/Data/FitBonuses.json). 장비·종류별 296개 묶음, 조건별 보정 1,721개입니다. `data/fit_bonuses.json`은 이 파일과 바이트 단위로 동일합니다.
 - 한국어 장비명·장비 종류명: 같은 커밋의 `Translations/ko-KR/equipment.json`. 번역이 없는 이름은 일본어로 유지합니다. 원본 번역 파일은 수정하지 않았습니다.
 - 봇 표시명 보정: `data/equipment_name_overrides.json`. 장비 ID 483 `三式弾改二`의 원본 번역 `3식 改2`에는 '탄'이 빠져 있어, CSV의 일본어 원명과 대조한 뒤 `3식탄 개2`로 표시합니다. 원본 JSON·상위 저장소는 수정하지 않습니다.
-- 함종·함급·장착 제한·전탐 능력치: [kcwiki 게임 마스터](https://github.com/kcwiki/kancolle-data/blob/7b92cdb8e4601fdec45ddd00489c7c6da9fa346d/api/api_start2.json).
+- 함종·함급·장착 제한·전탐 능력치: [kcwiki 게임 마스터](https://github.com/kcwiki/kancolle-data/blob/cd3989ed4b25650215b5a9be000c848444909fd0/api/api_start2.json).
 - 조건 해석 참고: [74식 FitBonusExtensions.cs](https://github.com/ElectronicObserverEN/ElectronicObserver/blob/8b66df3/ElectronicObserver.Core/Types/Extensions/FitBonusExtensions.cs), `FitBonusData.cs`, `ShipDataExtensions.cs`, `EquipmentDataExtensions.cs`.
 
-현재 CSV 일반 칸무스 **866개 개장형**, 장비 **741종**을 함선 ID·장비 ID로 연결합니다. 국적은 74식과 같은 SortID 구간으로 구분하고, 미개장 기준 함선은 기존 CSV 개장 계보에서 찾습니다. 함급·국적·함종·개별 함선·미개장 기준 지정은 원본의 모든 조건을 동시에 만족해야 합니다.
+현재 CSV 일반 칸무스 **870개 개장형**, 장비 **742종**을 함선 ID·장비 ID로 연결합니다. 국적은 74식과 같은 SortID 구간으로 구분하고, 미개장 기준 함선은 기존 CSV 개장 계보에서 찾습니다. 함급·국적·함종·개별 함선·미개장 기준 지정은 원본의 모든 조건을 동시에 만족해야 합니다.
 
 장착 후보는 함종 기본 장비 규칙 대신 개별 함선 예외가 있으면 이를 우선하며, 보강증설 전용 허용 장비도 후보에 포함합니다. 일반 슬롯에 장착할 수 없는 후보는 이름에 `보강증설 전용`과 필요한 ★를 표시합니다. 이 목록은 시너지 조건 조회입니다. 플레이어의 현재 장비·보강증설 개방·장비 보유 상태를 읽거나 편성을 자동으로 구성하지 않습니다.
 

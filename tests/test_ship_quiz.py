@@ -17,6 +17,16 @@ KST = ZoneInfo('Asia/Seoul')
 
 
 class QuizTests(unittest.TestCase):
+    def test_new_reconnaissance_forms_share_existing_families_and_have_metadata(self):
+        for sid,base in ((750,23),(751,54),(752,424),(753,61)):
+            row=self.catalog.details[sid]
+            self.assertEqual(row['family'],base)
+            self.assertEqual(row['speed'],'고속')
+            self.assertIn('정찰',row['name'])
+            self.assertNotIn('偵',row['name'])
+        self.assertEqual(self.catalog.details[753]['stage'],'개1')
+        self.assertEqual(self.catalog.details[750]['stage'],'개2 이상')
+
     @classmethod
     def setUpClass(cls):
         cls.catalog = QuizCatalog(ROOT)

@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "encoding": "cp932",
-  "ships_source_sha256": "6348bdc432c006bba615e896c2f38c612864acae99829200cb86c4af4fa905e1",
-  "ships_runtime_sha256": "7e9f280405619afbb27dad313cb5ffe3dd0b6c0654e094f3543065f2800bd868",
+  "ships_source_sha256": "21b7e7b7678feb14edf5c4f0d179b67b17b8c7f9016684ec427ef5972c1aef4a",
+  "ships_runtime_sha256": "a2c9619b7549e83ff2cd0d165e673d40481c1e661aba80c82a137a249cd142ca",
   "equipment_sha256": "2544386f044097e423b1c71c4d75bad644d341a934a953a5ee8c095aee4f7987",
-  "ship_rows": 1755,
+  "ship_rows": 1759,
   "equipment_rows": 742,
-  "normal_ship_forms": 866,
+  "normal_ship_forms": 870,
   "normal_equipment": 585
 }

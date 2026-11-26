@@ -30,8 +30,19 @@ class ObserverCSVTests(unittest.TestCase):
                          ('data/observer_source/ships.csv','ships_source_sha256')]:
             self.assertEqual(hashlib.sha256((ROOT/path).read_bytes()).hexdigest(),manifest[key])
         _,ships=read_csv(ROOT/'ships.csv')
-        self.assertEqual(sum(0<int(r['艦船ID'])<1500 for r in ships),866)
+        self.assertEqual(sum(0<int(r['艦船ID'])<1500 for r in ships),870)
         by_id={r['艦船ID']:r for r in ships}
         self.assertEqual(by_id['951']['初期装備1'],'???')
         self.assertEqual(by_id['902']['対潜最大'],'81')
         self.assertEqual(by_id['1060']['対潜最大'],'???')
+
+    def test_november_reconnaissance_forms_and_existing_stat_changes(self):
+        _, ships=read_csv(ROOT/'ships.csv')
+        by_name={r['艦名']:r for r in ships}
+        for name,parent in (('由良改二偵','由良改二'),('川内改二偵','川内改二'),
+                            ('高波改二偵','高波改二'),('青葉改偵','青葉改')):
+            self.assertEqual(by_name[name]['改装前'],parent)
+            self.assertEqual(by_name[parent]['改装後'],name)
+        self.assertEqual(by_name['磯波改二']['火力最大'],'59')
+        self.assertEqual(by_name['浦波改二']['雷装最大'],'87')
+        self.assertEqual(by_name['秋雲改二']['対空最大'],'67')

@@ -48,8 +48,8 @@ class InitialEquipmentTests(unittest.TestCase):
                          self.bot.build_initial_equipment_reply("로-500"))
         self.assertGreater(self.bot.build_initial_equipment_reply("U-511").count("["), 1)
 
-    def test_all_866_forms_preserve_known_csv_item_order_and_every_supplement(self):
-        self.assertEqual(len(self.ships), 866)
+    def test_all_870_forms_preserve_known_csv_item_order_and_every_supplement(self):
+        self.assertEqual(len(self.ships), 870)
         used_supplements = set()
         for ship_id, ship in self.ships.items():
             expected = []

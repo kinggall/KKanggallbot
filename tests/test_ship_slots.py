@@ -67,7 +67,7 @@ class ShipSlotTests(unittest.TestCase):
                     counts["zero_disallowed"] += 1
                     self.assertIn(bot.NO_AIRCRAFT_MESSAGE, text)
                 self.assertNotIn("슬롯1", text)
-        self.assertEqual(counts, {"positive": 401, "zero_allowed": 20, "zero_disallowed": 445})
+        self.assertEqual(counts, {"positive": 404, "zero_allowed": 20, "zero_disallowed": 446})
 
     def test_kaga_all_five_forms_and_capacity_only_format(self):
         self.assertEqual(bot.build_ship_slots_reply("카가"),
