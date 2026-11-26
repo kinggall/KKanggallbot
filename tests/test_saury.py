@@ -16,6 +16,8 @@ class SauryTests(unittest.TestCase):
         self.assertEqual(rows['3-2','K']['a'],'23.234')
         self.assertEqual(rows['1-5','I']['s'],'30.323')
         self.assertEqual(rows['1-1','C']['s'],'1.547')
+        self.assertEqual(sum(r['boss'] for r in rows.values()),13)
+        self.assertFalse(rows['1-6','J']['boss'])
         for row in rows.values():
             for rank in ('s','a'):
                 self.assertTrue(0<=Decimal(row[rank])<=100)
@@ -23,16 +25,21 @@ class SauryTests(unittest.TestCase):
     def test_offline_format_order_year_and_equipment(self):
         with patch('requests.get',side_effect=AssertionError('No command fetch')):
             text=saury.format_reply()
-        self.assertIn('✔️ 2024년 기준',text)
+        self.assertIn('확률 출처: poi-statistics · 2024년 기준',text)
+        self.assertNotIn('✔️ 2024년 기준',text)
+        self.assertLess(text.index('[꽁치 드랍 확률 증가 장비]'),text.index('2024년 기준'))
+        self.assertIn('· 3-2 보스: S 10.6% / A 2.3%',text)
+        self.assertNotIn('· 3-2 L:',text)
+        self.assertIn('· 1-6 J: S 43.6%',text)
         self.assertTrue(text.startswith('[꽁치 드랍 확률]' + '\u200b' * 4000))
         self.assertNotIn(' / A 0.0%',text)
         self.assertIn('· 3-2 K: S 56.9% / A 23.2%',text)
-        self.assertIn('· 1-1 C: S 1.5%',text)
+        self.assertIn('· 1-1 보스: S 1.5%',text)
         self.assertIn('· 1-1 B: S 3.0%',text)
         self.assertIn('· 6-1 J: S 22.2%',text)
-        self.assertLess(text.index('· 1-1 C'),text.index('· 1-2 C'))
-        self.assertLess(text.index('· 6-5 M'),text.index('· 7-4 H'))
-        self.assertLess(text.index('· 7-4 P'),text.index('[꽁치 유리 장비]'))
+        self.assertLess(text.index('· 1-1 보스'),text.index('· 1-2 C'))
+        self.assertLess(text.index('· 6-5 보스'),text.index('· 7-4 H'))
+        self.assertLess(text.index('· 7-4 보스'),text.index('[꽁치 드랍 확률 증가 장비]'))
         for category in ('소나','폭뢰','정찰기·수상폭격기·뇌격기'):
             self.assertIn('· '+category+':',text)
         self.assertIn('폭뢰투사기는 어장에 피해',text)
