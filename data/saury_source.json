@@ -1,0 +1,549 @@
+{
+  "schema": 1,
+  "source": "https://akashi-list.me/",
+  "source_title": "期間限定ドロップイベント 鎮守府秋刀魚祭り2026年 Wiki",
+  "rate_year": 2024,
+  "rate_source": "https://db.kcwiki.org/event-sanma2024/",
+  "rows": [
+    {
+      "map": "1-1",
+      "position": 0,
+      "icon_style": "top:75px;left:550px",
+      "s": "3.0",
+      "a": "0"
+    },
+    {
+      "map": "1-1",
+      "position": 1,
+      "icon_style": "top:250px;left:570px",
+      "s": "1.5",
+      "a": "0"
+    },
+    {
+      "map": "1-2",
+      "position": 0,
+      "icon_style": "top:140px;left:600px",
+      "s": "10.8",
+      "a": "0"
+    },
+    {
+      "map": "1-2",
+      "position": 1,
+      "icon_style": "top:255px;left:465px",
+      "s": "5.0",
+      "a": "0"
+    },
+    {
+      "map": "1-3",
+      "position": 0,
+      "icon_style": "top:315px;left:165px",
+      "s": "16.9",
+      "a": "0"
+    },
+    {
+      "map": "1-4",
+      "position": 0,
+      "icon_style": "top:135px;left:645px",
+      "s": "19.0",
+      "a": "0"
+    },
+    {
+      "map": "1-4",
+      "position": 1,
+      "icon_style": "top:60px;left:505px",
+      "s": "10.7",
+      "a": "0"
+    },
+    {
+      "map": "1-4",
+      "position": 2,
+      "icon_style": "top:180px;left:455px",
+      "s": "7.7",
+      "a": "0"
+    },
+    {
+      "map": "1-4",
+      "position": 3,
+      "icon_style": "top:290px;left:525px",
+      "s": "12.8",
+      "a": "0"
+    },
+    {
+      "map": "1-5",
+      "position": 0,
+      "icon_style": "top:300px;left:540px",
+      "s": "11.6",
+      "a": "0"
+    },
+    {
+      "map": "1-5",
+      "position": 1,
+      "icon_style": "top:325px;left:630px",
+      "s": "27.7",
+      "a": "0"
+    },
+    {
+      "map": "1-5",
+      "position": 2,
+      "icon_style": "top:130px;left:640px",
+      "s": "30.3",
+      "a": "0"
+    },
+    {
+      "map": "1-6",
+      "position": 0,
+      "icon_style": "top:80px;left:520px",
+      "s": "43.6",
+      "a": "0"
+    },
+    {
+      "map": "1-6",
+      "position": 1,
+      "icon_style": "top:105px;left:370px",
+      "s": "20.1",
+      "a": "0"
+    },
+    {
+      "map": "1-6",
+      "position": 2,
+      "icon_style": "top:90px;left:240px",
+      "s": "40.3",
+      "a": "0"
+    },
+    {
+      "map": "3-1",
+      "position": 0,
+      "icon_style": "top:80px;left:630px",
+      "s": "43.3",
+      "a": "20.7"
+    },
+    {
+      "map": "3-2",
+      "position": 0,
+      "icon_style": "top:110px;left:535px",
+      "s": "10.5",
+      "a": "2.2"
+    },
+    {
+      "map": "3-2",
+      "position": 1,
+      "icon_style": "top:305px;left:525px",
+      "s": "30.5",
+      "a": "12.1"
+    },
+    {
+      "map": "3-2",
+      "position": 2,
+      "icon_style": "top:235px;left:640px",
+      "s": "56.9",
+      "a": "23.2"
+    },
+    {
+      "map": "3-3",
+      "position": 0,
+      "icon_style": "top:130px;left:445px",
+      "s": "21.4",
+      "a": "7.4"
+    },
+    {
+      "map": "3-3",
+      "position": 1,
+      "icon_style": "top:310px;left:605px",
+      "s": "35.8",
+      "a": "13.1"
+    },
+    {
+      "map": "3-3",
+      "position": 2,
+      "icon_style": "top:90px;left:650px",
+      "s": "39.0",
+      "a": "15.6"
+    },
+    {
+      "map": "3-4",
+      "position": 0,
+      "icon_style": "top:129px;left:630px",
+      "s": "20.5",
+      "a": "6.9"
+    },
+    {
+      "map": "3-4",
+      "position": 1,
+      "icon_style": "top:50px;left:500px",
+      "s": "20.1",
+      "a": "10.5"
+    },
+    {
+      "map": "3-4",
+      "position": 2,
+      "icon_style": "top:255px;left:570px",
+      "s": "43.0",
+      "a": "14.0"
+    },
+    {
+      "map": "3-5",
+      "position": 0,
+      "icon_style": "top:260px;left:500px",
+      "s": "31.7",
+      "a": "8.5"
+    },
+    {
+      "map": "3-5",
+      "position": 1,
+      "icon_style": "top:160px;left:650px",
+      "s": "35.3",
+      "a": "14.3"
+    },
+    {
+      "map": "7-4",
+      "position": 0,
+      "icon_style": "top:205px;left:410px",
+      "s": "23.7",
+      "a": "12.6"
+    },
+    {
+      "map": "7-4",
+      "position": 1,
+      "icon_style": "top:325px;left:430px",
+      "s": "27.2",
+      "a": "0"
+    },
+    {
+      "map": "7-4",
+      "position": 2,
+      "icon_style": "top:115px;left:605px",
+      "s": "27.8",
+      "a": "17.7"
+    },
+    {
+      "map": "6-1",
+      "position": 0,
+      "icon_style": "top:159px;left:640px",
+      "s": "10.9",
+      "a": "5.6"
+    },
+    {
+      "map": "6-1",
+      "position": 1,
+      "icon_style": "top:69px;left:520px",
+      "s": "31.9",
+      "a": "9.0"
+    },
+    {
+      "map": "6-1",
+      "position": 2,
+      "icon_style": "top:340px;left:600px",
+      "s": null,
+      "a": "0"
+    },
+    {
+      "map": "6-5",
+      "position": 0,
+      "icon_style": "top:310px;left:360px",
+      "s": "20.5",
+      "a": "0"
+    },
+    {
+      "map": "6-5",
+      "position": 1,
+      "icon_style": "top:325px;left:475px",
+      "s": "19.8",
+      "a": "0"
+    },
+    {
+      "map": "6-5",
+      "position": 2,
+      "icon_style": "top:260px;left:550px",
+      "s": "24.4",
+      "a": "11.3"
+    },
+    {
+      "map": "6-5",
+      "position": 3,
+      "icon_style": "top:110px;left:320px",
+      "s": "8.4",
+      "a": "5.8"
+    },
+    {
+      "map": "6-5",
+      "position": 4,
+      "icon_style": "top:90px;left:630px",
+      "s": "26.0",
+      "a": "17.6"
+    }
+  ],
+  "layout": {
+    "1-1": [
+      "top:75px;left:550px",
+      "top:250px;left:570px"
+    ],
+    "1-2": [
+      "top:140px;left:600px",
+      "top:255px;left:465px"
+    ],
+    "1-3": [
+      "top:315px;left:165px"
+    ],
+    "1-4": [
+      "top:135px;left:645px",
+      "top:60px;left:505px",
+      "top:180px;left:455px",
+      "top:290px;left:525px"
+    ],
+    "1-5": [
+      "top:300px;left:540px",
+      "top:325px;left:630px",
+      "top:130px;left:640px"
+    ],
+    "1-6": [
+      "top:80px;left:520px",
+      "top:105px;left:370px",
+      "top:90px;left:240px"
+    ],
+    "3-1": [
+      "top:80px;left:630px"
+    ],
+    "3-2": [
+      "top:110px;left:535px",
+      "top:305px;left:525px",
+      "top:235px;left:640px"
+    ],
+    "3-3": [
+      "top:130px;left:445px",
+      "top:310px;left:605px",
+      "top:90px;left:650px"
+    ],
+    "3-4": [
+      "top:129px;left:630px",
+      "top:50px;left:500px",
+      "top:255px;left:570px"
+    ],
+    "3-5": [
+      "top:260px;left:500px",
+      "top:160px;left:650px"
+    ],
+    "7-4": [
+      "top:205px;left:410px",
+      "top:325px;left:430px",
+      "top:115px;left:605px"
+    ],
+    "6-1": [
+      "top:159px;left:640px",
+      "top:69px;left:520px",
+      "top:340px;left:600px"
+    ],
+    "6-5": [
+      "top:310px;left:360px",
+      "top:325px;left:475px",
+      "top:260px;left:550px",
+      "top:110px;left:320px",
+      "top:90px;left:630px"
+    ]
+  },
+  "equipment_source": [
+    {
+      "id": 74,
+      "name_jp": "074: 探照灯",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 140,
+      "name_jp": "140: 96式150cm探照灯",
+      "notes_jp": [
+        "★8以上効果UP"
+      ],
+      "slight_effect": false
+    },
+    {
+      "id": 47,
+      "name_jp": "047: 三式水中探信儀",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 438,
+      "name_jp": "438: 三式水中探信儀改",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 260,
+      "name_jp": "260: Type124 ASDIC系の装備",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 129,
+      "name_jp": "129: 熟練見張員",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 412,
+      "name_jp": "412: 水雷戦隊 熟練見張員",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 242,
+      "name_jp": "Swordfish系の装備",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 26,
+      "name_jp": "瑞雲系の装備",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 25,
+      "name_jp": "零式水上偵察機系の装備",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 138,
+      "name_jp": "138: 二式大艇",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 178,
+      "name_jp": "178: PBY-5A Catalina",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 69,
+      "name_jp": "069: カ号観測機",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 70,
+      "name_jp": "070: 三式指揮連絡機(対潜)",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 258,
+      "name_jp": "258: 夜間作戦航空要員",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 259,
+      "name_jp": "259: 夜間作戦航空要員＋熟練甲板員",
+      "notes_jp": [],
+      "slight_effect": false
+    },
+    {
+      "id": 44,
+      "name_jp": "044: 九四式爆雷投射機",
+      "notes_jp": [
+        "漁場ダメージ"
+      ],
+      "slight_effect": false
+    },
+    {
+      "id": 45,
+      "name_jp": "045: 三式爆雷投射機",
+      "notes_jp": [
+        "漁場ダメージ"
+      ],
+      "slight_effect": false
+    },
+    {
+      "id": 145,
+      "name_jp": "145: 戦闘糧食",
+      "notes_jp": [],
+      "slight_effect": true
+    },
+    {
+      "id": 150,
+      "name_jp": "150: 秋刀魚の缶詰",
+      "notes_jp": [],
+      "slight_effect": true
+    }
+  ],
+  "equipment_groups": [
+    {
+      "category": "탐조등",
+      "text": "탐조등 / 96식 150cm 탐조등(★8 이상 효과 증가)",
+      "equipment_ids": [
+        74,
+        140
+      ]
+    },
+    {
+      "category": "소나",
+      "text": "3식 수중탐신의·개 / Type124 ASDIC 계열",
+      "equipment_ids": [
+        47,
+        438,
+        260
+      ]
+    },
+    {
+      "category": "견시원",
+      "text": "숙련견시원 / 수뢰전대 숙련견시원",
+      "equipment_ids": [
+        129,
+        412
+      ]
+    },
+    {
+      "category": "정찰기·수상폭격기·뇌격기",
+      "text": "영식 수상정찰기 계열 / 즈이운 계열 / Swordfish 계열",
+      "equipment_ids": [
+        25,
+        26,
+        242
+      ]
+    },
+    {
+      "category": "대형비행정",
+      "text": "2식 대정 / PBY-5A Catalina",
+      "equipment_ids": [
+        138,
+        178
+      ]
+    },
+    {
+      "category": "회전익기·대잠초계기",
+      "text": "카호 관측기 / 3식 지휘연락기(대잠)",
+      "equipment_ids": [
+        69,
+        70
+      ]
+    },
+    {
+      "category": "항공요원",
+      "text": "야간작전항공요원 / 야간작전항공요원＋숙련갑판원",
+      "equipment_ids": [
+        258,
+        259
+      ]
+    },
+    {
+      "category": "폭뢰",
+      "text": "94식·3식 폭뢰투사기 (어장 피해 주의)",
+      "equipment_ids": [
+        44,
+        45
+      ]
+    },
+    {
+      "category": "보급품",
+      "text": "전투식량 / 꽁치 통조림 (약간의 효과)",
+      "equipment_ids": [
+        145,
+        150
+      ]
+    }
+  ],
+  "collected_at": "2026-11-26T22:01:50.595472+09:00",
+  "source_sha256": "429802f5c550c2aa0b2a27b4df90db0ef7debf9775ff89c536dae21cbeb46936"
+}

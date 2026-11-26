@@ -102,3 +102,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## Akashi List saury reference
+
+`data/saury_source.json` and `tests/fixtures/saury_source.html` contain factual rate/equipment data and a parsing excerpt collected from https://akashi-list.me/ on 2026-11-26. The page attributes its probabilities to https://db.kcwiki.org/event-sanma2024/ (2024 statistics). Site content, equipment names, and underlying game rights remain with their respective owners. No map artwork is redistributed. See `SAURY_DATA.md` for collection status and limitations.
