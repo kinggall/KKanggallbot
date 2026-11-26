@@ -48,11 +48,11 @@ class RemodelMaterialsTests(unittest.TestCase):
             self.assertTrue(all(n is None or (type(n) is int and n >= 0) for n in route["materials"]))
             text = materials.material_text(source, None)
             self.assertEqual(bool(text), any(n for n in route["materials"]))
-        self.assertEqual(materials.material_text(ships['503'], None), ' · 재료 : 설계도 1/자재 10/건조재 20')
-        self.assertEqual(materials.material_text(ships['508'], None), ' · 재료 : 자재 10/건조재 20')
+        self.assertEqual(materials.material_text(ships['503'], None), '· 재료 : 설계도 1/자재 10/건조재 20')
+        self.assertEqual(materials.material_text(ships['508'], None), '· 재료 : 자재 10/건조재 20')
         for sid in ('622', '623', '624'):
-            self.assertEqual(materials.material_text(ships[sid], None), ' · 재료 : 자재 30/건조재 30')
-        self.assertEqual(materials.material_text(ships['916'], None), ' · 재료 : 자재 50/건조재 50')
+            self.assertEqual(materials.material_text(ships[sid], None), '· 재료 : 자재 30/건조재 30')
+        self.assertEqual(materials.material_text(ships['916'], None), '· 재료 : 자재 50/건조재 50')
 
     def test_forward_target_cost_and_accent_matching(self):
         source = {"艦名": "Bearn改", "改装後": "Bearn amelioration", "改装Lv": "75", "改装設計図": "1枚"}
@@ -113,6 +113,6 @@ class RemodelMaterialsTests(unittest.TestCase):
 
     def test_missing_reference_retains_only_known_csv_costs(self):
         source = {"艦名": "test", "改装後": "unknown", "改装設計図": "2枚"}
-        self.assertEqual(materials.material_text(source, {}), " · 재료 : 설계도 2")
+        self.assertEqual(materials.material_text(source, {}), "· 재료 : 설계도 2")
         with patch.object(materials, "reference", side_effect=OSError):
             self.assertIn("설계도 2", materials.material_text(source, {}))

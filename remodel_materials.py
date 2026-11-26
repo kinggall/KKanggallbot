@@ -57,7 +57,7 @@ def render_requirements(counts, equipment=()):
         level = item.get('stars_min',0)
         stars = ' ★MAX' if level == 10 else f' ★{level} 이상' if level else ''
         equipment_parts.append(f"{item['name']}{stars} x{item['count']}")
-    lines = [' · 재료 : ' + '/'.join(parts)] if parts else []
+    lines = ['· 재료 : ' + '/'.join(parts)] if parts else []
     if equipment_parts:
         lines.append(' · 요구 장비 : ' + '/'.join(equipment_parts))
     return '\n'.join(lines)
