@@ -22,7 +22,7 @@ class QuizTests(unittest.TestCase):
             row=self.catalog.details[sid]
             self.assertEqual(row['family'],base)
             self.assertEqual(row['speed'],'고속')
-            self.assertIn('정찰',row['name'])
+            self.assertTrue(row['name'].endswith('개1정찰' if sid == 753 else '개2정'))
             self.assertNotIn('偵',row['name'])
         self.assertEqual(self.catalog.details[753]['stage'],'개1')
         self.assertEqual(self.catalog.details[750]['stage'],'개2 이상')
