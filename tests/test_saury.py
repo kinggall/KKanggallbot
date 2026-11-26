@@ -24,8 +24,10 @@ class SauryTests(unittest.TestCase):
         with patch('requests.get',side_effect=AssertionError('No command fetch')):
             text=saury.format_reply()
         self.assertIn('✔️ 2024년 기준',text)
-        self.assertIn('· 1-1 B: S 3.035% / A 0.000%',text)
-        self.assertIn('· 6-1 J: S 22.222% / A 0.000%',text)
+        self.assertIn('· 3-2 K: S 56.9% / A 23.2%',text)
+        self.assertIn('· 1-1 C: S 1.5% / A 0.0%',text)
+        self.assertIn('· 1-1 B: S 3.0% / A 0.0%',text)
+        self.assertIn('· 6-1 J: S 22.2% / A 0.0%',text)
         self.assertLess(text.index('· 1-1 C'),text.index('· 1-2 C'))
         self.assertLess(text.index('· 6-5 M'),text.index('· 7-4 H'))
         self.assertLess(text.index('· 7-4 P'),text.index('[꽁치 유리 장비]'))

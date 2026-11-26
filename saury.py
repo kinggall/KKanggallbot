@@ -1,5 +1,6 @@
 """User-supplied poi-statistics historical saury rates; commands use a saved snapshot."""
 import json
+from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 DATA = Path(__file__).parent / 'data/saury_drops.json'
@@ -14,7 +15,8 @@ def format_reply(data=None):
         if last != row['map']:
             lines.append('')
             last = row['map']
-        s, a = (row[rank] if row[rank] is not None else '?' for rank in ('s', 'a'))
+        s, a = (format(Decimal(row[rank]).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP), '.1f')
+                if row[rank] is not None else '?' for rank in ('s', 'a'))
         lines.append(f"· {row['map']} {row['node']}: S {s}% / A {a}%")
     lines += ['', '[꽁치 유리 장비]']
     for group in data['equipment_groups']:
