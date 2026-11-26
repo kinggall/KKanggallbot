@@ -133,6 +133,10 @@ class KanlogTests(unittest.TestCase):
         data = drops.parse_page(html)
         self.assertTrue(data['rows'][0]['limited'])
         self.assertEqual(data['period_start'], '2026/10/15')
+        badge_html = html.replace('></tr>', '><span class="limited-badge-row">期間限定 '
+                                  '<span>【秋刀魚祭り2026】</span></span></tr>')
+        self.assertEqual(drops.parse_page(badge_html)['rows'][0]['limited_event'], '秋刀魚祭り2026')
+        self.assertEqual(data['rows'][0]['limited_event'], '')
         dotted = drops.parse_page(html.replace('2026/10/15', '2026.10.15')
                                   .replace('2026/10/19', '2026.10.19'))
         self.assertEqual(dotted, data | {'html_sha256': dotted['html_sha256']})
@@ -143,6 +147,24 @@ class KanlogTests(unittest.TestCase):
             drops.parse_page(html.replace('"r":100', '"r":20'))
         with self.assertRaises((ValueError, KeyError)):
             drops.parse_page('<html>maintenance</html>')
+
+    def test_current_event_unique_limited_prefix_for_map_and_ship_queries(self):
+        data = copy.deepcopy(self.data)
+        cell = next(k for k,v in data['cells'].items() if v['boss'])
+        def row(ship, **changes):
+            return dict(cell=cell, ship_id=ship, name='Ship'+str(ship),
+                        rarity='unique', limited=True, limited_event=drops.CURRENT_LIMITED_EVENT,
+                        ranks={'s': {'rate': 1.0, 'count': 1}}) | changes
+        data['rows'] = [row(1), row(2, limited_event="H'ween2026"),
+                        row(3, rarity='rare'), row(4, limited=False), row(5, limited_event='')]
+        text = drops.format_reply('!드랍 55', data, lambda i,n:n)
+        self.assertIn('★ Ship1 - S 1.00% (한정)', text)
+        for i in (2,3,4,5):
+            self.assertIn('· Ship'+str(i)+' -', text)
+        ship_text = drops.format_reply('!드랍 Ship1', data, lambda i,n:n, lambda _: {1})
+        self.assertIn('★ 5-5 Boss - S 1.00% (한정)', ship_text)
+        data['rows'][0].pop('limited_event')
+        self.assertNotIn('★', drops.format_reply('!드랍 55', data, lambda i,n:n))
 
     def test_schedule_and_persistent_retry_cache(self):
         now = datetime(2026, 10, 20, 1, 15, tzinfo=drops.JST).timestamp()

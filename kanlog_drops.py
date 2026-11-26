@@ -29,6 +29,8 @@ RARE_TASK = 'rare-index'
 # The user verified these two 2-4-P records ended, although their old
 # observations remain in Kanlog's 2026/06/26–present statistics.
 ENDED_LOCATIONS = {('2-4', 'P', 952), ('2-4', 'P', 941)}
+CURRENT_LIMITED_EVENT = json.loads(
+    (Path(__file__).parent / 'data' / 'kanlog_current_event.json').read_text(encoding='utf-8'))['event']
 
 
 def map_url(map_name):
@@ -47,9 +49,15 @@ class MapParser(HTMLParser):
         self.button_text = []
         self.text = []
         self.skip = 0
+        self.drop_row = None
+        self.badge_depth = 0
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if tag == 'span' and self.badge_depth:
+            self.badge_depth += 1
+        elif tag == 'span' and self.drop_row is not None and 'limited-badge-row' in a.get('class', '').split():
+            self.badge_depth = 1
         if tag in ('script', 'style'):
             self.skip += 1
         if tag == 'script':
@@ -60,8 +68,12 @@ class MapParser(HTMLParser):
             self.button_text = []
         if tag == 'tr' and 'js-drop-rate-row' in a.get('class', '').split():
             self.rows.append(a)
+            self.drop_row = a
+            a['limited_badge_parts'] = []
 
     def handle_data(self, data):
+        if self.badge_depth and self.drop_row is not None:
+            self.drop_row['limited_badge_parts'].append(data)
         if self.script_id:
             self.script_parts.append(data)
         if self.button is not None:
@@ -70,6 +82,11 @@ class MapParser(HTMLParser):
             self.text.append(data.strip())
 
     def handle_endtag(self, tag):
+        if tag == 'span' and self.badge_depth:
+            self.badge_depth -= 1
+        if tag == 'tr':
+            self.drop_row = None
+            self.badge_depth = 0
         if tag == 'script' and self.script_id:
             if self.script_id in ('drop-rate-row-variant-data', 'drop-rate-rank-variant-total-data'):
                 self.scripts[self.script_id] = json.loads(''.join(self.script_parts))
@@ -120,9 +137,12 @@ def parse_page(html, map_name='5-5'):
                 if total <= 0 or abs(value['r'] - value['c'] * 100 / total) > 0.00011:
                     raise ValueError('Kanlog drop denominator mismatch')
                 ranks[rank] = {'rate': value['r'], 'count': value['c']}
+        badge = ''.join(raw['limited_badge_parts'])
+        event = re.search(r'期間限定\s*【([^】]+)】', badge)
         rows.append({'cell': cell, 'ship_id': int(raw['data-ship-id']),
                      'name': raw['data-ship-name'], 'rarity': meta[1],
-                     'limited': bool(meta[10]), 'ranks': ranks})
+                     'limited': bool(meta[10]), 'ranks': ranks,
+                     'limited_event': event[1].strip() if event else ''})
     if not rows:
         raise ValueError('Kanlog drop rows missing')
     # Include common ships and No Drop in this validation, even though the
@@ -237,6 +257,13 @@ def is_ended_location(map_name, cells, row):
     return (map_name, cells.get(row['cell'], {}).get('label'), row['ship_id']) in ENDED_LOCATIONS
 
 
+def drop_prefix(row):
+    # An unobserved old cache or an older event must never become "new".
+    current = (row.get('rarity') == 'unique' and row.get('limited')
+               and row.get('limited_event') == CURRENT_LIMITED_EVENT)
+    return '★' if current else '·'
+
+
 def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
     """Return the best cached map/cell records for a ship or alias."""
     ship_ids = {int(value) for value in ship_ids_for(keyword)}
@@ -261,6 +288,7 @@ def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
                 'label': cell.get('label', row.get('cell', '?')),
                 'boss': bool(cell.get('boss')),
                 'limited': bool(row.get('limited')),
+                'prefix': drop_prefix(row),
                 'ranks': values,
             })
     found.sort(key=lambda item: (
@@ -280,7 +308,7 @@ def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
                 rate = '<0.01%' if value['rate'] < 0.01 else f"{value['rate']:.2f}%"
                 parts.append(f"{rank.upper()} {rate}")
         suffix = ' (한정)' if item['limited'] else ''
-        lines.append(f"· {location} - {' / '.join(parts)}{suffix}")
+        lines.append(f"{item['prefix']} {location} - {' / '.join(parts)}{suffix}")
     if len(lines) == 1:
         lines.append('· 확인된 드랍 기록이 없습니다.')
     return '\n'.join(lines)
@@ -340,7 +368,7 @@ def format_reply(message, snapshot, name_for, ship_ids_for=None):
                 parts.append(f"{r.upper()} {percent}")
         if parts:
             suffix = ' (한정)' if row['limited'] else ''
-            lines.append(f"· {name_for(row['ship_id'], row['name'])} - {' / '.join(parts)}{suffix}")
+            lines.append(f"{drop_prefix(row)} {name_for(row['ship_id'], row['name'])} - {' / '.join(parts)}{suffix}")
     if len(lines) == 1:
         lines.append('· 해당 조건의 레어·한정 드랍 기록이 없습니다.')
     return '\n'.join(lines)
