@@ -40,7 +40,7 @@ class SauryTests(unittest.TestCase):
         self.assertLess(text.index('· 1-1 보스'),text.index('· 1-2 C'))
         self.assertLess(text.index('· 6-5 보스'),text.index('· 7-4 H'))
         self.assertLess(text.index('· 7-4 보스'),text.index('[꽁치 드랍 확률 증가 장비]'))
-        for category in ('소나','폭뢰','정찰기·수상폭격기·뇌격기'):
+        for category in ('소나','폭뢰','함재기'):
             self.assertIn('· '+category+':',text)
         self.assertIn('폭뢰투사기는 어장에 피해',text)
         self.assertNotIn('2026년 기준',text)
