@@ -35,9 +35,9 @@
 
 ## kcwiki ship conversion material reference
 
-- Source: https://github.com/kcwiki/kancolle-data/blob/7b92cdb8e4601fdec45ddd00489c7c6da9fa346d/wiki/ship.json
+- Source: https://github.com/kcwiki/kancolle-data/blob/cd3989ed4b25650215b5a9be000c848444909fd0/wiki/ship.json
 - Derived data: `data/ship_convert_materials.json`, 53 directed conversion routes extracted from ship remodel fields, with upstream record names and field prefixes retained.
-- Additional forward remodel requirements: `data/ship_remodel_supplement.json`, four reconnaissance remodels from kcwiki/kancolle-data `cd3989ed4b25650215b5a9be000c848444909fd0/wiki/ship.json`, cross-checked against the linked wikiwiki pages. Source hashes and reference URLs are retained in the supplement.
+- Additional directed requirements: `data/ship_remodel_supplement.json`, 563 CSV remodel edges cross-checked with kcwiki/kancolle-data `cd3989ed4b25650215b5a9be000c848444909fd0/wiki/ship.json`. Equipment requirements are separate from item materials; unknown quantities remain null. Audit results are in `data/remodel_materials_audit.json`; selected wikiwiki cross-checks are described in `REMODEL_MATERIALS_DATA.md`.
 - Attribution: kcwiki/kancolle-data contributors and their upstream wiki data contributors. This factual data extraction does not assert ownership or relicense upstream material under the bot software license.
 - Method and limitations: `REMODEL_MATERIALS_DATA.md`.
 

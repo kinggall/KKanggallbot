@@ -32,7 +32,7 @@ class RemodelMaterialsTests(unittest.TestCase):
                                     (source | {'改装設計図':'1'},target)):
             with self.subTest(changed=changed.get('改装Lv'),destination=destination is None):
                 self.assertNotIn('요구 장비',materials.material_text(changed,destination))
-        self.assertEqual(len(materials.supplement_reference()),4)
+        self.assertEqual(len(materials.supplement_reference()),563)
 
     def test_all_convert_routes_match_csv_and_render(self):
         with (Path(__file__).resolve().parents[1] / "ships.csv").open(encoding="cp932") as file:
@@ -45,9 +45,9 @@ class RemodelMaterialsTests(unittest.TestCase):
             self.assertEqual(source["改装後"], target["艦名"])
             self.assertEqual(source["改装Lv"], str(route["level"]))
             self.assertEqual(len(route["materials"]), 12)
-            self.assertTrue(all(type(n) is int and n >= 0 for n in route["materials"]))
+            self.assertTrue(all(n is None or (type(n) is int and n >= 0) for n in route["materials"]))
             text = materials.material_text(source, None)
-            self.assertEqual(bool(text), any(route["materials"]))
+            self.assertEqual(bool(text), any(n is None or n for n in route["materials"]))
         self.assertEqual(materials.material_text(ships['503'], None), ' · 재료 : 설계도 1/자재 10/건조재 20')
         self.assertEqual(materials.material_text(ships['508'], None), ' · 재료 : 자재 10/건조재 20')
         for sid in ('622', '623', '624'):
@@ -60,6 +60,50 @@ class RemodelMaterialsTests(unittest.TestCase):
         self.assertIn("자재 60", text)
         self.assertIn("건조재 40", text)
         self.assertNotIn("미확인", text)
+
+    def test_yamato_boilers_are_equipment_not_item_materials(self):
+        import bot
+        source=next(s for s in bot.SHIPS if s['艦名']=='大和改')
+        target=bot.SHIP_BY_GAME_ID[911]
+        text=materials.material_text(source,target)
+        item_line,equipment_line=text.splitlines()
+        self.assertIn('설계도 3/상보 1/포공자재 3',item_line)
+        self.assertNotIn('보일러',item_line)
+        self.assertIn('보일러',equipment_line)
+        self.assertIn('x2',equipment_line)
+        with patch.object(materials,'supplement_reference',return_value={}):
+            fallback=materials.material_text(source,target)
+        self.assertNotIn('보일러',fallback.splitlines()[0])
+        self.assertIn('요구 장비 : 신형보일러 x2',fallback)
+
+    def test_every_active_csv_edge_has_verified_direction_and_costs(self):
+        import bot
+        source_count=0
+        for source in bot.SHIPS:
+            if source['改装後'] in ('','-') or source['改装Lv'] in ('','0','-'):
+                continue
+            source_count+=1
+            route=materials.supplement_reference()[source['艦船ID']]
+            target=bot.SHIP_BY_GAME_ID[route['target_id']]
+            self.assertEqual(route['target_name'],source['改装後'])
+            self.assertEqual(str(route['level']),source['改装Lv'])
+            self.assertEqual(str(route['ammo']),source['改装弾薬'])
+            self.assertEqual(str(route['steel']),source['改装鋼材'])
+            self.assertIsNotNone(materials.supplementary_text(source,target))
+        self.assertEqual(source_count,563)
+
+    def test_missing_development_costs_and_unknowns_are_not_zero(self):
+        import bot
+        for source_id,target_id,count in ((82,553,80),(88,554,181),(318,883,20),(325,955,30)):
+            source=bot.SHIP_BY_GAME_ID[source_id]
+            text=materials.material_text(source,bot.SHIP_BY_GAME_ID[target_id])
+            self.assertIn(f'자재 {count}',text)
+        tany=materials.material_text(bot.SHIP_BY_GAME_ID[228],bot.SHIP_BY_GAME_ID[651])
+        self.assertNotIn('상보',tany)
+        self.assertIn('병장자재 2',tany)
+        unknown=materials.material_text(bot.SHIP_BY_GAME_ID[740],None)
+        self.assertIn('자재 미확인',unknown)
+        self.assertIn('건조재 미확인',unknown)
 
     def test_convert_does_not_reuse_initial_blueprints(self):
         source = {"艦名": "大和改二重", "改装後": "大和改二", "改装Lv": "88"}

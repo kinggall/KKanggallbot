@@ -43,6 +43,26 @@ def supplement_reference():
         return json.load(file)['routes']
 
 
+def render_requirements(counts, equipment=()):
+    counts = counts if isinstance(counts, dict) else dict(enumerate(counts))
+    parts = [f'{MATERIALS[index]} 미확인' if count is None else f'{MATERIALS[index]} {count}'
+             for index,count in sorted(counts.items())
+             if index != 8 and (count is None or count)]
+    required = list(equipment)
+    if counts.get(8):
+        # Column 15 of the legacy reference is a piece of equipment.
+        required.append({'name':MATERIALS[8],'count':counts[8],'stars_min':0})
+    equipment_parts = []
+    for item in required:
+        level = item.get('stars_min',0)
+        stars = ' ★MAX' if level == 10 else f' ★{level} 이상' if level else ''
+        equipment_parts.append(f"{item['name']}{stars} x{item['count']}")
+    lines = [' · 재료 : ' + '/'.join(parts)] if parts else []
+    if equipment_parts:
+        lines.append(' · 요구 장비 : ' + '/'.join(equipment_parts))
+    return '\n'.join(lines)
+
+
 def supplementary_text(source, target):
     try:
         route = supplement_reference().get(str(source.get('艦船ID', '')))
@@ -61,15 +81,7 @@ def supplementary_text(source, target):
         match = re.search(r'\d+', str(source.get(field, '')))
         if (int(match.group()) if match else 0) != route['materials'][index]:
             return None
-    parts = [f'{name} {count}' for name, count in zip(MATERIALS, route['materials']) if count]
-    equipment = []
-    for item in route['equipment']:
-        stars = '★MAX' if item['stars_min'] == 10 else f"★{item['stars_min']} 이상"
-        equipment.append(f"{item['name']} {stars} x{item['count']}")
-    text = ' · 재료 : ' + '/'.join(parts) if parts else ''
-    if equipment:
-        text += '\n · 요구 장비 : ' + '/'.join(equipment)
-    return text
+    return render_requirements(route['materials'], route['equipment'])
 
 
 def material_text(source, target):
@@ -83,8 +95,7 @@ def material_text(source, target):
     if (route and route["source_name"] == source.get("艦名")
             and route["target_name"] == source.get("改装後")
             and str(route["level"]) == str(source.get("改装Lv"))):
-        parts = [f"{name} {count}" for name, count in zip(MATERIALS, route["materials"]) if count]
-        return " · 재료 : " + "/".join(parts) if parts else ""
+        return render_requirements(route['materials'])
     known = {}
     for index, field in CSV_FIELDS.items():
         match = re.search(r"\d+", str(source.get(field, "")))
@@ -103,5 +114,4 @@ def material_text(source, target):
         and all(item[1][index] == count for index, count in known.items())
     )
     counts = dict(enumerate(item[1])) if complete else known
-    parts = [f"{MATERIALS[index]} {count}" for index, count in counts.items() if count]
-    return " · 재료 : " + "/".join(parts) if parts else ""
+    return render_requirements(counts)

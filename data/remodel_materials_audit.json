@@ -1,0 +1,201 @@
+{
+  "schema": 1,
+  "source": "https://github.com/kcwiki/kancolle-data/blob/cd3989ed4b25650215b5a9be000c848444909fd0/wiki/ship.json",
+  "sha256": "f5c1cb992e9925b27d06ef279a6c405c50387efa6ac0b589dda3a9e34474f196",
+  "csv_routes_checked": 563,
+  "legacy_rows_checked": 103,
+  "legacy_numeric_differences": [
+    {
+      "target_name": "伊勢改二",
+      "legacy_materials": [
+        2,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "current_routes": [
+        {
+          "source_id": "82",
+          "materials": [
+            2,
+            1,
+            1,
+            0,
+            0,
+            0,
+            80,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "target_name": "日向改二",
+      "legacy_materials": [
+        2,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "current_routes": [
+        {
+          "source_id": "88",
+          "materials": [
+            2,
+            1,
+            1,
+            0,
+            1,
+            0,
+            181,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "target_name": "龍鳳改二戊",
+      "legacy_materials": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "current_routes": [
+        {
+          "source_id": "318",
+          "materials": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            20,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "target_name": "丹陽",
+      "legacy_materials": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        2,
+        50,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "current_routes": [
+        {
+          "source_id": "228",
+          "materials": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            2,
+            50,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "target_name": "清霜改二",
+      "legacy_materials": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "current_routes": [
+        {
+          "source_id": "325",
+          "materials": [
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            30,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "legacy_unmatched": [],
+  "convert_routes_checked": 53,
+  "convert_changes": [],
+  "equipment_column_reclassification": {
+    "target": "大和改二",
+    "legacy_column": 15,
+    "equipment_id": 87,
+    "count": 2
+  },
+  "routes_with_unknown_materials": [
+    "740"
+  ]
+}
