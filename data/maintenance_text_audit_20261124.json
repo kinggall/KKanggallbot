@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "date": "2026-11-24",
+  "verified_at": "2026-11-26T11:02:33.389435+00:00",
+  "method": "official_syndication_response_comparison",
+  "result": "all_11_bodies_match_after_removing_embed_tail_and_whitespace",
+  "posts": [
+    {
+      "number": 1,
+      "id": "2125185883687309468",
+      "url": "https://x.com/KanColle_STAFF/status/2125185883687309468",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125185883687309468",
+      "source_response_sha256": "c1effcd00e0a0ad1f0948a3c7b36af1c7fd20fcd4a91d4015f3da03d903a8619",
+      "oembed_text": "01▼2026年度鎮守府「秋刀魚祭り」開催！\n【秋刀魚】、それは季節を彩る最高に美味しい海の幸。\n今年も美味しさ一杯の鎮守府秋刀魚祭りを開催します！\n第二航空戦隊、航空母艦「飛龍」が本年の秋刀魚漁の指揮、執らせていただきます！\n艦隊、出漁ッ！\n#艦これ\n#鎮守府秋刀魚祭り\n#メンテナンス\n…\nhttps://t.co/BishHdjkAD",
+      "syndication_text": "01▼2026年度鎮守府「秋刀魚祭り」開催！\n【秋刀魚】、それは季節を彩る最高に美味しい海の幸。\n今年も美味しさ一杯の鎮守府秋刀魚祭りを開催します！\n第二航空戦隊、航空母艦「飛龍」が本年の秋刀魚漁の指揮、執らせていただきます！\n艦隊、出漁ッ！\n#艦これ \n#鎮守府秋刀魚祭り  \n#メンテナンス",
+      "body_matches": true
+    },
+    {
+      "number": 6,
+      "id": "2125186975460438233",
+      "url": "https://x.com/KanColle_STAFF/status/2125186975460438233",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125186975460438233",
+      "source_response_sha256": "2913a5c8f16403a1016329f5bd7245708172619db2f4b4f787c68fe1e0de1a02",
+      "oembed_text": "06▼【秋刀魚祭り2026】秋刀魚漁に大切なコト！\n拡張作戦も用意されている秋刀魚祭り！でも、あまり漁の効率に拘りすぎて、\n#水産資源の保護\nを決して忘れてはいけません。\n一つの漁場海域で集中的に秋刀魚を乱獲すると、漁業資源が傷み、水揚げが激減する場合があります。\n#艦これ\n#鎮守府秋刀魚祭り\n…\nhttps://t.co/PzJrv9R2ug",
+      "syndication_text": "06▼【秋刀魚祭り2026】秋刀魚漁に大切なコト！\n拡張作戦も用意されている秋刀魚祭り！でも、あまり漁の効率に拘りすぎて、#水産資源の保護 を決して忘れてはいけません。\n一つの漁場海域で集中的に秋刀魚を乱獲すると、漁業資源が傷み、水揚げが激減する場合があります。\n#艦これ\n#鎮守府秋刀魚祭り",
+      "body_matches": true
+    },
+    {
+      "number": 7,
+      "id": "2125187242729873650",
+      "url": "https://x.com/KanColle_STAFF/status/2125187242729873650",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125187242729873650",
+      "source_response_sha256": "f65cb4da045bfe4b9d99f6fc07f4fe417d8a11367c3283721b4b2278ca8f74b3",
+      "oembed_text": "07▼【秋刀魚祭り2026】秋刀魚漁を楽しく！豊かに！\n秋刀魚は美味しいっ！でも乱獲しすぎて漁業資源が傷まないよう、海に十分な配慮を！\n・\n#集中的な乱獲はダメ\n！\n・海洋資源を破壊する爆雷漁は避ける！\n・漁場を休ませて漁業資源の保護に配慮を！\n等の対策も大切です！\n#艦これ\n#鎮守府秋刀魚祭り\n…\nhttps://t.co/HDvHPlIcBt",
+      "syndication_text": "07▼【秋刀魚祭り2026】秋刀魚漁を楽しく！豊かに！\n秋刀魚は美味しいっ！でも乱獲しすぎて漁業資源が傷まないよう、海に十分な配慮を！\n・ #集中的な乱獲はダメ！\n・海洋資源を破壊する爆雷漁は避ける！\n・漁場を休ませて漁業資源の保護に配慮を！ \n等の対策も大切です！\n#艦これ\n#鎮守府秋刀魚祭り",
+      "body_matches": true
+    },
+    {
+      "number": 8,
+      "id": "2125187514013266385",
+      "url": "https://x.com/KanColle_STAFF/status/2125187514013266385",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125187514013266385",
+      "source_response_sha256": "da68e0f640eb2490e09b9e86aa82950a6277a0e890a2b10d0d79af0b2db1a4ce",
+      "oembed_text": "08▼【秋刀魚祭り2026】期間中の週間演習任務実装！\n既存秋季期間限定任務や【期間限定任務】秋刀魚祭り準備演習！に加え、\n週間任務【鎮守府秋刀魚祭り】秋刀魚塩焼き演習！\nが新たに実装されます。\n秋刀魚娘……いえ、\n#秋刀魚艦娘\nでぜひ挑戦を！\n美味し～よっ！\n#艦これ\n#鎮守府秋刀魚祭り\n…\nhttps://t.co/Nleexd9JMx",
+      "syndication_text": "08▼【秋刀魚祭り2026】期間中の週間演習任務実装！\n既存秋季期間限定任務や【期間限定任務】秋刀魚祭り準備演習！に加え、\n週間任務【鎮守府秋刀魚祭り】秋刀魚塩焼き演習！\nが新たに実装されます。\n秋刀魚娘……いえ、#秋刀魚艦娘 でぜひ挑戦を！\n美味し～よっ！\n#艦これ \n#鎮守府秋刀魚祭り",
+      "body_matches": true
+    },
+    {
+      "number": 9,
+      "id": "2125187967094599992",
+      "url": "https://x.com/KanColle_STAFF/status/2125187967094599992",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125187967094599992",
+      "source_response_sha256": "681d3ecb87adcdc06d8d56fd82505db01fe9620bffa7436bc6fc62319a88c84b",
+      "oembed_text": "09▼鎮守府秋刀魚祭り2026【大漁旗】の獲得！\n前述の【秋刀魚漁】任務群2026のフィナーレ！\n秋刀魚漁●どんな逆境でも、大漁にしてみせます！\nを見事達成クリアした提督には、不朽の日本航空母艦「飛龍」より\n【\n#二六式大漁旗\n】\nが贈られます！\n#艦これ\n#鎮守府秋刀魚祭り\n…\nhttps://t.co/2qxofE4aoY",
+      "syndication_text": "09▼鎮守府秋刀魚祭り2026【大漁旗】の獲得！\n前述の【秋刀魚漁】任務群2026のフィナーレ！\n秋刀魚漁●どんな逆境でも、大漁にしてみせます！\nを見事達成クリアした提督には、不朽の日本航空母艦「飛龍」より\n【#二六式大漁旗】\nが贈られます！\n#艦これ\n#鎮守府秋刀魚祭り",
+      "body_matches": true
+    },
+    {
+      "number": 10,
+      "id": "2125188151597793462",
+      "url": "https://x.com/KanColle_STAFF/status/2125188151597793462",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125188151597793462",
+      "source_response_sha256": "c39759aadea33ea734b544934c3dabc309d499661d643a00e8a149997f659210",
+      "oembed_text": "10▼【秋刀魚祭り2026】拡張作戦！\n【秋刀魚漁】任務群2026を順調に進めた提督は、恒例の秋刀魚を活かした戦闘糧食(特別なおにぎり)をゲットする拡張作戦を実施可能！\n●秋刀魚祭り【拡張任務】新秋刀魚を美味しく料理！\n初心者の提督方も、可能であればぜひ！\n#艦これ\n#鎮守府秋刀魚祭り\n#拡張作戦\n…\nhttps://t.co/GxNjTKGGYs",
+      "syndication_text": "10▼【秋刀魚祭り2026】拡張作戦！\n【秋刀魚漁】任務群2026を順調に進めた提督は、恒例の秋刀魚を活かした戦闘糧食(特別なおにぎり)をゲットする拡張作戦を実施可能！\n●秋刀魚祭り【拡張任務】新秋刀魚を美味しく料理！\n初心者の提督方も、可能であればぜひ！\n#艦これ\n#鎮守府秋刀魚祭り\n#拡張作戦",
+      "body_matches": true
+    },
+    {
+      "number": 11,
+      "id": "2125188345039057239",
+      "url": "https://x.com/KanColle_STAFF/status/2125188345039057239",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125188345039057239",
+      "source_response_sha256": "ffbb5fffbdd93a5284ad45770359ef0fe5962239807f946d4415bdbdbea4a180",
+      "oembed_text": "11▼歴戦の提督に贈る【秋刀魚祭り2026】超拡張作戦\n【秋刀魚漁】任務群2026を完遂し、なおかつ【節分】に真摯に取り組む、または期間限定海域で奮戦した選ばれた提督方に贈る神々の遊び、\n●超秋刀魚祭り【局戦震電持ち専用】特別拡張任務\nもご準備。\n#艦これ\n#鎮守府秋刀魚祭り\n#超特別拡張作戦\n…\nhttps://t.co/mfqe1us7wh",
+      "syndication_text": "11▼歴戦の提督に贈る【秋刀魚祭り2026】超拡張作戦\n【秋刀魚漁】任務群2026を完遂し、なおかつ【節分】に真摯に取り組む、または期間限定海域で奮戦した選ばれた提督方に贈る神々の遊び、\n●超秋刀魚祭り【局戦震電持ち専用】特別拡張任務\nもご準備。\n#艦これ\n#鎮守府秋刀魚祭り\n#超特別拡張作戦",
+      "body_matches": true
+    },
+    {
+      "number": 19,
+      "id": "2125189809396494459",
+      "url": "https://x.com/KanColle_STAFF/status/2125189809396494459",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125189809396494459",
+      "source_response_sha256": "84fc5fa12555752ec82c0a8a192ea8cbfabac8964cd6ebde39d788fd0cf40996",
+      "oembed_text": "19▼夕雲型駆逐艦六番艦「高波」に新補強改装【偵改装】導入！\n長波姉さま、報告かも、です！偵察/哨戒/強行偵察に適した新補強改装【偵改装】が実装されたかも、です！資源と必要装備等を少々……使うけれど……新補強改装【高波改二偵】改装可能かも……です！\n#高波改二偵\n#艦これ\n…\nhttps://t.co/zInOMyFbB5",
+      "syndication_text": "19▼夕雲型駆逐艦六番艦「高波」に新補強改装【偵改装】導入！\n長波姉さま、報告かも、です！偵察/哨戒/強行偵察に適した新補強改装【偵改装】が実装されたかも、です！資源と必要装備等を少々……使うけれど……新補強改装【高波改二偵】改装可能かも……です！\n#高波改二偵 \n#艦これ",
+      "body_matches": true
+    },
+    {
+      "number": 20,
+      "id": "2125189999406809113",
+      "url": "https://x.com/KanColle_STAFF/status/2125189999406809113",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125189999406809113",
+      "source_response_sha256": "f681f77aef0923883ee9a5a0061b35bd38e0879aa2c92b8106db91c00cdc6838",
+      "oembed_text": "20▼長良型軽巡四番艦「由良」にも新補強改装【偵改装】実装！\n提督さん！四水戦旗艦を務めた由良にも、新補強改装【偵改装】が実装されるんですって！あまり強くはなりませんが、改装してくれますよね？ね！新補強改装【由良改二偵】、これでもう器用貧乏なんていわないで？\n#由良改二偵\n#艦これ\n…\nhttps://t.co/gQq4XCTIDF",
+      "syndication_text": "20▼長良型軽巡四番艦「由良」にも新補強改装【偵改装】実装！\n提督さん！四水戦旗艦を務めた由良にも、新補強改装【偵改装】が実装されるんですって！あまり強くはなりませんが、改装してくれますよね？ね！新補強改装【由良改二偵】、これでもう器用貧乏なんていわないで？\n#由良改二偵 \n#艦これ",
+      "body_matches": true
+    },
+    {
+      "number": 21,
+      "id": "2125190139601358870",
+      "url": "https://x.com/KanColle_STAFF/status/2125190139601358870",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125190139601358870",
+      "source_response_sha256": "26272bc2b92effa06eb3407a943c17d55a1366a33522c220a12573b1487fa593",
+      "oembed_text": "21▼川内型軽巡一番艦「川内」にも新補強改装【偵改装】実装！\n提督提督！早く夜戦っ……じゃなかった偵改装しよ！三水戦旗艦のこの私にも、新補強改装【偵改装】が実装されたよ！資源と必要装備等をちょこっと使うけどさ……新補強改装【川内改二偵】、いいよね！\n#川内改二偵\n#艦これ\n…\nhttps://t.co/Q1CUnhk1E4",
+      "syndication_text": "21▼川内型軽巡一番艦「川内」にも新補強改装【偵改装】実装！\n提督提督！早く夜戦っ……じゃなかった偵改装しよ！三水戦旗艦のこの私にも、新補強改装【偵改装】が実装されたよ！資源と必要装備等をちょこっと使うけどさ……新補強改装【川内改二偵】、いいよね！\n#川内改二偵 \n#艦これ",
+      "body_matches": true
+    },
+    {
+      "number": 23,
+      "id": "2125190469005222134",
+      "url": "https://x.com/KanColle_STAFF/status/2125190469005222134",
+      "date": "2026-11-24",
+      "author": "KanColle_STAFF",
+      "source_url": "https://cdn.syndication.twimg.com/tweet-result?id=2125190469005222134",
+      "source_response_sha256": "cb863d4a1fa5e03e68e5d078b7ec235afe7af46c5be80fa460a502347c8b55b8",
+      "oembed_text": "23▼青葉型重巡一番艦「青葉」にも新補強改装【偵改装】実装！\n提督、青葉見ちゃいました！この「青葉」に新補強改装【偵改装】が実装される計画があるそうです！つか、もう実装？しかも、専用の新ボイスも盛り沢山!? ホントですか～？ 新補強改装【青葉改偵】、きょ、恐縮です！\n#青葉改偵\n#艦これ\n…\nhttps://t.co/AMTFa1AfC8",
+      "syndication_text": "23▼青葉型重巡一番艦「青葉」にも新補強改装【偵改装】実装！\n提督、青葉見ちゃいました！この「青葉」に新補強改装【偵改装】が実装される計画があるそうです！つか、もう実装？しかも、専用の新ボイスも盛り沢山!? ホントですか～？ 新補強改装【青葉改偵】、きょ、恐縮です！\n#青葉改偵 \n#艦これ",
+      "body_matches": true
+    }
+  ]
+}

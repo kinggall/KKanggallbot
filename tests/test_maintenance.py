@@ -143,7 +143,7 @@ class MaintenanceTests(unittest.TestCase):
                 self.assertIn('[멘테 · 2026-11-24]', text)
                 self.assertNotIn('원문 미확보', text)
                 self.assertIn('수뢰전대 숙련견시원', text)
-                self.assertIn('공식 임베드', text)
+                self.assertNotIn('공식 임베드에 말줄임', text)
                 self.assertNotIn('gall.dcinside', text)
 
 

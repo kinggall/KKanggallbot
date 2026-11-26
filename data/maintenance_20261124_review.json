@@ -58,7 +58,8 @@
     ],
     "missing_numbers": [],
     "collection_method": "official_oembed_quote_links",
-    "source_sha256": "28ff7865fdde4f43628f3d5cae9c40c07b652cd27e2e9c21aaed486ad0186757"
+    "source_sha256": "150c0a4c490934e9a02edbf0cfac83d5d94450890fdacae5885de5a53551a681",
+    "text_audit_file": "data/maintenance_text_audit_20261124.json"
   },
   "sources": {
     "wiki_quests": {
@@ -255,5 +256,5 @@
       "2-1-H"
     ]
   },
-  "note": "Official numbered oEmbed posts now collected and reviewed. New quest overlay is quest_saury_2026_updates.json. Some embed bodies contain ellipses; no omitted text is inferred."
+  "note": "All 48 official numbered posts collected. Eleven oEmbed ellipsis candidates individually compared with official syndication data; bodies match after removal of embed-only tails and whitespace. Literal dialogue ellipses are preserved."
 }
