@@ -11,10 +11,15 @@ def format_reply(data=None):
         data = json.loads(DATA.read_text(encoding='utf-8'))
     lines = ['[꽁치 드랍 확률]' + '\u200b' * 4000]
     last = None
+    last_world = None
     for row in sorted(data['rows'], key=lambda r: (*map(int, r['map'].split('-')), r['node'])):
-        if last != row['map']:
+        world = row['map'].split('-')[0]
+        if world != last_world:
+            lines.extend(['', f'🌊 {world}해역'])
+            last_world = world
+        elif last != row['map']:
             lines.append('')
-            last = row['map']
+        last = row['map']
         s, a = (format(Decimal(row[rank]).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP), '.1f')
                 if row[rank] is not None else '?' for rank in ('s', 'a'))
         a_text = f" / A {a}%" if row['a'] is None or Decimal(row['a']) != 0 else ''
