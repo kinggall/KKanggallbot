@@ -33,6 +33,22 @@ CURRENT_LIMITED_EVENT = json.loads(
     (Path(__file__).parent / 'data' / 'kanlog_current_event.json').read_text(encoding='utf-8'))['event']
 
 
+DATA_DIR = Path(__file__).parent / 'data'
+
+
+def active_limited_event():
+    """Expire reviewed stars when the maintenance date advances, without a restart."""
+    try:
+        config = json.loads((DATA_DIR / 'kanlog_current_event.json').read_text(encoding='utf-8'))
+        reviewed = datetime.strptime(config['maintenance_date'], '%Y-%m-%d').date()
+        dates = [datetime.strptime(json.loads((DATA_DIR / name).read_text(encoding='utf-8'))['date'],
+                                   '%Y-%m-%d').date()
+                 for name in ('maintenance_posts.json', 'maintenance_summary.json')]
+        return config['event'] if max(dates) == reviewed else ''
+    except (OSError, ValueError, KeyError, TypeError):
+        return ''
+
+
 def map_url(map_name):
     return f"https://kanlog.info/map/{map_name.replace('-', '')}/"
 
@@ -244,16 +260,17 @@ def format_limited_reply(snapshot, name_for):
     rare = snapshot.get('rare')
     if rare is None:
         return '기간한정 목록을 준비 중입니다.'
+    event = active_limited_event()
     starred = {row['name'] for map_name, data in snapshot.get('maps', {}).items()
                for row in data.get('rows', [])
-               if drop_prefix(row) == '★' and not is_ended_location(map_name, data['cells'], row)}
+               if drop_prefix(row, event) == '★' and not is_ended_location(map_name, data['cells'], row)}
     lines = []
     for group in LIMITED_GROUPS:
         names = rare['groups'][group]
         if names:
             translated = [('★' if name in starred else '') + name_for(0, name) for name in names]
             lines.append(f'[{group}]\n' + ' / '.join(translated))
-    return ('★ 최근 멘테에 추가된 한정 드랍\n\n' + '\n\n'.join(lines)
+    return (('★ 최근 멘테에 추가된 한정 드랍\n\n' if starred else '') + '\n\n'.join(lines)
             if lines else '현재 확인된 기간한정 드랍이 없습니다.')
 
 
@@ -261,10 +278,12 @@ def is_ended_location(map_name, cells, row):
     return (map_name, cells.get(row['cell'], {}).get('label'), row['ship_id']) in ENDED_LOCATIONS
 
 
-def drop_prefix(row):
+def drop_prefix(row, event=None):
     # An unobserved old cache or an older event must never become "new".
-    current = (row.get('rarity') == 'unique' and row.get('limited')
-               and row.get('limited_event') == CURRENT_LIMITED_EVENT)
+    if event is None:
+        event = active_limited_event()
+    current = (bool(event) and row.get('rarity') == 'unique' and row.get('limited')
+               and row.get('limited_event') == event)
     return '★' if current else '·'
 
 
@@ -275,6 +294,7 @@ def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
         return USAGE
     maps = snapshot.get('maps', {}) if 'maps' in snapshot else {snapshot.get('map'): snapshot}
     found = []
+    event = active_limited_event()
     for map_name, data in maps.items():
         if not data:
             continue
@@ -292,7 +312,7 @@ def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
                 'label': cell.get('label', row.get('cell', '?')),
                 'boss': bool(cell.get('boss')),
                 'limited': bool(row.get('limited')),
-                'prefix': drop_prefix(row),
+                'prefix': drop_prefix(row, event),
                 'ranks': values,
             })
     found.sort(key=lambda item: (
@@ -363,6 +383,7 @@ def format_reply(message, snapshot, name_for, ship_ids_for=None):
     selected = (rank,) if rank else ('s', 'a')
     rows.sort(key=lambda row: tuple(-row['ranks'].get(r, {}).get('rate', 0) for r in selected)
               + (row['ship_id'],))
+    event = active_limited_event()
     for row in rows:
         parts = []
         for r in selected:
@@ -372,7 +393,7 @@ def format_reply(message, snapshot, name_for, ship_ids_for=None):
                 parts.append(f"{r.upper()} {percent}")
         if parts:
             suffix = ' (한정)' if row['limited'] else ''
-            lines.append(f"{drop_prefix(row)} {name_for(row['ship_id'], row['name'])} - {' / '.join(parts)}{suffix}")
+            lines.append(f"{drop_prefix(row, event)} {name_for(row['ship_id'], row['name'])} - {' / '.join(parts)}{suffix}")
     if len(lines) == 1:
         lines.append('· 해당 조건의 레어·한정 드랍 기록이 없습니다.')
     return '\n'.join(lines)

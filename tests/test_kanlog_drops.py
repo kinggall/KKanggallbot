@@ -304,6 +304,40 @@ class KanlogTests(unittest.TestCase):
         self.assertNotIn('★伊203', reply)
         self.assertNotIn('★伊36', reply)
 
+    def test_next_maintenance_expires_stars_in_all_replies_without_restart(self):
+        bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
+        bundle['rare'] = json.loads((ROOT / 'data/kanlog_rare_seed.json').read_text(encoding='utf-8'))
+        cases = [r for m in bundle['maps'].values() for r in m['rows']
+                 if drops.drop_prefix(r) == '★']
+        ship_id = cases[0]['ship_id']
+        map_name = next(name for name, m in bundle['maps'].items()
+                        if any(r['ship_id'] == ship_id for r in m['rows']))
+        cell = next(r['cell'] for r in bundle['maps'][map_name]['rows'] if r['ship_id'] == ship_id)
+        label = bundle['maps'][map_name]['cells'][cell]['label']
+        commands = [lambda: drops.format_limited_reply(bundle, lambda i,n:n),
+                    lambda: drops.format_reply('!드랍 Test', bundle, lambda i,n:n, lambda _: {ship_id}),
+                    lambda: drops.format_reply(f'!드랍 {map_name}-{label}', bundle, lambda i,n:n)]
+        for updated in ('maintenance_posts.json', 'maintenance_summary.json'):
+            with self.subTest(updated=updated), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                for name in ('kanlog_current_event.json', 'maintenance_posts.json', 'maintenance_summary.json'):
+                    (root / name).write_text((ROOT / 'data' / name).read_text(encoding='utf-8'), encoding='utf-8')
+                with patch.object(drops, 'DATA_DIR', root):
+                    for command in commands:
+                        self.assertIn('★', command())
+                    item = json.loads((root / updated).read_text(encoding='utf-8'))
+                    item['date'] = '2026-12-01'
+                    (root / updated).write_text(json.dumps(item), encoding='utf-8')
+                    for command in commands:
+                        self.assertNotIn('★', command())
+                    self.assertIn('[구축]', commands[0]())
+
+    def test_missing_maintenance_metadata_hides_stars(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(drops, 'DATA_DIR', Path(directory)):
+            self.assertEqual(drops.active_limited_event(), '')
+            row = dict(rarity='unique', limited=True, limited_event=drops.CURRENT_LIMITED_EVENT)
+            self.assertEqual(drops.drop_prefix(row), '·')
+
     def test_ended_24_drops_excluded_from_both_lookup_directions(self):
         bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
         reply = drops.format_reply('!드랍 2-4', bundle, lambda i, n: n)
