@@ -20,6 +20,7 @@ import initial_equipment
 import improvement
 import remodel_materials
 import kanlog_drops
+import saury
 import expeditions
 import quests
 import maintenance
@@ -1440,7 +1441,7 @@ COMMANDS = {
         "!임무 [번호/키워드]\n"
         "!공략 [해역/임무번호/키워드]\n"
         "!드랍 [해역/함선명]\n"
-        "!한정드랍\n\n"
+        "!한정드랍 | !꽁치\n\n"
         "━━━━ 함선 · 육성 ━━━━\n"
         "!칸무스 [함선명]\n"
         "!슬롯 [함선명]\n"
@@ -1598,6 +1599,14 @@ def webhook():
                     print(f'[공략 오류 안내 실패] {reply_error}')
 
         IMAGE_SEND_EXECUTOR.submit(send_guide_preview)
+        return jsonify({'ok': True})
+
+    if message == '!꽁치':
+        requests.post(
+            IRIS_REPLY_URL,
+            json={'type': 'text', 'room': str(chat_id), 'data': saury.format_reply()},
+            timeout=10,
+        ).raise_for_status()
         return jsonify({'ok': True})
 
     if message == '!한정드랍':

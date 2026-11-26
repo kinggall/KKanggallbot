@@ -106,3 +106,7 @@ SOFTWARE.
 ## Akashi List saury reference
 
 `data/saury_source.json` and `tests/fixtures/saury_source.html` contain factual rate/equipment data and a parsing excerpt collected from https://akashi-list.me/ on 2026-11-26. The page attributes its probabilities to https://db.kcwiki.org/event-sanma2024/ (2024 statistics). Site content, equipment names, and underlying game rights remain with their respective owners. No map artwork is redistributed. See `SAURY_DATA.md` for collection status and limitations.
+
+## poi-statistics saury screenshot
+
+`data/saury_drops.json` transcribes the S/A probabilities and node names from the user-provided screenshot of https://db.kcwiki.org/event-sanma2024/ (2024 saury statistics). The command labels these as 2024 reference data. Equipment summaries use the separately attributed Akashi List collection. Statistical data and underlying game rights remain with their respective owners. No screenshot or map artwork is redistributed.

@@ -5,11 +5,11 @@ import command_aliases
 
 
 class AliasTests(unittest.TestCase):
-    def test_only_twenty_four_main_help_commands_are_aliased(self):
+    def test_only_main_help_commands_are_aliased(self):
         import bot
         help_commands=set(re.findall(r'![가-힣]+',bot.COMMANDS['!도움말']))
         self.assertEqual(set(command_aliases.ALIASES.values()),help_commands)
-        self.assertEqual(len(command_aliases.ALIASES),24)
+        self.assertEqual(len(command_aliases.ALIASES),25)
         for short,full in command_aliases.ALIASES.items():
             self.assertEqual(command_aliases.expand(short),full)
             self.assertEqual(command_aliases.expand(short+' 검색어  두칸'),full+' 검색어  두칸')
