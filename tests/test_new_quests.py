@@ -189,7 +189,7 @@ class NewQuestTests(unittest.TestCase):
                 patch.object(collect_zekamashi, 'Fetcher', side_effect=AssertionError('No network')), \
                 redirect_stdout(output):
             collect_zekamashi.main()
-        self.assertIn('Targets: 15', output.getvalue())
+        self.assertIn('Targets: 21', output.getvalue())
         for row in self.update['quests']:
             self.assertIn(row['name_jp'], output.getvalue())
         for code in ('2611 Cw1', '2611 Cw2', '2611 F1'):
@@ -201,7 +201,7 @@ class NewQuestTests(unittest.TestCase):
                 patch.object(collect_zekamashi,'Fetcher',side_effect=AssertionError('No network')), \
                 redirect_stdout(output):
             collect_zekamashi.main()
-        self.assertIn('Targets: 293',output.getvalue())
+        self.assertIn('Targets: 299',output.getvalue())
         self.assertIn('2610 Fm1:',output.getvalue())
         self.assertIn('2610 Cw1:',output.getvalue())
 

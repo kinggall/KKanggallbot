@@ -20,6 +20,8 @@ def reply(root=ROOT):
             raise ValueError('Invalid digest')
         missing = posts.get('missing_numbers', [])
         warning = ('\n\n※ 원문 미확보: ' + '·'.join(f'{n:02d}번' for n in missing) + '. 해당 내용은 요약에서 제외했습니다.') if missing else ''
+        if posts.get('possibly_truncated_numbers'):
+            warning += '\n\n※ 공식 임베드에 말줄임이 있는 글은 확인된 본문만 요약했습니다.'
         return f'[멘테 · {posts["date"]}]\n\n' + '\n\n'.join(sections) + warning + '\n\n출처: https://x.com/KanColle_STAFF'
     except (OSError, ValueError, KeyError, TypeError):
         return '점검 요약을 불러오지 못했습니다.\n공식 공지: https://x.com/KanColle_STAFF'

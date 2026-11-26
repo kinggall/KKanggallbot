@@ -140,9 +140,10 @@ class MaintenanceTests(unittest.TestCase):
                 response = bot.app.test_client().post('/webhook', json={'msg': command, 'json': {'chat_id': 'room'}})
                 self.assertEqual(response.status_code, 200)
                 text = send.call_args.kwargs['json']['data']
-                self.assertIn('[멘테 · 2026-11-11]', text)
+                self.assertIn('[멘테 · 2026-11-24]', text)
                 self.assertNotIn('원문 미확보', text)
-                self.assertIn('55cm 삼연장어뢰', text)
+                self.assertIn('수뢰전대 숙련견시원', text)
+                self.assertIn('공식 임베드', text)
                 self.assertNotIn('gall.dcinside', text)
 
 

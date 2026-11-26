@@ -56,6 +56,19 @@ def apply_updates(data, root):
         november = json.loads(november_path.read_text(encoding='utf-8'))
         update['quests'].extend(november['quests'])
         data['sources']['wiki_november_quests'] = november['source']
+    saury_path = root / 'data/quest_saury_2026_updates.json'
+    if saury_path.exists():
+        saury = json.loads(saury_path.read_text(encoding='utf-8'))
+        # EO reused 2611 F1 for two different API IDs. Retain the permanent
+        # torpedo quest under its wiki code; reserve 2611 F1 for saury.
+        for row in update['quests']:
+            if row.get('game_api_id') == 1172:
+                row['wiki_id'] = 'F144'
+                row['aliases'] = ['F144']
+            if row.get('game_api_id') == 386:
+                row.update(deepcopy(saury['existing_updates']['386']))
+        update['quests'].extend(saury['quests'])
+        data['sources']['wiki_saury_2026_quests'] = saury['source']
     by_code = {q['wiki_id'].replace(' ', '').casefold(): key for key, q in data['quests'].items()}
     keys = {}
     for row in update['quests']:

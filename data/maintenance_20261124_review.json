@@ -2,12 +2,11 @@
   "schema": 1,
   "maintenance_date": "2026-11-24",
   "reviewed_at": "2026-11-26T09:58:47.304226+00:00",
-  "status": "secondary_sources_reviewed_official_collection_blocked",
+  "status": "official_numbered_oembed_posts_collected",
   "official": {
     "account": "KanColle_STAFF",
     "expected_last_number": 48,
-    "collected_numbers": [],
-    "missing_numbers": [
+    "collected_numbers": [
       1,
       2,
       3,
@@ -57,7 +56,9 @@
       47,
       48
     ],
-    "blocker": "Official X profile and status URLs return HTTP 403; public X API returns HTTP 401. Not a complete official maintenance digest."
+    "missing_numbers": [],
+    "collection_method": "official_oembed_quote_links",
+    "source_sha256": "28ff7865fdde4f43628f3d5cae9c40c07b652cd27e2e9c21aaed486ad0186757"
   },
   "sources": {
     "wiki_quests": {
@@ -254,5 +255,5 @@
       "2-1-H"
     ]
   },
-  "note": "Research record only. This file does not replace the live maintenance digest or import the six quests."
+  "note": "Official numbered oEmbed posts now collected and reviewed. New quest overlay is quest_saury_2026_updates.json. Some embed bodies contain ellipses; no omitted text is inferred."
 }

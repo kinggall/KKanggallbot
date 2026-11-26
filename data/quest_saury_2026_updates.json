@@ -1,0 +1,613 @@
+{
+  "schema": 1,
+  "source": {
+    "wiki_quests": {
+      "url": "https://wikiwiki.jp/kancolle/任務/フロントページ#New",
+      "html_sha256": "5afb852ec9997be96b3f197fd27352fef94bb64b332238c67a6159246b0e5011"
+    },
+    "eo": {
+      "url": "https://github.com/ElectronicObserverEN/Data/blob/09fa1df4367bb503b99646f99dd1ef1fb0962e1f/Data/Quests.json",
+      "sha256": "1e851289fd6797ab9710a7e093fc9b8df1ac992c28096319daf110b949ae0500"
+    },
+    "wiki_drops": {
+      "url": "https://wikiwiki.jp/kancolle/期間限定ドロップイベント",
+      "html_sha256": "18b25ad9137c6ba32dc0f41f2574b42860c27121c91d64b11467d92fae699b62"
+    }
+  },
+  "quests": [
+    {
+      "wiki_id": "2611 B1",
+      "source_wiki_id": "2611 B1",
+      "game_api_id": 866,
+      "name_jp": "秋刀魚漁：鎮守府秋刀魚祭り、二航戦出ます！",
+      "name_ko": "꽁치잡이: 진수부 꽁치 축제, 제2항공전대 출격합니다!",
+      "aliases": [
+        "2611 B1",
+        "2611B1"
+      ],
+      "category": "collection",
+      "frequency": "onetime",
+      "limited": true,
+      "release_date": "2026-11-24",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_incomplete": true,
+      "prerequisite_codes": [],
+      "requirements": {
+        "category": "collection",
+        "item": "꽁치",
+        "amount": 8,
+        "consume": false
+      },
+      "requirements_ko": [
+        "꽁치 8마리를 보유한 상태로 임무 수락·달성",
+        "꽁치는 소모하지 않음"
+      ],
+      "description": "꽁치 8마리를 보유한 상태로 임무 수락·달성 / 꽁치는 소모하지 않음",
+      "rewards": {
+        "resources": [
+          880,
+          0,
+          880,
+          0
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "보강증설",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "쇼난",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "전투식량",
+                "amount": 3
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "마미야",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "아카시",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "공창자원",
+                "amount": 4
+              }
+            ]
+          }
+        ]
+      },
+      "source_row": [
+        "2611 B1",
+        "秋刀魚漁：鎮守府秋刀魚祭り、二航戦出ます！",
+        "【秋刀魚漁】よしっ！我、これより秋刀魚漁の指揮を執る！駆逐艦たち、探照灯や熟練見張員の準備はいい？じゃ、いきますか！二航戦、抜錨！短期間で、新鮮な「秋刀魚」を8尾獲得する！楽勝よ！多聞丸、見ててっ！ ※秋刀魚を8匹所持した状態で任務を受諾すると達成。 ※秋刀魚は消費しない ※任務進捗変化",
+        "880",
+        "0",
+        "880",
+        "0",
+        "選択報酬1 ・ 補強増設 x1 ・艦娘「 昭南 」 ・ 戦闘糧食 x3 選択報酬2 ・ 給糧艦 「 間宮 」x2 ・艦娘「 明石 」 ・ 工廠資源 x4",
+        "期間限定 【 検証中 】 () 及び () 達成後",
+        "2026 11/24 ~ 20** **/**"
+      ],
+      "source_sha256": "a6c7531bd5c1906507c52303fa15ae2c9be75123a276cba7fa36eec3ba5299aa"
+    },
+    {
+      "wiki_id": "2611 B2",
+      "source_wiki_id": "2611 B2",
+      "game_api_id": 867,
+      "name_jp": "秋刀魚漁：こんな量じゃ、多聞丸に怒られちゃうなぁ！",
+      "name_ko": "꽁치잡이: 이 정도 양이면 타몬마루에게 혼나겠는데!",
+      "aliases": [
+        "2611 B2",
+        "2611B2"
+      ],
+      "category": "collection",
+      "frequency": "onetime",
+      "limited": true,
+      "release_date": "2026-11-24",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_incomplete": true,
+      "prerequisite_codes": [
+        "2611 Cw3"
+      ],
+      "requirements": {
+        "category": "collection",
+        "item": "꽁치",
+        "amount": 16,
+        "consume": false
+      },
+      "requirements_ko": [
+        "꽁치 16마리를 보유한 상태로 임무 수락·달성",
+        "꽁치는 소모하지 않음"
+      ],
+      "description": "꽁치 16마리를 보유한 상태로 임무 수락·달성 / 꽁치는 소모하지 않음",
+      "rewards": {
+        "resources": [
+          0,
+          1440,
+          0,
+          1440
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "전투상보",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "보투르",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "해외함 최신기술",
+                "amount": 4
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "숙련견시원",
+                "amount": 2,
+                "stars": 5
+              },
+              {
+                "category": "named",
+                "name": "신형항공병장자재",
+                "amount": 4
+              },
+              {
+                "category": "named",
+                "name": "설계도",
+                "amount": 1
+              }
+            ]
+          }
+        ]
+      },
+      "source_row": [
+        "2611 B2",
+        "秋刀魚漁：こんな量じゃ、多聞丸に怒られちゃうなぁ！",
+        "【秋刀魚漁】え？こんな水揚げじゃ、美味いけど量が足りないって多聞丸に怒られちゃうなあ！仕方ない……まだまだいくから！新鮮「秋刀魚」を16尾獲得します！飛龍、海に在り！駆逐艦たちも頑張って！やるぞぉ！ ※秋刀魚を16匹所持した状態で任務を受諾すると達成。 ※秋刀魚は消費しない ※任務進捗変化",
+        "0",
+        "1440",
+        "0",
+        "1440",
+        "選択報酬1 ・ 戦闘詳報 x1 ・艦娘「 Vautour 」 ・ 海外艦最新技術 x4 選択報酬2 ・ 熟練見張員 ★+5 x2 ・ 新型航空兵装資材 x4 ・ 改装設計図 x1",
+        "期間限定 【 検証中 】 (2611C3)【鎮守府秋刀魚祭り】秋刀魚塩焼き演習！ 及び () 達成後",
+        "2026 11/24 ~ 20** **/**"
+      ],
+      "source_sha256": "744a07785ebf2c17d5bcbdc81dc31fdae465eba4f005d13b9e5c313013c6b4ff"
+    },
+    {
+      "wiki_id": "2611 B3",
+      "source_wiki_id": "2611 B3",
+      "game_api_id": 868,
+      "name_jp": "秋刀魚漁：どんな逆境でも、大漁にしてみせます！",
+      "name_ko": "꽁치잡이: 어떤 역경도 대어로 바꿔 보이겠어!",
+      "aliases": [
+        "2611 B3",
+        "2611B3"
+      ],
+      "category": "collection",
+      "frequency": "onetime",
+      "limited": true,
+      "release_date": "2026-11-24",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_incomplete": true,
+      "prerequisite_codes": [
+        "2611 B2"
+      ],
+      "requirements": {
+        "category": "collection",
+        "item": "꽁치",
+        "amount": 27,
+        "consume": false
+      },
+      "requirements_ko": [
+        "꽁치 27마리를 보유한 상태로 임무 수락·달성",
+        "꽁치는 소모하지 않음"
+      ],
+      "description": "꽁치 27마리를 보유한 상태로 임무 수락·달성 / 꽁치는 소모하지 않음",
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          2550,
+          2550
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "격납고 증설",
+                "amount": 5
+              },
+              {
+                "category": "named",
+                "name": "설계도",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "시제갑판 캐터펄트",
+                "amount": 1
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "가구 「25식 대어기」",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "가구 「26식 대어기」",
+                "amount": 1
+              }
+            ]
+          }
+        ]
+      },
+      "source_row": [
+        "2611 B3",
+        "秋刀魚漁：どんな逆境でも、大漁にしてみせます！",
+        "【秋刀魚漁】はぁはぁ……流石に今年は少し不漁って訳ね、でも関係ない！この飛龍が秋刀魚漁の指揮を執る限り、どんな逆境だろうが不漁だろうが、大漁にしてみせますっ！艦隊出漁！27尾獲得せよっ！フィナーレ！ ※秋刀魚を27匹所持した状態で任務を受諾すると達成。 ※秋刀魚は消費しない ※任務進捗変化",
+        "0",
+        "0",
+        "2550",
+        "2550",
+        "選択報酬1 ・ 格納庫増設 x5 ・ 改装設計図 x2 ・ 試製甲板カタパルト x1 選択報酬2 ・ 家具 『二五式大漁旗』 x1 ・ 家具 『二六式大漁旗』 x1",
+        "期間限定 【 検証中 】 (2611B2)秋刀魚漁：こんな量じゃ、多聞丸に怒られちゃうなぁ！ 及び () 達成後",
+        "2026 11/24 ~ 20** **/**"
+      ],
+      "source_sha256": "68c0b5c1aae7cbe4ae2534930fa55824901c5e14f310aba54dc78ecad2a81bd2"
+    },
+    {
+      "wiki_id": "2611 Cw3",
+      "source_wiki_id": "2611 C3",
+      "game_api_id": 369,
+      "name_jp": "【鎮守府秋刀魚祭り】秋刀魚塩焼き演習！",
+      "name_ko": "【진수부 꽁치 축제】꽁치 소금구이 연습!",
+      "aliases": [
+        "2611 Cw3",
+        "2611Cw3",
+        "2611 C3",
+        "2611C3"
+      ],
+      "category": "exercise",
+      "frequency": "weekly",
+      "limited": true,
+      "release_date": "2026-11-24",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_incomplete": true,
+      "prerequisite_codes": [
+        "2611 B1"
+      ],
+      "requirements": {
+        "category": "exercise",
+        "result": "A",
+        "times": 4,
+        "daily": true
+      },
+      "requirements_ko": [
+        "제7구축대(오보로/아케보노/사자나미/우시오), 유다치 개2, 시구레 개2/개3, 아키즈키, 하츠즈키, 시키나미, 이소카제, 쇼호, 오오토마리, 헤이안마루, 베아른, 보투르, 모가도르 중 4 이상 + 자유 0~2",
+        "오늘 중 연습 A승 이상 4회"
+      ],
+      "description": "제7구축대(오보로/아케보노/사자나미/우시오), 유다치 개2, 시구레 개2/개3, 아키즈키, 하츠즈키, 시키나미, 이소카제, 쇼호, 오오토마리, 헤이안마루, 베아른, 보투르, 모가도르 중 4 이상 + 자유 0~2 / 오늘 중 연습 A승 이상 4회",
+      "rewards": {
+        "resources": [
+          680,
+          680,
+          0,
+          680
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "고속건조재",
+                "amount": 8
+              },
+              {
+                "category": "named",
+                "name": "고속수복재",
+                "amount": 6
+              },
+              {
+                "category": "named",
+                "name": "마미야",
+                "amount": 1
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "훈장",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "전투식량",
+                "amount": 2
+              },
+              {
+                "category": "named",
+                "name": "격납고 증설",
+                "amount": 1
+              }
+            ]
+          }
+        ]
+      },
+      "source_row": [
+        "2611 C3",
+        "【鎮守府秋刀魚祭り】秋刀魚塩焼き演習！",
+        "第七駆逐隊と「夕立改二」「時雨改二/改三」「秋月」「初月」「敷波」「磯風」「祥鳳」「大泊」「平安丸」「Béarn」「Vautour」「Mogador」の４隻以上を含む艦隊で、本日中に演習【A判定】以上を４回達成せよ！ ※指定艦から4隻以上を含んだ艦隊で4回 A勝利 で達成。 ※任務進捗変化 50%(2/4)→80%(3/4)→達成(4/4)",
+        "680",
+        "680",
+        "0",
+        "680",
+        "選択報酬1 ・高速建造材 x8 ・ 高速修復材 x6 ・ 給糧艦 「 間宮 」x1 選択報酬2 ・ 勲章 x1 ・ 戦闘糧食 x2 ・ 格納庫増設 x1",
+        "期間限定 ウィークリー 【 検証中 】 (2611B1)秋刀魚漁：鎮守府秋刀魚祭り、二航戦出ます！ 及び () 達成後",
+        "2026 11/24 ~ 20** **/**"
+      ],
+      "source_sha256": "4f12bbf9b5fadf3672977d18cd12c8681f4106e62fad03104734bb558098841b"
+    },
+    {
+      "wiki_id": "2611 F1",
+      "source_wiki_id": "2611 F1",
+      "game_api_id": 1110,
+      "name_jp": "秋刀魚祭り【拡張任務】新秋刀魚を美味しく料理！",
+      "name_ko": "꽁치 축제 【확장임무】새 꽁치를 맛있게 요리!",
+      "aliases": [
+        "2611 F1",
+        "2611F1"
+      ],
+      "category": "factory",
+      "frequency": "onetime",
+      "limited": true,
+      "release_date": "2026-11-24",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_incomplete": true,
+      "prerequisite_codes": [
+        "2611 B2"
+      ],
+      "requirements": {
+        "category": "factory"
+      },
+      "requirements_ko": [
+        "임무 수락 후 노사키(난카이) 또는 결혼한 나가나미를 기함으로 배치",
+        "기함 1번 슬롯에 전투식량 ★4 이상 장착",
+        "숙련견시원 x4 폐기",
+        "준비·소모: 꽁치 x8 / 고속건조재 x8 / 개발자재 x32",
+        "주의: 장착한 전투식량 ★4 이상도 소모됨"
+      ],
+      "description": "임무 수락 후 노사키(난카이) 또는 결혼한 나가나미를 기함으로 배치 / 기함 1번 슬롯에 전투식량 ★4 이상 장착 / 숙련견시원 x4 폐기 / 준비·소모: 꽁치 x8 / 고속건조재 x8 / 개발자재 x32 / 주의: 장착한 전투식량 ★4 이상도 소모됨",
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          400,
+          400
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "전투식량(특별한 주먹밥)",
+                "amount": 1,
+                "stars": 3
+              },
+              {
+                "category": "named",
+                "name": "고속건조재",
+                "amount": 30
+              }
+            ]
+          },
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "신형병장자재",
+                "amount": 3
+              },
+              {
+                "category": "named",
+                "name": "고속건조재",
+                "amount": 48
+              },
+              {
+                "category": "named",
+                "name": "숙련견시원",
+                "amount": 1,
+                "stars": 9
+              }
+            ]
+          }
+        ]
+      },
+      "source_row": [
+        "2611 F1",
+        "秋刀魚祭り【拡張任務】新秋刀魚を美味しく料理！",
+        "旗艦「野埼(南海)」またはケッコン済の「長波」を配備。「戦闘糧食」(★+4以上)を第1スロに装備。「熟練見張員」x4廃棄。水揚げ「秋刀魚」8尾、高速建造材x8、開発資材x32を準備せよ！ ※任務を受諾後、 ・ 野埼 、 南海 または(ケッコンカッコカリ済みの 長波 )を秘書艦にし、 ・同艦に 戦闘糧食 ★+4 以上を第1スロットに装備し、 ・高速建造材 x8、開発資材 x32、秋刀魚 x8を準備し、 ・ 熟練見張員 x4を廃棄し達成。 ※消費するもの ・ 戦闘糧食 ★+4 以上 -1 ・高速建造材 -8 ・開発資材 -32 ・秋刀魚 -8 ・ 熟練見張員 -4 (廃棄)",
+        "0",
+        "0",
+        "400",
+        "400",
+        "選択報酬1 ・ 戦闘糧食(特別なおにぎり) ★+3 x1 ・高速建造材 x30 選択報酬2 ・ 新型兵装資材 x3 ・高速建造材 x48 ・ 熟練見張員 ★+9 x1",
+        "期間限定 【 検証中 】 (2611B2)秋刀魚漁：こんな量じゃ、多聞丸に怒られちゃうなぁ！ 及び () 達成後",
+        "2026 11/24 ~ 20** **/**"
+      ],
+      "source_sha256": "38c0558a9237550e1dd3550fd8cbfc93e610711dbce333c1890a002e03b639d5"
+    },
+    {
+      "wiki_id": "2611 F2",
+      "source_wiki_id": "2611 F2",
+      "game_api_id": null,
+      "name_jp": "超秋刀魚祭り【局戦震電持ち専用】特別拡張任務",
+      "name_ko": "초 꽁치 축제 【국지전투기 신덴 보유자 전용】특별 확장임무",
+      "aliases": [
+        "2611 F2",
+        "2611F2"
+      ],
+      "category": "factory",
+      "frequency": "onetime",
+      "limited": true,
+      "release_date": "2026-11-24",
+      "unavailable": false,
+      "unverified": true,
+      "prereqs_unverified": true,
+      "prerequisite_incomplete": true,
+      "prerequisite_codes": [
+        "2611 F1"
+      ],
+      "requirements": {
+        "category": "factory"
+      },
+      "requirements_ko": [
+        "기함: 히류 개2 또는 개3",
+        "준비·소모: 시제 신덴(국지전투기) ★8 이상 x1 / 꽁치 x20 / 시덴 개2 x2 / 신형항공병장자재 x2 / 개발자재 x60 / 공창자원 x2",
+        "임무 수락 후 영식 함전 52형 x4 폐기",
+        "주의: 시제 신덴(국지전투기) ★8 이상이 소모되는 임무"
+      ],
+      "description": "기함: 히류 개2 또는 개3 / 준비·소모: 시제 신덴(국지전투기) ★8 이상 x1 / 꽁치 x20 / 시덴 개2 x2 / 신형항공병장자재 x2 / 개발자재 x60 / 공창자원 x2 / 임무 수락 후 영식 함전 52형 x4 폐기 / 주의: 시제 신덴(국지전투기) ★8 이상이 소모되는 임무",
+      "rewards": {
+        "resources": [
+          0,
+          0,
+          0,
+          1000
+        ],
+        "other": [
+          {
+            "choices": [
+              {
+                "category": "named",
+                "name": "보키",
+                "amount": 8800
+              },
+              {
+                "category": "named",
+                "name": "네식 엔진",
+                "amount": 1
+              },
+              {
+                "category": "named",
+                "name": "고속건조재",
+                "amount": 8
+              }
+            ]
+          },
+          {
+            "category": "named",
+            "name": "신덴 개2(함전형 개2)",
+            "amount": 1
+          }
+        ]
+      },
+      "source_row": [
+        "2611 F2",
+        "超秋刀魚祭り【局戦震電持ち専用】特別拡張任務",
+        "「試製 震電(局地戦闘機)」(★+8以上)を用意。「飛龍改二/改三」を旗艦で、「零式艦戦52型」x4廃棄。「秋刀魚」20尾、「紫電改二」x2、新型航空兵装資材x2、開発資材x60、工廠資源x2をそれぞれ準備せよ！ ※任務を受諾後、 「 飛龍改二 / 改三 」を秘書艦にし、 ・秋刀魚 x20、 紫電改二 x2、 新型航空兵装資材 x2、開発資材 x60、 工廠資源 x2、 試製 震電(局地戦闘機) ★+8 以上 x1を準備し、 ・ 零式艦戦52型 x4を廃棄し達成。 ※消費するもの ・ 試製 震電(局地戦闘機) ★+8 以上 -1 ・秋刀魚 -20 ・ 紫電改二 -2 ・ 新型航空兵装資材 -2 ・開発資材 -60 ・ 工廠資源 -2 ・ 零式艦戦52型 -4 (廃棄)",
+        "0",
+        "0",
+        "0",
+        "1000",
+        "選択報酬 ・ボーキサイト x8800 ・ ネ式エンジン x1 ・高速建造材 x8 確定報酬 ・ 震電改二(艦戦型改二) x1",
+        "期間限定 【 検証中 】 (2611F1)秋刀魚祭り【拡張任務】新秋刀魚を美味しく料理！ 及び () 達成後",
+        "2026 11/24 ~ 20** **/**"
+      ],
+      "source_sha256": "77bcdcf4e1112f880b6108034ee0c74becedf2a2d73f66f334f7ed20e667e07d"
+    }
+  ],
+  "existing_updates": {
+    "386": {
+      "requirements": {
+        "category": "exercise",
+        "comp": [
+          {
+            "ship_id": [
+              1003,
+              943,
+              900,
+              1055,
+              480,
+              479,
+              44,
+              144,
+              14,
+              96,
+              15
+            ],
+            "amount": 4
+          },
+          {
+            "ship_id": [
+              1003,
+              943,
+              900,
+              1055,
+              480,
+              479,
+              44,
+              144,
+              14,
+              96,
+              15
+            ],
+            "amount": 1,
+            "position": 1
+          }
+        ],
+        "result": "S",
+        "times": 3,
+        "daily": true
+      },
+      "requirements_ko": [
+        "시마네마루/쿠마노마루/야마시오마루/베아른/사기리/아마기리/무라사메/유다치 개2/시키나미/오오시오/아케보노 중 4 이상(기함 포함) + 자유 0~2",
+        "오늘 중 연습 S승 3회"
+      ],
+      "description": "시마네마루/쿠마노마루/야마시오마루/베아른/사기리/아마기리/무라사메/유다치 개2/시키나미/오오시오/아케보노 중 4 이상(기함 포함) + 자유 0~2 / 오늘 중 연습 S승 3회",
+      "conditions_updated": "2026-11-24"
+    }
+  },
+  "numbering_note": "Wiki factory F1/F2 retained. Permanent API 1172 is F144 to avoid EO duplicate 2611 F1. Wiki F2 API ID is unconfirmed; no ID guessed."
+}

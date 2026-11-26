@@ -16,17 +16,17 @@ class NovemberQuestTests(unittest.TestCase):
         cls.catalog = QuestCatalog(ROOT)
         cls.update = json.loads((ROOT / 'data/quest_november_updates.json').read_text())
 
-    def test_only_three_latest_quests_and_no_sortie_guide_example(self):
+    def test_only_six_latest_quests_and_no_sortie_guide_example(self):
         text = self.catalog.new_quests_reply()
-        self.assertIn('2026-11-11 점검 신규 임무 (3개)', text)
-        for code in ('2611 Cw1', '2611 Cw2', '2611 F1'):
+        self.assertIn('2026-11-24 점검 신규 임무 (6개)', text)
+        for code in ('2611 B1', '2611 B2', '2611 B3', '2611 Cw3', '2611 F1', '2611 F2'):
             self.assertIn(code + ':', text)
         self.assertNotIn('2610', text)
         self.assertNotIn('!공략', text)
 
     def test_eo_identities_and_wiki_aliases_return_same_records(self):
         for api_id, canonical, wiki in ((381, '2611 Cw1', '2611 C1'),
-                                        (386, '2611 Cw2', '2611 C2'), (1172, '2611 F1', 'F144')):
+                                        (386, '2611 Cw2', '2611 C2'), (1172, 'F144', 'F144')):
             self.assertEqual(self.catalog.items[str(api_id)]['wiki_id'], canonical)
             for query in (canonical, canonical.replace(' ', ''), wiki, wiki.replace(' ', '')):
                 self.assertEqual(self.catalog.reply(query), self.catalog.detail(str(api_id)))
@@ -80,4 +80,28 @@ class NovemberQuestTests(unittest.TestCase):
         with patch.object(bot.requests, 'get', side_effect=AssertionError('offline')), patch.object(bot.requests, 'post') as send:
             result = bot.app.test_client().post('/webhook', json={'msg': '!신규임무', 'json': {'chat_id': 'room'}})
             self.assertEqual(result.status_code, 200)
-            self.assertIn('신규 임무 (3개)', send.call_args.kwargs['json']['data'])
+            self.assertIn('신규 임무 (6개)', send.call_args.kwargs['json']['data'])
+
+    def test_saury_factory_codes_do_not_overwrite_permanent_torpedo_quest(self):
+        self.assertIn('새 꽁치를 맛있게', self.catalog.reply('2611F1'))
+        self.assertIn('국지전투기 신덴', self.catalog.reply('2611F2'))
+        self.assertIn('야전 돌격 장비', self.catalog.reply('F144'))
+        self.assertIn('시제 신덴(국지전투기) ★8 이상이 소모', self.catalog.reply('2611F2'))
+        self.assertIsNone(next(r for r in self.catalog.items.values() if r['wiki_id']=='2611 F2')['game_api_id'])
+
+    def test_saury_collection_is_inventory_not_sortie_or_consumption(self):
+        for api, count in (('866',8),('867',16),('868',27)):
+            row = self.catalog.items[api]
+            self.assertEqual(row['category'], 'collection')
+            self.assertIn(f'꽁치 {count}마리', self.catalog.detail(api))
+            self.assertIn('소모하지 않음', self.catalog.detail(api))
+        self.assertEqual((self.catalog.items['369']['requirements']['result'],
+                          self.catalog.items['369']['requirements']['times']),('A',4))
+
+    def test_updated_preparation_pool_does_not_keep_removed_ship_ids(self):
+        row=self.catalog.items['386']
+        pool=row['requirements']['comp'][0]['ship_id']
+        self.assertIn(1003,pool)  # Shimane Maru
+        self.assertIn(1055,pool)  # Bearn
+        self.assertIn(144,pool)   # Yuudachi Kai Ni
+        for removed in (637,931,941):self.assertNotIn(removed,pool)

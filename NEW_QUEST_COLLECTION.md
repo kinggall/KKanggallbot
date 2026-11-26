@@ -102,3 +102,6 @@ C:\KakaoBot\.venv\Scripts\python.exe C:\KakaoBot\KKanggallbot\scripts\collect_ne
 HAR도 동일하게 `--input "C:\KakaoBot\new_quests.har"`로 지정한다.
 HAR 전체에는 민감한 헤더가 있을 수 있으므로 공개하지 않는다. 수집기는 대상 페이지의
 정상 응답 HTML만 가져오며 쿠키·요청 헤더를 결과에 복사하지 않는다.
+# 2026-11-24 반영
+
+`data/quest_saury_2026_updates.json`에 wikiwiki 원문·EO 대조를 마친 신규 6개 및 기존 꽁치 준비 연습의 편성 조건 변경을 보존했습니다. `!신규임무`는 해당 날짜의 6개를 표시합니다. B1/B2/B3는 출격 S승 임무가 아니라 꽁치 8/16/27마리 보유 임무이며 꽁치를 소비하지 않습니다. F1/F2는 준비 장비·자재 소모를 명시했습니다. 미확정 선행임무는 확인된 부분만 연결하고 검증중 표시를 유지합니다. 보상·임무 조건의 출처는 위키이며, 공식 멘테 요약의 출처와 구분합니다.

@@ -1,5 +1,19 @@
 # 공식 점검 공지
 
+## 2026-11-24 수집
+
+공식 X oEmbed(`publish.x.com/oembed`)와 공식 인용의 `t.co` 이동 주소로 01~48번을 모두 확보했습니다. 번호·작성 계정·게시 날짜를 검사하고, 번호가 없는 멘테 완료 안내 글에서 인용을 따라 실제 48번으로 진입했습니다. 원문과 요약의 해시를 연결했으며, 공식 임베드 말미에 `…`가 있는 글은 생략된 내용을 추정하지 않고 확인된 본문만 요약합니다. `possibly_truncated_numbers`에 해당 번호를 보존합니다. 번호 48개 확보와 각 글의 생략 없는 전문 확보는 구분합니다.
+
+다음 수집에도 같은 경로를 사용할 수 있습니다. 공개 임베드 응답만 캐시하며 쿠키·로그인 정보는 저장하지 않습니다. 다른 계정·이미지·외부 사이트로는 인용 수집을 이어가지 않습니다. 누락 번호가 있으면 기존 출력 파일을 유지합니다. 인용이 끊긴 글은 `--seed-url`로 공식 링크를 추가할 수 있습니다.
+
+```powershell
+C:\KakaoBot\.venv\Scripts\python.exe -m scripts.collect_maintenance_oembed --date 2026-11-24 --last-number 48 --seed-url https://x.com/KanColle_STAFF/status/2125228449531101644 --cache-dir C:\KakaoBot\.maintenance-oembed --output data\maintenance_posts.json
+```
+
+환경 허용 주소: `publish.x.com`, `t.co`. `publish.twitter.com`은 `publish.x.com`으로 이동합니다. 직접 X 페이지가 403이어도 공개 임베드는 별도로 HTTP 200일 수 있습니다. 상시 자동 수집·자동 한국어 요약 기능은 아니며, 새로운 멘테의 번호 범위와 내용은 검토해야 합니다.
+
+## 기존 타임라인 수집
+
 `!멘테` / `!ㅁㅌ`는 `KanColle_STAFF`의 번호 공지를 검토한 한국어 요약을
 반환한다. 기존 고정 커뮤니티 링크를 대체한다.
 `!신규임무`의 EO·wikiwiki 기반 임무 데이터와 조건·보상은 변경하지 않는다.
