@@ -9,7 +9,7 @@ DATA = Path(__file__).parent / 'data/saury_drops.json'
 def format_reply(data=None):
     if data is None:
         data = json.loads(DATA.read_text(encoding='utf-8'))
-    lines = ['[꽁치 드랍 확률]', f"✔️ {data['rate_year']}년 기준 (poi-statistics 참고 확률)"]
+    lines = ['[꽁치 드랍 확률]' + '\u200b' * 4000, f"✔️ {data['rate_year']}년 기준 (poi-statistics 참고 확률)"]
     last = None
     for row in sorted(data['rows'], key=lambda r: (*map(int, r['map'].split('-')), r['node'])):
         if last != row['map']:
@@ -17,7 +17,8 @@ def format_reply(data=None):
             last = row['map']
         s, a = (format(Decimal(row[rank]).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP), '.1f')
                 if row[rank] is not None else '?' for rank in ('s', 'a'))
-        lines.append(f"· {row['map']} {row['node']}: S {s}% / A {a}%")
+        a_text = f" / A {a}%" if row['a'] is None or Decimal(row['a']) != 0 else ''
+        lines.append(f"· {row['map']} {row['node']}: S {s}%{a_text}")
     lines += ['', '[꽁치 유리 장비]']
     for group in data['equipment_groups']:
         lines.append(f"· {group['category']}: {group['text']}")
