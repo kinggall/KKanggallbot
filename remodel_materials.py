@@ -35,7 +35,47 @@ def convert_reference():
         return json.load(file)["routes"]
 
 
+@lru_cache(maxsize=1)
+def supplement_reference():
+    import json
+    path = Path(__file__).parent / 'data' / 'ship_remodel_supplement.json'
+    with path.open(encoding='utf-8') as file:
+        return json.load(file)['routes']
+
+
+def supplementary_text(source, target):
+    try:
+        route = supplement_reference().get(str(source.get('艦船ID', '')))
+    except (OSError, ValueError, KeyError):
+        return None
+    if not route or target is None:
+        return None
+    if not (route['source_name'] == source.get('艦名')
+            and route['target_name'] == source.get('改装後') == target.get('艦名')
+            and str(route['target_id']) == str(target.get('艦船ID'))
+            and str(route['level']) == str(source.get('改装Lv'))
+            and str(route['ammo']) == str(source.get('改装弾薬'))
+            and str(route['steel']) == str(source.get('改装鋼材'))):
+        return None
+    for index, field in CSV_FIELDS.items():
+        match = re.search(r'\d+', str(source.get(field, '')))
+        if (int(match.group()) if match else 0) != route['materials'][index]:
+            return None
+    parts = [f'{name} {count}' for name, count in zip(MATERIALS, route['materials']) if count]
+    equipment = []
+    for item in route['equipment']:
+        stars = '★MAX' if item['stars_min'] == 10 else f"★{item['stars_min']} 이상"
+        equipment.append(f"{item['name']} {stars} x{item['count']}")
+    text = ' · 재료 : ' + '/'.join(parts) if parts else ''
+    if equipment:
+        text += '\n · 요구 장비 : ' + '/'.join(equipment)
+    return text
+
+
 def material_text(source, target):
+    supplementary = supplementary_text(source, target)
+    if supplementary is not None:
+        return supplementary
     try:
         route = convert_reference().get(str(source.get("艦船ID", "")))
     except (OSError, ValueError, KeyError):

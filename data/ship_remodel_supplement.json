@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "source": "https://github.com/kcwiki/kancolle-data/blob/cd3989ed4b25650215b5a9be000c848444909fd0/wiki/ship.json",
+  "sha256": "f5c1cb992e9925b27d06ef279a6c405c50387efa6ac0b589dda3a9e34474f196",
+  "note": "Directed forward remodel requirements. Equipment quantities and minimum stars are requirements; this record does not infer equipment disposal or mounting slots.",
+  "routes": {
+    "264": {
+      "source_name": "青葉改",
+      "target_id": 753,
+      "target_name": "青葉改偵",
+      "level": 77,
+      "ammo": 680,
+      "steel": 760,
+      "materials": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        120,
+        36,
+        0,
+        0,
+        0,
+        4
+      ],
+      "equipment": [
+        {
+          "equipment_id": 129,
+          "name": "숙련견시원",
+          "stars_min": 10,
+          "count": 2
+        },
+        {
+          "equipment_id": 30,
+          "name": "21호 대공전탐",
+          "stars_min": 4,
+          "count": 1
+        }
+      ]
+    },
+    "158": {
+      "source_name": "川内改二",
+      "target_id": 751,
+      "target_name": "川内改二偵",
+      "level": 92,
+      "ammo": 630,
+      "steel": 550,
+      "materials": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        55,
+        22,
+        0,
+        0,
+        0,
+        3
+      ],
+      "equipment": [
+        {
+          "equipment_id": 129,
+          "name": "숙련견시원",
+          "stars_min": 10,
+          "count": 1
+        },
+        {
+          "equipment_id": 28,
+          "name": "22호 대수상전탐",
+          "stars_min": 4,
+          "count": 1
+        }
+      ]
+    },
+    "649": {
+      "source_name": "高波改二",
+      "target_id": 752,
+      "target_name": "高波改二偵",
+      "level": 90,
+      "ammo": 440,
+      "steel": 480,
+      "materials": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        36,
+        18,
+        0,
+        0,
+        0,
+        2
+      ],
+      "equipment": [
+        {
+          "equipment_id": 129,
+          "name": "숙련견시원",
+          "stars_min": 10,
+          "count": 1
+        },
+        {
+          "equipment_id": 28,
+          "name": "22호 대수상전탐",
+          "stars_min": 4,
+          "count": 1
+        }
+      ]
+    },
+    "488": {
+      "source_name": "由良改二",
+      "target_id": 750,
+      "target_name": "由良改二偵",
+      "level": 93,
+      "ammo": 610,
+      "steel": 550,
+      "materials": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        55,
+        22,
+        0,
+        0,
+        0,
+        3
+      ],
+      "equipment": [
+        {
+          "equipment_id": 129,
+          "name": "숙련견시원",
+          "stars_min": 10,
+          "count": 1
+        },
+        {
+          "equipment_id": 30,
+          "name": "21호 대공전탐",
+          "stars_min": 4,
+          "count": 1
+        }
+      ]
+    }
+  },
+  "wiki_verification_urls": [
+    "https://wikiwiki.jp/kancolle/%E7%94%B1%E8%89%AF%E6%94%B9%E4%BA%8C%E5%81%B5",
+    "https://wikiwiki.jp/kancolle/%E5%B7%9D%E5%86%85%E6%94%B9%E4%BA%8C%E5%81%B5",
+    "https://wikiwiki.jp/kancolle/%E9%AB%98%E6%B3%A2%E6%94%B9%E4%BA%8C%E5%81%B5",
+    "https://wikiwiki.jp/kancolle/%E9%9D%92%E8%91%89%E6%94%B9%E5%81%B5"
+  ],
+  "verified_date": "2026-11-26"
+}
