@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "maintenance_date": "2026-11-24",
+  "reviewed_at": "2026-11-26T09:58:47.304226+00:00",
+  "status": "secondary_sources_reviewed_official_collection_blocked",
+  "official": {
+    "account": "KanColle_STAFF",
+    "expected_last_number": 48,
+    "collected_numbers": [],
+    "missing_numbers": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48
+    ],
+    "blocker": "Official X profile and status URLs return HTTP 403; public X API returns HTTP 401. Not a complete official maintenance digest."
+  },
+  "sources": {
+    "wiki_quests": {
+      "url": "https://wikiwiki.jp/kancolle/任務/フロントページ#New",
+      "html_sha256": "5afb852ec9997be96b3f197fd27352fef94bb64b332238c67a6159246b0e5011"
+    },
+    "eo": {
+      "url": "https://github.com/ElectronicObserverEN/Data/blob/09fa1df4367bb503b99646f99dd1ef1fb0962e1f/Data/Quests.json",
+      "sha256": "1e851289fd6797ab9710a7e093fc9b8df1ac992c28096319daf110b949ae0500"
+    },
+    "wiki_drops": {
+      "url": "https://wikiwiki.jp/kancolle/期間限定ドロップイベント",
+      "html_sha256": "18b25ad9137c6ba32dc0f41f2574b42860c27121c91d64b11467d92fae699b62"
+    }
+  },
+  "quests": [
+    {
+      "wiki_code": "2611 B1",
+      "title": "秋刀魚漁：鎮守府秋刀魚祭り、二航戦出ます！",
+      "conditions": "【秋刀魚漁】よしっ！我、これより秋刀魚漁の指揮を執る！駆逐艦たち、探照灯や熟練見張員の準備はいい？じゃ、いきますか！二航戦、抜錨！短期間で、新鮮な「秋刀魚」を8尾獲得する！楽勝よ！多聞丸、見ててっ！ ※秋刀魚を8匹所持した状態で任務を受諾すると達成。 ※秋刀魚は消費しない ※任務進捗変化",
+      "resources": [
+        "880",
+        "0",
+        "880",
+        "0"
+      ],
+      "rewards": "選択報酬1 ・ 補強増設 x1 ・艦娘「 昭南 」 ・ 戦闘糧食 x3 選択報酬2 ・ 給糧艦 「 間宮 」x2 ・艦娘「 明石 」 ・ 工廠資源 x4",
+      "prerequisites": "期間限定 【 検証中 】 () 及び () 達成後",
+      "release": "2026 11/24 ~ 20** **/**",
+      "eo_matches": [
+        {
+          "code": "2611 B1",
+          "api_id": 866
+        }
+      ]
+    },
+    {
+      "wiki_code": "2611 B2",
+      "title": "秋刀魚漁：こんな量じゃ、多聞丸に怒られちゃうなぁ！",
+      "conditions": "【秋刀魚漁】え？こんな水揚げじゃ、美味いけど量が足りないって多聞丸に怒られちゃうなあ！仕方ない……まだまだいくから！新鮮「秋刀魚」を16尾獲得します！飛龍、海に在り！駆逐艦たちも頑張って！やるぞぉ！ ※秋刀魚を16匹所持した状態で任務を受諾すると達成。 ※秋刀魚は消費しない ※任務進捗変化",
+      "resources": [
+        "0",
+        "1440",
+        "0",
+        "1440"
+      ],
+      "rewards": "選択報酬1 ・ 戦闘詳報 x1 ・艦娘「 Vautour 」 ・ 海外艦最新技術 x4 選択報酬2 ・ 熟練見張員 ★+5 x2 ・ 新型航空兵装資材 x4 ・ 改装設計図 x1",
+      "prerequisites": "期間限定 【 検証中 】 (2611C3)【鎮守府秋刀魚祭り】秋刀魚塩焼き演習！ 及び () 達成後",
+      "release": "2026 11/24 ~ 20** **/**",
+      "eo_matches": [
+        {
+          "code": "2611 B2",
+          "api_id": 867
+        }
+      ]
+    },
+    {
+      "wiki_code": "2611 B3",
+      "title": "秋刀魚漁：どんな逆境でも、大漁にしてみせます！",
+      "conditions": "【秋刀魚漁】はぁはぁ……流石に今年は少し不漁って訳ね、でも関係ない！この飛龍が秋刀魚漁の指揮を執る限り、どんな逆境だろうが不漁だろうが、大漁にしてみせますっ！艦隊出漁！27尾獲得せよっ！フィナーレ！ ※秋刀魚を27匹所持した状態で任務を受諾すると達成。 ※秋刀魚は消費しない ※任務進捗変化",
+      "resources": [
+        "0",
+        "0",
+        "2550",
+        "2550"
+      ],
+      "rewards": "選択報酬1 ・ 格納庫増設 x5 ・ 改装設計図 x2 ・ 試製甲板カタパルト x1 選択報酬2 ・ 家具 『二五式大漁旗』 x1 ・ 家具 『二六式大漁旗』 x1",
+      "prerequisites": "期間限定 【 検証中 】 (2611B2)秋刀魚漁：こんな量じゃ、多聞丸に怒られちゃうなぁ！ 及び () 達成後",
+      "release": "2026 11/24 ~ 20** **/**",
+      "eo_matches": [
+        {
+          "code": "2611 B3",
+          "api_id": 868
+        }
+      ]
+    },
+    {
+      "wiki_code": "2611 C3",
+      "title": "【鎮守府秋刀魚祭り】秋刀魚塩焼き演習！",
+      "conditions": "第七駆逐隊と「夕立改二」「時雨改二/改三」「秋月」「初月」「敷波」「磯風」「祥鳳」「大泊」「平安丸」「Béarn」「Vautour」「Mogador」の４隻以上を含む艦隊で、本日中に演習【A判定】以上を４回達成せよ！ ※指定艦から4隻以上を含んだ艦隊で4回 A勝利 で達成。 ※任務進捗変化 50%(2/4)→80%(3/4)→達成(4/4)",
+      "resources": [
+        "680",
+        "680",
+        "0",
+        "680"
+      ],
+      "rewards": "選択報酬1 ・高速建造材 x8 ・ 高速修復材 x6 ・ 給糧艦 「 間宮 」x1 選択報酬2 ・ 勲章 x1 ・ 戦闘糧食 x2 ・ 格納庫増設 x1",
+      "prerequisites": "期間限定 ウィークリー 【 検証中 】 (2611B1)秋刀魚漁：鎮守府秋刀魚祭り、二航戦出ます！ 及び () 達成後",
+      "release": "2026 11/24 ~ 20** **/**",
+      "eo_matches": [
+        {
+          "code": "2311 C1",
+          "api_id": 369
+        },
+        {
+          "code": "2411 C1",
+          "api_id": 369
+        },
+        {
+          "code": "2511 C1",
+          "api_id": 369
+        },
+        {
+          "code": "2611 Cw3",
+          "api_id": 369
+        }
+      ]
+    },
+    {
+      "wiki_code": "2611 F1",
+      "title": "秋刀魚祭り【拡張任務】新秋刀魚を美味しく料理！",
+      "conditions": "旗艦「野埼(南海)」またはケッコン済の「長波」を配備。「戦闘糧食」(★+4以上)を第1スロに装備。「熟練見張員」x4廃棄。水揚げ「秋刀魚」8尾、高速建造材x8、開発資材x32を準備せよ！ ※任務を受諾後、 ・ 野埼 、 南海 または(ケッコンカッコカリ済みの 長波 )を秘書艦にし、 ・同艦に 戦闘糧食 ★+4 以上を第1スロットに装備し、 ・高速建造材 x8、開発資材 x32、秋刀魚 x8を準備し、 ・ 熟練見張員 x4を廃棄し達成。 ※消費するもの ・ 戦闘糧食 ★+4 以上 -1 ・高速建造材 -8 ・開発資材 -32 ・秋刀魚 -8 ・ 熟練見張員 -4 (廃棄)",
+      "resources": [
+        "0",
+        "0",
+        "400",
+        "400"
+      ],
+      "rewards": "選択報酬1 ・ 戦闘糧食(特別なおにぎり) ★+3 x1 ・高速建造材 x30 選択報酬2 ・ 新型兵装資材 x3 ・高速建造材 x48 ・ 熟練見張員 ★+9 x1",
+      "prerequisites": "期間限定 【 検証中 】 (2611B2)秋刀魚漁：こんな量じゃ、多聞丸に怒られちゃうなぁ！ 及び () 達成後",
+      "release": "2026 11/24 ~ 20** **/**",
+      "eo_matches": [
+        {
+          "code": "2611 F1",
+          "api_id": 1110
+        }
+      ]
+    },
+    {
+      "wiki_code": "2611 F2",
+      "title": "超秋刀魚祭り【局戦震電持ち専用】特別拡張任務",
+      "conditions": "「試製 震電(局地戦闘機)」(★+8以上)を用意。「飛龍改二/改三」を旗艦で、「零式艦戦52型」x4廃棄。「秋刀魚」20尾、「紫電改二」x2、新型航空兵装資材x2、開発資材x60、工廠資源x2をそれぞれ準備せよ！ ※任務を受諾後、 「 飛龍改二 / 改三 」を秘書艦にし、 ・秋刀魚 x20、 紫電改二 x2、 新型航空兵装資材 x2、開発資材 x60、 工廠資源 x2、 試製 震電(局地戦闘機) ★+8 以上 x1を準備し、 ・ 零式艦戦52型 x4を廃棄し達成。 ※消費するもの ・ 試製 震電(局地戦闘機) ★+8 以上 -1 ・秋刀魚 -20 ・ 紫電改二 -2 ・ 新型航空兵装資材 -2 ・開発資材 -60 ・ 工廠資源 -2 ・ 零式艦戦52型 -4 (廃棄)",
+      "resources": [
+        "0",
+        "0",
+        "0",
+        "1000"
+      ],
+      "rewards": "選択報酬 ・ボーキサイト x8800 ・ ネ式エンジン x1 ・高速建造材 x8 確定報酬 ・ 震電改二(艦戦型改二) x1",
+      "prerequisites": "期間限定 【 検証中 】 (2611F1)秋刀魚祭り【拡張任務】新秋刀魚を美味しく料理！ 及び () 達成後",
+      "release": "2026 11/24 ~ 20** **/**",
+      "eo_matches": []
+    }
+  ],
+  "changed_existing_quests": [
+    {
+      "api_id": 386,
+      "code": "2611 Cw2",
+      "new_description_en": "Organize a fleet with 4 of Akebono, Amagiri, Murasame, Ooshio, Kumano Maru, Yamashio Maru, Shimane Maru, Béarn, Sagiri, Yuudachi Kai Ni or Shikinami with one as flagship in your fleet and score S rank three times in PvP",
+      "note": "Wiki marks the new candidate pool as updated; existing bot conditions still require review."
+    }
+  ],
+  "identity_blockers": [
+    "EO reuses 2611 F1 for API 1172 and API 1110. Never overwrite the earlier quest by code.",
+    "The special Shinden factory quest (wiki 2611 F2) is not present in this EO snapshot; its API ID is unconfirmed."
+  ],
+  "drop_observations": [
+    {
+      "map": "1-2",
+      "node": "E",
+      "ships": [
+        "磯風"
+      ]
+    },
+    {
+      "map": "1-3",
+      "node": "J",
+      "ships": [
+        "Jervis"
+      ]
+    },
+    {
+      "map": "1-4",
+      "node": "L",
+      "ships": [
+        "玉波",
+        "岸波",
+        "Independence"
+      ]
+    },
+    {
+      "map": "1-5",
+      "node": "J",
+      "ships": [
+        "磯風",
+        "伊36",
+        "Javelin"
+      ]
+    }
+  ],
+  "continuing_drops": {
+    "平安丸": [
+      "1-5-J",
+      "2-1-H"
+    ]
+  },
+  "note": "Research record only. This file does not replace the live maintenance digest or import the six quests."
+}
