@@ -36,15 +36,26 @@ CURRENT_LIMITED_EVENT = json.loads(
 DATA_DIR = Path(__file__).parent / 'data'
 
 
-def active_limited_event():
-    """Expire reviewed stars when the maintenance date advances, without a restart."""
+def limited_roster_hash(rare):
+    """Compare membership only; ordering, timestamps and probabilities are not changes."""
+    groups = rare['groups']
+    names = []
+    for group in LIMITED_GROUPS:
+        values = groups[group]
+        if not isinstance(values, list) or not all(isinstance(n, str) and n for n in values):
+            raise ValueError('Invalid limited roster')
+        names.extend(values)
+    return hashlib.sha256(json.dumps(sorted(set(names)), ensure_ascii=False).encode('utf-8')).hexdigest()
+
+
+def active_limited_event(snapshot=None):
+    """Expire reviewed stars only when the limited ship membership changes."""
     try:
         config = json.loads((DATA_DIR / 'kanlog_current_event.json').read_text(encoding='utf-8'))
-        reviewed = datetime.strptime(config['maintenance_date'], '%Y-%m-%d').date()
-        dates = [datetime.strptime(json.loads((DATA_DIR / name).read_text(encoding='utf-8'))['date'],
-                                   '%Y-%m-%d').date()
-                 for name in ('maintenance_posts.json', 'maintenance_summary.json')]
-        return config['event'] if max(dates) == reviewed else ''
+        rare = snapshot.get('rare') if snapshot is not None else None
+        if rare is None:
+            rare = json.loads((DATA_DIR / 'kanlog_rare_seed.json').read_text(encoding='utf-8'))
+        return config['event'] if limited_roster_hash(rare) == config['roster_sha256'] else ''
     except (OSError, ValueError, KeyError, TypeError):
         return ''
 
@@ -260,7 +271,7 @@ def format_limited_reply(snapshot, name_for):
     rare = snapshot.get('rare')
     if rare is None:
         return '기간한정 목록을 준비 중입니다.'
-    event = active_limited_event()
+    event = active_limited_event(snapshot)
     starred = {row['name'] for map_name, data in snapshot.get('maps', {}).items()
                for row in data.get('rows', [])
                if drop_prefix(row, event) == '★' and not is_ended_location(map_name, data['cells'], row)}
@@ -294,7 +305,7 @@ def _format_ship_drop_reply(keyword, snapshot, name_for, ship_ids_for):
         return USAGE
     maps = snapshot.get('maps', {}) if 'maps' in snapshot else {snapshot.get('map'): snapshot}
     found = []
-    event = active_limited_event()
+    event = active_limited_event(snapshot)
     for map_name, data in maps.items():
         if not data:
             continue
@@ -351,6 +362,7 @@ def format_reply(message, snapshot, name_for, ship_ids_for=None):
     if parsed is None or parsed[0] not in MAPS:
         return USAGE
     map_name, label, rank = parsed
+    event = active_limited_event(snapshot)
     if 'maps' in snapshot:
         snapshot = snapshot['maps'].get(map_name)
     elif snapshot['map'] != map_name:
@@ -383,7 +395,6 @@ def format_reply(message, snapshot, name_for, ship_ids_for=None):
     selected = (rank,) if rank else ('s', 'a')
     rows.sort(key=lambda row: tuple(-row['ranks'].get(r, {}).get('rate', 0) for r in selected)
               + (row['ship_id'],))
-    event = active_limited_event()
     for row in rows:
         parts = []
         for r in selected:

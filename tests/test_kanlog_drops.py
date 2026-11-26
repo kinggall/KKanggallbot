@@ -304,7 +304,7 @@ class KanlogTests(unittest.TestCase):
         self.assertNotIn('★伊203', reply)
         self.assertNotIn('★伊36', reply)
 
-    def test_next_maintenance_expires_stars_in_all_replies_without_restart(self):
+    def test_roster_changes_expire_stars_but_maintenance_updates_do_not(self):
         bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
         bundle['rare'] = json.loads((ROOT / 'data/kanlog_rare_seed.json').read_text(encoding='utf-8'))
         cases = [r for m in bundle['maps'].values() for r in m['rows']
@@ -320,7 +320,7 @@ class KanlogTests(unittest.TestCase):
         for updated in ('maintenance_posts.json', 'maintenance_summary.json'):
             with self.subTest(updated=updated), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
-                for name in ('kanlog_current_event.json', 'maintenance_posts.json', 'maintenance_summary.json'):
+                for name in ('kanlog_current_event.json', 'kanlog_rare_seed.json', 'maintenance_posts.json', 'maintenance_summary.json'):
                     (root / name).write_text((ROOT / 'data' / name).read_text(encoding='utf-8'), encoding='utf-8')
                 with patch.object(drops, 'DATA_DIR', root):
                     for command in commands:
@@ -329,10 +329,26 @@ class KanlogTests(unittest.TestCase):
                     item['date'] = '2026-12-01'
                     (root / updated).write_text(json.dumps(item), encoding='utf-8')
                     for command in commands:
+                        self.assertIn('★', command())
+                    changed = copy.deepcopy(bundle)
+                    changed['rare']['groups']['구축'].append('New limited ship')
+                    bundle['rare'], original = changed['rare'], bundle['rare']
+                    for command in commands:
                         self.assertNotIn('★', command())
                     self.assertIn('[구축]', commands[0]())
+                    bundle['rare'] = original
 
-    def test_missing_maintenance_metadata_hides_stars(self):
+    def test_roster_order_and_statistics_do_not_expire_but_removal_does(self):
+        rare = json.loads((ROOT / 'data/kanlog_rare_seed.json').read_text(encoding='utf-8'))
+        bundle = {'rare': copy.deepcopy(rare)}
+        for values in bundle['rare']['groups'].values():
+            values.reverse()
+        bundle['rare']['source_updated'] = '2099/01/01 00:00:00'
+        self.assertEqual(drops.active_limited_event(bundle), drops.CURRENT_LIMITED_EVENT)
+        bundle['rare']['groups']['구축'].pop()
+        self.assertEqual(drops.active_limited_event(bundle), '')
+
+    def test_missing_roster_metadata_hides_stars(self):
         with tempfile.TemporaryDirectory() as directory, patch.object(drops, 'DATA_DIR', Path(directory)):
             self.assertEqual(drops.active_limited_event(), '')
             row = dict(rarity='unique', limited=True, limited_event=drops.CURRENT_LIMITED_EVENT)
