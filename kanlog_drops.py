@@ -244,13 +244,17 @@ def format_limited_reply(snapshot, name_for):
     rare = snapshot.get('rare')
     if rare is None:
         return '기간한정 목록을 준비 중입니다.'
+    starred = {row['name'] for map_name, data in snapshot.get('maps', {}).items()
+               for row in data.get('rows', [])
+               if drop_prefix(row) == '★' and not is_ended_location(map_name, data['cells'], row)}
     lines = []
     for group in LIMITED_GROUPS:
         names = rare['groups'][group]
         if names:
-            translated = [name_for(0, name) for name in names]
+            translated = [('★' if name in starred else '') + name_for(0, name) for name in names]
             lines.append(f'[{group}]\n' + ' / '.join(translated))
-    return '\n\n'.join(lines) if lines else '현재 확인된 기간한정 드랍이 없습니다.'
+    return ('★ 최근 멘테에 추가된 한정 드랍\n\n' + '\n\n'.join(lines)
+            if lines else '현재 확인된 기간한정 드랍이 없습니다.')
 
 
 def is_ended_location(map_name, cells, row):

@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "source": "https://kanlog.info/rare/",
-  "source_updated": "2026/10/19 23:00:00",
-  "html_sha256": "6df956690e2c2ea7a9db4ffc258bee5ea32d23346353b6f1d5bee816faa49a5d",
+  "source_updated": "2026/11/26 17:00:00",
+  "html_sha256": "1cd5293d098a01b833ed338f45c25a17b2f9acc9cb655ae6d703ad68e6918b45",
   "groups": {
     "전함": [
       "Littorio",
@@ -14,6 +14,7 @@
     "항모": [
       "春日丸",
       "八幡丸",
+      "Independence",
       "Langley",
       "Gambier Bay"
     ],
@@ -36,7 +37,6 @@
       "天津風",
       "磯風",
       "巻波",
-      "沖波",
       "早霜",
       "秋霜",
       "清霜",
@@ -44,33 +44,32 @@
       "初月",
       "竹",
       "桃",
-      "杉",
-      "樫",
       "榧",
       "Grecale",
       "Scirocco",
       "Fletcher",
       "Johnston",
       "Samuel B.Roberts",
+      "Jervis",
+      "Javelin",
       "Mogador"
     ],
     "해방": [
       "対馬",
       "能美",
       "昭南",
-      "鵜来",
-      "稲木",
       "第四号海防艦",
       "第二十二号海防艦",
       "第三〇号海防艦",
       "Thonburi"
     ],
     "잠수": [
+      "伊36",
       "伊47",
       "伊201",
       "伊203",
-      "C.Cappellini",
-      "Luigi Torelli"
+      "Luigi Torelli",
+      "Salmon"
     ],
     "보조": [
       "神威",

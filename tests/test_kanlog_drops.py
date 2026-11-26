@@ -275,7 +275,8 @@ class KanlogTests(unittest.TestCase):
     def test_rare_index_seed_has_only_badged_ships(self):
         rare = json.loads((ROOT / 'data/kanlog_rare_seed.json').read_text(encoding='utf-8'))
         self.assertEqual(len(rare['groups']), 8)
-        self.assertEqual(sum(map(len, rare['groups'].values())), 68)
+        self.assertEqual(sum(map(len, rare['groups'].values())), 67)
+        self.assertIn('Javelin', rare['groups']['구축'])
         self.assertEqual(rare['groups']['경순'], ['朝日', '能代', '鹿島', 'Atlanta'])
         self.assertNotIn('Phoenix', rare['groups']['경순'])
 
@@ -290,6 +291,18 @@ class KanlogTests(unittest.TestCase):
         self.assertIn('\n\n[경순]\n', reply)
         self.assertNotIn('피닉스', reply)
         self.assertLess(len(reply), 4000)
+
+    def test_limited_list_stars_current_event_without_space_and_explains_it(self):
+        bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
+        bundle['rare'] = json.loads((ROOT / 'data/kanlog_rare_seed.json').read_text(encoding='utf-8'))
+        with patch.object(requests, 'get', side_effect=AssertionError('No network during commands')):
+            reply = drops.format_limited_reply(bundle, lambda i,n: {'Javelin':'제블린'}.get(n,n))
+        self.assertTrue(reply.startswith('★ 최근 멘테에 추가된 한정 드랍\n\n'))
+        self.assertIn('★제블린', reply)
+        self.assertNotIn('★ 제블린', reply)
+        self.assertNotIn('★伊201', reply)
+        self.assertNotIn('★伊203', reply)
+        self.assertNotIn('★伊36', reply)
 
     def test_ended_24_drops_excluded_from_both_lookup_directions(self):
         bundle = json.loads((ROOT / 'data/kanlog_maps_seed.json').read_text(encoding='utf-8'))
