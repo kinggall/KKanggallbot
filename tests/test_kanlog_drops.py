@@ -133,6 +133,12 @@ class KanlogTests(unittest.TestCase):
         data = drops.parse_page(html)
         self.assertTrue(data['rows'][0]['limited'])
         self.assertEqual(data['period_start'], '2026/10/15')
+        dotted = drops.parse_page(html.replace('2026/10/15', '2026.10.15')
+                                  .replace('2026/10/19', '2026.10.19'))
+        self.assertEqual(dotted, data | {'html_sha256': dotted['html_sha256']})
+        self.assertEqual(dotted['source_updated'], '2026/10/19 23:00:27')
+        with self.assertRaises(ValueError):
+            drops.parse_page(html.replace('2026/10/15', '2026.13.15'))
         with self.assertRaises(ValueError):
             drops.parse_page(html.replace('"r":100', '"r":20'))
         with self.assertRaises((ValueError, KeyError)):

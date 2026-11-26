@@ -92,9 +92,12 @@ def parse_page(html, map_name='5-5'):
     variants = parser.scripts['drop-rate-row-variant-data']
     totals = parser.scripts['drop-rate-rank-variant-total-data']
     text = '\n'.join(parser.text)
-    period = re.search(r'集計:\s*(\d{4}/\d{2}/\d{2})\s*～\s*更新:\s*(\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2})', text)
+    period = re.search(r'集計:\s*(\d{4}[/.]\d{2}[/.]\d{2})\s*～\s*更新:\s*(\d{4}[/.]\d{2}[/.]\d{2} \d{2}:\d{2}:\d{2})', text)
     if not period or not parser.cells or (map_name != '1-6' and not any(c['boss'] for c in parser.cells.values())):
         raise ValueError('Kanlog map metadata missing')
+    # Keep persisted timestamps comparable with older slash-separated caches.
+    period_start = datetime.strptime(period[1].replace('.', '/'), '%Y/%m/%d').strftime('%Y/%m/%d')
+    source_updated = datetime.strptime(period[2].replace('.', '/'), '%Y/%m/%d %H:%M:%S').strftime('%Y/%m/%d %H:%M:%S')
     # Numbering is explicit game-map knowledge, never HTML display order.
     if map_name in BOSS_STAGES:
         actual = {c['label'] for c in parser.cells.values() if c['boss']}
@@ -132,7 +135,7 @@ def parse_page(html, map_name='5-5'):
                 raise ValueError(f'Kanlog incomplete sample totals: {map_name}/{cell}/{rank}')
     return {'schema': 1, 'map': map_name, 'source': map_url(map_name),
             'html_sha256': hashlib.sha256(html.encode('utf-8')).hexdigest(),
-            'period_start': period[1], 'source_updated': period[2],
+            'period_start': period_start, 'source_updated': source_updated,
             'cells': parser.cells, 'totals': totals, 'rows': rows}
 
 
