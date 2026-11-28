@@ -4,7 +4,7 @@ from pathlib import Path
 import sys
 import time
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from kakao_media_guard import Adb,PACKAGE,RETRY_LABELS,compact,UPDATE_TEXT,RESEND_TEXT,bounds,GROUP_ROOMS
+from kakao_media_guard import Adb,PACKAGE,RETRY_LABELS,compact,UPDATE_TEXT,RESEND_TEXT,bounds,GROUP_ROOMS,is_media_node
 
 
 def inspect_screen(screen):
@@ -24,6 +24,7 @@ def inspect_screen(screen):
         desc=node.get('content-desc','')
         if (node.get('clickable')!='true'
                 and not node.get('class','').endswith(('ImageView','ImageButton'))
+                and not is_media_node(node)
                 and compact(label) not in (UPDATE_TEXT,RESEND_TEXT)):
             continue
         safe_label=label if label=='확인' or label in RETRY_LABELS or compact(label) in (UPDATE_TEXT,RESEND_TEXT) else ''

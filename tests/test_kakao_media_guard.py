@@ -113,6 +113,18 @@ class MediaGuardTests(unittest.TestCase):
         icon=ET.fromstring(node(rid='com.kakao.talk:id/image',cls='android.widget.ImageView',box='[10,10][30,30]'))
         self.assertFalse(media.is_media_node(icon))
 
+    def test_observed_resend_indicator_without_clickable_flag(self):
+        xml=failed_photo(media_id='com.kakao.talk:id/image')
+        root=ET.fromstring(xml)
+        retry=next(n for n in root.iter('node') if n.get('resource-id')==media.PACKAGE+':id/resend')
+        retry.set('resource-id',media.PACKAGE+':id/resend_indicator')
+        retry.set('class','android.widget.ImageView')
+        retry.set('clickable','false')
+        retry.set('content-desc','')
+        self.assertEqual(len(screen(ET.tostring(root,encoding='unicode')).retries()),1)
+        retry.set('resource-id',media.PACKAGE+':id/delete')
+        self.assertEqual(screen(ET.tostring(root,encoding='unicode')).retries(),[])
+
     def test_diagnostic_reports_state_without_leaking_chat_text(self):
         from scripts.verify_kakao_media_ui import inspect_screen
         private=node('비공개 대화 내용','com.kakao.talk:id/private',desc='private-photo-url',click=True)

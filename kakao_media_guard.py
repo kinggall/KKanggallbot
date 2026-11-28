@@ -15,7 +15,7 @@ PACKAGE = 'com.kakao.talk'
 UPDATE_TEXT = '최신버전으로업데이트해주세요.'
 RESEND_TEXT = '재전송하시겠습니까?'
 RETRY_LABELS = {'재전송', '다시 보내기', '다시보내기', '재전송 버튼', '다시 보내기 버튼', 'Resend', 'Retry'}
-RETRY_IDS = {'resend', 'resend_button', 'resend_message', 'btn_resend'}
+RETRY_IDS = {'resend', 'resend_button', 'resend_message', 'btn_resend', 'resend_indicator'}
 MEDIA_IDS = ('photo', 'thumbnail', 'thumb', 'album', 'chat_image', 'media', 'attachment')
 GROUP_ROOMS = {
     '18182686594126049': '칸코레 진수부에 어서오세요',
@@ -108,9 +108,13 @@ class Screen:
     def retries(self):
         found = []
         for node in self.root.iter('node'):
-            if not available(node) or node.get('clickable')!='true':
+            if not available(node):
                 continue
             rid = node.get('resource-id', '').split('/')[-1]
+            observed_indicator = (node.get('resource-id') == PACKAGE+':id/resend_indicator'
+                                  and node.get('class')=='android.widget.ImageView')
+            if node.get('clickable')!='true' and not observed_indicator:
+                continue
             labels = {node.get('text',''), node.get('content-desc','')}
             if rid not in RETRY_IDS and not labels.intersection(RETRY_LABELS):
                 continue
