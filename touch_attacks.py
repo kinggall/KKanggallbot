@@ -12,14 +12,17 @@ def format_reply(message, ship_ids_for):
     if len(pieces) == 1:
         lines = ['[터치 종류 · 특수공격]', '함선명을 입력하면 편성·조건·배율을 보여줍니다.']
         for group in groups:
-            lines += ['', '■ ' + group['title'], '· ' + group['overview'], group['command_example']]
-        lines += ['', '※ 기함 가능 함선과 참여만 가능한 함선은 다릅니다. 개장 단계는 상세 정보에서 확인해 주세요.']
+            ships, separator, description = group['overview'].partition(' — ')
+            lines += ['■ ' + group['title'], '· ' + ships]
+            if separator:
+                lines.append('  ' + description)
+        lines += ['※ 기함 가능 함선과 참여만 가능한 함선은 다릅니다. 개장 단계는 상세 정보에서 확인해 주세요.']
         return '\n'.join(lines)
     query = pieces[1].strip()
     ship_ids = set(ship_ids_for(query))
     found = [g for g in groups if ship_ids.intersection(g['flagship_ids'] + g['related_ship_ids'])]
     if not found:
-        return '해당 함선의 터치 정보를 찾지 못했습니다.\n!터치로 종류와 검색 예시를 확인해 주세요.'
+        return '해당 함선의 터치 정보를 찾지 못했습니다.\n!터치로 종류와 사용 가능한 함선을 확인해 주세요.'
     found.sort(key=lambda g: not bool(ship_ids.intersection(g['flagship_ids'])))
     lines = [f'[터치 · {query}]']
     for group in found:

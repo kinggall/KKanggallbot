@@ -25,8 +25,13 @@ class TouchTests(unittest.TestCase):
             text=touches.format_reply('!터치',lambda _: self.fail('Overview must not resolve'))
         self.assertEqual(text.count('■ '),8)
         for group in self.groups.values():
-            self.assertIn(group['overview'],text)
-            self.assertIn(group['command_example'],text)
+            ships, separator, description = group['overview'].partition(' — ')
+            self.assertIn('· ' + ships, text)
+            if separator:
+                self.assertIn('\n  ' + description, text)
+            self.assertNotIn(group['command_example'],text)
+        self.assertNotIn('\n\n',text)
+        self.assertNotIn(' — ',text)
         self.assertIn('야간 전용',text)
         self.assertIn('잠수모함 기함',text)
 
