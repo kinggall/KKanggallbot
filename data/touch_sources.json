@@ -1,0 +1,37 @@
+{
+  "reviewed_on": "2026-11-28",
+  "sources": [
+    {
+      "url": "https://zekamashi.net/kancolle-kouryaku/yamato-skill/",
+      "sha256": "ed9fce6f0a34ee302e115b84967172c0bed4e365ed273ed22cf0b58e6283b1bf"
+    },
+    {
+      "url": "https://zekamashi.net/kancolle-kouryaku/nagato-skill/",
+      "sha256": "abe7ebf1e82c0d43f99a714a262b5bcea01bd336b51e45569ba316c4184b100d"
+    },
+    {
+      "url": "https://zekamashi.net/kancolle-kouryaku/nelson-touch/",
+      "sha256": "54fb42d024ef2e0666df744ef89532d5b7577b0a06353070df952715a3008035"
+    },
+    {
+      "url": "https://zekamashi.net/kancolle-kouryaku/colorado-skill/",
+      "sha256": "66fddb82e7ac7827d1f7be70c51de8e86501647035476177d426609ae9e217fc"
+    },
+    {
+      "url": "https://zekamashi.net/kancolle-kouryaku/kongo-skill/",
+      "sha256": "e9ef19dae7e862003b3b90354bd2da0729ca1f92678d7b50fd6a11d794d8f35f"
+    },
+    {
+      "url": "https://github.com/KC3Kai/KC3Kai/blob/db1e102da2315299d543cfc90003929dc377c111/src/library/objects/Ship.js",
+      "sha256": "c4973ab9f1af2cbf36cfad06791393ec7f4eadadea185797067c8981a08f2094"
+    },
+    {
+      "url": "https://github.com/KC3Kai/KC3Kai/blob/db1e102da2315299d543cfc90003929dc377c111/src/library/modules/Meta.js",
+      "sha256": "2e13e0f1359c7550faf8f9632c2cff2445c22aa9a554e8fd00fb29b1c6743c24"
+    },
+    {
+      "url": "https://github.com/Nishisonic/UnexpectedDamage/blob/871fda445fcd071004efbe0ea06d3fea67c47ce6/UnexpectedDamage.js",
+      "sha256": "4bfd57d78c2d242d6b924a4807e3a0748736b241e43966192ccbb0800c3443ad"
+    }
+  ]
+}

@@ -110,3 +110,7 @@ SOFTWARE.
 ## poi-statistics saury screenshot
 
 `data/saury_drops.json` transcribes the S/A probabilities and node names from the user-provided screenshot of https://db.kcwiki.org/event-sanma2024/ (2024 saury statistics). The command labels these as 2024 reference data. Equipment summaries use the separately attributed Akashi List collection. Statistical data and underlying game rights remain with their respective owners. No screenshot or map artwork is redistributed.
+
+## Special-attack reference facts
+
+`data/touch_attacks.json` contains Korean summaries of factual special-attack conditions and multipliers reviewed from zekamashi.net and the pinned KC3Kai / UnexpectedDamage revisions listed in `data/touch_sources.json`. KC3Kai is copyright (c) 2015–2026 dragonjet, MIT licensed: https://github.com/KC3Kai/KC3Kai/blob/db1e102da2315299d543cfc90003929dc377c111/LICENSE . Source articles, game names and underlying game rights remain with their respective owners. No article HTML, source program or artwork is redistributed. See `TOUCH_ATTACKS_DATA.md` for discrepancies and limits.
