@@ -25,10 +25,18 @@ def format_reply(message, ship_ids_for):
     for group in found:
         role = '기함 가능' if ship_ids.intersection(group['flagship_ids']) else '특정 조합의 참여함'
         lines += ['', f"■ {group['title']} · {role}"]
-        for section in group['sections']:
-            lines += ['', '[' + section['title'] + ']']
-            lines += ['· ' + line for line in section['lines']]
-        lines += ['', '출처:'] + group['sources']
+        if group.get('tables'):
+            for table in group['tables']:
+                lines += ['', '[' + table['title'] + ']', ' │ '.join(table['headers'])]
+                lines += [' │ '.join(row) for row in table['rows']]
+                lines += table.get('notes', [])
+        else:
+            for section in group['sections']:
+                lines += ['', '[' + section['title'] + ']']
+                lines += ['· ' + line for line in section['lines']]
+        # Full pinned references remain in the data; keep chat citations short.
+        primary = group['sources'][0]
+        lines += ['', '출처: ' + primary]
     lines += ['', f"자료 검수: {data['reviewed_on']}",
               '※ 조건을 갖춰도 확률로 발동합니다. 배율은 최종 피해량이나 발동률을 뜻하지 않습니다.']
     text = '\n'.join(lines)

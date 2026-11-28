@@ -49,8 +49,10 @@ class TouchTests(unittest.TestCase):
             self.assertIn('야마토형 특수공격',text)
             self.assertIn('×1.9375',text)
             self.assertIn('제4진형',text)
-            self.assertIn('×1.65·×1.575·×1.65',text)
-            self.assertIn('3척 터치의 3번함에는 측거의 추가',text)
+            self.assertIn('야마토·이세·휴가 │ ×1.65 / ×1.575 / ×1.65',text)
+            self.assertIn('×1.1 (3척 터치의 3번함 제외)',text)
+            self.assertIn('무사시 개2 ※ │ 나가토 개2 / 무츠 개2',text)
+            self.assertIn('순서 고정',text)
         self.assertEqual(self.groups['yamato']['attack_order']['two'],[1,1,2])
         self.assertEqual(self.groups['yamato']['attack_order']['three'],[1,2,3])
 
