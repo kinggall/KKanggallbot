@@ -61,6 +61,23 @@ class MediaGuardTests(unittest.TestCase):
         self.assertTrue(repair.confirmed)
         self.assertNotIn('삭제',[c.args[0].get('text') for c in tap.call_args_list])
 
+    def test_observed_custom_dialog_message_and_idless_positive_button(self):
+        def custom(text,positive):
+            content=node(text,media.PACKAGE+':id/txt_message',box='[551,399][1049,455]')
+            content+=node('삭제',box='[870,464][940,536]',cls='android.widget.Button',click=True)
+            content+=node(positive,box='[980,464][1073,536]',cls='android.widget.Button',click=True)
+            return screen(node(rid='dialog',box='[510,380][1090,580]',children=content))
+        update=custom('최신버전으로 업데이트해 주세요.','확인')
+        self.assertEqual(update.update_button().get('bounds'),'[980,464][1073,536]')
+        confirm=custom('재전송하시겠습니까?','재전송')
+        self.assertEqual(confirm.resend_confirmation_button().get('text'),'재전송')
+        self.assertIsNone(custom('다른 작업을 진행할까요?','확인').update_button())
+        r=media.Repair(ROOM,True)
+        tap=Mock()
+        for current in (update,screen(failed_photo()),confirm):r.step(current,tap)
+        self.assertEqual([c.args[0].get('text') for c in tap.call_args_list],['확인','','재전송'])
+        self.assertTrue(r.confirmed)
+
     def test_normal_photo_without_update_dialog_never_taps(self):
         tap=Mock();r=media.Repair(ROOM,True)
         r.step(screen(failed_photo()),tap)

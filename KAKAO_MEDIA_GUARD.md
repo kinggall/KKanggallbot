@@ -41,3 +41,5 @@ C:\KakaoBot\.venv\Scripts\python.exe .\scripts\verify_kakao_media_ui.py
 실제 PC에서 확인된 사진 영역 ID `com.kakao.talk:id/image`도 지원합니다. 이 일반 ID는 작은 버튼 이미지와 구별하기 위해 ImageView·최소 첨부 크기를 함께 검사합니다.
 
 팝업 전환을 한 번에 관찰하려면 `verify_kakao_media_ui.py --watch 30`을 실행합니다. 30초 동안 화면 변화가 있을 때만 인식 결과를 출력하며, 어떤 버튼도 클릭하지 않습니다. 각 팝업과 실패 사진 화면을 3초 이상 유지하면 버튼 정보를 확인하기 쉽습니다. '문구는 있으나 버튼 인식은 False'인 경우와 팝업 자체가 없는 화면을 구분해서 표시합니다.
+
+실제 업데이트 팝업은 `com.kakao.talk:id/txt_message` 본문과 ID 없는 `android.widget.Button`의 `확인`으로 관측됐습니다. 이 조합도 동일한 소규모 대화상자 안에서 본문·버튼 라벨·클릭 가능 상태를 확인한 뒤 처리합니다. 표준 Android 대화상자와 일반 채팅 메시지는 별도로 구분합니다. 재전송 확인창도 같은 사용자 정의 본문 ID와 정확한 `재전송` 버튼 조합을 지원하지만, 실제 재전송 아이콘 ID는 별도 관측이 필요합니다.

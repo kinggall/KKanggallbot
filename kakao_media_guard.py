@@ -64,10 +64,15 @@ class Screen:
     def dialog_button(self, message, positive):
         messages = [n for n in self.root.iter('node') if available(n)
                     and compact(n.get('text')) == message
-                    and n.get('resource-id') == 'android:id/message']
-        buttons = [n for n in self.root.iter('node') if available(n)
-                   and n.get('text') == positive and n.get('resource-id') == 'android:id/button1']
-        if len(messages)!=1 or len(buttons)!=1:
+                    and n.get('resource-id') in ('android:id/message', PACKAGE+':id/txt_message')]
+        if len(messages)!=1:
+            return None
+        custom = messages[0].get('resource-id') == PACKAGE+':id/txt_message'
+        buttons = [n for n in self.root.iter('node') if available(n) and n.get('text')==positive
+                   and ((not custom and n.get('resource-id')=='android:id/button1')
+                        or (custom and not n.get('resource-id')
+                            and n.get('class')=='android.widget.Button' and n.get('clickable')=='true'))]
+        if len(buttons)!=1:
             return None
         # A message quoted in chat must not be mistaken for a dialog.
         parent = self.parents.get(messages[0])
