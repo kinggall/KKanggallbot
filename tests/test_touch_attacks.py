@@ -165,10 +165,9 @@ class TouchTests(unittest.TestCase):
                 self.assertIn('4번함(선택)',text)
                 self.assertIn('잠수함 2척이 공격',text)
                 self.assertIn('4번함을 넣어도 2·3번함은 모두 잠수함류',text)
-                self.assertIn('4번함 미참여·2·3번함 소파 이하 │ 2→3번함',text)
-                self.assertIn('4번함 참여 가능·2번함 소파 이하 │ 2→4번함',text)
-                self.assertIn('2번함 중파 이상·3번함 소파 이하 │ 3→4번함',text)
-                self.assertIn('2·3번함 중 하나라도 퇴피하면',text)
+                self.assertIn('기본 │ 2·3번함',text)
+                self.assertIn('편성·손상 상태에 따라 4번함이 대신 참여',text)
+                self.assertIn('4번함이 참여하려면 잠수함류이고 소파 이하',text)
                 self.assertNotIn('출처:',text)
 
     def test_webhook_and_initial_alias_send_only_one_text_message(self):
