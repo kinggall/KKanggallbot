@@ -1576,6 +1576,12 @@ def webhook():
                 text, pictures = guide_lookup.build_preview(message[len('!공략'):])
                 if not text and not pictures:
                     return
+                if text:
+                    response = requests.post(
+                        IRIS_REPLY_URL,
+                        json={'type': 'text', 'room': str(chat_id), 'data': text}, timeout=10,
+                    )
+                    response.raise_for_status()
                 for start in range(0, len(pictures), 10):
                     payload = [base64.b64encode(path.read_bytes()).decode('ascii')
                                for path in pictures[start:start + 10]]
@@ -1585,11 +1591,6 @@ def webhook():
                         timeout=60,
                     )
                     response.raise_for_status()
-                response = requests.post(
-                    IRIS_REPLY_URL,
-                    json={'type': 'text', 'room': str(chat_id), 'data': text}, timeout=10,
-                )
-                response.raise_for_status()
                 print(f'[공략 미리보기] 명령={message}, 이미지={len(pictures)}')
             except (OSError, ValueError, KeyError, TypeError, AttributeError, requests.RequestException) as error:
                 print(f'[공략 미리보기 실패] 명령={message}, 오류={error}')

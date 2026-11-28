@@ -242,6 +242,7 @@ class Guard:
     def run(self):
         deadline = time.monotonic()+85
         tail = None
+        retry_ready_at = None
         try:
             while not self.cancel.is_set() and time.monotonic()<deadline:
                 if self.done.is_set():
@@ -249,10 +250,14 @@ class Guard:
                     if time.monotonic()>=tail:
                         break
                 before = (self.repair.dismissed,self.repair.retried,self.repair.confirmed)
-                self.repair.step(self.adb.screen(),self.adb.tap)
+                current = self.adb.screen()
+                if retry_ready_at is None or time.monotonic() >= retry_ready_at or self.repair.retried:
+                    self.repair.step(current,self.adb.tap)
                 after = (self.repair.dismissed,self.repair.retried,self.repair.confirmed)
+                if not before[0] and self.repair.dismissed:
+                    retry_ready_at = time.monotonic()+5
                 if before!=after and self.done.is_set():
-                    tail = time.monotonic()+6
+                    tail = time.monotonic()+(30 if self.repair.dismissed else 6)
                 if self.repair.confirmed:
                     break
                 self.cancel.wait(.3)
@@ -262,7 +267,7 @@ class Guard:
 
     def finish(self):
         self.done.set()
-        self.thread.join(timeout=30)
+        self.thread.join(timeout=45)
         self.cancel.set()
         self.thread.join(timeout=10)
         if not self.thread.is_alive():

@@ -159,7 +159,8 @@ class MediaGuardTests(unittest.TestCase):
     def test_ui_progress_extends_window_through_resend_confirmation(self):
         clock=[0]
         pages=iter([screen(dialog('최신버전으로 업데이트해 주세요.')),
-                    screen(failed_photo()),screen(dialog('재전송하시겠습니까?','재전송'))])
+                    screen(failed_photo()),screen(failed_photo()),
+                    screen(dialog('재전송하시겠습니까?','재전송'))])
         def read():
             clock[0]+=4
             return next(pages)
@@ -174,6 +175,7 @@ class MediaGuardTests(unittest.TestCase):
             guard.run()
         self.assertTrue(guard.repair.confirmed)
         self.assertEqual(guard.adb.tap.call_count,3)
+        self.assertGreaterEqual(clock[0],16)
 
     def test_multiple_devices_selects_iris_forward_not_first_device(self):
         with tempfile.TemporaryDirectory() as folder:

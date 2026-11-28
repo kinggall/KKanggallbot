@@ -180,8 +180,8 @@ class NewQuestTests(unittest.TestCase):
                 'msg':'!공략 2610 B1 13','json':{'chat_id':'new-guide-room'}})
             self.assertEqual(response.status_code, 200)
             self.assertEqual(post.call_count, 2)
-            self.assertEqual(post.call_args_list[0].kwargs['json']['type'], 'image_multiple')
-            self.assertIn('1-3: 경항모2 구축4',post.call_args_list[1].kwargs['json']['data'])
+            self.assertEqual(post.call_args_list[1].kwargs['json']['type'], 'image_multiple')
+            self.assertIn('1-3: 경항모2 구축4',post.call_args_list[0].kwargs['json']['data'])
 
     def test_new_collection_lists_all_without_network(self):
         output = io.StringIO()
