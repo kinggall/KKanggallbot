@@ -70,7 +70,9 @@ class TouchTests(unittest.TestCase):
         self.assertNotIn('야마토',text)
         self.assertNotIn('콜로라도',text)
         self.assertNotIn('나가토 개2→무츠',text)
-        self.assertIn('무츠 개2→나가토 개2',text)
+        self.assertIn('기함 │ 무츠 개2',text)
+        self.assertIn('나가토 개2 │ ×1.68 / ×1.68 / ×1.68',text)
+        self.assertIn('1타 │ 2타 │ 3타\n1번함 │ 1번함 │ 2번함',text)
         self.assertIn('×2.6082',text)
         self.assertEqual(Decimal('1.68')*Decimal('1.35')*Decimal('1.15'),Decimal('2.6082'))
 
@@ -82,7 +84,7 @@ class TouchTests(unittest.TestCase):
         self.assertEqual(self.groups['nelson']['attack_order'],[1,3,5])
         self.assertEqual(self.groups['colorado']['attack_order'],[1,2,3])
         kongo=self.reply('!터치 콩고')
-        self.assertIn('×2.756·×2.862',kongo)
+        self.assertIn('×2.756 / ×2.862',kongo)
         self.assertIn('출격당 최대 3회',kongo)
         self.assertIn('중파까지 가능',kongo)
         self.assertEqual(Decimal('2.6')*Decimal('1.06'),Decimal('2.756'))
@@ -113,6 +115,27 @@ class TouchTests(unittest.TestCase):
         overview=self.reply('!터치')
         self.assertIn('!터치 [기함명]',overview)
         self.assertIn('해당 함선을 기함으로 편성했을 때',overview)
+
+    def test_all_flagships_use_the_same_condition_and_attack_table_format(self):
+        for group in self.groups.values():
+            for view in group['flagship_views']:
+                with self.subTest(flagship=view['title']):
+                    text=touches.format_reply('!터치 검사',lambda _:set(view['ship_ids']))
+                    self.assertIn('[발동 조건]\n항목 │ 조건',text)
+                    self.assertIn('[공격 순서]',text)
+                    self.assertIn('[배율 ·',text)
+                    self.assertNotIn('[공격 순서·배율]',text)
+                    for table in view['tables']:
+                        for row in table['rows']:
+                            self.assertEqual(len(row),len(table['headers']))
+                    if group['id']!='submarine':
+                        self.assertIn('[장비 보정]',text)
+                    self.assertNotIn('출처:',text)
+                    self.assertTrue(text.endswith('자료 검수: '+self.data['reviewed_on']))
+        mutsu=self.reply('!터치 무츠')
+        self.assertLess(mutsu.index('[편성]'),mutsu.index('[발동 조건]'))
+        self.assertLess(mutsu.index('[공격 순서]'),mutsu.index('[배율 ·'))
+        self.assertIn('기본 │ ×1.4 / ×1.4 / ×1.2',mutsu)
 
     def test_webhook_and_initial_alias_send_only_one_text_message(self):
         for command in ('!터치','!터치 무츠','!ㅌㅊ 야마토'):

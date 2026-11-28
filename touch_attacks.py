@@ -27,15 +27,10 @@ def format_reply(message, ship_ids_for):
     lines = [f'[터치 · {query} 기함 기준]']
     for group in found:
         lines += ['', f"■ {group['title']}"]
-        if group.get('tables'):
-            for table in group['tables']:
-                lines += ['', '[' + table['title'] + ']', ' │ '.join(table['headers'])]
-                lines += [' │ '.join(row) for row in table['rows']]
-                lines += table.get('notes', [])
-        else:
-            for section in group['sections']:
-                lines += ['', '[' + section['title'] + ']']
-                lines += ['· ' + line for line in section['lines']]
+        for table in group['tables']:
+            lines += ['', '[' + table['title'] + ']', ' │ '.join(table['headers'])]
+            lines += [' │ '.join(row) for row in table['rows']]
+            lines += table.get('notes', [])
     lines += ['', f"자료 검수: {data['reviewed_on']}"]
     text = '\n'.join(lines)
     if len(text) > 1800:
