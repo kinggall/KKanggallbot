@@ -351,7 +351,7 @@
     },
     {
       "id": "richelieu",
-      "title": "프랑스 자매함 연계공격",
+      "title": "프랑스함 연계공격",
       "flagship_ids": [
         392,
         969,
@@ -401,7 +401,7 @@
     },
     {
       "id": "british",
-      "title": "영국 자매함 연계공격",
+      "title": "영국함 연계공격",
       "flagship_ids": [
         364,
         733

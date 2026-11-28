@@ -28,12 +28,12 @@ class TouchTests(unittest.TestCase):
             ships, separator, description = group['overview'].partition(' — ')
             self.assertIn('· ' + ships, text)
             if separator:
-                self.assertIn('\n  ' + description, text)
+                self.assertNotIn('\n  ' + description, text)
             self.assertNotIn(group['command_example'],text)
-        self.assertNotIn('\n\n',text)
+        self.assertEqual(text.count('\n\n■ '),8)
         self.assertNotIn(' — ',text)
-        self.assertIn('야간 전용',text)
-        self.assertIn('잠수모함 기함',text)
+        self.assertNotIn('2척 터치',text)
+        self.assertNotIn('1·3·5번함 공격',text)
 
     def test_catalog_ids_resolve_to_current_ship_rows(self):
         self.assertEqual(len(self.groups),8)
@@ -75,7 +75,7 @@ class TouchTests(unittest.TestCase):
         self.assertIn('중파까지 가능',kongo)
         self.assertEqual(Decimal('2.6')*Decimal('1.06'),Decimal('2.756'))
         self.assertEqual(Decimal('2.7')*Decimal('1.06'),Decimal('2.862'))
-        for query,title in [('리슐리외','프랑스 자매함'),('밸리언트','영국 자매함'),('진게이','잠수함대')]:
+        for query,title in [('리슐리외','프랑스함'),('밸리언트','영국함'),('진게이','잠수함대')]:
             self.assertIn(title,self.reply('!터치 '+query))
 
     def test_unknown_and_all_existing_named_ship_queries(self):

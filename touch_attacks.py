@@ -12,10 +12,8 @@ def format_reply(message, ship_ids_for):
     if len(pieces) == 1:
         lines = ['[터치 종류 · 특수공격]', '함선명을 입력하면 편성·조건·배율을 보여줍니다.']
         for group in groups:
-            ships, separator, description = group['overview'].partition(' — ')
-            lines += ['■ ' + group['title'], '· ' + ships]
-            if separator:
-                lines.append('  ' + description)
+            ships = group['overview'].partition(' — ')[0]
+            lines += ['', '■ ' + group['title'], '· ' + ships]
         lines += ['※ 기함 가능 함선과 참여만 가능한 함선은 다릅니다. 개장 단계는 상세 정보에서 확인해 주세요.']
         return '\n'.join(lines)
     query = pieces[1].strip()
