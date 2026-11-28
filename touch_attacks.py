@@ -10,7 +10,7 @@ def format_reply(message, ship_ids_for):
     groups = data['groups']
     pieces = message.split(maxsplit=1)
     if len(pieces) == 1:
-        lines = ['[터치 종류 · 특수공격]', '함선명을 입력하면 편성·조건·배율을 보여줍니다.']
+        lines = ['[터치 종류 · 특수공격]', '!터치 함선명 입력 시,', '편성·조건·배율을 보여줍니다.']
         for group in groups:
             ships = group['overview'].partition(' — ')[0]
             lines += ['', '■ ' + group['title'], '· ' + ships]
