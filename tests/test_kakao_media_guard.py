@@ -1,4 +1,6 @@
 import unittest
+import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 import xml.etree.ElementTree as ET
 
@@ -139,6 +141,31 @@ class MediaGuardTests(unittest.TestCase):
             guard.run()
         self.assertTrue(guard.repair.confirmed)
         self.assertEqual(guard.adb.tap.call_count,3)
+
+    def test_multiple_devices_selects_iris_forward_not_first_device(self):
+        with tempfile.TemporaryDirectory() as folder:
+            executable=Path(folder)/'adb.exe';executable.touch()
+            devices=Mock(stdout=b'List of devices attached\nemulator-5554\tdevice\n172.30.1.84:5555\tdevice\n')
+            forwards=Mock(stdout=b'172.30.1.84:5555 tcp:3000 tcp:3000\n')
+            size=Mock(stdout=b'Physical size: 1600x900\n')
+            with patch.dict(media.os.environ,{'IRIS_ADB_PATH':str(executable),'IRIS_ADB_SERIAL':'',
+                                              'IRIS_ADB_PORT':'5038','KAKAO_MEDIA_UI_AUTO':'1'}), \
+                    patch.object(media.subprocess,'run',side_effect=[devices,forwards,size]) as run:
+                adb=media.Adb.discover()
+            self.assertEqual(adb.prefix[-1],'172.30.1.84:5555')
+            self.assertIn('172.30.1.84:5555',run.call_args.args[0])
+            self.assertNotIn('emulator-5554',run.call_args.args[0])
+
+    def test_no_or_ambiguous_device_never_runs_ui_input(self):
+        with tempfile.TemporaryDirectory() as folder:
+            executable=Path(folder)/'adb.exe';executable.touch()
+            for outputs in ([Mock(stdout=b'List of devices attached\n')],
+                            [Mock(stdout=b'one\tdevice\ntwo\tdevice\n'),Mock(stdout=b'')]):
+                with self.subTest(outputs=len(outputs)),patch.dict(media.os.environ,
+                        {'IRIS_ADB_PATH':str(executable),'IRIS_ADB_SERIAL':'','KAKAO_MEDIA_UI_AUTO':'1'}), \
+                        patch.object(media.subprocess,'run',side_effect=outputs) as run:
+                    with self.assertRaises(ValueError):media.Adb.discover()
+                    self.assertTrue(all('input' not in call.args[0] for call in run.call_args_list))
 
     def test_preparation_failure_does_not_resubmit_or_block_the_api(self):
         post=Mock();adb=Mock()

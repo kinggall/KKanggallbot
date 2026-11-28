@@ -137,9 +137,19 @@ class Adb:
                    if len(line.split())==2 and line.split()[1]=='device']
         serial = os.environ.get('IRIS_ADB_SERIAL','')
         if not serial:
-            if len(serials)!=1:
-                raise ValueError('Select one LDPlayer with IRIS_ADB_SERIAL')
-            serial = serials[0]
+            if not serials:
+                raise ValueError('연결된 ADB 기기가 없습니다. adb.exe -P 5038 devices로 연결을 확인해 주세요.')
+            if len(serials)==1:
+                serial = serials[0]
+            else:
+                forwards = subprocess.run([str(path),'-P',str(port),'forward','--list'],
+                                          capture_output=True,check=True,timeout=8)
+                targets = {parts[0] for line in forwards.stdout.decode('utf-8',errors='replace').splitlines()
+                           if len(parts := line.split())==3 and parts[0] in serials
+                           and parts[1:]==['tcp:3000','tcp:3000']}
+                if len(targets)!=1:
+                    raise ValueError('Iris 3000번 포트 연결 기기를 정하지 못했습니다. IRIS_ADB_SERIAL을 지정해 주세요.')
+                serial = targets.pop()
         if serial not in serials:
             raise ValueError('Selected LDPlayer is not connected')
         adb = cls(path,port,serial)
