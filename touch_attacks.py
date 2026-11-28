@@ -14,7 +14,6 @@ def format_reply(message, ship_ids_for):
         for group in groups:
             ships = group['overview'].partition(' — ')[0]
             lines += ['', '■ ' + group['title'], '· ' + ships]
-        lines += ['※ 기함 가능 함선과 참여만 가능한 함선은 다릅니다. 개장 단계는 상세 정보에서 확인해 주세요.']
         return '\n'.join(lines)
     query = pieces[1].strip()
     ship_ids = set(ship_ids_for(query))
