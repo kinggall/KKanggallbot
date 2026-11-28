@@ -124,9 +124,9 @@ class TouchTests(unittest.TestCase):
                     self.assertIn('[편성]\n위치 │ 함선',text)
                     self.assertIn('[발동 조건]\n항목 │ 조건',text)
                     self.assertLess(text.index('[편성]'),text.index('[발동 조건]'))
-                    self.assertTrue(view['tables'][0]['rows'][0][0]=='기함')
+                    self.assertTrue(view['tables'][0]['rows'][0][0].startswith('기함'))
                     conditions=next(t for t in view['tables'] if t['title']=='발동 조건')
-                    self.assertIn('편성',[r[0] for r in conditions['rows']])
+                    self.assertTrue(any('편성' in r[0] for r in conditions['rows']))
                     self.assertIn('[공격 순서]',text)
                     self.assertIn('[배율 ·',text)
                     self.assertNotIn('[공격 순서·배율]',text)
@@ -153,8 +153,23 @@ class TouchTests(unittest.TestCase):
         self.assertNotIn('비스마르크',musashi)
         self.assertNotIn('3척',musashi)
         submarine=self.reply('!터치 진게이')
-        self.assertIn('기함 포함 3척 이상',submarine)
-        self.assertIn('2·3번함 │ 잠수함·잠수항모',submarine)
+        self.assertIn('2·3번함(필수) │ 둘 다 잠수함·잠수항모',submarine)
+        self.assertIn('4번함(선택)',submarine)
+
+    def test_submarine_required_slots_and_conditional_participants_are_clear(self):
+        for query in ('타이게이','진게이','쵸게이','헤이안마루','히에마루'):
+            with self.subTest(query=query):
+                text=self.reply('!터치 '+query)
+                self.assertIn('기함(필수)',text)
+                self.assertIn('2·3번함(필수)',text)
+                self.assertIn('4번함(선택)',text)
+                self.assertIn('잠수함 2척이 공격',text)
+                self.assertIn('4번함을 넣어도 2·3번함은 모두 잠수함류',text)
+                self.assertIn('4번함 미참여·2·3번함 소파 이하 │ 2→3번함',text)
+                self.assertIn('4번함 참여 가능·2번함 소파 이하 │ 2→4번함',text)
+                self.assertIn('2번함 중파 이상·3번함 소파 이하 │ 3→4번함',text)
+                self.assertIn('2·3번함 중 하나라도 퇴피하면',text)
+                self.assertNotIn('출처:',text)
 
     def test_webhook_and_initial_alias_send_only_one_text_message(self):
         for command in ('!터치','!터치 무츠','!ㅌㅊ 야마토'):
