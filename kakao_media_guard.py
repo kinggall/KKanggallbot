@@ -41,6 +41,17 @@ def available(node):
     return node.get('package') == PACKAGE and node.get('enabled', 'true') == 'true' and bounds(node) is not None
 
 
+def is_media_node(node):
+    if node.get('package')!=PACKAGE:
+        return False
+    rid = node.get('resource-id','').split('/')[-1].lower()
+    if rid=='image':
+        rect = bounds(node)
+        return bool(rect and node.get('class')=='android.widget.ImageView'
+                    and rect[2]-rect[0]>=100 and rect[3]-rect[1]>=60)
+    return any(token in rid for token in MEDIA_IDS)
+
+
 class Screen:
     def __init__(self, xml):
         start = xml.find('<hierarchy')
@@ -106,9 +117,7 @@ class Screen:
                 children = list(parent.iter('node'))
                 if len(children)>60:
                     break
-                if any(c is not node and c.get('package')==PACKAGE and any(
-                        token in c.get('resource-id','').split('/')[-1].lower() for token in MEDIA_IDS)
-                       for c in children):
+                if any(c is not node and is_media_node(c) for c in children):
                     found.append(node)
                     break
                 parent = self.parents.get(parent)

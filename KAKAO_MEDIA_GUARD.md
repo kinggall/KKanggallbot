@@ -36,3 +36,8 @@ C:\KakaoBot\.venv\Scripts\python.exe .\scripts\verify_kakao_media_ui.py
 ```
 
 `Update dialog identified`, `Resend confirmation identified`, `Photo retry buttons identified`와 컨트롤 목록을 확인합니다. 메시지 내용은 생략하고 필요한 고정 팝업·재전송 라벨과 resource-id·좌표만 출력합니다. 앱이 다른 ID를 사용하면 결과에 맞춰 인식기를 수정해야 합니다.
+
+
+실제 PC에서 확인된 사진 영역 ID `com.kakao.talk:id/image`도 지원합니다. 이 일반 ID는 작은 버튼 이미지와 구별하기 위해 ImageView·최소 첨부 크기를 함께 검사합니다.
+
+팝업 전환을 한 번에 관찰하려면 `verify_kakao_media_ui.py --watch 30`을 실행합니다. 30초 동안 화면 변화가 있을 때만 인식 결과를 출력하며, 어떤 버튼도 클릭하지 않습니다. 각 팝업과 실패 사진 화면을 3초 이상 유지하면 버튼 정보를 확인하기 쉽습니다. '문구는 있으나 버튼 인식은 False'인 경우와 팝업 자체가 없는 화면을 구분해서 표시합니다.

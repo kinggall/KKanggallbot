@@ -91,6 +91,22 @@ class MediaGuardTests(unittest.TestCase):
         self.assertEqual(len(buttons),1)
         self.assertEqual(buttons[0].get('resource-id'),'com.kakao.talk:id/resend')
 
+    def test_actual_kakao_image_id_is_supported_without_matching_small_icons(self):
+        self.assertEqual(len(screen(failed_photo(media_id='com.kakao.talk:id/image')).retries()),1)
+        icon=ET.fromstring(node(rid='com.kakao.talk:id/image',cls='android.widget.ImageView',box='[10,10][30,30]'))
+        self.assertFalse(media.is_media_node(icon))
+
+    def test_diagnostic_reports_state_without_leaking_chat_text(self):
+        from scripts.verify_kakao_media_ui import inspect_screen
+        private=node('비공개 대화 내용','com.kakao.talk:id/private',desc='private-photo-url',click=True)
+        report=inspect_screen(screen(private))
+        self.assertIn('두 팝업 문구가 없는 화면',report)
+        self.assertNotIn('비공개 대화 내용',report)
+        self.assertNotIn('private-photo-url',report)
+        report=inspect_screen(screen(dialog('최신버전으로 업데이트해 주세요.')))
+        self.assertIn('화면 상태: 업데이트 안내',report)
+        self.assertIn('Update dialog identified: True',report)
+
     def test_unrecognized_retry_confirmation_is_not_clicked(self):
         tap=Mock();r=media.Repair(ROOM,True,dismissed=True,retried=True)
         for current in (screen(dialog('삭제하시겠습니까?','삭제')),
