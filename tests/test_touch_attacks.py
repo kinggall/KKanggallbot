@@ -59,7 +59,7 @@ class TouchTests(unittest.TestCase):
             self.assertIn('×1.9375',text)
             self.assertNotIn('3척',text)
             self.assertNotIn('나가토',text)
-            self.assertIn('무사시 개2 │ 야마토 개2/중',text)
+            self.assertIn('[편성]\n위치 │ 함선\n기함 │ 무사시 개2\n2번함 │ 야마토 개2/중',text)
             self.assertNotIn('야마토→무사시',text)
         self.assertEqual(self.groups['yamato']['attack_order']['two'],[1,1,2])
         self.assertEqual(self.groups['yamato']['attack_order']['three'],[1,2,3])
@@ -121,7 +121,12 @@ class TouchTests(unittest.TestCase):
             for view in group['flagship_views']:
                 with self.subTest(flagship=view['title']):
                     text=touches.format_reply('!터치 검사',lambda _:set(view['ship_ids']))
+                    self.assertIn('[편성]\n위치 │ 함선',text)
                     self.assertIn('[발동 조건]\n항목 │ 조건',text)
+                    self.assertLess(text.index('[편성]'),text.index('[발동 조건]'))
+                    self.assertTrue(view['tables'][0]['rows'][0][0]=='기함')
+                    conditions=next(t for t in view['tables'] if t['title']=='발동 조건')
+                    self.assertIn('편성',[r[0] for r in conditions['rows']])
                     self.assertIn('[공격 순서]',text)
                     self.assertIn('[배율 ·',text)
                     self.assertNotIn('[공격 순서·배율]',text)
@@ -136,6 +141,20 @@ class TouchTests(unittest.TestCase):
         self.assertLess(mutsu.index('[편성]'),mutsu.index('[발동 조건]'))
         self.assertLess(mutsu.index('[공격 순서]'),mutsu.index('[배율 ·'))
         self.assertIn('기본 │ ×1.4 / ×1.4 / ×1.2',mutsu)
+
+    def test_lineups_keep_yamato_pairing_and_submarine_minimum(self):
+        yamato=self.reply('!터치 야마토')
+        self.assertIn('기함 │ 야마토 개2/중',yamato)
+        self.assertIn('2번함(2척 터치) │ 무사시 개2',yamato)
+        self.assertIn('2·3번함(3척 터치) │ 아래의 전용 조합',yamato)
+        self.assertIn('무사시 개2(고정) │ 나가토 개2 / 무츠 개2',yamato)
+        musashi=self.reply('!터치 무사시')
+        self.assertIn('2번함 │ 야마토 개2/중',musashi)
+        self.assertNotIn('비스마르크',musashi)
+        self.assertNotIn('3척',musashi)
+        submarine=self.reply('!터치 진게이')
+        self.assertIn('기함 포함 3척 이상',submarine)
+        self.assertIn('2·3번함 │ 잠수함·잠수항모',submarine)
 
     def test_webhook_and_initial_alias_send_only_one_text_message(self):
         for command in ('!터치','!터치 무츠','!ㅌㅊ 야마토'):
