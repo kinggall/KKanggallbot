@@ -7,6 +7,7 @@ import unicodedata
 from urllib.parse import urljoin, urlsplit
 
 import requests
+import kakao_media_guard
 
 ROOM_ID = '18182686594126049'
 ROOM_IDS = {
@@ -303,8 +304,9 @@ def handle(message, room, reply_url, executor, room_name=''):
     def send():
         try:
             data = SERVICE.photo(name, reply_url, room)
-            SERVICE.post(reply_url, json={'type': 'image', 'room': room,
-                         'data': base64.b64encode(data).decode('ascii')}, timeout=20).raise_for_status()
+            kakao_media_guard.post_image(SERVICE.post, reply_url, room_name=room_name,
+                         json={'type': 'image', 'room': room,
+                               'data': base64.b64encode(data).decode('ascii')}, timeout=20).raise_for_status()
         except ProfileError as error:
             text(str(error))
         except (requests.RequestException, ValueError, TypeError):

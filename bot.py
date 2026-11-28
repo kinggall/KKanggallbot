@@ -29,6 +29,7 @@ import experience
 import ship_quiz
 import iris_identity
 import iris_profiles
+import kakao_media_guard
 import command_aliases
 import senka
 import guide_lookup
@@ -1578,8 +1579,8 @@ def webhook():
                 for start in range(0, len(pictures), 10):
                     payload = [base64.b64encode(path.read_bytes()).decode('ascii')
                                for path in pictures[start:start + 10]]
-                    response = requests.post(
-                        IRIS_REPLY_URL,
+                    response = kakao_media_guard.post_image(
+                        requests.post, IRIS_REPLY_URL, room_name=profile_room_name,
                         json={'type': 'image_multiple', 'room': str(chat_id), 'data': payload},
                         timeout=60,
                     )
@@ -1881,8 +1882,8 @@ def webhook():
 
         def send_image():
             try:
-                response = requests.post(
-                    IRIS_REPLY_URL,
+                response = kakao_media_guard.post_image(
+                    requests.post, IRIS_REPLY_URL, room_name=profile_room_name,
                     json={"type": "image", "room": str(chat_id), "data": image_data},
                     timeout=20,
                 )
