@@ -43,24 +43,34 @@ class TouchTests(unittest.TestCase):
                 self.assertIn(sid,self.bot.SHIP_BY_GAME_ID)
             self.assertTrue(all(url.startswith('https://') for url in group['sources']))
 
-    def test_yamato_and_musashi_aliases_keep_two_and_three_ship_rules(self):
-        for query in ('야마토','무사시','누사시','大和'):
+    def test_yamato_and_musashi_are_split_by_flagship(self):
+        for query in ('야마토','大和'):
             text=self.reply('!터치 '+query)
-            self.assertIn('야마토형 특수공격',text)
-            self.assertIn('×1.9375',text)
+            self.assertIn('■ 야마토 특수공격',text)
+            self.assertNotIn('무사시→야마토',text)
+            self.assertNotIn('×1.9375',text)
             self.assertIn('제4진형',text)
             self.assertIn('야마토·이세·휴가 │ ×1.65 / ×1.575 / ×1.65',text)
             self.assertIn('×1.1 (3척 터치의 3번함 제외)',text)
-            self.assertIn('무사시 개2 ※ │ 나가토 개2 / 무츠 개2',text)
-            self.assertIn('순서 고정',text)
+            self.assertIn('무사시 개2(고정) │ 나가토 개2 / 무츠 개2',text)
+        for query in ('무사시','누사시'):
+            text=self.reply('!터치 '+query)
+            self.assertIn('■ 무사시 특수공격',text)
+            self.assertIn('×1.9375',text)
+            self.assertNotIn('3척',text)
+            self.assertNotIn('나가토',text)
+            self.assertIn('무사시 개2 │ 야마토 개2/중',text)
+            self.assertNotIn('야마토→무사시',text)
         self.assertEqual(self.groups['yamato']['attack_order']['two'],[1,1,2])
         self.assertEqual(self.groups['yamato']['attack_order']['three'],[1,2,3])
 
-    def test_mutsu_prioritizes_flagship_and_lists_named_related_touches(self):
+    def test_mutsu_only_shows_mutsu_as_flagship(self):
         text=self.reply('!터치 무츠')
-        self.assertIn('나가토형 일제사격 · 기함 가능',text)
-        self.assertIn('야마토형 특수공격 · 특정 조합의 참여함',text)
-        self.assertLess(text.index('■ 나가토형'),text.index('■ 야마토형'))
+        self.assertIn('■ 무츠 일제사격',text)
+        self.assertNotIn('야마토',text)
+        self.assertNotIn('콜로라도',text)
+        self.assertNotIn('나가토 개2→무츠',text)
+        self.assertIn('무츠 개2→나가토 개2',text)
         self.assertIn('×2.6082',text)
         self.assertEqual(Decimal('1.68')*Decimal('1.35')*Decimal('1.15'),Decimal('2.6082'))
 
@@ -77,16 +87,32 @@ class TouchTests(unittest.TestCase):
         self.assertIn('중파까지 가능',kongo)
         self.assertEqual(Decimal('2.6')*Decimal('1.06'),Decimal('2.756'))
         self.assertEqual(Decimal('2.7')*Decimal('1.06'),Decimal('2.862'))
-        for query,title in [('리슐리외','프랑스함'),('밸리언트','영국함'),('진게이','잠수함대')]:
+        for query,title in [('리슐리외','리슐리외'),('밸리언트','밸리언트'),('진게이','진게이')]:
             self.assertIn(title,self.reply('!터치 '+query))
 
     def test_unknown_and_all_existing_named_ship_queries(self):
         self.assertIn('찾지 못했습니다',self.reply('!터치 없는함선'))
         for group in self.groups.values():
             text=self.reply(group['command_example'])
-            self.assertIn(group['title'],text)
-            self.assertIn('출처:',text)
+            self.assertIn('기함 기준]',text)
+            self.assertNotIn('출처:',text)
+            self.assertNotIn('https://',text)
+            self.assertNotIn('※',text)
+            self.assertTrue(text.endswith('자료 검수: '+self.data['reviewed_on']))
             self.assertLess(len(text),12000)
+
+    def test_every_flagship_view_is_covered_and_participants_alone_are_not_matched(self):
+        for group in self.groups.values():
+            ids={sid for view in group['flagship_views'] for sid in view['ship_ids']}
+            self.assertEqual(ids,set(group['flagship_ids']))
+            for view in group['flagship_views']:
+                text=touches.format_reply('!터치 검사',lambda _:set(view['ship_ids']))
+                self.assertIn('■ '+view['title'],text)
+                self.assertEqual(text.count('■ '),1)
+        self.assertIn('찾지 못했습니다',self.reply('!터치 아이오와'))
+        overview=self.reply('!터치')
+        self.assertIn('!터치 [기함명]',overview)
+        self.assertIn('해당 함선을 기함으로 편성했을 때',overview)
 
     def test_webhook_and_initial_alias_send_only_one_text_message(self):
         for command in ('!터치','!터치 무츠','!ㅌㅊ 야마토'):
